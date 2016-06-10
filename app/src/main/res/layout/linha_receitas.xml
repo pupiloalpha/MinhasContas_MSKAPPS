@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/l_receitas"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/fundo_cartao"
+    android:orientation="vertical"
+    android:padding="5.0dip">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1.2"
+            android:gravity="center_vertical|left"
+            android:text="@string/linha_receita"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/azul"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvValorReceitas"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1.3"
+            android:gravity="right|center_vertical"
+            android:text="@string/zero"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/azul"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/azul"
+        android:orientation="vertical"></LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|left"
+            android:text="@string/resumo_recebidas"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:gravity="right|center_vertical"
+            android:text="@string/resumo_areceber"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvValorRecebido"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="@string/zero"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/azul" />
+
+        <TextView
+            android:id="@+id/tvValorReceber"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:gravity="right|center_vertical"
+            android:text="@string/zero"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/azul" />
+    </LinearLayout>
+
+</LinearLayout>

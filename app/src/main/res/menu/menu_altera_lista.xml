@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mskapp="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/botao_pagar"
+        android:icon="@drawable/paga"
+        android:orderInCategory="1"
+        android:title="@string/dica_pagamento"
+        mskapp:showAsAction="always" />
+    <item
+        android:id="@+id/botao_editar"
+        android:icon="@drawable/ic_create_white"
+        android:orderInCategory="2"
+        android:title="@string/titulo_editar"
+        mskapp:showAsAction="always" />
+    <item
+        android:id="@+id/botao_lembrete"
+        android:icon="@drawable/lembrete"
+        android:orderInCategory="3"
+        android:title="@string/titulo_calendario"
+        mskapp:showAsAction="always" />
+    <item
+        android:id="@+id/botao_excluir"
+        android:icon="@drawable/ic_delete_white"
+        android:orderInCategory="4"
+        android:title="@string/titulo_excluir"
+        mskapp:showAsAction="always" />
+
+</menu>

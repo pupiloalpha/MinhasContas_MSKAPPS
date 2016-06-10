@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="@string/pref_categoria_geral_key"
+        android:title="@string/pref_titulo_geral">
+        <ListPreference
+            android:dialogTitle="@string/pref_titulo_ordem"
+            android:entries="@array/ordem_contas"
+            android:entryValues="@array/ordem_contas_valores"
+            android:key="@string/pref_key_ordem"
+            android:summary="@string/pref_descricao_ordem"
+            android:title="@string/pref_dialogo_ordem" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_resumo"
+            android:summary="@string/pref_descricao_resumo_mensal"
+            android:title="@string/pref_titulo_resumo" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_pagamento"
+            android:summary="@string/pref_descricao_editapagamento"
+            android:title="@string/pref_titulo_pagamento" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_saldo"
+            android:summary="@string/pref_descricao_saldo_real"
+            android:title="@string/pref_titulo_saldo" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/pref_categoria_acesso_key"
+        android:title="@string/pref_titulo_categoria_acesso">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_acesso"
+            android:summary="@string/pref_descricao_acesso_livre"
+            android:title="@string/pref_titulo_acesso" />
+
+        <EditTextPreference
+            android:dialogTitle="@string/pref_dialogo_senha"
+            android:key="@string/pref_key_senha"
+            android:summary="@string/pref_descricao_senha"
+            android:title="@string/pref_titulo_senha" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/pref_categoria_bkup_restaura_key"
+        android:title="@string/pref_titulo_bkup_restaura">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_auto_bkup"
+            android:summary="@string/pref_descricao_auto_bkup_sim"
+            android:title="@string/pref_titulo_auto_bkup" />
+        <Preference
+            android:key="@string/pref_key_bkup"
+            android:summary="@string/pref_descricao_bkup"
+            android:title="@string/pref_titulo_bkup" />
+        <Preference
+            android:key="@string/pref_key_restaura"
+            android:summary="@string/pref_descricao_restaura"
+            android:title="@string/pref_titulo_restaura" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/pref_categoria_exportar_key"
+        android:title="@string/pref_titulo_categoria_exportar">
+        <Preference
+            android:key="@string/pref_key_exportar"
+            android:summary="@string/pref_descricao_exportar"
+            android:title="@string/pref_titulo_exportar" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/pref_categoria_apagatudo_key"
+        android:title="@string/pref_titulo_apagatudo">
+        <Preference
+            android:key="@string/pref_key_apagatudo"
+            android:summary="@string/pref_descricao_apagatudo"
+            android:title="@string/pref_titulo_apagatudo" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/pref_categoria_info_key"
+        android:title="@string/pref_titulo_categoria_info">
+        <Preference
+            android:key="@string/pref_key_autor"
+            android:summary="@string/pref_descricao_autor"
+            android:title="@string/pref_titulo_autor" />
+        <Preference
+            android:key="@string/pref_key_versao"
+            android:summary="@string/pref_descricao_versao"
+            android:title="@string/pref_titulo_versao" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

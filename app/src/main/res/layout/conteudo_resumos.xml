@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <include layout="@layout/linha_receitas" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0.1dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent" />
+
+        <include layout="@layout/linha_despesas" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0.1dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent" />
+
+
+        <include layout="@layout/linha_aplicacoes" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0.1dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent" />
+
+
+        <include layout="@layout/linha_saldo" />
+
+
+    </LinearLayout>
+
+
+</ScrollView>

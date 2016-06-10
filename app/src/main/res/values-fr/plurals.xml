@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="selecao">
+        <item quantity="zero">Pas de compte sélectionné</item>
+        <item quantity="one">Un compte sélectionné</item>
+        <item quantity="other">%d comptes sélectionnés</item>
+    </plurals>
+</resources>

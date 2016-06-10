@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Strings do Aplicativo -->
+
+    <string name="app_name">My Bills</string>
+    <string name="titulo_criar">New bill</string>
+    <string name="titulo_categoria">New category</string>
+    <string name="titulo_editar">Change bill</string>
+    <string name="titulo_resumo">Monthly Summary</string>
+    <string name="titulo_enviar">Send monthly summary</string>
+    <string name="titulo_pesquisar">Bill Search</string>
+    <string name="titulo_filtro">Filter by type</string>
+    <string name="titulo_grafico">Charts of bills</string>
+    <string name="titulo_calendario">Add reminder</string>
+    <string name="titulo_excluir">Delete bill</string>
+    <string name="icone">icon</string>
+    <string name="acesso">Access denied</string>
+    <string name="senha">Access password</string>
+    <string name="dica_senha">Show password</string>
+    <string name="titulo_senha">Access denied</string>
+    <string name="senha_errada">Wrong password.</string>
+    <string name="titulo_despesa_saque">Create expense</string>
+    <string name="texto_despesa_saque">Want to create an expense for this account to reduce the amount of the monthly balance?</string>
+    <string name="titulo_exclui_tudo">Delete all bills</string>
+    <string name="texto_exclui_tudo">Want to delete all bills?</string>
+    <string name="cancelar">Cancel</string>
+    <string name="salvar">Save</string>
+    <string name="criar">Create</string>
+    <string name="entrar">ENTRER</string>
+    <string name="ok">OK</string>
+    <string name="sem_nome">No Name</string>
+    <string name="sobre">Application My Bills was created to ease your financial control. Easy to use, lets you share content email email or text message and view all the income, expenditure and applications quickly. Organize your accounts by type and class, and know well how you spend your money. Learn what happens to the monthly budget through abstract and graphics. Understand how your balance and track the progress of your accounts, services and applications. Write in english for those who do not know their costs and who do not know about accounting. Application translated to Portuguese, English, French and Spanish. Support 2.1 to 5.1 android versions.\n\nIt has the following features available:\n- Monthly summary of its budget;\n- Comparison charts of accounts;\n- Full backup on the SD Card;\n- Issue anytime all the information;\n- Organization of the order of the accounts in monthly summary;\n- Switch between months by gestures;\n- Search accounts created;\n- Send by e-mail and text message;\n- Export to the monthly summary sheet in Excel;\n- Lock with password access to the application;\n- Apply interest payments and investments;\n- Partial values ​​with application of interest;\n- Sort accounts by date;\n- Launch of paying bills automatically;\n- Detail of the current balance showing only what was paid;\n- Widget (when application installed in internal memory);\n- Check the accounts daily;\n- Place the expiration of his account in the timing of the cell;\n- Repeat the bill daily, weekly, monthly or annually.\n\nDeveloped by Paulo E S Mesquita with support Vilar, Flavia Borges. Based on tutorials from the internet and other applications of its kind.\nVersion:%1$s.\nContact: mskapps.brazil@gmail.com</string>
+    <string name="dica_inicio">Application created to facilitate your financial control.</string>
+    <string name="tela_inicial">Do not show again</string>
+    <string name="dica_carteira">Wallet</string>
+    <string name="dica_banco">Bank</string>
+
+    <!-- Strings do Menu do Aplicativo -->
+
+    <string name="menu_ajustes">Settings</string>
+    <string name="menu_sobre">About</string>
+    <string name="menu_ajuda">Learn how to use</string>
+
+    <!-- Strings Das Telas Aplicativo -->
+
+    <string name="dica_grafico">Choose a chart</string>
+    <string name="dica_spinner">Choose a type:</string>
+    <string name="dica_conta">Bill name</string>
+    <string name="dica_nome_categoria">Category name</string>
+    <string name="dica_pesquisa_conta">Enter the bill name</string>
+    <string name="dica_valor">Value $</string>
+    <string name="dica_evento">Bill %1$s wins today!</string>
+    <string name="dica_calendario">Value $ %1$s\nEvent created by application My Bills.</string>
+    <string name="dica_valor_juros">Value interest %</string>
+    <string name="dica_valor_total">Spread value</string>
+    <string name="dica_dinheiro">$ %1$s</string>
+    <string name="dica_cifrao">$</string>
+    <string name="dica_receita">Income</string>
+    <string name="dica_despesa">Expense</string>
+    <string name="dica_repete">Repeat bill</string>
+    <string name="dica_numero">Qty</string>
+    <string name="dica_juros">Enter interest</string>
+    <string name="dica_vencimento">Day</string>
+    <string name="dica_pagamento">Bill paid</string>
+    <string name="dica_recebe">Income received</string>
+    <string name="dica_deposito">I deposit</string>
+    <string name="dica_investimento">I invest</string>
+    <string name="dica_resumo">SUMMARY BILL</string>
+    <string name="dica_altera">CHANGE BILL</string>
+    <string name="zero">U$ 0.00</string>
+    <string name="data">00/00/2000</string>
+    <string name="dica_vazio">No bill created</string>
+    <string name="dica_pesquisa">No bill found</string>
+
+    <!-- Strings Da Telas de ResumoMensal das Contas do Aplicativo -->
+
+    <string name="linha_receita">INCOMES</string>
+    <string name="linha_aplicacoes">APPLICATIONS</string>
+    <string name="linha_poupanca">Savings</string>
+    <string name="linha_previdencia">Security</string>
+    <string name="linha_fundos">Investments</string>
+    <string name="linha_despesa">EXPENSES</string>
+    <string name="linha_despFixa">Fixed Expenses</string>
+    <string name="linha_despVar">Variables Expenses</string>
+    <string name="linha_cartao">Credit card</string>
+    <string name="linha_prestacoes">Installments</string>
+    <string name="linha_saldo">CURRENT BALANCE</string>
+    <string name="coluna_pagas">Paid\nbills</string>
+    <string name="coluna_mes">Monthly\nbills</string>
+    <string name="planilha">EXTRACT_%1$s</string>
+
+    <!-- Strings dos Dialogos do Aplicativo -->
+
+    <string name="dica_menu_ajustes">Tuning Options</string>
+    <string name="dica_menu_edicao">Editing options</string>
+    <string name="dica_menu_exclusao">exclusion Options</string>
+    <string name="dica_titulo_barra">WAIT</string>
+    <string name="dica_texto_reinicio">ATTENTION!\nClose and open the application to see the result of your settings.</string>
+    <string name="dica_barra_progresso">Creating new bill &#x2026;</string>
+    <string name="dica_barra_altera">Modifying the bills &#x2026;</string>
+    <string name="dica_barra_exporta">Exporting to Excel &#x2026;</string>
+    <string name="dica_barra_recupera">Recovering the bills &#x2026;</string>
+    <string name="dica_barra_exclui">Deleting the bills &#x2026;</string>
+
+    <!-- Strings Do Dialogo de ResumoMensal do Saldo mensal -->
+
+    <string name="resumo_mes_anterior">Balance previous month</string>
+    <string name="resumo_saldo">Current month balance</string>
+    <string name="resumo_data">%1$s/%2$s/%3$s</string>
+    <string name="resumo_pagas">Expences paid</string>
+    <string name="resumo_faltam">Expences payable</string>
+    <string name="resumo_recebidas">Income received</string>
+    <string name="resumo_areceber">Income to receive</string>
+
+    <!-- Strings de Notificacoes do Aplicativo -->
+
+    <string name="dica_exporta_excel">Excel file created successfully!</string>
+    <string name="dica_erro_exporta_excel">Unable to generate the Excel file!</string>
+    <string name="dica_copia_bd">Copy held successfully!</string>
+    <string name="dica_exclusao_bd">All bills were deleted!</string>
+    <string name="dica_restaura_bd">Restoration performed successfully!</string>
+    <string name="dica_saldo_zero">You spent all your recipes</string>
+    <string name="dica_saldo_maior">You spent part of your recipes</string>
+    <string name="dica_saldo_menor">You spent more than their total revenue</string>
+    <string name="dica_conta_criada">Bill %1$s created successfully</string>
+    <string name="dica_conta_alterada">Bill %1$s edited successfully!</string>
+    <string name="dica_conta_excluida">Bill %1$s deleted!</string>
+
+    <!-- Strings da Tela de Gráficos do Aplicativo -->
+
+    <string name="dica_grafico_aplicacoes">Comparative applications</string>
+    <string name="dica_grafico_despesas">Comparative costs</string>
+    <string name="dica_grafico_contas">Comparative bill</string>
+    <string name="dica_grafico_pagamentos">Comparative payments</string>
+    <string name="dica_grafico_receitas">Comparative incomes</string>
+
+    <!-- Strings do Menu de Ajustes -->
+    <!-- Ajustes Gerais -->
+
+    <string name="pref_titulo_geral">Adjustment General</string>
+    <string name="pref_titulo_ordem">Choose the order of BILL</string>
+    <string name="pref_descricao_ordem">Choose the order in which the bill will be listed</string>
+    <string name="pref_dialogo_ordem">Order of the bill in the list</string>
+    <string name="pref_titulo_pagamento">Automatic payment</string>
+    <string name="pref_descricao_autopagamento">Consider bills paid by the due date</string>
+    <string name="pref_descricao_editapagamento">User must inform the payment account</string>
+    <string name="pref_key_pagamento">pagamento</string>
+    <string name="pref_titulo_resumo">Show monthly summary</string>
+    <string name="pref_descricao_resumo_mensal">Shows the monthly summary of bills</string>
+    <string name="pref_descricao_resumo_diario">Shows the daily summary of bills</string>
+    <string name="pref_key_resumo">resumo</string>
+    <string name="pref_titulo_saldo">Adding previous balance</string>
+    <string name="pref_descricao_saldo_somado">Sum the balance of the previous month</string>
+    <string name="pref_descricao_saldo_real">Show current month balance</string>
+    <string name="pref_key_saldo">saldo</string>
+
+    <!-- Ajustes de Acesso -->
+
+    <string name="pref_titulo_categoria_acesso">Password access</string>
+    <string name="pref_titulo_senha">Password</string>
+    <string name="pref_descricao_senha">Password to enter the application</string>
+    <string name="pref_dialogo_senha">Enter the password</string>
+    <string name="pref_titulo_acesso">Block application</string>
+    <string name="pref_descricao_acesso_negado">Use password to enter the application</string>
+    <string name="pref_descricao_acesso_livre">Application without entering the password</string>
+
+    <!-- Ajustes Exportar -->
+
+    <string name="pref_titulo_categoria_exportar">Summary export</string>
+    <string name="pref_titulo_exportar">Export to Excel</string>
+    <string name="pref_descricao_exportar">Saves the monthly summary of the current year on a spreadsheet of Excel in SD Card</string>
+
+    <!-- Ajustes BackUp -->
+
+    <string name="pref_titulo_bkup_restaura">Backup and Restore</string>
+    <string name="pref_titulo_auto_bkup">Automatic Backup</string>
+    <string name="pref_descricao_auto_bkup_sim">Make backup allways then app is closed</string>
+    <string name="pref_descricao_auto_bkup_nao">Make backup only when user choose</string>
+    <string name="pref_titulo_bkup">Backup bill</string>
+    <string name="pref_descricao_bkup">Saves a copy of the bill on the SD card</string>
+    <string name="pref_titulo_restaura">Restore saved bills</string>
+    <string name="pref_descricao_restaura">Retrieves a copy of the BILL saved on the SD card</string>
+
+    <!-- Ajustes APAGATUDO -->
+
+    <string name="pref_titulo_apagatudo">Delete all bills</string>
+    <string name="pref_descricao_apagatudo">Deletes all bills created in the application</string>
+
+    <!-- Ajustes Informacoes do Aplicativo -->
+
+    <string name="pref_titulo_categoria_info">About Application</string>
+    <string name="pref_titulo_autor">Developer</string>
+    <string name="pref_descricao_autor">Paulo E S Mesquita</string>
+    <string name="pref_titulo_versao">Application Version</string>
+    <string name="pref_descricao_versao">Version: %1$s</string>
+
+    <!-- KEYS DAS PREFERENCIAS -->
+
+    <string name="pref_key_versao">versao</string>
+    <string name="pref_key_autor">desenvolvedor</string>
+    <string name="pref_categoria_info_key">info</string>
+    <string name="pref_key_apagatudo">apagatudo</string>
+    <string name="pref_categoria_apagatudo_key">apagatudomesmo</string>
+    <string name="pref_key_restaura">restaura</string>
+    <string name="pref_key_bkup">backup</string>
+    <string name="pref_categoria_bkup_restaura_key">bkuprest</string>
+    <string name="pref_key_exportar">excel</string>
+    <string name="pref_categoria_exportar_key">exportar</string>
+    <string name="pref_key_acesso">acesso</string>
+    <string name="pref_key_senha">senha</string>
+    <string name="pref_categoria_acesso_key">login</string>
+    <string name="pref_key_ordem">ordem</string>
+    <string name="pref_categoria_geral_key">geral</string>
+    <string name="pref_key_auto_bkup">autobackup</string>
+
+</resources>

@@ -1,0 +1,407 @@
+package com.msk.minhascontas.resumos;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.msk.minhascontas.R;
+import com.msk.minhascontas.db.DBContas;
+
+public class ResumoDiario extends Fragment implements View.OnClickListener {
+
+    public static final String ANO_PAGINA = "ano_pagina";
+    public static final String MES_PAGINA = "mes_pagina";
+    public static final String DIA_PAGINA = "dia_pagina";
+    private static Bundle args;
+
+    // BARRA NO TOPO DO APLICATIVO
+
+    Intent mostra_resumo = new Intent();
+    Bundle dados_mes = new Bundle();
+
+    // CLASSE DO BANCO DE DADOS
+    DBContas dbContas;
+
+    // OPCOES DE AJUSTE
+    SharedPreferences buscaPreferencias = null;
+
+    // ELEMENTOS UTILIZADOS EM TELA
+    private TextView valorDesp, valorRec, valorAplic, valorSaldo,
+            valorPagar, valorPago, valorCartao, valorSaldoAtual, valorSaldoAnterior,
+            valorFundos, valorPoupanca, valorPrevidencia, valorDespFixa, valorDespVar,
+            valorPrestacoes, valorReceber, valorRecebido;
+
+    private LinearLayout aplic, desp, rec, sald;
+
+    // VARIAEIS UTILIZADAS
+    private int dia, mes, ano;
+    private double[] valores, valoresDesp, valoresRec, valoresSaldo,
+            valoresAplicados;
+    private String despesa, receita, aplicacao;
+    private Cursor aplicacoes, despesas;
+
+    private Boolean somaSaldo = false;
+
+    // ELEMENTOS DAS PAGINAS
+    private View rootView;
+
+    public ResumoDiario() {
+    }
+
+    /**
+     * Returns a new instance of this fragment for the given section number.
+     */
+    public static ResumoDiario newInstance(int dia, int mes, int ano) {
+        ResumoDiario fragment = new ResumoDiario();
+        Bundle args = new Bundle();
+        args.putInt(ANO_PAGINA, ano);
+        args.putInt(MES_PAGINA, mes);
+        args.putInt(DIA_PAGINA, dia);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        dbContas = new DBContas(activity);
+        buscaPreferencias = PreferenceManager
+                .getDefaultSharedPreferences(activity);
+        // dbContas.open();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        // COLOCA OS MESES NA TELA
+        rootView = inflater.inflate(R.layout.conteudo_resumos, container, false);
+        args = getArguments();
+
+        dia = args.getInt(DIA_PAGINA);
+        mes = args.getInt(MES_PAGINA);
+        ano = args.getInt(ANO_PAGINA);
+
+        somaSaldo = buscaPreferencias.getBoolean("saldo", false);
+
+
+        // DEFINE OS ELEMENTOS QUE SERAO EXIBIDOS
+        Iniciar();
+
+        // CALCULA OS VALORES QUE SERAO EXIBIDOS
+        Saldo();
+
+        InsereValores();
+
+        aplic.setOnClickListener(this);
+        desp.setOnClickListener(this);
+        rec.setOnClickListener(this);
+        sald.setOnClickListener(this);
+
+        return rootView;
+    }
+
+    private void Iniciar() {
+
+        valorPago = ((TextView) rootView
+                .findViewById(R.id.tvValorDespPaga));
+        valorPagar = ((TextView) rootView
+                .findViewById(R.id.tvValorDespPagar));
+        valorDespFixa = ((TextView) rootView
+                .findViewById(R.id.tvValorDespFixa));
+        valorDespVar = ((TextView) rootView
+                .findViewById(R.id.tvValorDespVar));
+        valorPrestacoes = ((TextView) rootView
+                .findViewById(R.id.tvValorPrestacoes));
+        valorCartao = ((TextView) rootView
+                .findViewById(R.id.tvValorCartaoCredito));
+        valorReceber = ((TextView) rootView
+                .findViewById(R.id.tvValorReceber));
+        valorRecebido = ((TextView) rootView
+                .findViewById(R.id.tvValorRecebido));
+        valorFundos = ((TextView) rootView
+                .findViewById(R.id.tvValorFundos));
+        valorPoupanca = ((TextView) rootView
+                .findViewById(R.id.tvValorPoupancas));
+        valorPrevidencia = ((TextView) rootView
+                .findViewById(R.id.tvValorPrevidencias));
+        valorSaldoAtual = ((TextView) rootView
+                .findViewById(R.id.tvValorSaldoAtual));
+        valorSaldoAnterior = ((TextView) rootView
+                .findViewById(R.id.tvValorSaldoAnterior));
+        valorDesp = ((TextView) rootView
+                .findViewById(R.id.tvValorDespesas));
+        valorRec = ((TextView) rootView
+                .findViewById(R.id.tvValorReceitas));
+        valorAplic = ((TextView) rootView
+                .findViewById(R.id.tvValorAplicacoes));
+        valorSaldo = ((TextView) rootView
+                .findViewById(R.id.tvValorSaldo));
+
+        aplic = (LinearLayout) rootView.findViewById(R.id.l_aplicacoes);
+        desp = (LinearLayout) rootView.findViewById(R.id.l_despesas);
+        rec = (LinearLayout) rootView.findViewById(R.id.l_receitas);
+        sald = (LinearLayout) rootView.findViewById(R.id.l_saldo);
+
+    }
+
+    private void InsereValores() {
+
+
+        // INSERE OS VALORES EM CADA ITEtM
+
+        valorPago.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresDesp[0])));
+        valorPagar.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresDesp[1])));
+        valorCartao.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresDesp[2])));
+        valorDespFixa.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresDesp[3])));
+        valorDespVar.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresDesp[4])));
+        valorPrestacoes.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresDesp[5])));
+
+        valorReceber.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresRec[1])));
+        valorRecebido.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresRec[0])));
+
+        valorFundos.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresAplicados[0])));
+        valorPoupanca.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresAplicados[1])));
+        valorPrevidencia.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresAplicados[2])));
+
+        valorSaldoAtual.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresSaldo[0])));
+        valorSaldoAnterior.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valoresSaldo[1])));
+
+        valorRec.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valores[0])));
+        valorDesp.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valores[1])));
+        valorAplic.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valores[2])));
+        valorSaldo.setText(getResources().getString(
+                R.string.dica_dinheiro,
+                String.format("%.2f", valores[3])));
+
+        if (valoresSaldo[0] < 0.0D) {
+            // rootView.setBackgroundResource(R.color.Vermelho);
+            valorSaldoAtual.setTextColor(Color.parseColor("#CC0000"));
+        }
+        if (valoresSaldo[1] < 0.0D) {
+            // rootView.setBackgroundResource(R.color.Vermelho);
+            valorSaldoAnterior
+                    .setTextColor(Color.parseColor("#CC0000"));
+        }
+
+        if (valores[3] < 0.0D) {
+            // rootView.setBackgroundResource(R.color.Vermelho);
+            valorSaldo.setTextColor(Color.parseColor("#CC0000"));
+        }
+    }
+
+    private void Saldo() {
+
+        // DEFINE OS NOMES DA LINHAS DA TABELA
+
+        dbContas.open();
+        despesa = getResources().getString(R.string.linha_despesa);
+        despesas = dbContas.buscaCategoriaPorTipo(despesa);
+        receita = getResources().getString(R.string.linha_receita);
+        aplicacao = getResources().getString(R.string.linha_aplicacoes);
+        aplicacoes = dbContas.buscaCategoriaPorTipo(aplicacao);
+
+        valores = new double[4];
+        valoresDesp = new double[6];
+        valoresRec = new double[2];
+        valoresSaldo = new double[2];
+        valoresAplicados = new double[3];
+        // PREENCHE AS LINHAS DA TABELA
+
+        // VALORES DE RECEITAS
+
+        if (dbContas.quantasContasPorTipo(receita, dia, mes, ano) > 0)
+            valores[0] = dbContas.somaContas(receita, dia, mes, ano);
+        else
+            valores[0] = 0.0D;
+
+        // VALOR RECEITAS RECEBIDAS
+        if (dbContas
+                .quantasContasPagasPorTipo(receita, "paguei", dia, mes, ano) > 0)
+            valoresRec[0] = dbContas.somaContasPagas(receita, "paguei", dia,
+                    mes, ano);
+        else
+            valoresRec[0] = 0.0D;
+
+        // VALOR RECEITAS A RECEBAR
+        if (dbContas.quantasContasPagasPorTipo(receita, "falta", dia, mes, ano) > 0)
+            valoresRec[1] = dbContas.somaContasPagas(receita, "falta", dia,
+                    mes, ano);
+        else
+            valoresRec[1] = 0.0D;
+
+        // VALORES DE DESPESAS
+
+        if (dbContas.quantasContasPorTipo(despesa, dia, mes, ano) > 0)
+            valores[1] = dbContas.somaContas(despesa, dia, mes, ano);
+        else
+            valores[1] = 0.0D;
+
+        // VALOR CONTAS PAGAS
+        if (dbContas
+                .quantasContasPagasPorTipo(despesa, "paguei", dia, mes, ano) > 0)
+            valoresDesp[0] = dbContas.somaContasPagas(despesa, "paguei", dia,
+                    mes, ano);
+        else
+            valoresDesp[0] = 0.0D;
+
+        // VALOR CONTAS A PAGAR
+        if (dbContas.quantasContasPagasPorTipo(despesa, "falta", dia, mes, ano) > 0)
+            valoresDesp[1] = dbContas.somaContasPagas(despesa, "falta", dia,
+                    mes, ano);
+        else
+            valoresDesp[1] = 0.0D;
+
+        // VALORES DAS CATEGORIAS DE DESPESAS
+        for (int i = 0; i < despesas.getCount(); i++) {
+            despesas.moveToPosition(i);
+            if (dbContas.quantasContasPorClasse(despesas.getString(1), dia,
+                    mes, ano) > 0)
+                valoresDesp[i + 2] = dbContas.somaContasPorClasse(
+                        despesas.getString(1), dia, mes, ano);
+            else
+                valoresDesp[i + 2] = 0.0D;
+        }
+
+        // VALORES DE APLICACOES
+
+        if (dbContas.quantasContasPorTipo(aplicacao, dia, mes, ano) > 0)
+            valores[2] = dbContas.somaContas(aplicacao, dia, mes, ano);
+        else
+            valores[2] = 0.0D;
+
+        for (int j = 0; j < aplicacoes.getCount(); j++) {
+            aplicacoes.moveToPosition(j);
+            if (dbContas.quantasContasPorClasse(aplicacoes.getString(1), dia,
+                    mes, ano) > 0)
+                valoresAplicados[j] = dbContas.somaContasPorClasse(
+                        aplicacoes.getString(1), dia, mes, ano);
+            else
+                valoresAplicados[j] = 0.0D;
+        }
+
+        // VALOR DO SALDO MENSAL
+
+        valoresSaldo[0] = valores[0] - valores[1];
+
+        // VALOR DO SALDO DO MES ANTERIOR
+
+        int mes_anterior = mes - 1; // DEFINE MES ANTERIOR
+        int ano_anterior = ano;
+        if (mes_anterior < 0) {
+            mes_anterior = 11;
+            ano_anterior = ano_anterior - 1;
+        }
+        double r = 0.0D; // RECEITA MES ANTERIOR
+        if (dbContas.quantasContasPorTipo(receita, 0, mes_anterior,
+                ano_anterior) > 0)
+            r = dbContas.somaContas(receita, 0, mes_anterior, ano_anterior);
+
+        double d = 0.0D; // DESPESA MES ANTERIOR
+        if (dbContas.quantasContasPorTipo(despesa, 0, mes_anterior,
+                ano_anterior) > 0)
+            d = dbContas.somaContas(despesa, 0, mes_anterior, ano_anterior);
+
+        double s = r - d; // SALDO MES ANTERIOR
+        if (dbContas.quantasContasPorMes(mes_anterior, ano_anterior) > 0)
+            valoresSaldo[1] = s;
+        else
+            valoresSaldo[1] = 0.0D;
+
+        // VALOR DO SALDO ATUAL
+
+        if (somaSaldo == true) {
+            valores[3] = valoresRec[0] - valoresDesp[0]
+                    + valoresSaldo[1];
+        } else {
+            valores[3] = valoresRec[0] - valoresDesp[0];
+        }
+
+        aplicacoes.close();
+        despesas.close();
+        dbContas.close();
+
+    }
+
+    @Override
+    public void onClick(View v) {
+
+
+        dados_mes.putInt("mes", mes);
+        dados_mes.putInt("ano", ano);
+
+        switch (v.getId()) {
+            case R.id.l_saldo:
+                dados_mes.putString("tipo", "todas");
+                break;
+            case R.id.l_aplicacoes:
+                dados_mes.putString("tipo", "aplicacoes");
+                break;
+            case R.id.l_despesas:
+                dados_mes.putString("tipo", "despesas");
+                break;
+            case R.id.l_receitas:
+                dados_mes.putString("tipo", "receitas");
+                break;
+        }
+
+        mostra_resumo = new Intent("com.msk.minhascontas.CONTASDOMES");
+        mostra_resumo.putExtras(dados_mes);
+        startActivityForResult(mostra_resumo, 0);
+    }
+
+    @Override
+    public void onResume() {
+        dbContas.open();
+        super.onResume();
+    }
+
+}

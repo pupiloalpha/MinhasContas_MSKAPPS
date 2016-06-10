@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="TipoReceita">
+        <item>Shares and funds</item>
+        <item>Savings</item>
+        <item>Private pension</item>
+        <item>Simple recipe</item>
+    </string-array>
+    <string-array name="TipoDespesa">
+        <item>Credit card</item>
+        <item>Expense fixed</item>
+        <item>Expense variable</item>
+        <item>Installment</item>
+    </string-array>
+    <string-array name="GraficoContas">
+        <item>Expenses</item>
+        <item>Incomes</item>
+        <item>Applications</item>
+    </string-array>
+    <string-array name="GraficoDespesas">
+        <item>Credit card</item>
+        <item>Fixed expenses</item>
+        <item>Variable expenses</item>
+        <item>Installments</item>
+            
+    </string-array>
+    <string-array name="GraficoPagamentos">
+        <item>Expenses payable</item>
+        <item>Expenses paid</item>
+    </string-array>
+    <string-array name="GraficoAplicacoes">
+        <item>Shares and funds</item>
+        <item>Savings</item>
+        <item>Private pension</item>
+    </string-array>
+    <string-array name="TipoAjusteConta">
+        <item>This repetition bill</item>
+        <item>The next repetitions bill</item>
+        <item>All repeats bill</item>
+    </string-array>
+    <string-array name="MesesDoAno">
+        <item>JANUARY</item>
+        <item>FEBRUARY</item>
+        <item>MARCH</item>
+        <item>APRIL</item>
+        <item>MAY</item>
+        <item>JUNE</item>
+        <item>JULY</item>
+        <item>AUGUST</item>
+        <item>SEPTEMBER</item>
+        <item>OCTOBER</item>
+        <item>NOVEMBER</item>
+        <item>DECEMBER</item>
+    </string-array>
+    <string-array name="MesResumido">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>Mai</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Aug</item>
+        <item>Set</item>
+        <item>Out</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+    <string-array name="Semana">
+        <item>sun</item>
+        <item>mon</item>
+        <item>tue</item>
+        <item>wed</item>
+        <item>thu</item>
+        <item>fri</item>
+        <item>sat</item>
+    </string-array>
+    <string-array name="NomeConta">
+        <item>Academy</item>
+        <item>Lunch</item>
+        <item>Food</item>
+        <item>Rental</item>
+        <item>Apartment</item>
+        <item>Application</item>
+        <item>Car</item>
+        <item>Card</item>
+        <item>Phones</item>
+        <item>Light</item>
+        <item>Fuel</item>
+        <item>Condo</item>
+        <item>Repair</item>
+        <item>Water</item>
+        <item>Club</item>
+        <item>Course</item>
+        <item>Dentist</item>
+        <item>Loan</item>
+        <item>Parking</item>
+        <item>School</item>
+        <item>Pharmacy</item>
+        <item>Fair</item>
+        <item>Gasoline</item>
+        <item>Gas cooking</item>
+        <item>Internet</item>
+        <item>Dinner</item>
+        <item>Journal</item>
+        <item>Snack</item>
+        <item>Tuition</item>
+        <item>Medical</item>
+        <item>Moto</item>
+        <item>Workshop</item>
+        <item>bus</item>
+        <item>Bakery</item>
+        <item>Ride</item>
+        <item>Health Plan</item>
+        <item>Savings</item>
+        <item>Provision</item>
+        <item>Security</item>
+        <item>Meal</item>
+        <item>Magazine</item>
+        <item>Review</item>
+        <item>Clothing</item>
+        <item>Salary</item>
+        <item>Insurance</item>
+        <item>Supermarket</item>
+        <item>Phone</item>
+        <item>TV subscription</item>
+        <item>Clothing</item>
+        <item>Travel</item>
+    </string-array>
+    <string-array name="ordem_contas">
+        <item>Bill name (A-Z)</item>
+        <item>Bill name (Z-A)</item>
+        <item>Bill date\n(Recent-Post)</item>
+        <item>Bill date\n(Post-Recent)</item>
+        <item>Bill type\n(Income-Expenses)</item>
+        <item>Bill type\n(Express-Income)</item>
+        <item>Bill value\n(High-Low)</item>
+        <item>Bill value\n(Low-High)</item>
+    </string-array>
+    <string-array name="ordem_contas_valores">
+        <item>conta ASC</item>
+        <item>conta DESC</item>
+        <item>dia_data ASC</item>
+        <item>dia_data DESC</item>
+        <item>tipo_conta DESC, classificacao DESC</item>
+        <item>tipo_conta ASC, classificacao ASC</item>
+        <item>valor DESC</item>
+        <item>valor ASC</item>
+    </string-array>
+    <string-array name="repete_conta">
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Annually</item>
+    </string-array>
+
+</resources>

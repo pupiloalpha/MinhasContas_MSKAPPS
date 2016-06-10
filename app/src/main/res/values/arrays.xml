@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="TipoReceita">
+        <item>Ações e fundos</item>
+        <item>Poupança</item>
+        <item>Previdência privada</item>
+        <item>Receita simples</item>
+    </string-array>
+    <string-array name="TipoDespesa">
+        <item>Cartão de crédito</item>
+        <item>Despesa fixa</item>
+        <item>Despesa variável</item>
+        <item>Prestação</item>
+    </string-array>
+    <string-array name="GraficoContas">
+        <item>Despesas</item>
+        <item>Receitas</item>
+        <item>Aplicações</item>
+    </string-array>
+    <string-array name="GraficoDespesas">
+        <item>Cartão de crédito</item>
+        <item>Despesas fixas</item>
+        <item>Despesas variáveis</item>
+        <item>Prestações</item>
+    </string-array>
+    <string-array name="GraficoPagamentos">
+        <item>Despesas a pagar</item>
+        <item>Despesas pagas</item>
+    </string-array>
+    <string-array name="GraficoAplicacoes">
+        <item>Ações e fundos</item>
+        <item>Poupança</item>
+        <item>Previdência privada</item>
+    </string-array>
+    <string-array name="TipoAjusteConta">
+        <item>Esta repetição da conta</item>
+        <item>As próximas repetições da conta</item>
+        <item>Todas as repetições da conta</item>
+    </string-array>
+    <string-array name="MesesDoAno">
+        <item>JANEIRO</item>
+        <item>FEVEREIRO</item>
+        <item>MARÇO</item>
+        <item>ABRIL</item>
+        <item>MAIO</item>
+        <item>JUNHO</item>
+        <item>JULHO</item>
+        <item>AGOSTO</item>
+        <item>SETEMBRO</item>
+        <item>OUTUBRO</item>
+        <item>NOVEMBRO</item>
+        <item>DEZEMBRO</item>
+    </string-array>
+    <string-array name="MesResumido">
+        <item>Jan</item>
+        <item>Fev</item>
+        <item>Mar</item>
+        <item>Abr</item>
+        <item>Mai</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Ago</item>
+        <item>Set</item>
+        <item>Out</item>
+        <item>Nov</item>
+        <item>Dez</item>
+    </string-array>
+    <string-array name="Semana">
+        <item>dom</item>
+        <item>seg</item>
+        <item>ter</item>
+        <item>qua</item>
+        <item>qui</item>
+        <item>sex</item>
+        <item>sab</item>
+    </string-array>
+    <string-array name="NomeConta">
+        <item>Academia</item>
+        <item>Almoço</item>
+        <item>Alimentação</item>
+        <item>Aluguel</item>
+        <item>Apartamento</item>
+        <item>Aplicação</item>
+        <item>Carro</item>
+        <item>Cartão</item>
+        <item>Celular</item>
+        <item>CEMIG</item>
+        <item>Combustível</item>
+        <item>Condomínio</item>
+        <item>Conserto</item>
+        <item>COPASA</item>
+        <item>Clube</item>
+        <item>Curso</item>
+        <item>Dentista</item>
+        <item>Empréstimo</item>
+        <item>Estacionamento</item>
+        <item>Faculdade</item>
+        <item>Farmácia</item>
+        <item>Feira</item>
+        <item>Gasolina</item>
+        <item>Gás de cozinha</item>
+        <item>Internet</item>
+        <item>Jantar</item>
+        <item>Jornal</item>
+        <item>Lanche</item>
+        <item>Mensalidade</item>
+        <item>Médico</item>
+        <item>Moto</item>
+        <item>Oficina</item>
+        <item>Ônibus</item>
+        <item>Padaria</item>
+        <item>Passeio</item>
+        <item>Plano de saúde</item>
+        <item>Poupança</item>
+        <item>Prestação</item>
+        <item>Previdência</item>
+        <item>Refeição</item>
+        <item>Revista</item>
+        <item>Revisão</item>
+        <item>Roupa</item>
+        <item>Salário</item>
+        <item>Seguro</item>
+        <item>Supermercado</item>
+        <item>Telefone</item>
+        <item>TV assinatura</item>
+        <item>Vestuário</item>
+        <item>Viagem</item>
+    </string-array>
+
+    <!-- Strings do menu de Ajustes -->
+
+    <string-array name="ordem_contas">
+        <item>Por nome da conta (A-Z)</item>
+        <item>Por nome da conta (Z-A)</item>
+        <item>Por data da conta\n(Recente-Posterior)</item>
+        <item>Por data da conta\n(Posterior-Recente)</item>
+        <item>Por tipo de conta\n(Receitas-Despesas)</item>
+        <item>Por tipo de conta\n(Despesas-Receitas)</item>
+        <item>Por valor de conta\n(Maior-Menor)</item>
+        <item>Por valor de conta\n(Menor-Maior)</item>
+    </string-array>
+    <string-array name="ordem_contas_valores">
+        <item>conta ASC</item>
+        <item>conta DESC</item>
+        <item>dia_data ASC</item>
+        <item>dia_data DESC</item>
+        <item>tipo_conta DESC, classificacao DESC</item>
+        <item>tipo_conta ASC, classificacao ASC</item>
+        <item>valor DESC</item>
+        <item>valor ASC</item>
+    </string-array>
+
+    <string-array name="repete_conta">
+        <item>Diariamente</item>
+        <item>Semanalmente</item>
+        <item>Mensalmente</item>
+        <item>Anualmente</item>
+    </string-array>
+
+</resources>

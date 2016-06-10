@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/lista_cor_fundo"
+    android:padding="5.0dip">
+
+    <TextView
+        android:id="@+id/tvDataContaCriada"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="false"
+        android:paddingLeft="5dp"
+        android:paddingRight="2dp"
+        android:text="0"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/preto" />
+
+    <TextView
+        android:id="@+id/tvDiaContaCriada"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/lvConta"
+        android:layout_alignTop="@+id/tvValorContaCriada"
+        android:layout_toEndOf="@+id/tvDataContaCriada"
+        android:layout_toRightOf="@+id/tvDataContaCriada"
+        android:gravity="bottom"
+        android:text="dom"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/cinza" />
+
+    <LinearLayout
+        android:id="@+id/lvConta"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tvDataContaCriada"
+        android:layout_gravity="center_vertical"
+        android:layout_toLeftOf="@+id/tvValorContaCriada"
+        android:layout_toStartOf="@+id/tvValorContaCriada"
+        android:background="@null"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="5dp"
+        android:paddingStart="5dp">
+
+        <TextView
+            android:id="@+id/tvNomeContaCriada"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/dica_pesquisa"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/preto" />
+
+        <TextView
+            android:id="@+id/tvNomeCategoria"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/dica_pesquisa"
+            android:textColor="@color/cinza" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvValorContaCriada"
+        android:layout_width="120dp"
+        android:layout_height="54dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:gravity="right|end|center_vertical"
+        android:text="@string/zero"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/preto" />
+
+    <ImageView
+        android:id="@+id/ivPagamento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:contentDescription="@string/icone"
+        android:src="@drawable/visto"
+        android:tint="@color/cinza" />
+
+</RelativeLayout>

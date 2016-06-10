@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_grafico_receitas"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:text="@string/dica_grafico_receitas"
+        android:textColor="@color/preto"
+        android:textSize="18sp" />
+
+    <lecho.lib.hellocharts.view.PieChartView
+        android:id="@+id/grafico_receitas"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_margin="5dp"></lecho.lib.hellocharts.view.PieChartView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginLeft="5.0dip"
+            android:background="@color/azul" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5.0dip"
+            android:layout_weight="0.15"
+            android:gravity="left"
+            android:text="@string/resumo_recebidas" />
+
+        <LinearLayout
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginLeft="5.0dip"
+            android:background="@color/roxo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5.0dip"
+            android:layout_weight="0.15"
+            android:gravity="left"
+            android:text="@string/resumo_areceber" />
+
+    </LinearLayout>
+
+</LinearLayout>

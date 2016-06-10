@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/branco"
+    tools:context=".listas.ListaMensalContas">
+
+    <LinearLayout
+        android:id="@+id/barra_mes"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="@color/cinza">
+
+        <ImageButton
+            android:id="@+id/ibMesAntes"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5.0dip"
+            android:layout_weight="2.0"
+            android:background="@color/icone_voltar_fundo"
+            android:contentDescription="@string/icone"
+            android:src="@drawable/anterior" />
+
+        <TextView
+            android:id="@+id/tvMesLista"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1.0"
+            android:gravity="center_horizontal"
+            android:padding="5.0dip"
+            android:text="@string/dica_resumo"
+            android:textColor="@color/branco"
+            android:textSize="20.0dip"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/ibMesDepois"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="5.0dip"
+            android:layout_weight="2.0"
+            android:background="@color/icone_voltar_fundo"
+            android:contentDescription="@string/icone"
+            android:src="@drawable/proximo" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/barra_mes"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/lvContasCriadas"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@color/branco"
+            android:choiceMode="singleChoice"
+            android:scrollingCache="false" />
+
+        <TextView
+            android:id="@+id/tvSemContas"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center"
+            android:text="@string/dica_vazio"
+            android:textColor="@color/preto"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <include layout="@layout/fab" />
+
+</RelativeLayout>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.msk.minhascontas">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:backupAgent=".info.BackupAgent"
+        android:configChanges="orientation"
+        android:fullBackupContent="@xml/backup"
+        android:fullBackupOnly="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:restoreAnyVersion="true"
+        android:supportsRtl="true"
+        android:theme="@style/TemaNovo"
+        android:uiOptions="splitActionBarWhenNarrow">
+        <activity
+            android:name=".info.SplashScreen"
+            android:theme="@style/SplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MinhasContas"
+            android:theme="@style/TemaTabs" />
+        <activity
+            android:name=".db.CriarNovaConta"
+            android:label="@string/titulo_criar">
+            <intent-filter>
+                <action android:name="com.msk.minhascontas.NOVACONTA" />
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".db.EditarConta"
+            android:label="@string/titulo_editar">
+            <intent-filter>
+                <action android:name="com.msk.minhascontas.EDITACONTA" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".graficos.GraficoMensalContas"
+            android:label="@string/titulo_grafico">
+            <intent-filter>
+                <action android:name="com.msk.minhascontas.graficos.MEUSGRAFICOS" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".listas.ListaMensalContas"
+            android:label="@string/titulo_resumo">
+            <intent-filter>
+                <action android:name="com.msk.minhascontas.CONTASDOMES" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".listas.PesquisaContas"
+            android:label="@string/titulo_pesquisar">
+            <intent-filter>
+                <action android:name="com.msk.minhascontas.BUSCACONTA" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".info.Sobre"
+            android:label="@string/menu_sobre">
+            <intent-filter>
+                <action android:name="com.msk.minhascontas.SOBRE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".info.EscolhePasta"
+            android:label="Escolher pasta"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+
+        <activity
+            android:name=".info.Ajustes"
+            android:label="@string/menu_ajustes"
+            android:theme="@style/TemaNovo">
+            <intent-filter>
+                <action android:name="com.msk.minhascontas.AJUSTES" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAIpHF2O26UlB5OMWy7l025hyqZ73sZvLmiH3HErQ" />
+
+        <receiver
+            android:name=".info.NewWidget"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/new_widget_info" />
+        </receiver>
+        <receiver android:name=".info.WidgetBarra">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_barra_info" />
+        </receiver>
+    </application>
+
+</manifest>
