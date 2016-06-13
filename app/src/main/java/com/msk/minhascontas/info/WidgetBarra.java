@@ -13,9 +13,6 @@ import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.CriarNovaConta;
 import com.msk.minhascontas.listas.PesquisaContas;
 
-/**
- * Implementation of App Widget functionality.
- */
 public class WidgetBarra extends AppWidgetProvider {
 
 
@@ -27,7 +24,7 @@ public class WidgetBarra extends AppWidgetProvider {
         ComponentName thisWidget;
 
         views = new RemoteViews(context.getPackageName(),
-                R.layout.widget_app);
+                R.layout.widget_barra);
 
         Intent launchActivity = new Intent(context, MinhasContas.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,

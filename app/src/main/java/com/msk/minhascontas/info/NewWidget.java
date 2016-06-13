@@ -19,9 +19,6 @@ import com.msk.minhascontas.listas.PesquisaContas;
 
 import java.util.Calendar;
 
-/**
- * Implementation of App Widget functionality.
- */
 public class NewWidget extends AppWidgetProvider {
 
     RemoteViews remoteViews;
@@ -48,7 +45,7 @@ public class NewWidget extends AppWidgetProvider {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
         remoteViews = new RemoteViews(context.getPackageName(),
-                R.layout.new_widget);
+                R.layout.widget_resumo);
 
         Intent launchActivity = new Intent(context, MinhasContas.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
@@ -188,7 +185,7 @@ public class NewWidget extends AppWidgetProvider {
         // Enter relevant functionality for when the first widget is created
         AtualizaSaldo(context);
         remoteViews = new RemoteViews(context.getPackageName(),
-                R.layout.new_widget);
+                R.layout.widget_resumo);
     }
 
 }

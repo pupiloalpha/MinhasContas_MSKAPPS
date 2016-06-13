@@ -6,7 +6,7 @@
 
     <include
         android:id="@+id/barra"
-        layout="@layout/widget_app" />
+        layout="@layout/widget_barra" />
 
     <LinearLayout
         android:layout_width="fill_parent"

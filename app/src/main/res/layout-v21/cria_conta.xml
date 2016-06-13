@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mskapp="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -52,28 +51,21 @@
                         android:paddingLeft="10.0dip" />
                 </android.support.design.widget.TextInputLayout>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center_vertical"
-                    android:tint="@color/cinza"
-                    mskapp:srcCompat="@drawable/ic_date_grey" />
-
                 <Button
                     android:id="@+id/etData"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@color/lista_cor_fundo"
+                    android:contentDescription="@string/icone"
+                    android:drawableLeft="@drawable/ic_date_grey"
+                    android:drawableStart="@drawable/ic_date_grey"
                     android:ems="10"
-                    android:gravity="left|center_vertical"
                     android:inputType="date"
-                    android:paddingLeft="5dp"
                     android:text="@string/data"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/verde_escuro"
                     android:textStyle="bold" />
-
             </LinearLayout>
 
             <RadioGroup
@@ -222,6 +214,9 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@color/widget_fundo"
+            android:contentDescription="@string/icone"
+            android:drawableLeft="@drawable/ic_cancel_white"
+            android:drawableStart="@drawable/ic_cancel_white"
             android:text="@string/cancelar"
             android:textColor="@color/branco"
             android:textStyle="bold" />
@@ -232,6 +227,9 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@color/widget_fundo"
+            android:contentDescription="@string/icone"
+            android:drawableLeft="@drawable/ic_done_white"
+            android:drawableStart="@drawable/ic_done_white"
             android:text="@string/criar"
             android:textColor="@color/branco"
             android:textStyle="bold" />

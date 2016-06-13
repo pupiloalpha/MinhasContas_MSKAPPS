@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mskapp="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -13,16 +12,16 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="10dp">
+            android:layout_margin="10dp"
+            android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
                 <android.support.v7.widget.AppCompatAutoCompleteTextView
-                    android:id="@+id/acNomeNovaConta"
-                    android:layout_width="fill_parent"
+                    android:id="@+id/acNomeContaModificada"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:hint="@string/dica_conta"
@@ -31,10 +30,10 @@
                     android:textColor="@color/preto" />
             </android.support.design.widget.TextInputLayout>
 
-
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="0dp"
@@ -42,42 +41,34 @@
                     android:layout_weight="1">
 
                     <android.support.v7.widget.AppCompatEditText
-                        android:id="@+id/etValorNovaConta"
+                        android:id="@+id/etValorNovo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ems="10"
                         android:hint="@string/dica_valor"
                         android:imeOptions="actionDone"
-                        android:inputType="numberDecimal"
-                        android:paddingLeft="10.0dip" />
+                        android:inputType="numberDecimal" />
                 </android.support.design.widget.TextInputLayout>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center_vertical"
-                    android:tint="@color/cinza"
-                    mskapp:srcCompat="@drawable/ic_date_grey" />
-
                 <Button
-                    android:id="@+id/etData"
+                    android:id="@+id/etDataConta"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@color/lista_cor_fundo"
+                    android:contentDescription="@string/icone"
+                    android:drawableLeft="@drawable/ic_date_grey"
+                    android:drawableStart="@drawable/ic_date_grey"
                     android:ems="10"
-                    android:gravity="left|center_vertical"
                     android:inputType="date"
-                    android:paddingLeft="5dp"
                     android:text="@string/data"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/verde_escuro"
                     android:textStyle="bold" />
-
             </LinearLayout>
 
             <RadioGroup
-                android:id="@+id/rgTipoNovaConta"
+                android:id="@+id/rgTipoContaModificada"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -85,8 +76,8 @@
                 android:weightSum="2.0">
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/rDespNovaConta"
-                    android:layout_width="0dp"
+                    android:id="@+id/rDespContaModificada"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
                     android:checked="true"
@@ -95,8 +86,8 @@
                     android:textSize="18.0dip" />
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/rRecNovaConta"
-                    android:layout_width="0dp"
+                    android:id="@+id/rRecContaModificada"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
                     android:text="@string/dica_receita"
@@ -105,42 +96,22 @@
             </RadioGroup>
 
             <android.support.v7.widget.AppCompatSpinner
-                android:id="@+id/spClasseConta"
+                android:id="@+id/spClassificaConta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:prompt="@string/dica_spinner" />
 
-            <LinearLayout
-                android:id="@+id/layout_pagamento"
+            <android.support.v7.widget.AppCompatCheckBox
+                android:id="@+id/cbPagamento"
                 android:layout_width="match_parent"
-                android:layout_height="50dp">
-
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/cbPagamento"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:text="@string/dica_pagamento"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/preto" />
-
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/cbValorParcelar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:text="@string/dica_valor_total"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/preto" />
-            </LinearLayout>
+                android:layout_height="50dp"
+                android:text="@string/dica_pagamento"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/preto" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -167,11 +138,12 @@
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="2.0dip"
                     android:layout_weight="1">
 
                     <android.support.v7.widget.AppCompatEditText
-                        android:id="@+id/etRepeticoes"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/etPrestacoes"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:digits="1234567890"
@@ -182,59 +154,44 @@
                         android:maxLength="3" />
                 </android.support.design.widget.TextInputLayout>
             </LinearLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/layout_juros"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1.0">
-
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/etJurosNovaConta"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:gravity="center_vertical"
-                    android:hint="@string/dica_valor_juros"
-                    android:imeOptions="actionDone"
-                    android:inputType="numberDecimal" />
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.v7.widget.AppCompatCheckBox
-                android:id="@+id/cbLembrete"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/titulo_calendario"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/preto" />
         </LinearLayout>
     </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/ibCancelar"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@color/widget_fundo"
+            android:contentDescription="@string/icone"
+            android:drawableLeft="@drawable/ic_cancel_white"
+            android:drawableStart="@drawable/ic_cancel_white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:text="@string/cancelar"
             android:textColor="@color/branco"
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/ibNovaConta"
-            android:layout_width="wrap_content"
+            android:id="@+id/ibModificaConta"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@color/widget_fundo"
-            android:text="@string/criar"
+            android:contentDescription="@string/icone"
+            android:drawableLeft="@drawable/ic_done_white"
+            android:drawableStart="@drawable/ic_done_white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="@string/salvar"
             android:textColor="@color/branco"
             android:textStyle="bold" />
+
     </LinearLayout>
 
 </LinearLayout>
