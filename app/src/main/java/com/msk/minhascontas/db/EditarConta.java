@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
@@ -31,13 +32,16 @@ import com.msk.minhascontas.info.BarraProgresso;
 public class EditarConta extends AppCompatActivity implements
         View.OnClickListener, RadioGroup.OnCheckedChangeListener,
         OnItemSelectedListener {
-    static final int DIALOGO_DATA_ID = 0;
+
+
+    private static Button data;
+    private static int dia, mes, ano;
     DBContas dbContaParaEditar = new DBContas(this);
     AlertDialog dialogo;
     // ELEMENTOS DA TELA
     private AppCompatAutoCompleteTextView nome;
     private AppCompatEditText valor, prestacoes;
-    private Button modifica, cancela, data;
+    private Button modifica, cancela;
     private RadioGroup tipo;
     private AppCompatRadioButton rec, desp;
     private AppCompatCheckBox pagamento;
@@ -45,19 +49,8 @@ public class EditarConta extends AppCompatActivity implements
     // VARIAVEIS UTILIZADAS
     private double valorConta, valorNovoConta;
     private long idConta, idConta1;
-    private int ano, anoPrest, dia, diaVenc, mes, mesPrest, nPrest, qtPrest,
+    private int anoPrest, diaVenc, mesPrest, nPrest, qtPrest,
             intervalo, qtConta, nr, altera;
-    private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int pAno, int pMes, int pDia) {
-            ano = pAno;
-            mes = pMes;
-            dia = pDia;
-            String novaDataConta = (dia + "/" + (1 + mes) + "/" + ano);
-            data.setText(novaDataConta);
-
-        }
-    };
     private int[] dmaConta, repeteConta;
     private String classeConta, dataConta, nomeConta, tipoConta, pagouConta,
             novoPagouConta, novoNomeConta;
@@ -232,7 +225,12 @@ public class EditarConta extends AppCompatActivity implements
 
         switch (paramView.getId()) {
             case R.id.etDataConta:
-                showDialog(DIALOGO_DATA_ID);
+
+                DialogFragment newFragment = new EditarConta.DatePickerFragment();
+                newFragment.show(getSupportFragmentManager(), "datePicker");
+                String str = (dia + "/" + (1 + mes) + "/" + ano);
+                data.setText(str);
+
                 break;
             case R.id.cbPagamento:
                 if (pagamento.isChecked()) {
@@ -465,17 +463,6 @@ public class EditarConta extends AppCompatActivity implements
     }
 
     @Override
-    protected Dialog onCreateDialog(int paramInt) {
-        switch (paramInt) {
-            case DIALOGO_DATA_ID:
-                return new DatePickerDialog(new ContextThemeWrapper(this,
-                        R.style.TemaDialogo), mDateSetListener, ano, mes, dia);
-        }
-        return null;
-
-    }
-
-    @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
 
         switch (checkedId) {
@@ -593,5 +580,24 @@ public class EditarConta extends AppCompatActivity implements
         dbContaParaEditar.close();
         finish();
         super.onBackPressed();
+    }
+
+    public static class DatePickerFragment extends DialogFragment implements
+            DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            return new DatePickerDialog(getActivity(), this, ano, mes, dia);
+        }
+
+        public void onDateSet(DatePicker view, int mAno, int mMes, int mDia) {
+            ano = mAno;
+            mes = mMes;
+            dia = mDia;
+
+            String str = (dia + "/" + (1 + mes) + "/" + ano);
+            data.setText(str);
+        }
     }
 }

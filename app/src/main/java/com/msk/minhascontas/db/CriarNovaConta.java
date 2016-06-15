@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
@@ -35,21 +36,11 @@ public class CriarNovaConta extends AppCompatActivity implements
     private static final int DATE_DIALOG_ID = 0;
     // VARIAVEIS UTILIZADAS
     private static int dia, mes, ano;
-    // modifica as informacoes da data apos modificacao
-    private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
-
-        public void onDateSet(DatePicker view, int year, int monthOfYear,
-                              int dayOfMonth) {
-            ano = year;
-            mes = monthOfYear;
-            dia = dayOfMonth;
-            DataDeHoje(dia, mes, ano);
-        }
-    };
+    private static Button dataConta;
     private final Calendar c = Calendar.getInstance();
     DBContas dbNovasContas = new DBContas(this);
     // ELEMENTOS DA TELA
-    private Button criaNovaConta, cancela, dataConta;
+    private Button criaNovaConta, cancela;
     private TextInputLayout juros;
     private AppCompatAutoCompleteTextView nomeConta;
     private AppCompatEditText repeteConta, valorConta, jurosConta;
@@ -176,7 +167,11 @@ public class CriarNovaConta extends AppCompatActivity implements
         switch (paramView.getId()) {
 
             case R.id.etData:
-                showDialog(DATE_DIALOG_ID);
+
+                DialogFragment newFragment = new DatePickerFragment();
+                newFragment.show(getSupportFragmentManager(), "datePicker");
+                DataDeHoje(dia, mes, ano);
+
                 break;
             case R.id.cbPagamento:
                 if (pagamento.isChecked()) {
@@ -499,17 +494,6 @@ public class CriarNovaConta extends AppCompatActivity implements
 
     }
 
-    // Atualiza a data escolhida pelo usuario
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-            case DATE_DIALOG_ID:
-                return new DatePickerDialog(new ContextThemeWrapper(this,
-                        R.style.TemaDialogo), mDateSetListener, ano, mes, dia);
-        }
-        return null;
-    }
-
     @Override
     public void onNothingSelected(AdapterView<?> paramAdapterView) {
     }
@@ -554,6 +538,24 @@ public class CriarNovaConta extends AppCompatActivity implements
     protected void onResume() {
         dbNovasContas.open();
         super.onResume();
+    }
+
+    public static class DatePickerFragment extends DialogFragment implements
+            DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            return new DatePickerDialog(getActivity(), this, ano, mes, dia);
+        }
+
+        public void onDateSet(DatePicker view, int mAno, int mMes, int mDia) {
+            ano = mAno;
+            mes = mMes;
+            dia = mDia;
+
+            dataConta.setText(dia + "/" + (mes + 1) + "/" + ano);
+        }
     }
 
 }

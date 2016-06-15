@@ -154,7 +154,7 @@ public class MinhasContas extends AppCompatActivity implements
 
     private void Dialogo() {
 
-        final Dialog dialogo = new Dialog(contexto, R.style.TemaDialogo);
+        final Dialog dialogo = new Dialog(contexto, R.style.TemaBloqueio);
         dialogo.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialogo.setContentView(R.layout.tela_bloqueio);
         dialogo.getWindow().setBackgroundDrawable(new ColorDrawable(0));

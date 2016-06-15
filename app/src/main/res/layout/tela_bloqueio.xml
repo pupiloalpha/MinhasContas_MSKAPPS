@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/preto"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:theme="@style/TemaBloqueio">
 
     <TextView
         android:layout_width="match_parent"
@@ -32,6 +34,8 @@
         android:hint="@string/senha"
         android:imeOptions="actionDone"
         android:inputType="textPassword"
+        android:textColor="@color/vermelho"
+        android:textColorHint="@color/colorPrimary"
         android:textSize="22sp" />
 
     <android.support.v7.widget.AppCompatCheckBox
@@ -46,7 +50,8 @@
         android:paddingLeft="5dp"
         android:text="@string/dica_senha"
         android:textColor="@color/branco"
-        android:textSize="22sp" />
+        android:textSize="22sp"
+        tools:ignore="RtlHardcoded,RtlSymmetry" />
 
     <Button
         android:id="@+id/bEntra"

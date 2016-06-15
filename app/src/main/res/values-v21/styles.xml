@@ -2,11 +2,8 @@
 
     <!-- Tema das caixas de diálogos -->
     <style name="TemaDialogo" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorAccent">@color/verde_escuro</item>
-    </style>
-
-    <!-- Tema das caixas de diálogos -->
-    <style name="TemaBloqueio" parent="Theme.AppCompat.Dialog">
+        <item name="colorPrimary">@color/preto</item>
+        <item name="colorPrimaryDark">#000000</item>
         <item name="colorAccent">@color/verde_escuro</item>
     </style>
 
@@ -17,6 +14,8 @@
         <item name="colorAccent">@color/verde_escuro</item>
         <item name="actionBarTabTextStyle">@style/ActionBarTabText</item>
         <item name="android:alertDialogTheme">@style/TemaDialogo</item>
+        <item name="android:datePickerDialogTheme">@style/TemaDialogo</item>
+        <item name="android:timePickerDialogTheme">@style/TemaDialogo</item>
     </style>
 
     <!-- Tema das telas do aplicativo -->
@@ -26,6 +25,8 @@
         <item name="colorAccent">@color/branco</item>
         <item name="actionBarTabTextStyle">@style/ActionBarTabText</item>
         <item name="android:alertDialogTheme">@style/TemaDialogo</item>
+        <item name="android:datePickerDialogTheme">@style/TemaDialogo</item>
+        <item name="android:timePickerDialogTheme">@style/TemaDialogo</item>
     </style>
 
     <!-- Actionbar tab text size -->
