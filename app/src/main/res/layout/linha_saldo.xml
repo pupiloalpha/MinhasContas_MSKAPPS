@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/l_saldo"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/fundo_cartao"
-    android:orientation="vertical"
-    android:padding="5dp">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -21,7 +21,8 @@
             android:text="@string/linha_saldo"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/preto"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:id="@+id/tvValorSaldo"
@@ -33,7 +34,8 @@
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/preto"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="RtlHardcoded" />
 
     </LinearLayout>
 
@@ -57,7 +59,8 @@
             android:layout_weight="1"
             android:gravity="center_vertical|left"
             android:text="@string/resumo_saldo"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:layout_width="0dp"
@@ -66,7 +69,8 @@
             android:layout_weight="1"
             android:gravity="right|center_vertical"
             android:text="@string/resumo_mes_anterior"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:ignore="RtlHardcoded" />
 
     </LinearLayout>
 
@@ -84,7 +88,8 @@
             android:gravity="left"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/verde_escuro" />
+            android:textColor="@color/verde_escuro"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:id="@+id/tvValorSaldoAnterior"
@@ -95,7 +100,8 @@
             android:gravity="right|center_vertical"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/verde_escuro" />
+            android:textColor="@color/verde_escuro"
+            tools:ignore="RtlHardcoded" />
 
     </LinearLayout>
 

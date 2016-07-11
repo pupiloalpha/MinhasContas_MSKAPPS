@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
@@ -32,6 +31,7 @@ import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.info.Ajustes;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -40,11 +40,10 @@ import java.util.Calendar;
 public class PesquisaContas extends AppCompatActivity implements
         View.OnClickListener {
 
-    DBContas dbContasPesquisadas = new DBContas(this);
-    Calendar c = Calendar.getInstance();
-    Resources r;
-    ColorDrawable cor;
-    ActionMode mActionMode;
+    private DBContas dbContasPesquisadas = new DBContas(this);
+    private Calendar c = Calendar.getInstance();
+    private Resources r;
+    private ActionMode mActionMode;
     // ELEMENTOS DA TELA
     private ImageButton buscaConta;
     private ListView listaContas;
@@ -55,173 +54,14 @@ public class PesquisaContas extends AppCompatActivity implements
     private AdaptaListaPesquisa buscaContas;
     private Cursor contasParaLista = null;
     @SuppressWarnings("rawtypes")
-    private ArrayAdapter completa;
     // VARIAVEIS
     private long idConta = 0;
     private ArrayList<Long> contas = new ArrayList<Long>();
     private boolean alteraContas = false;
     private boolean primeiraConta = false;
-
     private String nomeBuscado, nomeConta;
-    private int dia, mes, ano, conta;
-    private int[] dmaConta;
-    private double valorConta;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.pesquisa_conta);
-        setTheme(android.R.style.Theme);
-        r = getResources();
-        dbContasPesquisadas.open();
-        iniciar();
-        usarActionBar();
-        MontaAutoCompleta();
-        buscaConta.setOnClickListener(this);
-        lastView = null;
-        listaContas.setOnItemClickListener(toqueSimples);
-        listaContas.setOnItemLongClickListener(toqueLongo);
-
-    }
-
-    private void iniciar() {
-
-        listaContas = ((ListView) findViewById(R.id.lvContasPesquisadas));
-        buscaConta = ((ImageButton) findViewById(R.id.ibBuscaConta));
-        resultado = ((TextView) findViewById(R.id.tvSemResultados));
-        listaContas.setEmptyView(resultado);
-
-        nomeContaBuscar = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeContaBusca));
-
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private void MontaAutoCompleta() {
-        dbContasPesquisadas.open();
-        if (dbContasPesquisadas.quantasContas() != 0) {
-
-            completa = new ArrayAdapter(this,
-                    android.R.layout.simple_dropdown_item_1line,
-                    dbContasPesquisadas.mostraNomeContas());
-        } else {
-            completa = new ArrayAdapter(this,
-                    android.R.layout.simple_dropdown_item_1line, getResources()
-                    .getStringArray(R.array.NomeConta));
-        }
-
-        dbContasPesquisadas.close();
-        nomeContaBuscar.setAdapter(completa);
-    }
-
-    private void MontaLista() {
-        dbContasPesquisadas.open();
-        contasParaLista = dbContasPesquisadas.buscaContasPorNome(nomeBuscado);
-        int i = contasParaLista.getCount();
-        dbContasPesquisadas.close();
-        if (i >= 0) {
-
-            int posicao = listaContas.getFirstVisiblePosition();
-
-            String[] prestacao = r.getStringArray(R.array.TipoDespesa);
-            String[] semana = r.getStringArray(R.array.Semana);
-
-            buscaContas = new AdaptaListaPesquisa(this, contasParaLista,
-                    prestacao, semana);
-
-            listaContas.setAdapter(buscaContas);
-            listaContas.setEmptyView(resultado);
-            listaContas.setSelection(posicao);
-        }
-        contas = new ArrayList<Long>();
-        alteraContas = false;
-        primeiraConta = false;
-        buscaContas.limpaSelecao();
-    }
-
-    @Override
-    public void onClick(View arg0) {
-
-        switch (arg0.getId()) {
-
-            case R.id.ibBuscaConta:
-
-                if (nomeContaBuscar.getText().toString().equals(""))
-                    nomeBuscado = " ";
-                else {
-                    nomeBuscado = nomeContaBuscar.getText().toString();
-                }
-
-                MontaLista();
-                MontaAutoCompleta();
-                nomeContaBuscar.setText("");
-                idConta = 0;
-                break;
-        }
-    }
-
-    OnItemClickListener toqueSimples = new OnItemClickListener() {
-
-        @Override
-        public void onItemClick(AdapterView<?> adaptView, View v, int posicao,
-                                long arg3) {
-
-            dbContasPesquisadas.open();
-            contasParaLista.moveToPosition(posicao);
-            idConta = contasParaLista.getLong(0);
-            nomeConta = contasParaLista.getString(1);
-            dbContasPesquisadas.close();
-
-            if (alteraContas == false) {
-                if (mActionMode == null) {
-                    buscaContas.limpaSelecao();
-                    contas = new ArrayList<Long>();
-                    buscaContas.marcaConta(posicao, true);
-                } else {
-                    buscaContas.marcaConta(conta, false);
-                    buscaContas.marcaConta(posicao, true);
-                }
-
-                mActionMode = PesquisaContas.this
-                        .startSupportActionMode(alteraUmaConta);
-                lastView = v;
-                conta = posicao;
-
-            } else {
-
-                if (contas.size() != 0) {
-
-                    if (contas.contains(idConta)) {
-                        if (primeiraConta == false) {
-                            contas.remove(idConta);
-                            buscaContas.marcaConta(posicao, false);
-                            //v.setSelected(false);
-                        } else {
-                            primeiraConta = false;
-                        }
-
-                    } else {
-                        contas.add(idConta);
-                        buscaContas.marcaConta(posicao, true);
-                        //v.setSelected(true);
-                    }
-
-                    if (contas.size() == 0) {
-                        mActionMode.finish();
-                        MontaLista();
-                    }
-
-                    if (contas.size() != 0)
-                        mActionMode.setTitle(r.getQuantityString(R.plurals.selecao,
-                                contas.size(), contas.size()));
-                }
-
-            }
-        }
-
-    };
-
-    ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
+    private int conta;
+    private ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -323,13 +163,13 @@ public class PesquisaContas extends AppCompatActivity implements
                 case R.id.botao_lembrete:
                     if (idConta != 0) {
                         dbContasPesquisadas.open();
-                        dmaConta = dbContasPesquisadas
+                        int[] dmaConta = dbContasPesquisadas
                                 .mostraDMAConta(idConta);
-                        dia = dmaConta[0];
-                        mes = dmaConta[1];
-                        ano = dmaConta[2];
+                        int dia = dmaConta[0];
+                        int mes = dmaConta[1];
+                        int ano = dmaConta[2];
 
-                        valorConta = dbContasPesquisadas
+                        double valorConta = dbContasPesquisadas
                                 .mostraValorConta(idConta);
                         String nomeContaCalendario = r.getString(
                                 R.string.dica_evento,
@@ -342,11 +182,11 @@ public class PesquisaContas extends AppCompatActivity implements
                         evento.setType("vnd.android.cursor.item/event");
                         evento.putExtra(Events.TITLE,
                                 nomeContaCalendario);
+                        NumberFormat dinheiro = NumberFormat.getCurrencyInstance(r.getConfiguration().locale);
                         evento.putExtra(Events.DESCRIPTION, r
                                 .getString(
                                         R.string.dica_calendario,
-                                        String.format("%.2f",
-                                                valorConta)));
+                                        dinheiro.format(valorConta)));
 
                         evento.putExtra(
                                 CalendarContract.EXTRA_EVENT_BEGIN_TIME,
@@ -379,92 +219,67 @@ public class PesquisaContas extends AppCompatActivity implements
 
         }
     };
+    private OnItemClickListener toqueSimples = new OnItemClickListener() {
 
-    private void Dialogo() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                new ContextThemeWrapper(this, R.style.TemaDialogo));
-
-        alertDialogBuilder.setTitle(getString(R.string.dica_menu_exclusao));
-
-        alertDialogBuilder.setItems(R.array.TipoAjusteConta,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dbContasPesquisadas.open();
-                        String nomeContaExcluir = dbContasPesquisadas
-                                .mostraNomeConta(idConta);
-                        String dataContaExcluir = dbContasPesquisadas
-                                .mostraDataConta(idConta);
-                        switch (id) {
-                            case 0:
-                                dbContasPesquisadas.excluiConta(idConta);
-                                break;
-                            case 1:
-                                int[] repete = dbContasPesquisadas
-                                        .mostraRepeticaoConta(idConta);
-                                int nr = repete[1];
-                                dbContasPesquisadas.excluiSerieContaPorNome(
-                                        nomeContaExcluir, dataContaExcluir, nr);
-                                break;
-                            case 2:
-                                dbContasPesquisadas.excluiContaPorNome(
-                                        nomeContaExcluir, dataContaExcluir);
-                                break;
-                        }
-                        Toast.makeText(
-                                PesquisaContas.this.getApplicationContext(),
-                                getResources().getString(
-                                        R.string.dica_conta_excluida,
-                                        nomeContaExcluir), Toast.LENGTH_SHORT)
-                                .show();
-
-                        buscaContas.notifyDataSetChanged();
-                        MontaLista();
-                        MontaAutoCompleta();
-                        dbContasPesquisadas.close();
-                        idConta = 0;
-                    }
-                });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        // show it
-        alertDialog.show();
-    }
-
-    AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int posicao, long id) {
+        public void onItemClick(AdapterView<?> adaptView, View v, int posicao,
+                                long arg3) {
 
-            // Limpa a barra de titulo
-            if (mActionMode != null)
-                mActionMode.finish();
-
-            // Limpa a selecao de contas
-            buscaContas.limpaSelecao();
-            contas = new ArrayList<Long>();
-            alteraContas = true;
-            primeiraConta = true;
-
-            // Busca informacoes da conta no DB
             dbContasPesquisadas.open();
             contasParaLista.moveToPosition(posicao);
             idConta = contasParaLista.getLong(0);
             nomeConta = contasParaLista.getString(1);
             dbContasPesquisadas.close();
 
-            // Seleciona conta
-            contas.add(idConta);
-            buscaContas.marcaConta(posicao, true);
+            if (!alteraContas) {
+                if (mActionMode == null) {
+                    buscaContas.limpaSelecao();
+                    contas = new ArrayList<Long>();
+                    buscaContas.marcaConta(posicao, true);
+                } else {
+                    buscaContas.marcaConta(conta, false);
+                    buscaContas.marcaConta(posicao, true);
+                }
 
-            // Mostra selecao na barra de titulo
-            mActionMode = PesquisaContas.this
-                    .startSupportActionMode(alteraVariasContas);
+                mActionMode = PesquisaContas.this
+                        .startSupportActionMode(alteraUmaConta);
+                lastView = v;
+                conta = posicao;
 
-            return false;
+            } else {
+
+                if (contas.size() != 0) {
+
+                    if (contas.contains(idConta)) {
+                        if (primeiraConta == false) {
+                            contas.remove(idConta);
+                            buscaContas.marcaConta(posicao, false);
+                            //v.setSelected(false);
+                        } else {
+                            primeiraConta = false;
+                        }
+
+                    } else {
+                        contas.add(idConta);
+                        buscaContas.marcaConta(posicao, true);
+                        //v.setSelected(true);
+                    }
+
+                    if (contas.size() == 0) {
+                        mActionMode.finish();
+                        MontaLista();
+                    }
+
+                    if (contas.size() != 0)
+                        mActionMode.setTitle(r.getQuantityString(R.plurals.selecao,
+                                contas.size(), contas.size()));
+                }
+
+            }
         }
-    };
 
-    ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
+    };
+    private ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 
@@ -536,6 +351,184 @@ public class PesquisaContas extends AppCompatActivity implements
 
         }
     };
+    private AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int posicao, long id) {
+
+            // Limpa a barra de titulo
+            if (mActionMode != null)
+                mActionMode.finish();
+
+            // Limpa a selecao de contas
+            buscaContas.limpaSelecao();
+            contas = new ArrayList<Long>();
+            alteraContas = true;
+            primeiraConta = true;
+
+            // Busca informacoes da conta no DB
+            dbContasPesquisadas.open();
+            contasParaLista.moveToPosition(posicao);
+            idConta = contasParaLista.getLong(0);
+            nomeConta = contasParaLista.getString(1);
+            dbContasPesquisadas.close();
+
+            // Seleciona conta
+            contas.add(idConta);
+            buscaContas.marcaConta(posicao, true);
+
+            // Mostra selecao na barra de titulo
+            mActionMode = PesquisaContas.this
+                    .startSupportActionMode(alteraVariasContas);
+
+            return false;
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.pesquisa_conta);
+        setTheme(android.R.style.Theme);
+        r = getResources();
+        dbContasPesquisadas.open();
+        iniciar();
+        usarActionBar();
+        MontaAutoCompleta();
+        buscaConta.setOnClickListener(this);
+        lastView = null;
+        listaContas.setOnItemClickListener(toqueSimples);
+        listaContas.setOnItemLongClickListener(toqueLongo);
+
+    }
+
+    private void iniciar() {
+
+        listaContas = ((ListView) findViewById(R.id.lvContasPesquisadas));
+        buscaConta = ((ImageButton) findViewById(R.id.ibBuscaConta));
+        resultado = ((TextView) findViewById(R.id.tvSemResultados));
+        listaContas.setEmptyView(resultado);
+
+        nomeContaBuscar = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeContaBusca));
+
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void MontaAutoCompleta() {
+        dbContasPesquisadas.open();
+        ArrayAdapter completa;
+
+        if (dbContasPesquisadas.quantasContas() != 0) {
+
+            completa = new ArrayAdapter(this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    dbContasPesquisadas.mostraNomeContas());
+        } else {
+            completa = new ArrayAdapter(this,
+                    android.R.layout.simple_dropdown_item_1line, getResources()
+                    .getStringArray(R.array.NomeConta));
+        }
+
+        dbContasPesquisadas.close();
+        nomeContaBuscar.setAdapter(completa);
+    }
+
+    private void MontaLista() {
+        dbContasPesquisadas.open();
+        contasParaLista = dbContasPesquisadas.buscaContasPorNome(nomeBuscado);
+        int i = contasParaLista.getCount();
+        dbContasPesquisadas.close();
+        if (i >= 0) {
+
+            int posicao = listaContas.getFirstVisiblePosition();
+
+            String[] prestacao = r.getStringArray(R.array.TipoDespesa);
+            String[] semana = r.getStringArray(R.array.Semana);
+
+            buscaContas = new AdaptaListaPesquisa(this, contasParaLista,
+                    prestacao, semana);
+
+            listaContas.setAdapter(buscaContas);
+            listaContas.setEmptyView(resultado);
+            listaContas.setSelection(posicao);
+        }
+        contas = new ArrayList<Long>();
+        alteraContas = false;
+        primeiraConta = false;
+        buscaContas.limpaSelecao();
+    }
+
+    @Override
+    public void onClick(View arg0) {
+
+        switch (arg0.getId()) {
+
+            case R.id.ibBuscaConta:
+
+                if (nomeContaBuscar.getText().toString().equals(""))
+                    nomeBuscado = " ";
+                else {
+                    nomeBuscado = nomeContaBuscar.getText().toString();
+                }
+
+                MontaLista();
+                MontaAutoCompleta();
+                nomeContaBuscar.setText("");
+                idConta = 0;
+                break;
+        }
+    }
+
+    private void Dialogo() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                new ContextThemeWrapper(this, R.style.TemaDialogo));
+
+        alertDialogBuilder.setTitle(getString(R.string.dica_menu_exclusao));
+
+        alertDialogBuilder.setItems(R.array.TipoAjusteConta,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dbContasPesquisadas.open();
+                        String nomeContaExcluir = dbContasPesquisadas
+                                .mostraNomeConta(idConta);
+                        String dataContaExcluir = dbContasPesquisadas
+                                .mostraDataConta(idConta);
+                        switch (id) {
+                            case 0:
+                                dbContasPesquisadas.excluiConta(idConta);
+                                break;
+                            case 1:
+                                int[] repete = dbContasPesquisadas
+                                        .mostraRepeticaoConta(idConta);
+                                int nr = repete[1];
+                                dbContasPesquisadas.excluiSerieContaPorNome(
+                                        nomeContaExcluir, dataContaExcluir, nr);
+                                break;
+                            case 2:
+                                dbContasPesquisadas.excluiContaPorNome(
+                                        nomeContaExcluir, dataContaExcluir);
+                                break;
+                        }
+                        Toast.makeText(
+                                PesquisaContas.this.getApplicationContext(),
+                                getResources().getString(
+                                        R.string.dica_conta_excluida,
+                                        nomeContaExcluir), Toast.LENGTH_SHORT)
+                                .show();
+
+                        buscaContas.notifyDataSetChanged();
+                        MontaLista();
+                        MontaAutoCompleta();
+                        dbContasPesquisadas.close();
+                        idConta = 0;
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        // show it
+        alertDialog.show();
+    }
 
     @SuppressLint("NewApi")
     private void usarActionBar() {

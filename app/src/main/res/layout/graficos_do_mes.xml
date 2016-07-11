@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/branco">
+    xmlns:mskapp="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/msk_toolbar">
+        tools:ignore="RtlHardcoded">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -32,7 +33,7 @@
                     android:layout_weight="2.0"
                     android:background="@color/icone_voltar_fundo"
                     android:contentDescription="@string/icone"
-                    android:src="@drawable/anterior" />
+                    mskapp:srcCompat="@drawable/anterior" />
 
                 <TextView
                     android:id="@+id/tvMesAno"
@@ -57,18 +58,20 @@
                     android:layout_weight="2.0"
                     android:background="@color/icone_voltar_fundo"
                     android:contentDescription="@string/icone"
-                    android:src="@drawable/proximo" />
+                    mskapp:srcCompat="@drawable/proximo" />
             </LinearLayout>
 
-            <include layout="@layout/grafico_contas" />
+            <include layout="@layout/grafico_saldo" />
+
+            <include layout="@layout/grafico_receitas" />
+
+            <include layout="@layout/grafico_pagamentos" />
 
             <include layout="@layout/grafico_despesas" />
 
             <include layout="@layout/grafico_aplicacoes" />
 
-            <include layout="@layout/grafico_pagamentos" />
-
-            <include layout="@layout/grafico_receitas" />
+            <include layout="@layout/grafico_contas" />
 
             <TextView
                 android:id="@+id/tvSemGrafico"
@@ -82,7 +85,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <include layout="@layout/fab" />
-
+    <include layout="@layout/fab1" />
 
 </RelativeLayout>

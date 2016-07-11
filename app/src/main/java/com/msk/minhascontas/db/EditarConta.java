@@ -14,7 +14,6 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
-import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -36,14 +35,14 @@ public class EditarConta extends AppCompatActivity implements
 
     private static Button data;
     private static int dia, mes, ano;
-    DBContas dbContaParaEditar = new DBContas(this);
-    AlertDialog dialogo;
+    private DBContas dbContaParaEditar = new DBContas(this);
+    private AlertDialog dialogo;
     // ELEMENTOS DA TELA
     private AppCompatAutoCompleteTextView nome;
     private AppCompatEditText valor, prestacoes;
     private Button modifica, cancela;
     private RadioGroup tipo;
-    private AppCompatRadioButton rec, desp;
+    private AppCompatRadioButton rec, desp, aplic;
     private AppCompatCheckBox pagamento;
     private AppCompatSpinner classificaConta, intervaloRepete;
     // VARIAVEIS UTILIZADAS
@@ -54,7 +53,7 @@ public class EditarConta extends AppCompatActivity implements
     private int[] dmaConta, repeteConta;
     private String classeConta, dataConta, nomeConta, tipoConta, pagouConta,
             novoPagouConta, novoNomeConta;
-    private String[] dadosConta, despesas, receitas;
+    private String[] dadosConta, despesas, receitas, aplicacoes;
     private Resources r;
     @SuppressWarnings("rawtypes")
     private ArrayAdapter autocompleta, classesContas;
@@ -108,6 +107,7 @@ public class EditarConta extends AppCompatActivity implements
         tipo = (RadioGroup) findViewById(R.id.rgTipoContaModificada);
         rec = (AppCompatRadioButton) findViewById(R.id.rRecContaModificada);
         desp = (AppCompatRadioButton) findViewById(R.id.rDespContaModificada);
+        aplic = (AppCompatRadioButton) findViewById(R.id.rAplicContaModificada);
         prestacoes = (AppCompatEditText) findViewById(R.id.etPrestacoes);
         modifica = (Button) findViewById(R.id.ibModificaConta);
         cancela = (Button) findViewById(R.id.ibCancelar);
@@ -121,6 +121,7 @@ public class EditarConta extends AppCompatActivity implements
         dia = mes = ano = 0;
         despesas = r.getStringArray(R.array.TipoDespesa);
         receitas = r.getStringArray(R.array.TipoReceita);
+        aplicacoes = r.getStringArray(R.array.TipoAplicacao);
     }
 
     private void PegaConta() {
@@ -174,15 +175,15 @@ public class EditarConta extends AppCompatActivity implements
             }
 
             rec.setChecked(false);
+            aplic.setChecked(false);
             desp.setChecked(true);
             pagamento.setText(R.string.dica_pagamento);
             pagamento.setVisibility(View.VISIBLE);
 
-        } else {
+        } else if (tipoConta.equals(r.getString(R.string.linha_receita))) {
             classesContas = new ArrayAdapter(this,
                     android.R.layout.simple_dropdown_item_1line, getResources()
                     .getStringArray(R.array.TipoReceita));
-            i = 3;
 
             for (int j = 0; j < receitas.length; j++) {
                 if (dadosConta[2].equals(receitas[j]))
@@ -190,13 +191,28 @@ public class EditarConta extends AppCompatActivity implements
             }
 
             rec.setChecked(true);
+            aplic.setChecked(false);
+            desp.setChecked(false);
+
+            pagamento.setText(R.string.dica_recebe);
+            pagamento.setVisibility(View.VISIBLE);
+
+        } else {
+            classesContas = new ArrayAdapter(this,
+                    android.R.layout.simple_dropdown_item_1line, getResources()
+                    .getStringArray(R.array.TipoAplicacao));
+            i = 1;
+
+            for (int j = 0; j < aplicacoes.length; j++) {
+                if (dadosConta[2].equals(aplicacoes[j]))
+                    i = j;
+            }
+
+            rec.setChecked(false);
+            aplic.setChecked(true);
             desp.setChecked(false);
             pagamento.setVisibility(View.GONE);
 
-            if (i == 3) {
-                pagamento.setText(R.string.dica_recebe);
-                pagamento.setVisibility(View.VISIBLE);
-            }
         }
 
         classesContas
@@ -243,19 +259,19 @@ public class EditarConta extends AppCompatActivity implements
 
                 ConfereAlteracoesConta();
 
-                if (nr == 0)
+                if (nr == 0) {
                     ModificaUmaConta();
-
+                }
                 if (qtPrest != repeteConta[0] || repeteConta[2] != intervalo
                         || nr > 0) {
                     //ModificaUmaConta();
                     ModificaContas();
                 }
-                if (qtPrest > 1 && nr > 0)
+                if (qtPrest > 1 && nr > 0) {
                     new BarraProgresso(this, getResources().getString(
                             R.string.dica_titulo_barra), getResources().getString(
                             R.string.dica_barra_altera), qtPrest, 0).execute();
-
+                }
                 altera = 1;
                 setResult(RESULT_OK, null);
                 finish();
@@ -418,8 +434,7 @@ public class EditarConta extends AppCompatActivity implements
     }
 
     private void Dialogo() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                new ContextThemeWrapper(this, R.style.TemaDialogo));
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
         // set title
         alertDialogBuilder.setTitle(getString(R.string.dica_menu_edicao));
@@ -478,6 +493,11 @@ public class EditarConta extends AppCompatActivity implements
                 pagamento.setVisibility(View.VISIBLE);
 
                 break;
+            case R.id.rAplicContaModificada:
+                tipoConta = r.getString(R.string.linha_aplicacoes);
+                pagamento.setVisibility(View.GONE);
+
+                break;
         }
         MostraDados();
 
@@ -514,15 +534,15 @@ public class EditarConta extends AppCompatActivity implements
                     prestacoes.setText(120 + "");
                     qtPrest = 120;
                 }
+            } else if (tipoConta.equals(r.getString(R.string.linha_aplicacoes))) {
+                classeConta = aplicacoes[posicao];
+                tipoConta = r.getString(R.string.linha_aplicacoes);
+                pagamento.setVisibility(View.GONE);
+
             } else {
                 classeConta = receitas[posicao];
-                if (posicao < 3) {
-                    tipoConta = r.getString(R.string.linha_aplicacoes);
-                    pagamento.setVisibility(View.GONE);
-                } else {
-                    pagamento.setText(R.string.dica_recebe);
-                    pagamento.setVisibility(View.VISIBLE);
-                }
+                pagamento.setText(R.string.dica_recebe);
+                pagamento.setVisibility(View.VISIBLE);
             }
 
         } else {

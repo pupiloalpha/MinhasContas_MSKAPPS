@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mskapp="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -49,7 +50,8 @@
                         android:hint="@string/dica_valor"
                         android:imeOptions="actionDone"
                         android:inputType="numberDecimal"
-                        android:paddingLeft="10.0dip" />
+                        android:paddingLeft="10.0dip"
+                        tools:ignore="RtlHardcoded,RtlSymmetry" />
                 </android.support.design.widget.TextInputLayout>
 
                 <ImageView
@@ -72,17 +74,27 @@
                     android:text="@string/data"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/verde_escuro"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:ignore="RtlHardcoded,RtlSymmetry,TextViewEdits" />
 
             </LinearLayout>
 
             <RadioGroup
                 android:id="@+id/rgTipoNovaConta"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="2.0dip"
-                android:weightSum="2.0">
+                android:padding="2.0dip">
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/rRecNovaConta"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/dica_receita"
+                    android:textColor="@color/azul"
+                    android:textSize="18.0dip" />
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/rDespNovaConta"
@@ -95,14 +107,22 @@
                     android:textSize="18.0dip" />
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/rRecNovaConta"
+                    android:id="@+id/rAplicNovaConta"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
-                    android:text="@string/dica_receita"
-                    android:textColor="@color/azul"
+                    android:text="@string/dica_aplicacao"
+                    android:textColor="@color/verde_escuro"
                     android:textSize="18.0dip" />
             </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="@string/dica_spinner"
+                android:textColor="@color/verde_escuro" />
 
             <android.support.v7.widget.AppCompatSpinner
                 android:id="@+id/spClasseConta"
@@ -113,12 +133,12 @@
             <LinearLayout
                 android:id="@+id/layout_pagamento"
                 android:layout_width="match_parent"
-                android:layout_height="50dp">
+                android:layout_height="wrap_content">
 
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/cbPagamento"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:text="@string/dica_pagamento"
@@ -128,7 +148,7 @@
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/cbValorParcelar"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:text="@string/dica_valor_total"
@@ -214,7 +234,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="right"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        tools:ignore="RtlHardcoded">
 
         <Button
             android:id="@+id/ibCancelar"
@@ -224,7 +245,8 @@
             android:background="@color/widget_fundo"
             android:text="@string/cancelar"
             android:textColor="@color/branco"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle" />
 
         <Button
             android:id="@+id/ibNovaConta"
@@ -234,7 +256,8 @@
             android:background="@color/widget_fundo"
             android:text="@string/criar"
             android:textColor="@color/branco"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle" />
     </LinearLayout>
 
 </LinearLayout>

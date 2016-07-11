@@ -3,10 +3,7 @@ package com.msk.minhascontas.info;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.view.ContextThemeWrapper;
 import android.widget.Toast;
-
-import com.msk.minhascontas.R;
 
 public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
@@ -31,8 +28,7 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected void onPreExecute() {
-        this.progressDialog = new ProgressDialog(new ContextThemeWrapper(
-                this.context, R.style.TemaDialogo));
+        this.progressDialog = new ProgressDialog(context);
 
         this.progressDialog.setIndeterminate(false);
         this.progressDialog.setCancelable(false);

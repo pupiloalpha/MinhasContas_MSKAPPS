@@ -3,7 +3,6 @@ package com.msk.minhascontas.resumos;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -17,22 +16,23 @@ import android.widget.TextView;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 public class ResumoMensal extends Fragment implements View.OnClickListener {
 
 
     public static final String ANO_PAGINA = "ano_pagina";
     public static final String MES_PAGINA = "mes_pagina";
-    private static Bundle args;
 
     // BARRA NO TOPO DO APLICATIVO
-    Intent mostra_resumo = new Intent();
-    Bundle dados_mes = new Bundle();
+    private Bundle dados_mes = new Bundle();
 
     // CLASSE DO BANCO DE DADOS
-    DBContas dbContas;
+    private DBContas dbContas;
 
     // OPCOES DE AJUSTE
-    SharedPreferences buscaPreferencias = null;
+    private SharedPreferences buscaPreferencias = null;
 
     // ELEMENTOS UTILIZADOS EM TELA
     private TextView valorDesp, valorRec, valorAplic, valorSaldo,
@@ -46,8 +46,6 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
     private int mes, ano;
     private double[] valores, valoresDesp, valoresRec, valoresSaldo,
             valoresAplicados;
-    private String despesa, receita, aplicacao;
-    private Cursor aplicacoes, despesas;
     private Boolean somaSaldo = false;
     // ELEMENTOS DAS PAGINAS
     private View rootView;
@@ -85,7 +83,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
         // COLOCA OS MESES NA TELA
         rootView = inflater.inflate(R.layout.conteudo_resumos, container, false);
-        args = getArguments();
+        Bundle args = getArguments();
 
         mes = args.getInt(MES_PAGINA);
         ano = args.getInt(ANO_PAGINA);
@@ -154,77 +152,41 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
     private void InsereValores() {
 
+        Locale current = getResources().getConfiguration().locale;
+        NumberFormat dinheiro = NumberFormat.getCurrencyInstance(current);
 
         // INSERE OS VALORES EM CADA ITEtM
 
-        valorPago.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresDesp[0])));
-        valorPagar.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresDesp[1])));
-        valorCartao.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresDesp[2])));
-        valorDespFixa.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresDesp[3])));
-        valorDespVar.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresDesp[4])));
-        valorPrestacoes.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresDesp[5])));
+        valorPago.setText(dinheiro.format(valoresDesp[0]));
+        valorPagar.setText(dinheiro.format(valoresDesp[1]));
+        valorCartao.setText(dinheiro.format(valoresDesp[2]));
+        valorDespFixa.setText(dinheiro.format(valoresDesp[3]));
+        valorDespVar.setText(dinheiro.format(valoresDesp[4]));
+        valorPrestacoes.setText(dinheiro.format(valoresDesp[5]));
 
-        valorReceber.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresRec[1])));
-        valorRecebido.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresRec[0])));
+        valorReceber.setText(dinheiro.format(valoresRec[1]));
+        valorRecebido.setText(dinheiro.format(valoresRec[0]));
 
-        valorFundos.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresAplicados[0])));
-        valorPoupanca.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresAplicados[1])));
-        valorPrevidencia.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresAplicados[2])));
+        valorFundos.setText(dinheiro.format(valoresAplicados[0]));
+        valorPoupanca.setText(dinheiro.format(valoresAplicados[1]));
+        valorPrevidencia.setText(dinheiro.format(valoresAplicados[2]));
 
-        valorSaldoAtual.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresSaldo[0])));
-        valorSaldoAnterior.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valoresSaldo[1])));
+        valorSaldoAtual.setText(dinheiro.format(valoresSaldo[0]));
+        valorSaldoAnterior.setText(dinheiro.format(valoresSaldo[1]));
 
-        valorRec.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valores[0])));
-        valorDesp.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valores[1])));
-        valorAplic.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valores[2])));
-        valorSaldo.setText(getResources().getString(
-                R.string.dica_dinheiro,
-                String.format("%.2f", valores[3])));
+        valorRec.setText(dinheiro.format(valores[0]));
+        valorDesp.setText(dinheiro.format(valores[1]));
+        valorAplic.setText(dinheiro.format(valores[2]));
+        valorSaldo.setText(dinheiro.format(valores[3]));
 
         if (valoresSaldo[0] < 0.0D) {
-            // rootView.setBackgroundResource(R.color.Vermelho);
             valorSaldoAtual.setTextColor(Color.parseColor("#CC0000"));
         }
         if (valoresSaldo[1] < 0.0D) {
-            // rootView.setBackgroundResource(R.color.Vermelho);
-            valorSaldoAnterior
-                    .setTextColor(Color.parseColor("#CC0000"));
+            valorSaldoAnterior.setTextColor(Color.parseColor("#CC0000"));
         }
 
         if (valores[3] < 0.0D) {
-            // rootView.setBackgroundResource(R.color.Vermelho);
             valorSaldo.setTextColor(Color.parseColor("#CC0000"));
         }
     }
@@ -234,11 +196,11 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
         // DEFINE OS NOMES DA LINHAS DA TABELA
 
         dbContas.open();
-        despesa = getResources().getString(R.string.linha_despesa);
-        despesas = dbContas.buscaCategoriaPorTipo(despesa);
-        receita = getResources().getString(R.string.linha_receita);
-        aplicacao = getResources().getString(R.string.linha_aplicacoes);
-        aplicacoes = dbContas.buscaCategoriaPorTipo(aplicacao);
+        String despesa = getResources().getString(R.string.linha_despesa);
+        String[] despesas = getResources().getStringArray(R.array.TipoDespesa);
+        String receita = getResources().getString(R.string.linha_receita);
+        String aplicacao = getResources().getString(R.string.linha_aplicacoes);
+        String[] aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         valores = new double[4];
         valoresDesp = new double[6];
@@ -285,12 +247,11 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
             valoresDesp[1] = 0.0D;
 
         // VALORES DAS CATEGORIAS DE DESPESAS
-        for (int i = 0; i < despesas.getCount(); i++) {
-            despesas.moveToPosition(i);
-            if (dbContas.quantasContasPorClasse(despesas.getString(1), 0, mes,
+        for (int i = 0; i < despesas.length; i++) {
+            if (dbContas.quantasContasPorClasse(despesas[i], 0, mes,
                     ano) > 0)
                 valoresDesp[i + 2] = dbContas.somaContasPorClasse(
-                        despesas.getString(1), 0, mes, ano);
+                        despesas[i], 0, mes, ano);
             else
                 valoresDesp[i + 2] = 0.0D;
         }
@@ -301,12 +262,11 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
         else
             valores[2] = 0.0D;
 
-        for (int j = 0; j < aplicacoes.getCount(); j++) {
-            aplicacoes.moveToPosition(j);
-            if (dbContas.quantasContasPorClasse(aplicacoes.getString(1), 0,
+        for (int j = 0; j < aplicacoes.length; j++) {
+            if (dbContas.quantasContasPorClasse(aplicacoes[j], 0,
                     mes, ano) > 0)
                 valoresAplicados[j] = dbContas.somaContasPorClasse(
-                        aplicacoes.getString(1), 0, mes, ano);
+                        aplicacoes[j], 0, mes, ano);
             else
                 valoresAplicados[j] = 0.0D;
         }
@@ -344,15 +304,13 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
         // VALOR DO SALDO ATUAL
 
-        if (somaSaldo == true) {
+        if (somaSaldo) {
             valores[3] = valoresRec[0] - valoresDesp[0]
                     + valoresSaldo[1];
         } else {
             valores[3] = valoresRec[0] - valoresDesp[0];
         }
 
-        aplicacoes.close();
-        despesas.close();
         dbContas.close();
 
     }
@@ -370,17 +328,17 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
                 dados_mes.putString("tipo", "todas");
                 break;
             case R.id.l_aplicacoes:
-                dados_mes.putString("tipo", "aplicacoes");
+                dados_mes.putString("tipo", getResources().getString(R.string.linha_aplicacoes));
                 break;
             case R.id.l_despesas:
-                dados_mes.putString("tipo", "despesas");
+                dados_mes.putString("tipo", getResources().getString(R.string.linha_despesa));
                 break;
             case R.id.l_receitas:
-                dados_mes.putString("tipo", "receitas");
+                dados_mes.putString("tipo", getResources().getString(R.string.linha_receita));
                 break;
         }
 
-        mostra_resumo = new Intent("com.msk.minhascontas.CONTASDOMES");
+        Intent mostra_resumo = new Intent("com.msk.minhascontas.CONTASDOMES");
         mostra_resumo.putExtras(dados_mes);
         startActivityForResult(mostra_resumo, 0);
     }

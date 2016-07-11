@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,31 +38,32 @@ import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.db.ExportarExcel;
 
+import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class Ajustes extends PreferenceActivity implements
         OnPreferenceClickListener, OnPreferenceChangeListener {
 
-    Cursor cursor = null;
-    Toolbar toolbar;
-    DBContas dbMinhasContas = new DBContas(this);
-    ExportarExcel excel = new ExportarExcel();
-    BackupManager android;
+    private Toolbar toolbar;
+    private DBContas dbMinhasContas = new DBContas(this);
+    private ExportarExcel excel = new ExportarExcel();
 
+    // ELEMENTOS DA TELA
+    private PreferenceScreen prefs;
     private Preference backup, restaura, apagatudo, versao, exportar;
     private EditTextPreference senha;
     private CheckBoxPreference acesso, pagamento, resumo, saldo, autobkup;
-    private PreferenceScreen prefs;
-    private String chave, nrVersao, pastaBackUp;
+    private String chave, pastaBackUp;
     private PackageInfo info;
     private Resources r = null;
+    private NumberFormat dinheiro;
+
     // VARIAVEIS UTILIZADAS
-    private int ano, erro, categorias, ajusteReceita;
-    private String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
-            dez, colunas, linhas, valores;
-    private double dvalor0, dvalor1;
+    private int erro, categorias, ajusteReceita;
+    private String[] linhas;
     private String despesa, receita, aplicacao;
-    private Cursor despesas, receitas, aplicacoes;
+    private String[] despesas, receitas, aplicacoes;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -73,9 +73,11 @@ public class Ajustes extends PreferenceActivity implements
 
         addPreferencesFromResource(R.xml.preferencias);
 
-        prefs = getPreferenceScreen();
-
         r = getResources();
+        Locale current = r.getConfiguration().locale;
+        dinheiro = NumberFormat.getCurrencyInstance(current);
+
+        prefs = getPreferenceScreen();
 
         // ELEMENTOS DAS PREFERENCIAS QUE SERAO UTILIZADOS
         exportar = (Preference) prefs.findPreference(r
@@ -106,7 +108,7 @@ public class Ajustes extends PreferenceActivity implements
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
-        nrVersao = info.versionName;
+        String nrVersao = info.versionName;
 
         versao.setSummary(r.getString(R.string.pref_descricao_versao, nrVersao));
 
@@ -170,19 +172,11 @@ public class Ajustes extends PreferenceActivity implements
 
         if (chave.equals("backup")) {
             // Seleciona pasta para backup
-            abrePasta();
+            abrePasta(111);
         }
         if (chave.equals("restaura")) {
-            // Restaura DB
-            new BarraProgresso(this, getResources().getString(
-                    R.string.dica_titulo_barra), getResources().getString(
-                    R.string.dica_barra_recupera), 100, 10).execute();
-            dbMinhasContas.open();
-            dbMinhasContas.restauraBD(pastaBackUp);
-            Toast.makeText(getApplicationContext(),
-                    getString(R.string.dica_restaura_bd), Toast.LENGTH_SHORT)
-                    .show();
-            dbMinhasContas.close();
+            // Seleciona o arquivo backup
+            abrePasta(222);
         }
         if (chave.equals("apagatudo")) {
             // Apaga banco de dados
@@ -197,7 +191,6 @@ public class Ajustes extends PreferenceActivity implements
                                                     int pInt) {
                                     dbMinhasContas.open();
                                     dbMinhasContas.excluiTodasAsContas();
-                                    dbMinhasContas.excluiTodasAsCategorias();
                                     Toast.makeText(
                                             getApplicationContext(),
                                             getString(R.string.dica_exclusao_bd),
@@ -250,7 +243,8 @@ public class Ajustes extends PreferenceActivity implements
                 pagamento.setSummary(R.string.pref_descricao_editapagamento);
             }
             Toast.makeText(getApplicationContext(),
-                    R.string.dica_texto_reinicio, Toast.LENGTH_SHORT).show();
+                    R.string.dica_texto_reinicio,
+                    Toast.LENGTH_SHORT).show();
         }
 
         if (chave.equals("resumo")) {
@@ -261,7 +255,8 @@ public class Ajustes extends PreferenceActivity implements
                 resumo.setSummary(R.string.pref_descricao_resumo_diario);
             }
             Toast.makeText(getApplicationContext(),
-                    R.string.dica_texto_reinicio, Toast.LENGTH_SHORT).show();
+                    R.string.dica_texto_reinicio,
+                    Toast.LENGTH_SHORT).show();
         }
 
         if (chave.equals("saldo")) {
@@ -272,7 +267,8 @@ public class Ajustes extends PreferenceActivity implements
                 saldo.setSummary(R.string.pref_descricao_saldo_real);
             }
             Toast.makeText(getApplicationContext(),
-                    R.string.dica_texto_reinicio, Toast.LENGTH_SHORT).show();
+                    R.string.dica_texto_reinicio,
+                    Toast.LENGTH_SHORT).show();
         }
 
         if (chave.equals("autobkup")) {
@@ -283,7 +279,8 @@ public class Ajustes extends PreferenceActivity implements
                 autobkup.setSummary(R.string.pref_descricao_auto_bkup_nao);
             }
             Toast.makeText(getApplicationContext(),
-                    R.string.dica_texto_reinicio, Toast.LENGTH_SHORT).show();
+                    R.string.dica_texto_reinicio,
+                    Toast.LENGTH_SHORT).show();
         }
 
         setResult(RESULT_OK, null);
@@ -312,7 +309,10 @@ public class Ajustes extends PreferenceActivity implements
     private void CriaArquivoExcel() {
         // COLOCA VALORES DE DADOS NOS VETORES
         dbMinhasContas.open();
-        ano = Calendar.getInstance().get(Calendar.YEAR);
+        int ano = Calendar.getInstance().get(Calendar.YEAR);
+        String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
+                dez;
+
         jan = SaldoMensal(0, ano);
         fev = SaldoMensal(1, ano);
         mar = SaldoMensal(2, ano);
@@ -326,12 +326,14 @@ public class Ajustes extends PreferenceActivity implements
         nov = SaldoMensal(10, ano);
         dez = SaldoMensal(11, ano);
         dbMinhasContas.close();
-        colunas = r.getStringArray(R.array.MesesDoAno);
+
+        String[] colunas = r.getStringArray(R.array.MesesDoAno);
 
         NomeLinhas(); // DEFINE O NOME DAS LINHAS DA TABELA
 
         // CRIA O ARQUIVO EXCEL
-        erro = excel.CriaExcel(r.getString(R.string.planilha, ano), jan, fev,
+        erro = excel.CriaExcel(r.getString(R.string.planilha, String.format(
+                r.getConfiguration().locale, "%d", ano)), jan, fev,
                 mar, abr, mai, jun, jul, ago, set, out, nov, dez, colunas,
                 linhas, pastaBackUp);
 
@@ -342,110 +344,99 @@ public class Ajustes extends PreferenceActivity implements
         // DEFINE OS NOMES DA LINHAS DA TABELA
         dbMinhasContas.open();
         despesa = getResources().getString(R.string.linha_despesa);
-        despesas = dbMinhasContas.buscaCategoriaPorTipo(despesa);
+        despesas = getResources().getStringArray(R.array.TipoDespesa);
         receita = getResources().getString(R.string.linha_receita);
-        receitas = dbMinhasContas.buscaCategoriaPorTipo(receita);
+        receitas = getResources().getStringArray(R.array.TipoReceita);
         aplicacao = getResources().getString(R.string.linha_aplicacoes);
-        aplicacoes = dbMinhasContas.buscaCategoriaPorTipo(aplicacao);
+        aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         // AJUSTE QUANDO EXISTE APENAS UMA RECEITA
-        if (receitas.getCount() > 1)
-            ajusteReceita = receitas.getCount();
+        if (receitas.length > 1)
+            ajusteReceita = receitas.length;
         else
             ajusteReceita = 0;
 
-        categorias = despesas.getCount() + ajusteReceita
-                + aplicacoes.getCount() + 7;
-        valores = new String[categorias];
+        categorias = despesas.length + ajusteReceita
+                + aplicacoes.length + 7;
+
+        String[] valores = new String[categorias];
+        double dvalor0, dvalor1;
 
         // PREENCHE OS VALORES DE DESPESAS
         if (dbMinhasContas.quantasContasPorTipo(despesa, 0, mes, ano) > 0) {
-            valores[0] = String.format("%.2f",
-                    dbMinhasContas.somaContas(despesa, 0, mes, ano));
+            valores[0] = dinheiro.format(dbMinhasContas.somaContas(despesa, 0, mes, ano));
             dvalor0 = dbMinhasContas.somaContas(despesa, 0, mes, ano);
         } else {
-            valores[0] = String.format("%.2f", 0.0D);
+            valores[0] = dinheiro.format(0.0D);
             dvalor0 = 0.0D;
         }
-        for (int i = 0; i < despesas.getCount(); i++) {
-            despesas.moveToPosition(i);
-            if (dbMinhasContas.quantasContasPorClasse(despesas.getString(1), 0,
+        for (int i = 0; i < despesas.length; i++) {
+            if (dbMinhasContas.quantasContasPorClasse(despesas[i], 0,
                     mes, ano) > 0)
-                valores[i + 1] = String.format(
-                        "%.2f",
-                        dbMinhasContas.somaContasPorClasse(
-                                despesas.getString(1), 0, mes, ano));
+                valores[i + 1] = dinheiro.format(dbMinhasContas.somaContasPorClasse(
+                        despesas[i], 0, mes, ano));
             else
-                valores[i + 1] = String.format("%.2f", 0.0D);
+                valores[i + 1] = dinheiro.format(0.0D);
         }
         // VALORES DE RECEITAS
         if (dbMinhasContas.quantasContasPorTipo(receita, 0, mes, ano) > 0) {
-            valores[despesas.getCount() + 1] = String.format("%.2f",
-                    dbMinhasContas.somaContas(receita, 0, mes, ano));
+            valores[despesas.length + 1] = dinheiro.format(dbMinhasContas.somaContas(
+                    receita, 0, mes, ano));
             dvalor1 = dbMinhasContas.somaContas(receita, 0, mes, ano);
         } else {
-            valores[despesas.getCount() + 1] = String.format("%.2f", 0.0D);
+            valores[despesas.length + 1] = dinheiro.format(0.0D);
             dvalor1 = 0.0D;
         }
-        if (receitas.getCount() > 1)
-            for (int j = 0; j < receitas.getCount(); j++) {
-                receitas.moveToPosition(j);
+        if (receitas.length > 1)
+            for (int j = 0; j < receitas.length; j++) {
                 if (dbMinhasContas.quantasContasPorClasse(
-                        receitas.getString(1), 0, mes, ano) > 0)
-                    valores[j + despesas.getCount() + 2] = String.format(
-                            "%.2f",
-                            dbMinhasContas.somaContasPorClasse(
-                                    receitas.getString(1), 0, mes, ano));
+                        receitas[j], 0, mes, ano) > 0)
+                    valores[j + despesas.length + 2] = dinheiro.format(
+                            dbMinhasContas.somaContasPorClasse(receitas[j], 0, mes, ano));
                 else
-                    valores[j + despesas.getCount() + 2] = String.format(
-                            "%.2f", 0.0D);
+                    valores[j + despesas.length + 2] = dinheiro.format(0.0D);
             }
         // VALORES DE APLICACOES
         if (dbMinhasContas.quantasContasPorTipo(aplicacao, 0, mes, ano) > 0)
-            valores[despesas.getCount() + ajusteReceita + 2] = String.format(
-                    "%.2f", dbMinhasContas.somaContas(aplicacao, 0, mes, ano));
+            valores[despesas.length + ajusteReceita + 2] = dinheiro.format(
+                    dbMinhasContas.somaContas(aplicacao, 0, mes, ano));
         else
-            valores[despesas.getCount() + ajusteReceita + 2] = String.format(
-                    "%.2f", 0.0D);
-        for (int k = 0; k < aplicacoes.getCount(); k++) {
-            aplicacoes.moveToPosition(k);
-            if (dbMinhasContas.quantasContasPorClasse(aplicacoes.getString(1),
+            valores[despesas.length + ajusteReceita + 2] = dinheiro.format(0.0D);
+        for (int k = 0; k < aplicacoes.length; k++) {
+            if (dbMinhasContas.quantasContasPorClasse(aplicacoes[k],
                     0, mes, ano) > 0)
-                valores[k + despesas.getCount() + ajusteReceita + 3] = String
-                        .format("%.2f",
-                                dbMinhasContas.somaContasPorClasse(
-                                        aplicacoes.getString(1), 0, mes, ano));
+                valores[k + despesas.length + ajusteReceita + 3] = dinheiro.format(
+                        dbMinhasContas.somaContasPorClasse(aplicacoes[k], 0, mes, ano));
             else
-                valores[k + despesas.getCount() + ajusteReceita + 3] = String
-                        .format("%.2f", 0.0D);
+                valores[k + despesas.length + ajusteReceita + 3] = dinheiro.format(0.0D);
 
         }
 
         // VALOR DO SALDO MENSAL
-        valores[categorias - 4] = String.format("%.2f", dvalor1 - dvalor0);
+        valores[categorias - 4] = dinheiro.format(dvalor1 - dvalor0);
 
         // VALOR CONTAS PAGAS
         if (dbMinhasContas.quantasContasPagasPorTipo(despesa, "paguei", 0, mes,
                 ano) > 0) {
-            valores[categorias - 3] = String.format("%.2f", dbMinhasContas
-                    .somaContasPagas(despesa, "paguei", 0, mes, ano));
+            valores[categorias - 3] = dinheiro.format(dbMinhasContas.somaContasPagas(
+                    despesa, "paguei", 0, mes, ano));
             dvalor1 = dbMinhasContas.somaContasPagas(despesa, "paguei", 0, mes,
                     ano);
         } else {
-            valores[categorias - 3] = String.format("%.2f", 0.0D);
+            valores[categorias - 3] = dinheiro.format(0.0D);
             dvalor1 = 0.0D;
         }
 
         // VALOR CONTAS A PAGAR
         if (dbMinhasContas.quantasContasPagasPorTipo(despesa, "falta", 0, mes,
                 ano) > 0)
-            valores[categorias - 2] = String.format("%.2f", dbMinhasContas
-                    .somaContasPagas(despesa, "falta", 0, mes, ano));
+            valores[categorias - 2] = dinheiro.format(dbMinhasContas.somaContasPagas(
+                    despesa, "falta", 0, mes, ano));
         else
-            valores[categorias - 2] = String.format("%.2f", 0.0D);
+            valores[categorias - 2] = dinheiro.format(0.0D);
 
         // VALOR DO SALDO ATUAL
-        valores[categorias - 1] = String.format("%.2f", dvalor0 - dvalor1);
+        valores[categorias - 1] = dinheiro.format(dvalor0 - dvalor1);
 
         dbMinhasContas.close();
 
@@ -457,41 +448,37 @@ public class Ajustes extends PreferenceActivity implements
         // DEFINE OS NOMES DA LINHAS DA TABELA
         dbMinhasContas.open();
         despesa = getResources().getString(R.string.linha_despesa);
-        despesas = dbMinhasContas.buscaCategoriaPorTipo(despesa);
+        despesas = getResources().getStringArray(R.array.TipoDespesa);
         receita = getResources().getString(R.string.linha_receita);
-        receitas = dbMinhasContas.buscaCategoriaPorTipo(receita);
+        receitas = getResources().getStringArray(R.array.TipoReceita);
         aplicacao = getResources().getString(R.string.linha_aplicacoes);
-        aplicacoes = dbMinhasContas.buscaCategoriaPorTipo(aplicacao);
+        aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         // AJUSTE QUANDO EXISTE APENAS UMA RECEITA
-        if (receitas.getCount() > 1)
-            ajusteReceita = receitas.getCount();
+        if (receitas.length > 1)
+            ajusteReceita = receitas.length;
         else
             ajusteReceita = 0;
 
-        categorias = despesas.getCount() + ajusteReceita
-                + aplicacoes.getCount() + 7;
+        categorias = despesas.length + ajusteReceita
+                + aplicacoes.length + 7;
         linhas = new String[categorias];
 
         // PREENCHE AS LINHAS DA TABELA
         linhas[0] = despesa;
-        for (int i = 0; i < despesas.getCount(); i++) {
-            despesas.moveToPosition(i);
-            linhas[i + 1] = despesas.getString(1);
+        for (int i = 0; i < despesas.length; i++) {
+            linhas[i + 1] = despesas[i];
         }
         // VALORES DE RECEITAS
-        linhas[despesas.getCount() + 1] = receita;
-        if (receitas.getCount() > 1)
-            for (int j = 0; j < receitas.getCount(); j++) {
-                receitas.moveToPosition(j);
-                linhas[j + despesas.getCount() + 2] = receitas.getString(1);
+        linhas[despesas.length + 1] = receita;
+        if (receitas.length > 1)
+            for (int j = 0; j < receitas.length; j++) {
+                linhas[j + despesas.length + 2] = receitas[j];
             }
         // VALORES DE APLICACOES
-        linhas[despesas.getCount() + ajusteReceita + 2] = aplicacao;
-        for (int k = 0; k < aplicacoes.getCount(); k++) {
-            aplicacoes.moveToPosition(k);
-            linhas[k + despesas.getCount() + ajusteReceita + 3] = aplicacoes
-                    .getString(1);
+        linhas[despesas.length + ajusteReceita + 2] = aplicacao;
+        for (int k = 0; k < aplicacoes.length; k++) {
+            linhas[k + despesas.length + ajusteReceita + 3] = aplicacoes[k];
         }
 
         // VALOR DO SALDO MENSAL
@@ -551,9 +538,24 @@ public class Ajustes extends PreferenceActivity implements
         return null;
     }
 
-    public void abrePasta()
-    {
-        startActivityForResult(new Intent(this, EscolhePasta.class), 111);
+    public void abrePasta(int nr) {
+
+        if (nr == 111) {
+            Bundle envelope = new Bundle();
+            envelope.putString("tipo", "");
+            Intent atividade = new Intent(this, EscolhePasta.class);
+            atividade.putExtras(envelope);
+            startActivityForResult(atividade, nr);
+        }
+
+        if (nr == 222) {
+            Bundle envelope = new Bundle();
+            envelope.putString("tipo", "minhas_contas");
+            Intent atividade = new Intent(this, EscolhePasta.class);
+            atividade.putExtras(envelope);
+            startActivityForResult(atividade, nr);
+        }
+
     }
 
     @Override
@@ -570,13 +572,25 @@ public class Ajustes extends PreferenceActivity implements
 
                         try {
 
+                            SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor edit = sharedPref.edit();
+                            edit.putString("backup", path);
+                            edit.commit();
+
                             // Cria um Backup do Banco de Dados
                             dbMinhasContas.open();
                             dbMinhasContas.copiaBD(path);
-                            android = new BackupManager(getApplicationContext());
+                            BackupManager android = new BackupManager(getApplicationContext());
                             android.dataChanged();
                             Toast.makeText(getApplicationContext(), getString(R.string.dica_copia_bd), Toast.LENGTH_SHORT).show();
                             dbMinhasContas.close();
+
+                            pastaBackUp = sharedPref.getString("backup", "");
+
+                            if (!pastaBackUp.equals("")) {
+
+                                backup.setSummary(pastaBackUp);
+                            }
 
                         } catch (Exception e) {
 
@@ -586,8 +600,48 @@ public class Ajustes extends PreferenceActivity implements
                 }
 
                 break;
+            case 222:
+
+                if (resultCode == RESULT_OK) {
+
+                    if (data != null) {
+
+                        Bundle extras = data.getExtras();
+                        String path = (String) extras.get(EscolhePasta.CHOSEN_DIRECTORY);
+
+                        try {
+
+                            // Restaura DB
+                            new BarraProgresso(this, getResources().getString(
+                                    R.string.dica_titulo_barra), getResources().getString(
+                                    R.string.dica_barra_recupera), 100, 10).execute();
+                            dbMinhasContas.open();
+                            dbMinhasContas.restauraBD(path);
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.dica_restaura_bd), Toast.LENGTH_SHORT)
+                                    .show();
+                            dbMinhasContas.close();
+
+                        } catch (Exception e) {
+
+                            Log.e("Seleção de arquivos", "Deu erro!!!", e);
+                        }
+                    }
+                }
+
+                break;
         }
+    }
 
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK, null);
+        super.onBackPressed();
+    }
 
+    @Override
+    protected void onDestroy() {
+        setResult(RESULT_OK, null);
+        super.onDestroy();
     }
 }

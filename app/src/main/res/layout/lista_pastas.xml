@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -8,7 +9,20 @@
         android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:choiceMode="singleChoice"
+        android:scrollingCache="false"
+        tools:ignore="InefficientWeight" />
+
+    <TextView
+        android:id="@+id/tvSemResultados"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:text="@string/vazio"
+        android:textColor="@color/cinza"
+        android:textSize="18sp"
+        tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/btnChoose"
@@ -17,6 +31,7 @@
         android:background="@color/widget_fundo"
         android:text="Selecionar"
         android:textColor="@color/branco"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 
 </LinearLayout>

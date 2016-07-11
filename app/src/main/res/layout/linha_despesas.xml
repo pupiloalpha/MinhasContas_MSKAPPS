@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/l_despesas"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/fundo_cartao"
-    android:orientation="vertical"
-    android:padding="5.0dip">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -21,7 +21,8 @@
             android:text="@string/linha_despesa"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/vermelho"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:id="@+id/tvValorDespesas"
@@ -33,7 +34,8 @@
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/vermelho"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="RtlHardcoded" />
     </LinearLayout>
 
     <LinearLayout
@@ -54,7 +56,8 @@
             android:layout_weight="1"
             android:gravity="center_vertical|left"
             android:text="@string/resumo_pagas"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:layout_width="0dp"
@@ -63,7 +66,8 @@
             android:layout_weight="1"
             android:gravity="right|center_vertical"
             android:text="@string/resumo_faltam"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:ignore="RtlHardcoded" />
     </LinearLayout>
 
     <LinearLayout
@@ -80,7 +84,8 @@
             android:gravity="left"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/vermelho" />
+            android:textColor="@color/vermelho"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:id="@+id/tvValorDespPagar"
@@ -91,7 +96,8 @@
             android:gravity="right|center_vertical"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/vermelho" />
+            android:textColor="@color/vermelho"
+            tools:ignore="RtlHardcoded" />
     </LinearLayout>
 
     <LinearLayout
@@ -115,7 +121,8 @@
             android:layout_weight="1"
             android:gravity="center_vertical|left"
             android:text="@string/linha_despFixa"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:layout_width="0dp"
@@ -124,7 +131,8 @@
             android:layout_weight="1"
             android:gravity="right|center_vertical"
             android:text="@string/linha_despVar"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:ignore="RtlHardcoded" />
     </LinearLayout>
 
     <LinearLayout
@@ -141,7 +149,8 @@
             android:gravity="left"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/vermelho" />
+            android:textColor="@color/vermelho"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:id="@+id/tvValorDespVar"
@@ -152,7 +161,8 @@
             android:gravity="right|center_vertical"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/vermelho" />
+            android:textColor="@color/vermelho"
+            tools:ignore="RtlHardcoded" />
 
     </LinearLayout>
 
@@ -168,7 +178,8 @@
             android:layout_weight="1"
             android:gravity="center_vertical|left"
             android:text="@string/linha_cartao"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:layout_width="0dp"
@@ -177,7 +188,8 @@
             android:layout_weight="1"
             android:gravity="right|center_vertical"
             android:text="@string/linha_prestacoes"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:ignore="RtlHardcoded" />
     </LinearLayout>
 
     <LinearLayout
@@ -194,7 +206,8 @@
             android:gravity="left"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/vermelho" />
+            android:textColor="@color/vermelho"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:id="@+id/tvValorPrestacoes"
@@ -205,7 +218,8 @@
             android:gravity="right|center_vertical"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/vermelho" />
+            android:textColor="@color/vermelho"
+            tools:ignore="RtlHardcoded" />
     </LinearLayout>
 
 </LinearLayout>

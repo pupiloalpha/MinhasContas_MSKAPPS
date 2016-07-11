@@ -44,28 +44,27 @@ public class MinhasContas extends AppCompatActivity implements
         OnPageChangeListener {
 
     private static int[] diaConta, mesConta, anoConta;
-    final Context contexto = this;
+    private final Context contexto = this;
     private final Calendar c = Calendar.getInstance();
     // CLASSE DO BANCO DE DADOS
-    DBContas dbContas = new DBContas(this);
+    private DBContas dbContas = new DBContas(this);
     // ELEMENTOS DA TELA
-    Paginas mPaginas;
-    ViewPager mViewPager;
-    Resources r;
-    SharedPreferences buscaPreferencias = null;
+    private Paginas mPaginas;
+    private ViewPager mViewPager;
+    private Resources r;
+    private SharedPreferences buscaPreferencias = null;
     private ActionBar actionBar;
-    private ImageButton addConta;
     // VARIAVEIS DO APLICATIVO
     private Boolean autobkup = true;
     private Boolean resumoMensal = true;
     private Boolean bloqueioApp = false;
     private Boolean atualizaPagamento = false;
-    private String senhaUsuario, tipo, categoria, pastaBackUp;
+    private String senhaUsuario, tipo, categoria;
     private String[] despesas, receitas;
     private String[] Meses;
     private int dia, mes, ano, paginas, nrPagina;
 
-    public static boolean isTablet(Context context) {
+    private static boolean isTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
@@ -76,13 +75,13 @@ public class MinhasContas extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         PreferenciasUsuario();
-        if (bloqueioApp == true) {
+        if (bloqueioApp) {
             Dialogo();
         }
         setContentView(R.layout.pagina_resumos);
 
         r = getResources();
-        addConta = (ImageButton) findViewById(R.id.ibfab);
+        ImageButton addConta = (ImageButton) findViewById(R.id.ibfab);
         addConta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +103,7 @@ public class MinhasContas extends AppCompatActivity implements
         AjustesBD();
         dia = c.get(Calendar.DAY_OF_MONTH);
 
-        if (resumoMensal == true) {
+        if (resumoMensal) {
             // PAGINA CONTENDO MESES
             nrPagina = 12;
             paginas = 24;
@@ -149,7 +148,6 @@ public class MinhasContas extends AppCompatActivity implements
         bloqueioApp = buscaPreferencias.getBoolean("acesso", false);
         atualizaPagamento = buscaPreferencias.getBoolean("pagamento", false);
         senhaUsuario = buscaPreferencias.getString("senha", "");
-        pastaBackUp = buscaPreferencias.getString("backup", "");
     }
 
     private void Dialogo() {
@@ -210,7 +208,7 @@ public class MinhasContas extends AppCompatActivity implements
 
     private void AjustesBD() {
         // Atualiza pagamentos
-        if (atualizaPagamento == true) {
+        if (atualizaPagamento) {
 
             dia = dia + 1;
 
@@ -219,9 +217,6 @@ public class MinhasContas extends AppCompatActivity implements
             // db.close();
         }
 
-        // Cria Categorias das contas
-        int u = dbContas.quantasCategorias();
-        CriaCategorias(u);
     }
 
     private void usarActionBar() {
@@ -258,7 +253,7 @@ public class MinhasContas extends AppCompatActivity implements
         // Adiciona o nome dos meses nas tabs
         for (int i = 0; i < paginas; i++) {
 
-            if (resumoMensal == true) {
+            if (resumoMensal) {
 
                 if (isTablet(this)) {
                     title = "  " + MesCompleto[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
@@ -419,61 +414,6 @@ public class MinhasContas extends AppCompatActivity implements
 
     }
 
-
-    private void CriaCategorias(int u) {
-
-
-        despesas = r.getStringArray(R.array.TipoDespesa);
-        receitas = r.getStringArray(R.array.TipoReceita);
-
-        if (u == 0) {
-
-            // CRIA CATEGORIAS QUANDO NAO EXISTEM
-            // dbContas.open();
-
-            // GERA CATEGORIAS PARA AS DESPESAS
-            tipo = r.getString(R.string.linha_despesa);
-            categoria = despesas[0];
-            dbContas.criaCategoriaConta(categoria, tipo, "paga", "repete_sempre",
-                    "nao_mostra");
-            categoria = despesas[1];
-            dbContas.criaCategoriaConta(categoria, tipo, "paga", "repete_sempre",
-                    "nao_mostra");
-            dbContas.alteraCategoriaContas("Fixa", categoria, tipo);
-            categoria = despesas[2];
-            dbContas.criaCategoriaConta(categoria, tipo, "paga", "repete",
-                    "nao_mostra");
-            dbContas.alteraCategoriaContas("Variavel", categoria, tipo);
-            categoria = despesas[3];
-            dbContas.criaCategoriaConta(categoria, tipo, "paga", "repete", "mostra");
-            dbContas.alteraCategoriaContas("Prestacao", categoria, tipo);
-
-            // GERA CATEGORIAS PARA AS RECEITAS
-            tipo = r.getString(R.string.linha_receita);
-            categoria = receitas[3];
-            dbContas.criaCategoriaConta(categoria, tipo, "nao_paga", "repete",
-                    "nao_mostra");
-            dbContas.alteraCategoriaContas("Simples", categoria, tipo);
-
-            // GERA CATEGORIAS PARA AS APLICACOES
-            tipo = r.getString(R.string.linha_aplicacoes);
-            categoria = receitas[0];
-            dbContas.alteraCategoriaContas("Fundo", categoria, tipo);
-            dbContas.criaCategoriaConta(categoria, tipo, "paga", "repete",
-                    "nao_mostra");
-            categoria = receitas[1];
-            dbContas.criaCategoriaConta(categoria, tipo, "paga", "repete",
-                    "nao_mostra");
-            dbContas.alteraCategoriaContas("Poupanca", categoria, tipo);
-            categoria = receitas[2];
-            dbContas.criaCategoriaConta(categoria, tipo, "paga", "repete",
-                    "nao_mostra");
-            dbContas.alteraCategoriaContas("Previdencia", categoria, tipo);
-            // dbContas.close();
-
-        }
-    }
-
     @Override
     public void onPageScrollStateChanged(int arg0) {
         // NAO FAZ NADA
@@ -522,12 +462,12 @@ public class MinhasContas extends AppCompatActivity implements
 
         dbContas.open();
 
-        int i = 0;
+        int i = dbContas.quantasContas();
 
-        i = dbContas.quantasContas();
+        if (autobkup && i != 0) {
 
-        if (autobkup == true && i != 0) {
-
+            SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
+            String pastaBackUp = sharedPref.getString("backup", "");
             dbContas.copiaBD(pastaBackUp);
 
             BackupManager android = new BackupManager(getApplicationContext());
@@ -555,7 +495,7 @@ public class MinhasContas extends AppCompatActivity implements
         public Fragment getItem(int i) {
 
             // DEFINE PAGINA NA TELA
-            if (resumoMensal == true)
+            if (resumoMensal)
                 return ResumoMensal.newInstance(mesConta[i], anoConta[i]);
             else
                 return ResumoDiario.newInstance(diaConta[i], mesConta[i],

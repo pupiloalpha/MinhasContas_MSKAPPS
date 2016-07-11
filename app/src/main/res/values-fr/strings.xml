@@ -17,20 +17,18 @@
     <string name="acesso">Mot de passe d\'accès verrouillé</string>
     <string name="senha">Mot de passe d\'accès</string>
     <string name="dica_senha">Montrer le Mot de passe</string>
-    <string name="icone">icone</string>
     <string name="titulo_senha">Accès refusé</string>
     <string name="senha_errada">Mot de passe incorrects.</string>
     <string name="titulo_despesa_saque">Créez frais</string>
-    <string name="texto_despesa_saque">Vous voulez créer une dépense de ce compte pour réduire le montant du solde mensuel?</string>
+    <string name="texto_despesa_saque">Vous voulez créer une dépense de ce compte?</string>
     <string name="titulo_exclui_tudo">Supprimer tous les comptes</string>
     <string name="texto_exclui_tudo">Vous voulez supprimer tous les comptes?</string>
     <string name="cancelar">Résilier</string>
     <string name="salvar">Sauvegarder</string>
     <string name="criar">Créer</string>
     <string name="entrar">ENTRER</string>
-    <string name="ok">OK</string>
     <string name="sem_nome">Sans Nom</string>
-    <string name="sobre">Application Mes Comptes créée pour faciliter votre contrôle financier. Demande créé pour faciliter votre contrôle financier. Facile à utiliser, vous permet de partager le contenu des emails courriel ou message texte et de visualiser tous les revenus, les dépenses et les applications rapidement. Organisez vos comptes par type et classe, et vous savez bien comment vous dépensez votre argent. En savoir ce qui se passe sur le budget mensuel à travers abstrait et le graphisme. Comprendre comment votre équilibre et de suivre les progrès de vos comptes, services et applications. Chaque français adapté pour ceux qui ne connaissent pas leurs coûts et qui ne savent pas à propos de la comptabilité. Demande traduit en portugais, anglais, français et espagnol. Prend en charge les versions 2.1 à 5.1 d\'Android.\n\nIl a les caractéristiques suivantes disponibles:\n- Résumé mensuel de son budget;\n- Des tableaux de comparaison des comptes;\n- Sauvegarde complète sur la carte SD;\n- Délivrer tout moment toutes les informations;\n- Organisation de l\'ordre des comptes dans son résumé mensuel;\n- Basculer entre les mois par gestes;\n- Rechercher des comptes créés;\n- Envoyer par e-mail et SMS;\n- Export de la feuille de résumé mensuel dans Excel;\n- Verrouiller l\'accès par mot de passe de l\'application;\n- Appliquer les paiements d\'intérêts et de placements;\n- Les valeurs de colis avec demande d\'intérêts;\n- Trier les comptes par jour;\n- Lancement de payer automatiquement les factures;\n- Détail de la balance courante ne montrant que ce qui a été payé;\n- Widget (lorsque l\'application installée dans la mémoire interne);\n- Contrôler les comptes tous les jours;\n- Placez l\'expiration de son compte dans le calendrier de la cellule;\n- Répétition les comptes quotidienne, hebdomadaire, mensuelle ou annuelle.\nDéveloppé par Paulo E S Mesquita avec le soutien Flavia Vilar Borges. Basé sur les tutoriels à partir d\'Internet et d\'autres applications de ce type.\nVersion:%1$s\nContact: mskapps.brazil@gmail.com</string>
+    <string name="sobre">Application Mes Comptes créée pour faciliter votre contrôle financier.\nDéveloppé par Paulo E S Mesquita avec le soutien Flavia Vilar Borges. Basé sur les tutoriels à partir d\'Internet et d\'autres applications de ce type.\nVersion:%1$s\nContact: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Application créée pour faciliter votre contrôle financier.</string>
     <string name="tela_inicial">Ne pas montrer de nouveau</string>
     <string name="dica_carteira">Portefeuille</string>
@@ -45,7 +43,7 @@
     <!-- Strings Das Telas Aplicativo -->
 
     <string name="dica_grafico">Choisissez un tableau</string>
-    <string name="dica_spinner">Choisissez un type:</string>
+    <string name="dica_spinner">Choisissez un type</string>
     <string name="dica_conta">Nom du compte</string>
     <string name="dica_nome_categoria">Nom de catégorie</string>
     <string name="dica_pesquisa_conta">Saisissez le nom du compte</string>
@@ -57,7 +55,7 @@
     <string name="dica_dinheiro">€ %1$s</string>
     <string name="dica_cifrao">€</string>
     <string name="dica_receita">Recett</string>
-    <string name="dica_despesa">Dépenses</string>
+    <string name="dica_despesa">Dépense</string>
     <string name="dica_repete">Répéter compte</string>
     <string name="dica_numero">Quant.</string>
     <string name="dica_juros">Enter intérêt</string>
@@ -107,7 +105,6 @@
 
     <string name="resumo_mes_anterior">Solde mois précédent</string>
     <string name="resumo_saldo">Solde mois courant</string>
-    <string name="resumo_data">%1$s/%2$s/%3$s</string>
     <string name="resumo_pagas">Dépenses payés</string>
     <string name="resumo_faltam">Dépenses à payer</string>
     <string name="resumo_recebidas">Revenus reçus</string>
@@ -147,15 +144,12 @@
     <string name="pref_titulo_pagamento">Paiement automatique</string>
     <string name="pref_descricao_autopagamento">Examiner les comptes payées à l\'échéance</string>
     <string name="pref_descricao_editapagamento">Utilisateur doit informer le compte de paiement</string>
-    <string name="pref_key_pagamento">pagamento</string>
     <string name="pref_titulo_resumo">Voir résumé mensuel</string>
     <string name="pref_descricao_resumo_mensal">Montre le résumé mensuel des comptes</string>
     <string name="pref_descricao_resumo_diario">Indique résumé quotidien des comptes</string>
-    <string name="pref_key_resumo">resumo</string>
     <string name="pref_titulo_saldo">Ajout solde précédent</string>
     <string name="pref_descricao_saldo_somado">Résumer le solde du mois précédent</string>
     <string name="pref_descricao_saldo_real">Afficher équilibre mois en cours</string>
-    <string name="pref_key_saldo">saldo</string>
 
     <!-- Ajustes Acesso -->
 
@@ -171,7 +165,7 @@
 
     <string name="pref_titulo_categoria_exportar">Exporter sommaire</string>
     <string name="pref_titulo_exportar">Exporter vers Excel</string>
-    <string name="pref_descricao_exportar">Enregistre le résumé mensuel de l\'année en cours sur une feuille de calcul dans Excel carte format SD</string>
+    <string name="pref_descricao_exportar">Enregistre le résumé mensuel de l\'année en cours sur une feuille de calcul dans Excel format</string>
 
     <!-- Ajustes BackUp -->
 
@@ -180,9 +174,9 @@
     <string name="pref_descricao_auto_bkup_sim">Faire sauvegarde allways puis application est fermée</string>
     <string name="pref_descricao_auto_bkup_nao">Faire de sauvegarde uniquement lorsque l\'utilisateur de choisir</string>
     <string name="pref_titulo_bkup">Enregistrer les comptes</string>
-    <string name="pref_descricao_bkup">Enregistrer une copie des comptes sur la carte SD</string>
+    <string name="pref_descricao_bkup">Enregistrer une copie des comptes</string>
     <string name="pref_titulo_restaura">Restaurer les comptes enregistrés</string>
-    <string name="pref_descricao_restaura">Récupère une copie des comptes enregistrés sur une carte SD</string>
+    <string name="pref_descricao_restaura">Récupère une copie des comptes enregistrés</string>
 
     <!-- Ajustes APAGATUDO -->
 
@@ -193,27 +187,14 @@
 
     <string name="pref_titulo_categoria_info">A propos de l\'application</string>
     <string name="pref_titulo_autor">Développeur</string>
-    <string name="pref_descricao_autor">Paulo E S Mesquita</string>
     <string name="pref_titulo_versao">Version de l\'application</string>
     <string name="pref_descricao_versao">Version: %1$s</string>
 
     <!-- KEYS DAS PREFERENCIAS -->
 
-    <string name="pref_key_versao">versao</string>
-    <string name="pref_key_autor">desenvolvedor</string>
-    <string name="pref_categoria_info_key">info</string>
-    <string name="pref_key_apagatudo">apagatudo</string>
-    <string name="pref_categoria_apagatudo_key">apagatudomesmo</string>
-    <string name="pref_key_restaura">restaura</string>
-    <string name="pref_key_bkup">backup</string>
-    <string name="pref_categoria_bkup_restaura_key">bkuprest</string>
-    <string name="pref_key_exportar">excel</string>
-    <string name="pref_categoria_exportar_key">exportar</string>
-    <string name="pref_key_acesso">acesso</string>
-    <string name="pref_key_senha">senha</string>
-    <string name="pref_categoria_acesso_key">login</string>
-    <string name="pref_key_ordem">ordem</string>
-    <string name="pref_categoria_geral_key">geral</string>
-    <string name="pref_key_auto_bkup">autobackup</string>
+    <string name="vazio">Dossier vide</string>
+    <string name="dica_aplicacao">Application</string>
+    <string name="dica_despesas">Tous les dépenses</string>
+    <string name="dica_aplicacoes">Tous les applications</string>
 
 </resources>

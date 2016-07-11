@@ -2,16 +2,36 @@
 <resources>
 
     <string-array name="TipoReceita">
+        <item>Sencilla receta</item>
+    </string-array>
+    <string-array name="TipoReceita2">
+        <item>Sencilla receta</item>
+        <item>Banco</item>
+        <item>Cartera</item>
+    </string-array>
+    <string-array name="TipoAplicacao">
         <item>Acciones y fondos</item>
         <item>Ahorro</item>
         <item>Privado de pensiones</item>
-        <item>sencilla receta</item>
     </string-array>
     <string-array name="TipoDespesa">
         <item>Tarjeta de crédito</item>
         <item>Gastos fijos</item>
         <item>Gastos variables</item>
         <item>Provisión</item>
+    </string-array>
+    <string-array name="FiltroAplicacao">
+        <item>Acciones y fondos</item>
+        <item>Ahorro</item>
+        <item>Privado de pensiones</item>
+        <item>Todas las aplicationes</item>
+    </string-array>
+    <string-array name="FiltroDespesa">
+        <item>Tarjeta de crédito</item>
+        <item>Gastos fijos</item>
+        <item>Gastos variables</item>
+        <item>Provisión</item>
+        <item>Todos los gastos</item>
     </string-array>
     <string-array name="GraficoContas">
         <item>Gastos</item>

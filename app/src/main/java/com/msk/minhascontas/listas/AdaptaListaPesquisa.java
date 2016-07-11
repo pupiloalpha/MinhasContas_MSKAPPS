@@ -12,8 +12,10 @@ import android.widget.TextView;
 
 import com.msk.minhascontas.R;
 
+import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class AdaptaListaPesquisa extends CursorAdapter {
 
@@ -22,6 +24,7 @@ public class AdaptaListaPesquisa extends CursorAdapter {
     LayoutInflater inflater;
     String[] prestacao, semana;
     HashMap<Integer, Boolean> selecoes = new HashMap<Integer, Boolean>();
+    NumberFormat dinheiro;
 
     @SuppressWarnings("deprecation")
     public AdaptaListaPesquisa(Context context, Cursor c, String[] array, String[] array1) {
@@ -29,6 +32,8 @@ public class AdaptaListaPesquisa extends CursorAdapter {
         inflater = LayoutInflater.from(context);
         prestacao = array;
         semana = array1;
+        Locale current = context.getResources().getConfiguration().locale;
+        dinheiro = NumberFormat.getCurrencyInstance(current);
     }
 
     @Override
@@ -84,8 +89,7 @@ public class AdaptaListaPesquisa extends CursorAdapter {
 
         pagamento.setVisibility(View.INVISIBLE);
 
-        valor.setText(context.getString(R.string.dica_dinheiro,
-                String.format("%.2f", cursor.getDouble(9))));
+        valor.setText(dinheiro.format(cursor.getDouble(9)));
 
         if (tipo.equals(context.getString(R.string.linha_despesa))) {
             valor.setTextColor(Color.parseColor("#CC0000"));

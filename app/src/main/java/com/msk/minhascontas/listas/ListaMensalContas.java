@@ -34,81 +34,37 @@ import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.info.Ajustes;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 @SuppressLint("InflateParams")
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class ListaMensalContas extends AppCompatActivity implements View.OnClickListener {
 
     public ArrayList<Long> contas = new ArrayList<Long>();
-    DBContas dbContasDoMes = new DBContas(this);
-    Calendar c = Calendar.getInstance();
+    private DBContas dbContasDoMes = new DBContas(this);
+    private Calendar c = Calendar.getInstance();
     // BARRA NO TOPO DO APLICATIVO
-    ActionMode mActionMode = null;
-    ColorDrawable cor;
-    Resources r;
-    SharedPreferences buscaPreferencias = null;
+    private ActionMode mActionMode = null;
+    private Resources r;
+    private SharedPreferences buscaPreferencias = null;
+    private NumberFormat dinheiro;
     // ELEMENTOS DA TELA
     private ImageButton antes, depois, addConta;
     private TextView lista, semContas;
     private ListView listaContas;
     private View lastView;
     // VARIAVEIS UTILIZADAS
-    private String[] MESES;
-    private int dia, mes, ano, conta;
-    private int[] dmaConta;
+    private String[] MESES, prestacao, semana, classes;
+    private int mes, ano, conta;
     private long idConta = 0;
-    private String ordemListaDeContas, nomeConta, tipo;
-    private double valorConta, valores;
+    private String ordemListaDeContas, nomeConta, tipo, filtro;
     private AdaptaListaMensal buscaContas;
     private Cursor contasParaLista = null;
     private boolean alteraContas = false;
     private boolean primeiraConta = false;
-
-    protected void onCreate(Bundle paramBundle) {
-        super.onCreate(paramBundle);
-        setContentView(R.layout.contas_do_mes);
-
-        buscaPreferencias = PreferenceManager
-                .getDefaultSharedPreferences(getBaseContext());
-        ordemListaDeContas = buscaPreferencias.getString("ordem", "conta ASC");
-        buscaPreferencias
-                .registerOnSharedPreferenceChangeListener(preferencias);
-
-        // Recupera o mes e o ano da lista anterior
-        Bundle localBundle = getIntent().getExtras();
-        ano = localBundle.getInt("ano");
-        mes = localBundle.getInt("mes");
-        tipo = localBundle.getString("tipo");
-        r = getResources();
-        dbContasDoMes.open();
-        iniciar();
-        usarActionBar();
-
-        lista.setText(new StringBuilder().append(MESES[mes]).append("/")
-                .append(ano));
-
-        MontaLista();
-
-        // Metodos de click em cada um dos itens da tela
-        lastView = null;
-        listaContas.setOnItemClickListener(toqueSimples);
-        listaContas.setOnItemLongClickListener(toqueLongo);
-        antes.setOnClickListener(this);
-        depois.setOnClickListener(this);
-
-        addConta.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setResult(RESULT_OK, null);
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.NOVACONTA"), 1);
-            }
-        });
-
-    }
-
     private OnSharedPreferenceChangeListener preferencias = new OnSharedPreferenceChangeListener() {
 
         public void onSharedPreferenceChanged(
@@ -121,159 +77,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
 
         }
     };
-
-
-    private void iniciar() {
-        listaContas = ((ListView) findViewById(R.id.lvContasCriadas));
-        antes = ((ImageButton) findViewById(R.id.ibMesAntes));
-        depois = ((ImageButton) findViewById(R.id.ibMesDepois));
-        lista = ((TextView) findViewById(R.id.tvMesLista));
-        semContas = (TextView) findViewById(R.id.tvSemContas);
-        MESES = getResources().getStringArray(R.array.MesesDoAno);
-
-        addConta = (ImageButton) findViewById(R.id.ibfab);
-
-    }
-
-    @SuppressLint("InflateParams")
-    private void MontaLista() {
-
-        dbContasDoMes.open();
-
-        contasParaLista = dbContasDoMes.buscaTodasDoMes(mes, ano,
-                buscaPreferencias.getString("ordem", ordemListaDeContas));
-
-        if (tipo.equals("receitas")) {
-            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    getResources().getString(R.string.linha_receita));
-        }
-        if (tipo.equals("despesas")) {
-            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    getResources().getString(R.string.linha_despesa));
-        }
-
-        if (tipo.equals("aplicacoes")) {
-            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    getResources().getString(R.string.linha_aplicacoes));
-        }
-
-        int n = contasParaLista.getCount();
-
-        dbContasDoMes.close();
-
-        if (n >= 0) {
-
-            int posicao = listaContas.getFirstVisiblePosition();
-            String[] prestacao = r.getStringArray(R.array.TipoDespesa);
-            String[] semana = r.getStringArray(R.array.Semana);
-            buscaContas = new AdaptaListaMensal(this, contasParaLista,
-                    prestacao, semana);
-            listaContas.setAdapter(buscaContas);
-            listaContas.setEmptyView(semContas);
-            listaContas.setSelection(posicao);
-
-        }
-
-        contas = new ArrayList<Long>();
-        primeiraConta = false;
-        alteraContas = false;
-        buscaContas.limpaSelecao();
-
-    }
-
-    @Override
-    public void onClick(View arg0) {
-        switch (arg0.getId()) {
-
-            case R.id.ibMesAntes:
-                mes = (-1 + this.mes);
-                if (mes < 0) {
-                    mes = 11;
-                    ano = (-1 + this.ano);
-                }
-                break;
-
-            case R.id.ibMesDepois:
-                mes = (1 + this.mes);
-                if (mes > 11) {
-                    mes = 0;
-                    ano = (1 + this.ano);
-                }
-                break;
-        }
-        lista.setText(new StringBuilder().append(MESES[mes]).append("/")
-                .append(ano));
-        AtualizaActionBar();
-        MontaLista();
-        if (mActionMode != null)
-            mActionMode.finish();
-
-        setResult(RESULT_OK, null);
-    }
-
-    OnItemClickListener toqueSimples = new OnItemClickListener() {
-
-        @SuppressLint("NewApi")
-        @Override
-        public void onItemClick(AdapterView<?> arg0, View v, int posicao,
-                                long arg3) {
-
-            dbContasDoMes.open();
-            contasParaLista.moveToPosition(posicao);
-            idConta = contasParaLista.getLong(0);
-            nomeConta = contasParaLista.getString(1);
-            dbContasDoMes.close();
-
-            if (alteraContas == false) {
-                if (mActionMode == null) {
-                    buscaContas.limpaSelecao();
-                    contas = new ArrayList<Long>();
-                    buscaContas.marcaConta(posicao, true);
-                } else {
-                    buscaContas.marcaConta(conta, false);
-                    buscaContas.marcaConta(posicao, true);
-                }
-                mActionMode = ListaMensalContas.this
-                        .startSupportActionMode(alteraUmaConta);
-                lastView = v;
-                conta = posicao;
-
-            } else {
-
-                if (contas.size() != 0) {
-
-                    if (contas.contains(idConta)) {
-                        if (primeiraConta == false) {
-                            contas.remove(idConta);
-                            buscaContas.marcaConta(posicao, false);
-
-                        } else {
-                            primeiraConta = false;
-                        }
-
-                    } else {
-                        contas.add(idConta);
-                        buscaContas.marcaConta(posicao, true);
-
-                    }
-
-                    if (contas.size() == 0) {
-                        mActionMode.finish();
-                        MontaLista();
-                    }
-
-                    if (contas.size() != 0)
-                        mActionMode.setTitle(r.getQuantityString(R.plurals.selecao,
-                                contas.size(), contas.size()));
-                }
-            }
-        }
-    };
-
-    ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
+    private ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 
@@ -366,13 +170,13 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                 case R.id.botao_lembrete:
                     if (idConta != 0) {
                         dbContasDoMes.open();
-                        dmaConta = dbContasDoMes
+                        int[] dmaConta = dbContasDoMes
                                 .mostraDMAConta(idConta);
-                        dia = dmaConta[0];
+                        int dia = dmaConta[0];
                         mes = dmaConta[1];
                         ano = dmaConta[2];
 
-                        valorConta = dbContasDoMes
+                        double valorConta = dbContasDoMes
                                 .mostraValorConta(idConta);
                         String nomeContaCalendario = r.getString(
                                 R.string.dica_evento, dbContasDoMes
@@ -387,8 +191,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         evento.putExtra(Events.DESCRIPTION, r
                                 .getString(
                                         R.string.dica_calendario,
-                                        String.format("%.2f",
-                                                valorConta)));
+                                        dinheiro.format(valorConta)));
 
                         evento.putExtra(
                                 CalendarContract.EXTRA_EVENT_BEGIN_TIME,
@@ -420,94 +223,65 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
             addConta.setVisibility(View.VISIBLE);
         }
     };
+    private OnItemClickListener toqueSimples = new OnItemClickListener() {
 
-    private void Dialogo() {
-        AlertDialog.Builder dialogoBuilder = new AlertDialog.Builder(
-                new ContextThemeWrapper(this, R.style.TemaDialogo));
-
-        // set title
-        dialogoBuilder.setTitle(getString(R.string.dica_menu_exclusao));
-
-        // set dialog message
-        dialogoBuilder.setItems(R.array.TipoAjusteConta,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dbContasDoMes.open();
-                        String nomeContaExcluir = dbContasDoMes
-                                .mostraNomeConta(idConta);
-                        String dmaContaExcluir = dbContasDoMes
-                                .mostraDataConta(idConta);
-                        switch (id) {
-                            case 0:
-                                dbContasDoMes.excluiConta(idConta);
-                                break;
-                            case 1:
-                                int[] repete = dbContasDoMes
-                                        .mostraRepeticaoConta(idConta);
-                                int nr = repete[1];
-                                dbContasDoMes.excluiSerieContaPorNome(
-                                        nomeContaExcluir, dmaContaExcluir, nr);
-                                break;
-                            case 2:
-                                dbContasDoMes.excluiContaPorNome(nomeContaExcluir,
-                                        dmaContaExcluir);
-                                break;
-                        }
-                        Toast.makeText(
-                                getApplicationContext(),
-                                getResources().getString(
-                                        R.string.dica_conta_excluida,
-                                        nomeContaExcluir), Toast.LENGTH_SHORT)
-                                .show();
-                        buscaContas.notifyDataSetChanged();
-                        dbContasDoMes.close();
-                        MontaLista();
-                        idConta = 0;
-                        nomeConta = " ";
-                        setResult(RESULT_OK, null);
-                    }
-                });
-
-        // create alert dialog
-        AlertDialog alertDialog = dialogoBuilder.create();
-        // show it
-        alertDialog.show();
-    }
-
-    AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {
+        @SuppressLint("NewApi")
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int posicao, long id) {
+        public void onItemClick(AdapterView<?> arg0, View v, int posicao,
+                                long arg3) {
 
-            // Limpa a barra de titulo
-            if (mActionMode != null)
-                mActionMode.finish();
-
-            // Limpa a selecao de contas
-            buscaContas.limpaSelecao();
-            contas = new ArrayList<Long>();
-            primeiraConta = true;
-            alteraContas = true;
-
-            // Busca informacoes da conta no DB
             dbContasDoMes.open();
             contasParaLista.moveToPosition(posicao);
             idConta = contasParaLista.getLong(0);
             nomeConta = contasParaLista.getString(1);
             dbContasDoMes.close();
 
-            // Seleciona conta
-            contas.add(idConta);
-            buscaContas.marcaConta(posicao, true);
+            if (!alteraContas) {
+                if (mActionMode == null) {
+                    buscaContas.limpaSelecao();
+                    contas = new ArrayList<Long>();
+                    buscaContas.marcaConta(posicao, true);
+                } else {
+                    buscaContas.marcaConta(conta, false);
+                    buscaContas.marcaConta(posicao, true);
+                }
+                mActionMode = ListaMensalContas.this
+                        .startSupportActionMode(alteraUmaConta);
+                lastView = v;
+                conta = posicao;
 
-            // Mostra selecao na barra de titulo
-            mActionMode = ListaMensalContas.this
-                    .startSupportActionMode(alteraVariasContas);
+            } else {
 
-            return false;
+                if (contas.size() != 0) {
+
+                    if (contas.contains(idConta)) {
+                        if (!primeiraConta) {
+                            contas.remove(idConta);
+                            buscaContas.marcaConta(posicao, false);
+
+                        } else {
+                            primeiraConta = false;
+                        }
+
+                    } else {
+                        contas.add(idConta);
+                        buscaContas.marcaConta(posicao, true);
+
+                    }
+
+                    if (contas.size() == 0) {
+                        mActionMode.finish();
+                        MontaLista();
+                    }
+
+                    if (contas.size() != 0)
+                        mActionMode.setTitle(r.getQuantityString(R.plurals.selecao,
+                                contas.size(), contas.size()));
+                }
+            }
         }
     };
-
-    ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
+    private ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 
@@ -581,6 +355,231 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
             alteraContas = false;
         }
     };
+    private AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int posicao, long id) {
+
+            // Limpa a barra de titulo
+            if (mActionMode != null)
+                mActionMode.finish();
+
+            // Limpa a selecao de contas
+            buscaContas.limpaSelecao();
+            contas = new ArrayList<Long>();
+            primeiraConta = true;
+            alteraContas = true;
+
+            // Busca informacoes da conta no DB
+            dbContasDoMes.open();
+            contasParaLista.moveToPosition(posicao);
+            idConta = contasParaLista.getLong(0);
+            nomeConta = contasParaLista.getString(1);
+            dbContasDoMes.close();
+
+            // Seleciona conta
+            contas.add(idConta);
+            buscaContas.marcaConta(posicao, true);
+
+            // Mostra selecao na barra de titulo
+            mActionMode = ListaMensalContas.this
+                    .startSupportActionMode(alteraVariasContas);
+
+            return false;
+        }
+    };
+
+    protected void onCreate(Bundle paramBundle) {
+        super.onCreate(paramBundle);
+        setContentView(R.layout.contas_do_mes);
+
+        buscaPreferencias = PreferenceManager
+                .getDefaultSharedPreferences(getBaseContext());
+        ordemListaDeContas = buscaPreferencias.getString("ordem", "conta ASC");
+        buscaPreferencias
+                .registerOnSharedPreferenceChangeListener(preferencias);
+
+        // Recupera o mes e o ano da lista anterior
+        Bundle localBundle = getIntent().getExtras();
+        ano = localBundle.getInt("ano");
+        mes = localBundle.getInt("mes");
+        tipo = localBundle.getString("tipo");
+        filtro = "";
+        r = getResources();
+        Locale current = r.getConfiguration().locale;
+        dinheiro = NumberFormat.getCurrencyInstance(current);
+        dbContasDoMes.open();
+        iniciar();
+        usarActionBar();
+
+        lista.setText(new StringBuilder().append(MESES[mes]).append("/")
+                .append(ano));
+
+        MontaLista();
+
+        // Metodos de click em cada um dos itens da tela
+        lastView = null;
+        listaContas.setOnItemClickListener(toqueSimples);
+        listaContas.setOnItemLongClickListener(toqueLongo);
+        antes.setOnClickListener(this);
+        depois.setOnClickListener(this);
+
+        addConta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_OK, null);
+                startActivityForResult(
+                        new Intent("com.msk.minhascontas.NOVACONTA"), 1);
+            }
+        });
+
+    }
+
+    private void iniciar() {
+        listaContas = ((ListView) findViewById(R.id.lvContasCriadas));
+        antes = ((ImageButton) findViewById(R.id.ibMesAntes));
+        depois = ((ImageButton) findViewById(R.id.ibMesDepois));
+        lista = ((TextView) findViewById(R.id.tvMesLista));
+        semContas = (TextView) findViewById(R.id.tvSemContas);
+        MESES = getResources().getStringArray(R.array.MesesDoAno);
+
+        addConta = (ImageButton) findViewById(R.id.ibfab);
+
+        prestacao = r.getStringArray(R.array.TipoDespesa);
+        semana = r.getStringArray(R.array.Semana);
+
+    }
+
+    @SuppressLint("InflateParams")
+    private void MontaLista() {
+
+        dbContasDoMes.open();
+
+        if (tipo.equals(getResources().getString(R.string.linha_receita))) {
+            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
+                    buscaPreferencias.getString("ordem", ordemListaDeContas),
+                    tipo);
+        } else if (tipo.equals(getResources().getString(R.string.linha_despesa))) {
+            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
+                    buscaPreferencias.getString("ordem", ordemListaDeContas),
+                    tipo);
+        } else if (tipo.equals(getResources().getString(R.string.linha_aplicacoes))) {
+            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
+                    buscaPreferencias.getString("ordem", ordemListaDeContas),
+                    tipo);
+        } else {
+            contasParaLista = dbContasDoMes.buscaTodasDoMes(mes, ano,
+                    buscaPreferencias.getString("ordem", ordemListaDeContas));
+        }
+        if (!filtro.equals("")) {
+            contasParaLista = dbContasDoMes.buscaContasClasseDoMes(mes, ano,
+                    buscaPreferencias.getString("ordem", ordemListaDeContas),
+                    tipo, filtro);
+        }
+
+        int n = contasParaLista.getCount();
+
+        dbContasDoMes.close();
+
+        if (n >= 0) {
+
+            int posicao = listaContas.getFirstVisiblePosition();
+            buscaContas = new AdaptaListaMensal(this, contasParaLista,
+                    prestacao, semana);
+            listaContas.setAdapter(buscaContas);
+            listaContas.setEmptyView(semContas);
+            listaContas.setSelection(posicao);
+
+        }
+
+        contas = new ArrayList<Long>();
+        primeiraConta = false;
+        alteraContas = false;
+        buscaContas.limpaSelecao();
+
+    }
+
+    @Override
+    public void onClick(View arg0) {
+        switch (arg0.getId()) {
+
+            case R.id.ibMesAntes:
+                mes = (-1 + this.mes);
+                if (mes < 0) {
+                    mes = 11;
+                    ano = (-1 + this.ano);
+                }
+                break;
+
+            case R.id.ibMesDepois:
+                mes = (1 + this.mes);
+                if (mes > 11) {
+                    mes = 0;
+                    ano = (1 + this.ano);
+                }
+                break;
+        }
+        lista.setText(new StringBuilder().append(MESES[mes]).append("/")
+                .append(ano));
+        AtualizaActionBar();
+        MontaLista();
+        if (mActionMode != null)
+            mActionMode.finish();
+
+        setResult(RESULT_OK, null);
+    }
+
+    private void Dialogo() {
+        AlertDialog.Builder dialogoBuilder = new AlertDialog.Builder(
+                new ContextThemeWrapper(this, R.style.TemaDialogo));
+
+        // set title
+        dialogoBuilder.setTitle(getString(R.string.dica_menu_exclusao));
+
+        // set dialog message
+        dialogoBuilder.setItems(R.array.TipoAjusteConta,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dbContasDoMes.open();
+                        String nomeContaExcluir = dbContasDoMes
+                                .mostraNomeConta(idConta);
+                        String dmaContaExcluir = dbContasDoMes
+                                .mostraDataConta(idConta);
+                        switch (id) {
+                            case 0:
+                                dbContasDoMes.excluiConta(idConta);
+                                break;
+                            case 1:
+                                int[] repete = dbContasDoMes
+                                        .mostraRepeticaoConta(idConta);
+                                int nr = repete[1];
+                                dbContasDoMes.excluiSerieContaPorNome(
+                                        nomeContaExcluir, dmaContaExcluir, nr);
+                                break;
+                            case 2:
+                                dbContasDoMes.excluiContaPorNome(nomeContaExcluir,
+                                        dmaContaExcluir);
+                                break;
+                        }
+                        Toast.makeText(
+                                getApplicationContext(),
+                                getResources().getString(
+                                        R.string.dica_conta_excluida,
+                                        nomeContaExcluir), Toast.LENGTH_SHORT)
+                                .show();
+                        buscaContas.notifyDataSetChanged();
+                        dbContasDoMes.close();
+                        MontaLista();
+                        idConta = 0;
+                        nomeConta = " ";
+                        setResult(RESULT_OK, null);
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = dialogoBuilder.create();
+        // show it
+        alertDialog.show();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -604,50 +603,46 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
 
     private void AtualizaActionBar() {
         dbContasDoMes.open();
-        if (tipo.equals("receitas")) {
-            if (dbContasDoMes.quantasContasPorTipo(
-                    r.getString(R.string.linha_receita), 0, mes, ano) > 0)
-                valores = dbContasDoMes.somaContas(
-                        r.getString(R.string.linha_receita), 0, mes, ano);
-            else
-                valores = 0.0D;
 
+        ColorDrawable cor;
+
+        if (tipo.equals(r.getString(R.string.linha_receita))) {
             cor = new ColorDrawable(Color.parseColor("#FF0099CC"));
             getSupportActionBar().setBackgroundDrawable(cor);
-            getSupportActionBar().setTitle(R.string.linha_receita);
-            getSupportActionBar().setSubtitle(r.getString(R.string.dica_dinheiro,
-                    String.format("%.2f", valores)));
 
-        }
-
-        if (tipo.equals("despesas")) {
-            if (dbContasDoMes.quantasContasPorTipo(
-                    r.getString(R.string.linha_despesa), 0, mes, ano) > 0)
-                valores = dbContasDoMes.somaContas(
-                        r.getString(R.string.linha_despesa), 0, mes, ano);
-            else
-                valores = 0.0D;
-            getSupportActionBar().setTitle(R.string.linha_despesa);
-            getSupportActionBar().setSubtitle(r.getString(R.string.dica_dinheiro,
-                    String.format("%.2f", valores)));
+        } else if (tipo.equals(r.getString(R.string.linha_despesa))) {
             cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
             getSupportActionBar().setBackgroundDrawable(cor);
 
-        }
-
-        if (tipo.equals("aplicacoes")) {
-            if (dbContasDoMes.quantasContasPorTipo(
-                    r.getString(R.string.linha_aplicacoes), 0, mes, ano) > 0)
-                valores = dbContasDoMes.somaContas(
-                        r.getString(R.string.linha_aplicacoes), 0, mes, ano);
-            else
-                valores = 0.0D;
-            getSupportActionBar().setTitle(R.string.linha_aplicacoes);
-            getSupportActionBar().setSubtitle(r.getString(R.string.dica_dinheiro,
-                    String.format("%.2f", valores)));
+        } else if (tipo.equals(r.getString(R.string.linha_aplicacoes))) {
             cor = new ColorDrawable(Color.parseColor("#FF669900"));
             getSupportActionBar().setBackgroundDrawable(cor);
 
+        }
+
+        double valores;
+        if (!filtro.equals("")) {
+            // DEFINE TITULO LISTA COM FILTRO
+            if (dbContasDoMes.quantasContasPorClasse(
+                    filtro, 0, mes, ano) > 0)
+                valores = dbContasDoMes.somaContasPorClasse(
+                        filtro, 0, mes, ano);
+            else
+                valores = 0.0D;
+            getSupportActionBar().setTitle(filtro);
+            getSupportActionBar().setSubtitle(dinheiro.format(valores));
+        } else {
+            // DEFINE TITULO LISTA SEM FILTRO
+            if (dbContasDoMes.quantasContasPorTipo(
+                    tipo, 0, mes, ano) > 0)
+                valores = dbContasDoMes.somaContas(
+                        tipo, 0, mes, ano);
+            else
+                valores = 0.0D;
+            if (!tipo.equals("todas")) {
+                getSupportActionBar().setTitle(tipo);
+                getSupportActionBar().setSubtitle(dinheiro.format(valores));
+            }
         }
         // dbContasDoMes.close();
     }
@@ -655,7 +650,8 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        if (tipo.equals("aplicacoes") || tipo.equals("despesas")) {
+        if (tipo.equals(r.getString(R.string.linha_despesa))
+                || tipo.equals(r.getString(R.string.linha_aplicacoes))) {
 
             getMenuInflater().inflate(R.menu.barra_botoes_filtra_lista, menu);
         } else {
@@ -705,77 +701,42 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
         // set title
         dialogoBuilder.setTitle(getString(R.string.titulo_filtro));
 
-        if (tipo.equals("despesas")) {
+        if (tipo.equals(r.getString(R.string.linha_despesa))) {
+
+            classes = r.getStringArray(R.array.FiltroDespesa);
 
             // set dialog message
-            dialogoBuilder.setItems(R.array.TipoDespesa,
+            dialogoBuilder.setItems(classes,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            dbContasDoMes.open();
                             // DEFINE CONTEUDO LISTA COM FILTRO
-                            String[] classes = getResources().getStringArray(R.array.TipoDespesa);
-                            contasParaLista = dbContasDoMes.buscaContasClasseDoMes(mes, ano,
-                                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                                    getResources().getString(R.string.linha_despesa), classes[id]);
-
-                            String[] prestacao = r.getStringArray(R.array.TipoDespesa);
-                            String[] semana = r.getStringArray(R.array.Semana);
-                            buscaContas = new AdaptaListaMensal(getApplication(), contasParaLista,
-                                    prestacao, semana);
-                            listaContas.setAdapter(buscaContas);
-
-                            // DEFINE TITULO LISTA COM FILTRO
-                            if (dbContasDoMes.quantasContasPorClasse(
-                                    classes[id], 0, mes, ano) > 0)
-                                valores = dbContasDoMes.somaContasPorClasse(
-                                        classes[id], 0, mes, ano);
-                            else
-                                valores = 0.0D;
-                            getSupportActionBar().setTitle(classes[id]);
-                            getSupportActionBar().setSubtitle(r.getString(R.string.dica_dinheiro,
-                                    String.format("%.2f", valores)));
-
-                            dbContasDoMes.close();
-                            listaContas.setEmptyView(semContas);
-
+                            if (id < 4) {
+                                filtro = classes[id];
+                            } else {
+                                filtro = "";
+                            }
+                            MontaLista();
+                            AtualizaActionBar();
                         }
                     });
         }
 
-        if (tipo.equals("aplicacoes")) {
+        if (tipo.equals(r.getString(R.string.linha_aplicacoes))) {
+
+            classes = r.getStringArray(R.array.FiltroAplicacao);
+
             // set dialog message
-            dialogoBuilder.setItems(R.array.GraficoAplicacoes,
+            dialogoBuilder.setItems(classes,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-
-                            dbContasDoMes.open();
-                            // define conteudo lista com filtro
-                            String[] classes = getResources().getStringArray(R.array.GraficoAplicacoes);
-                            contasParaLista = dbContasDoMes.buscaContasClasseDoMes(mes, ano,
-                                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                                    getResources().getString(R.string.linha_aplicacoes), classes[id]);
-
-                            String[] prestacao = r.getStringArray(R.array.TipoDespesa);
-                            String[] semana = r.getStringArray(R.array.Semana);
-                            buscaContas = new AdaptaListaMensal(getApplication(), contasParaLista,
-                                    prestacao, semana);
-
-                            listaContas.setAdapter(buscaContas);
-
-                            // DEFINE TITULO LISTA COM FILTRO
-                            if (dbContasDoMes.quantasContasPorClasse(
-                                    classes[id], 0, mes, ano) > 0)
-                                valores = dbContasDoMes.somaContasPorClasse(
-                                        classes[id], 0, mes, ano);
-                            else
-                                valores = 0.0D;
-                            getSupportActionBar().setTitle(classes[id]);
-                            getSupportActionBar().setSubtitle(r.getString(R.string.dica_dinheiro,
-                                    String.format("%.2f", valores)));
-
-                            dbContasDoMes.close();
-                            listaContas.setEmptyView(semContas);
-
+                            // DEFINE CONTEUDO LISTA COM FILTRO
+                            if (id < 3) {
+                                filtro = classes[id];
+                            } else {
+                                filtro = "";
+                            }
+                            MontaLista();
+                            AtualizaActionBar();
                         }
                     });
         }
@@ -789,15 +750,11 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
 
     protected void onRestart() {
         dbContasDoMes.open();
-        AtualizaActionBar();
-        // MontaLista();
         super.onRestart();
     }
 
     protected void onResume() {
         dbContasDoMes.open();
-        AtualizaActionBar();
-        // MontaLista();
         super.onResume();
     }
 

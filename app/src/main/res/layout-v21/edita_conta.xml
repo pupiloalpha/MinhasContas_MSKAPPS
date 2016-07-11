@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -64,20 +65,30 @@
                     android:text="@string/data"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/verde_escuro"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:ignore="RtlHardcoded,TextViewEdits" />
             </LinearLayout>
 
             <RadioGroup
                 android:id="@+id/rgTipoContaModificada"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="2.0dip"
-                android:weightSum="2.0">
+                android:padding="2.0dip">
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/rRecContaModificada"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:text="@string/dica_receita"
+                    android:textColor="@color/azul"
+                    android:textSize="18.0dip" />
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/rDespContaModificada"
-                    android:layout_width="fill_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
                     android:checked="true"
@@ -86,14 +97,23 @@
                     android:textSize="18.0dip" />
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/rRecContaModificada"
-                    android:layout_width="fill_parent"
+                    android:id="@+id/rAplicContaModificada"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
-                    android:text="@string/dica_receita"
-                    android:textColor="@color/azul"
+                    android:text="@string/dica_aplicacao"
+                    android:textColor="@color/verde_escuro"
                     android:textSize="18.0dip" />
             </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="@string/dica_spinner"
+                android:textColor="@color/verde_escuro"
+                tools:ignore="RtlHardcoded" />
 
             <android.support.v7.widget.AppCompatSpinner
                 android:id="@+id/spClassificaConta"
@@ -111,7 +131,8 @@
 
             <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                tools:ignore="DisableBaselineAlignment">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -125,7 +146,8 @@
                         android:layout_marginLeft="8dp"
                         android:layout_marginStart="8dp"
                         android:text="@string/dica_repete"
-                        android:textColor="@color/verde_escuro" />
+                        android:textColor="@color/verde_escuro"
+                        tools:ignore="RtlHardcoded" />
 
                     <android.support.v7.widget.AppCompatSpinner
                         android:id="@+id/spRepeticoes"
@@ -139,7 +161,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="2.0dip"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    tools:ignore="RtlHardcoded">
 
                     <android.support.v7.widget.AppCompatEditText
                         android:id="@+id/etPrestacoes"
@@ -175,7 +198,8 @@
             android:paddingRight="10dp"
             android:text="@string/cancelar"
             android:textColor="@color/branco"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle,RtlHardcoded" />
 
         <Button
             android:id="@+id/ibModificaConta"
@@ -190,7 +214,8 @@
             android:paddingRight="10dp"
             android:text="@string/salvar"
             android:textColor="@color/branco"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle,RtlHardcoded" />
 
     </LinearLayout>
 

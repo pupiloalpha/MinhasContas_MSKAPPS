@@ -3,6 +3,4 @@
 
     <item android:drawable="@drawable/cartao_selecionado" android:state_pressed="true" />
 
-    <item android:drawable="@drawable/cartao" />
-
 </selector>

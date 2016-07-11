@@ -13,23 +13,23 @@
     <string name="titulo_grafico">Gráficos das contas</string>
     <string name="titulo_calendario">Adicionar lembrete</string>
     <string name="titulo_excluir">Excluir conta</string>
-    <string name="icone">icone</string>
+    <string name="icone" translatable="false">icone</string>
     <string name="acesso">Acesso bloqueado por senha</string>
     <string name="senha">Senha de acesso</string>
     <string name="dica_senha">Mostrar senha</string>
     <string name="titulo_senha">Acesso negado</string>
     <string name="senha_errada">Senha incorreta.</string>
     <string name="titulo_despesa_saque">Criar despesa</string>
-    <string name="texto_despesa_saque">Deseja criar uma despesa sobre esta conta e reduzir o valor do saldo mensal?</string>
+    <string name="texto_despesa_saque">Deseja criar uma despesa com o valor desta conta?</string>
     <string name="titulo_exclui_tudo">Excluir todas as contas</string>
     <string name="texto_exclui_tudo">Deseja excluir todas as contas?</string>
     <string name="cancelar">Cancelar</string>
     <string name="salvar">Salvar</string>
     <string name="criar">Criar</string>
     <string name="entrar">ENTRAR</string>
-    <string name="ok">OK</string>
+    <string name="ok" translatable="false">OK</string>
     <string name="sem_nome">Sem Nome</string>
-    <string name="sobre">O aplicativo Minhas Contas foi criado para facilitar o seu controle financeiro. Fácil de usar, permite compartilhar o conteúdo por correio e-mail ou mensagem de texto e visualizar todas as receitas, despesas e aplicações rapidamente. Organize suas contas por tipo e classe, e conheça bem como você gasta seu dinheiro. Saiba mensalmente o que acontece com seu orçamento por meio do resumo e dos gráficos. Entenda como está o seu saldo e acompanhe a evolução de suas contas, prestações e aplicações. Todo em português brasileiro adaptado para aqueles que não conhecem seus gastos e que não conhecem sobre contabilidade. Aplicativo traduzido para português, inglês, francês e espanhol. Suporta as versões 2.1 a 5.1 do Android.\n\nPossui as seguintes funcionalidades disponíveis:\n- Resumo mensal do seu orçamento;\n- Gráficos de comparação de contas;\n- Backup completo no Cartão SD;\n- Edição a qualquer momento de todas as informações;\n- Organização da ordem das contas no resumo mensal;\n- Alternar entre os meses por gestos;\n- Pesquisa de contas criadas;\n- Envio por e-mail e mensagem de texto;\n- Exportar o resumo mensal para planilha em Excel;\n- Bloquear com senha o acesso ao aplicativo;\n- Aplicar juros a prestações e investimentos;\n- Parcelar valores com aplicação de juros;\n- Ordenar as contas por data;\n- Lançamento do pagamento das contas de forma automática;\n- Detalhe do saldo atual mostrando somente o que foi pago;\n- Widget (quando aplicativo instalado na memória interna);\n- Controlar as contas diariamente;\n- Coloque o vencimento de sua conta no calendário do celular;\n- Repita as contas diariamente, semanalmente, mensalmente ou anualmente.\n\nDesenvolvido por Paulo E S Mesquita com apoio de Flávia Vilar Borges.\nBaseado em tutoriais da internet e outros aplicativos do gênero.\nVersão: %1$s\n\nContato: mskapps.brazil@gmail.com</string>
+    <string name="sobre">O aplicativo Minhas Contas foi criado para facilitar o seu controle financeiro.\n\nDesenvolvido por Paulo E S Mesquita com apoio de Flávia Vilar Borges.\nBaseado em tutoriais da internet e outros aplicativos do gênero.\nVersão: %1$s\n\nContato: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Aplicativo criado para facilitar o seu controle financeiro.</string>
     <string name="tela_inicial">Não mostrar novamente</string>
     <string name="dica_carteira">Carteira</string>
@@ -44,7 +44,7 @@
     <!-- Strings Das Telas Aplicativo -->
 
     <string name="dica_grafico">Escolha um gráfico</string>
-    <string name="dica_spinner">Escolha um tipo:</string>
+    <string name="dica_spinner">Escolha um tipo</string>
     <string name="dica_conta">Nome da conta</string>
     <string name="dica_nome_categoria">Nome da categoria</string>
     <string name="dica_pesquisa_conta">Digite o nome da conta</string>
@@ -106,7 +106,7 @@
 
     <string name="resumo_mes_anterior">Saldo mês anterior</string>
     <string name="resumo_saldo">Saldo mês atual</string>
-    <string name="resumo_data">%1$s/%2$s/%3$s</string>
+    <string name="resumo_data" translatable="false">%1$s/%2$s/%3$s</string>
     <string name="resumo_pagas">Despesas pagas</string>
     <string name="resumo_faltam">Despesas a pagar</string>
     <string name="resumo_recebidas">Receitas recebidas</string>
@@ -139,77 +139,81 @@
 
     <!-- Ajustes Gerais -->
 
-    <string name="pref_categoria_geral_key">geral</string>
+    <string name="pref_categoria_geral_key" translatable="false">geral</string>
     <string name="pref_titulo_geral">Ajuste Geral</string>
     <string name="pref_titulo_ordem">Escolha a ordem das contas</string>
     <string name="pref_descricao_ordem">Escolha a ordem na qual as contas serão listadas</string>
     <string name="pref_dialogo_ordem">Ordem das contas na lista</string>
-    <string name="pref_key_ordem">ordem</string>
+    <string name="pref_key_ordem" translatable="false">ordem</string>
     <string name="pref_titulo_pagamento">Pagamento automático</string>
     <string name="pref_descricao_autopagamento">Considerar contas pagas na data de vencimento</string>
     <string name="pref_descricao_editapagamento">Usuário deve informar o pagamento da conta</string>
-    <string name="pref_key_pagamento">pagamento</string>
+    <string name="pref_key_pagamento" translatable="false">pagamento</string>
     <string name="pref_titulo_resumo">Mostrar resumo mensal</string>
     <string name="pref_descricao_resumo_mensal">Mostra o resumo mensal de contas</string>
     <string name="pref_descricao_resumo_diario">Mostra o resumo diário de contas</string>
-    <string name="pref_key_resumo">resumo</string>
+    <string name="pref_key_resumo" translatable="false">resumo</string>
     <string name="pref_titulo_saldo">Somar saldo anterior</string>
     <string name="pref_descricao_saldo_somado">Soma o saldo do mês anterior</string>
     <string name="pref_descricao_saldo_real">Mostra saldo mês atual</string>
-    <string name="pref_key_saldo">saldo</string>
+    <string name="pref_key_saldo" translatable="false">saldo</string>
 
     <!-- Ajustes Acesso -->
 
-    <string name="pref_categoria_acesso_key">login</string>
+    <string name="pref_categoria_acesso_key" translatable="false">login</string>
     <string name="pref_titulo_categoria_acesso">Acesso por senha</string>
     <string name="pref_titulo_senha">Senha de acesso</string>
     <string name="pref_descricao_senha">Senha para entrar no aplicativo</string>
     <string name="pref_dialogo_senha">Digite a senha de acesso</string>
-    <string name="pref_key_senha">senha</string>
+    <string name="pref_key_senha" translatable="false">senha</string>
     <string name="pref_titulo_acesso">Bloquear aplicativo</string>
     <string name="pref_descricao_acesso_negado">Usar senha para entrar no aplicativo</string>
     <string name="pref_descricao_acesso_livre">Entrar no aplicativo sem senha</string>
-    <string name="pref_key_acesso">acesso</string>
+    <string name="pref_key_acesso" translatable="false">acesso</string>
 
     <!-- Ajustes Exportar -->
 
-    <string name="pref_categoria_exportar_key">exportar</string>
+    <string name="pref_categoria_exportar_key" translatable="false">exportar</string>
     <string name="pref_titulo_categoria_exportar">Exportar resumo</string>
     <string name="pref_titulo_exportar">Exportar para Excel</string>
-    <string name="pref_descricao_exportar">Salva o resumo mensal do ano corrente em uma planilha de formato Excel no Cartão SD</string>
-    <string name="pref_key_exportar">excel</string>
+    <string name="pref_descricao_exportar">Salva o resumo mensal do ano corrente em uma planilha de formato Excel</string>
+    <string name="pref_key_exportar" translatable="false">excel</string>
 
     <!-- Ajustes BackUp -->
 
-    <string name="pref_categoria_bkup_restaura_key">bkuprest</string>
+    <string name="pref_categoria_bkup_restaura_key" translatable="false">bkuprest</string>
     <string name="pref_titulo_bkup_restaura">Backup e Restauração</string>
     <string name="pref_titulo_auto_bkup">Backup Automático</string>
     <string name="pref_descricao_auto_bkup_sim">Fazer backup das contas sempre que fechar aplicativo</string>
     <string name="pref_descricao_auto_bkup_nao">Fazer backup das contas quando usuário solicitar</string>
-    <string name="pref_key_auto_bkup">autobackup</string>
+    <string name="pref_key_auto_bkup" translatable="false">autobackup</string>
     <string name="pref_titulo_bkup">Fazer backup das contas</string>
-    <string name="pref_descricao_bkup">Salva uma cópia das contas no cartão SD</string>
-    <string name="pref_key_bkup">backup</string>
+    <string name="pref_descricao_bkup">Salva uma cópia das contas</string>
+    <string name="pref_key_bkup" translatable="false">backup</string>
     <string name="pref_titulo_restaura">Restaurar contas salvas</string>
-    <string name="pref_descricao_restaura">Recupera uma cópia das contas salvas no cartão SD</string>
-    <string name="pref_key_restaura">restaura</string>
+    <string name="pref_descricao_restaura">Recupera uma cópia das contas salvas</string>
+    <string name="pref_key_restaura" translatable="false">restaura</string>
 
     <!-- Ajustes APAGATUDO -->
 
-    <string name="pref_categoria_apagatudo_key">apagatudomesmo</string>
+    <string name="pref_categoria_apagatudo_key" translatable="false">apagatudomesmo</string>
     <string name="pref_titulo_apagatudo">Apagar todas as contas</string>
     <string name="pref_descricao_apagatudo">Apaga todas as contas criadas no aplicativo</string>
-    <string name="pref_key_apagatudo">apagatudo</string>
+    <string name="pref_key_apagatudo" translatable="false">apagatudo</string>
 
     <!-- Ajustes Informacoes do Aplicativo -->
 
-    <string name="pref_categoria_info_key">info</string>
+    <string name="pref_categoria_info_key" translatable="false">info</string>
     <string name="pref_titulo_categoria_info">Sobre o aplicativo</string>
     <string name="pref_titulo_autor">Desenvolvedor</string>
-    <string name="pref_descricao_autor">Paulo E S Mesquita</string>
-    <string name="pref_key_autor">desenvolvedor</string>
+    <string name="pref_descricao_autor" translatable="false">Paulo E S Mesquita</string>
+    <string name="pref_key_autor" translatable="false">desenvolvedor</string>
     <string name="pref_titulo_versao">Versão do Aplicativo</string>
     <string name="pref_descricao_versao">Versão: %1$s</string>
-    <string name="pref_key_versao">versao</string>
+    <string name="pref_key_versao" translatable="false">versao</string>
+    <string name="vazio">Pasta vazia</string>
+    <string name="dica_aplicacao">Aplicação</string>
+    <string name="dica_despesas">Todas as despesas</string>
+    <string name="dica_aplicacoes">Todas as aplicações</string>
 
 </resources>

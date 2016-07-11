@@ -33,7 +33,7 @@
             android:name=".MinhasContas"
             android:theme="@style/TemaTabs" />
         <activity
-            android:name=".db.CriarNovaConta"
+            android:name=".db.CriarConta"
             android:label="@string/titulo_criar">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.NOVACONTA" />

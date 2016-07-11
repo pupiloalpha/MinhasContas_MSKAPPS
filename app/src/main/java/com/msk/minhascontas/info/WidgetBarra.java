@@ -10,7 +10,7 @@ import android.widget.RemoteViews;
 
 import com.msk.minhascontas.MinhasContas;
 import com.msk.minhascontas.R;
-import com.msk.minhascontas.db.CriarNovaConta;
+import com.msk.minhascontas.db.CriarConta;
 import com.msk.minhascontas.listas.PesquisaContas;
 
 public class WidgetBarra extends AppWidgetProvider {
@@ -31,7 +31,7 @@ public class WidgetBarra extends AppWidgetProvider {
                 launchActivity, 0);
         views.setOnClickPendingIntent(R.id.tvAbreAplciativo, pendingIntent);
 
-        Intent addConta = new Intent(context, CriarNovaConta.class);
+        Intent addConta = new Intent(context, CriarConta.class);
         addConta.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent piAdd = PendingIntent

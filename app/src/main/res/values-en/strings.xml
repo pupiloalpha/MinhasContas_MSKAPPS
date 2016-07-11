@@ -14,23 +14,21 @@
     <string name="titulo_grafico">Charts of bills</string>
     <string name="titulo_calendario">Add reminder</string>
     <string name="titulo_excluir">Delete bill</string>
-    <string name="icone">icon</string>
     <string name="acesso">Access denied</string>
     <string name="senha">Access password</string>
     <string name="dica_senha">Show password</string>
     <string name="titulo_senha">Access denied</string>
     <string name="senha_errada">Wrong password.</string>
     <string name="titulo_despesa_saque">Create expense</string>
-    <string name="texto_despesa_saque">Want to create an expense for this account to reduce the amount of the monthly balance?</string>
+    <string name="texto_despesa_saque">Want to create an expense for this account?</string>
     <string name="titulo_exclui_tudo">Delete all bills</string>
     <string name="texto_exclui_tudo">Want to delete all bills?</string>
     <string name="cancelar">Cancel</string>
     <string name="salvar">Save</string>
     <string name="criar">Create</string>
     <string name="entrar">ENTRER</string>
-    <string name="ok">OK</string>
     <string name="sem_nome">No Name</string>
-    <string name="sobre">Application My Bills was created to ease your financial control. Easy to use, lets you share content email email or text message and view all the income, expenditure and applications quickly. Organize your accounts by type and class, and know well how you spend your money. Learn what happens to the monthly budget through abstract and graphics. Understand how your balance and track the progress of your accounts, services and applications. Write in english for those who do not know their costs and who do not know about accounting. Application translated to Portuguese, English, French and Spanish. Support 2.1 to 5.1 android versions.\n\nIt has the following features available:\n- Monthly summary of its budget;\n- Comparison charts of accounts;\n- Full backup on the SD Card;\n- Issue anytime all the information;\n- Organization of the order of the accounts in monthly summary;\n- Switch between months by gestures;\n- Search accounts created;\n- Send by e-mail and text message;\n- Export to the monthly summary sheet in Excel;\n- Lock with password access to the application;\n- Apply interest payments and investments;\n- Partial values ​​with application of interest;\n- Sort accounts by date;\n- Launch of paying bills automatically;\n- Detail of the current balance showing only what was paid;\n- Widget (when application installed in internal memory);\n- Check the accounts daily;\n- Place the expiration of his account in the timing of the cell;\n- Repeat the bill daily, weekly, monthly or annually.\n\nDeveloped by Paulo E S Mesquita with support Vilar, Flavia Borges. Based on tutorials from the internet and other applications of its kind.\nVersion:%1$s.\nContact: mskapps.brazil@gmail.com</string>
+    <string name="sobre">Application My Bills was created to ease your financial control.\n\nDeveloped by Paulo E S Mesquita with support Vilar, Flavia Borges. Based on tutorials from the internet and other applications of its kind.\nVersion:%1$s.\nContact: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Application created to facilitate your financial control.</string>
     <string name="tela_inicial">Do not show again</string>
     <string name="dica_carteira">Wallet</string>
@@ -45,7 +43,7 @@
     <!-- Strings Das Telas Aplicativo -->
 
     <string name="dica_grafico">Choose a chart</string>
-    <string name="dica_spinner">Choose a type:</string>
+    <string name="dica_spinner">Choose a type</string>
     <string name="dica_conta">Bill name</string>
     <string name="dica_nome_categoria">Category name</string>
     <string name="dica_pesquisa_conta">Enter the bill name</string>
@@ -107,7 +105,6 @@
 
     <string name="resumo_mes_anterior">Balance previous month</string>
     <string name="resumo_saldo">Current month balance</string>
-    <string name="resumo_data">%1$s/%2$s/%3$s</string>
     <string name="resumo_pagas">Expences paid</string>
     <string name="resumo_faltam">Expences payable</string>
     <string name="resumo_recebidas">Income received</string>
@@ -145,15 +142,12 @@
     <string name="pref_titulo_pagamento">Automatic payment</string>
     <string name="pref_descricao_autopagamento">Consider bills paid by the due date</string>
     <string name="pref_descricao_editapagamento">User must inform the payment account</string>
-    <string name="pref_key_pagamento">pagamento</string>
     <string name="pref_titulo_resumo">Show monthly summary</string>
     <string name="pref_descricao_resumo_mensal">Shows the monthly summary of bills</string>
     <string name="pref_descricao_resumo_diario">Shows the daily summary of bills</string>
-    <string name="pref_key_resumo">resumo</string>
     <string name="pref_titulo_saldo">Adding previous balance</string>
     <string name="pref_descricao_saldo_somado">Sum the balance of the previous month</string>
     <string name="pref_descricao_saldo_real">Show current month balance</string>
-    <string name="pref_key_saldo">saldo</string>
 
     <!-- Ajustes de Acesso -->
 
@@ -169,7 +163,7 @@
 
     <string name="pref_titulo_categoria_exportar">Summary export</string>
     <string name="pref_titulo_exportar">Export to Excel</string>
-    <string name="pref_descricao_exportar">Saves the monthly summary of the current year on a spreadsheet of Excel in SD Card</string>
+    <string name="pref_descricao_exportar">Saves the monthly summary of the current year on a spreadsheet of Excel</string>
 
     <!-- Ajustes BackUp -->
 
@@ -178,9 +172,9 @@
     <string name="pref_descricao_auto_bkup_sim">Make backup allways then app is closed</string>
     <string name="pref_descricao_auto_bkup_nao">Make backup only when user choose</string>
     <string name="pref_titulo_bkup">Backup bill</string>
-    <string name="pref_descricao_bkup">Saves a copy of the bill on the SD card</string>
+    <string name="pref_descricao_bkup">Saves a copy of the bill</string>
     <string name="pref_titulo_restaura">Restore saved bills</string>
-    <string name="pref_descricao_restaura">Retrieves a copy of the BILL saved on the SD card</string>
+    <string name="pref_descricao_restaura">Retrieves a copy of the bill saved</string>
 
     <!-- Ajustes APAGATUDO -->
 
@@ -191,27 +185,14 @@
 
     <string name="pref_titulo_categoria_info">About Application</string>
     <string name="pref_titulo_autor">Developer</string>
-    <string name="pref_descricao_autor">Paulo E S Mesquita</string>
     <string name="pref_titulo_versao">Application Version</string>
     <string name="pref_descricao_versao">Version: %1$s</string>
 
     <!-- KEYS DAS PREFERENCIAS -->
 
-    <string name="pref_key_versao">versao</string>
-    <string name="pref_key_autor">desenvolvedor</string>
-    <string name="pref_categoria_info_key">info</string>
-    <string name="pref_key_apagatudo">apagatudo</string>
-    <string name="pref_categoria_apagatudo_key">apagatudomesmo</string>
-    <string name="pref_key_restaura">restaura</string>
-    <string name="pref_key_bkup">backup</string>
-    <string name="pref_categoria_bkup_restaura_key">bkuprest</string>
-    <string name="pref_key_exportar">excel</string>
-    <string name="pref_categoria_exportar_key">exportar</string>
-    <string name="pref_key_acesso">acesso</string>
-    <string name="pref_key_senha">senha</string>
-    <string name="pref_categoria_acesso_key">login</string>
-    <string name="pref_key_ordem">ordem</string>
-    <string name="pref_categoria_geral_key">geral</string>
-    <string name="pref_key_auto_bkup">autobackup</string>
+    <string name="vazio">Empty folder</string>
+    <string name="dica_aplicacao">Application</string>
+    <string name="dica_despesas">All expenses</string>
+    <string name="dica_aplicacoes">All applications</string>
 
 </resources>

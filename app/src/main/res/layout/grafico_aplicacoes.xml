@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_grafico_aplicacoes"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
@@ -31,7 +32,8 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_marginLeft="5.0dip"
-            android:background="@color/azul" />
+            android:background="@color/azul"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -39,13 +41,15 @@
             android:layout_marginLeft="5.0dip"
             android:layout_weight="0.15"
             android:gravity="left"
-            android:text="@string/linha_fundos" />
+            android:text="@string/linha_fundos"
+            tools:ignore="RtlHardcoded" />
 
         <LinearLayout
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_marginLeft="5.0dip"
-            android:background="@color/roxo" />
+            android:background="@color/roxo"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -53,13 +57,15 @@
             android:layout_marginLeft="5.0dip"
             android:layout_weight="0.15"
             android:gravity="left"
-            android:text="@string/linha_poupanca" />
+            android:text="@string/linha_poupanca"
+            tools:ignore="RtlHardcoded" />
 
         <LinearLayout
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_marginLeft="5.0dip"
-            android:background="@color/verde" />
+            android:background="@color/verde"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -67,7 +73,8 @@
             android:layout_marginLeft="5.0dip"
             android:layout_weight="0.15"
             android:gravity="left"
-            android:text="@string/linha_previdencia" />
+            android:text="@string/linha_previdencia"
+            tools:ignore="RtlHardcoded" />
 
     </LinearLayout>
 

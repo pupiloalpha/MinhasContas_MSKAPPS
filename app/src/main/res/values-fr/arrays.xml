@@ -2,16 +2,36 @@
 <resources>
 
     <string-array name="TipoReceita">
+        <item>Recette simple</item>
+    </string-array>
+    <string-array name="TipoReceita2">
+        <item>Recette simple</item>
+        <item>Banque</item>
+        <item>Portefeuille</item>
+    </string-array>
+    <string-array name="TipoAplicacao">
         <item>Actions et fonds</item>
         <item>Économies</item>
         <item>Pension privé</item>
-        <item>Recette simple</item>
     </string-array>
     <string-array name="TipoDespesa">
         <item>Carte de crédit</item>
         <item>Dépense fixe</item>
         <item>Dépense variable</item>
         <item>Versement</item>
+    </string-array>
+    <string-array name="FiltroAplicacao">
+        <item>Actions et fonds</item>
+        <item>Économies</item>
+        <item>Pension privé</item>
+        <item>Tous les applications</item>
+    </string-array>
+    <string-array name="FiltroDespesa">
+        <item>Carte de crédit</item>
+        <item>Dépense fixe</item>
+        <item>Dépense variable</item>
+        <item>Versement</item>
+        <item>Tous les dépenses</item>
     </string-array>
     <string-array name="GraficoContas">
         <item>Déspeses</item>

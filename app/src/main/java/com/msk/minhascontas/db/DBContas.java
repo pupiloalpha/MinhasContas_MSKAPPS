@@ -26,30 +26,13 @@ public class DBContas {
     public static final String COLUNA_DIA_REPETICAO_CONTA = "dia_repeticao";
     // NOVO VALOR ADICIONADO AO BANCO DE DADOS PARA ATUALIZAR
     public static final String COLUNA_ID_CONTA = "_id";
-    public static final String COLUNA_ID_CATEGORIA = "_id";
     public static final String COLUNA_MES_DATA_CONTA = "mes_data";
     public static final String COLUNA_NOME_CONTA = "conta";
-    public static final String COLUNA_NOME_CATEGORIA = "categoria";
     public static final String COLUNA_NR_REPETICAO_CONTA = "nr_repeticao";
     public static final String COLUNA_PAGOU_CONTA = "pagou";
-    public static final String COLUNA_PAGA_CATEGORIA = "paga_categoria";
-    public static final String COLUNA_REPETE_CATEGORIA = "repete_categoria";
-    public static final String COLUNA_MOSTRA_NR_CATEGORIA = "mostra_nr_categoria";
     public static final String COLUNA_QT_REPETICOES_CONTA = "qt_repeticoes";
     public static final String COLUNA_TIPO_CONTA = "tipo_conta";
-    public static final String COLUNA_TIPO_CATEGORIA = "tipo_categoria";
-    static String[] colunas_categorias = {COLUNA_ID_CATEGORIA,
-            COLUNA_NOME_CATEGORIA, COLUNA_TIPO_CATEGORIA,
-            COLUNA_PAGA_CATEGORIA, COLUNA_REPETE_CATEGORIA,
-            COLUNA_MOSTRA_NR_CATEGORIA};
     public static final String COLUNA_VALOR_CONTA = "valor";
-    // NOMES DAS COLUNAS DAS TABELAS
-    static String[] colunas_contas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
-            COLUNA_TIPO_CONTA, COLUNA_CATEGORIA_CONTA, COLUNA_PAGOU_CONTA,
-            COLUNA_DATA_CONTA, COLUNA_DIA_DATA_CONTA, COLUNA_MES_DATA_CONTA,
-            COLUNA_ANO_DATA_CONTA, COLUNA_VALOR_CONTA,
-            COLUNA_QT_REPETICOES_CONTA, COLUNA_NR_REPETICAO_CONTA,
-            COLUNA_DIA_REPETICAO_CONTA};
     // Nomes para criar o Bancos de Dados
     private static final String BANCO_DE_DADOS = "minhas_contas";
     private static final String TABELA_CONTAS = "contas";
@@ -67,17 +50,16 @@ public class DBContas {
             + COLUNA_QT_REPETICOES_CONTA + " INTEGER NOT NULL, "
             + COLUNA_NR_REPETICAO_CONTA + " INTEGER NOT NULL, "
             + COLUNA_DIA_REPETICAO_CONTA + " INTEGER NOT NULL);";
-    private static final String TABELA_CATEGORIAS = "categorias_contas";
-    private static final String CRIA_TABELA_CATEGORIAS = "CREATE TABLE "
-            + TABELA_CATEGORIAS + " ( " + COLUNA_ID_CATEGORIA
-            + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUNA_NOME_CATEGORIA
-            + " TEXT NOT NULL, " + COLUNA_TIPO_CATEGORIA + " TEXT NOT NULL,"
-            + COLUNA_PAGA_CATEGORIA + " TEXT NOT NULL, "
-            + COLUNA_REPETE_CATEGORIA + " TEXT NOT NULL, "
-            + COLUNA_MOSTRA_NR_CATEGORIA + " TEXT NOT NULL );";
     private static final String TAG = "DBContas";
     // NOVO VALOR ADICIONADO AO BANCO DE DADOS PARA ATUALIZAR
     private static final int VERSAO_BANCO_DE_DADOS = 3;
+    // NOMES DAS COLUNAS DAS TABELAS
+    static String[] colunas_contas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
+            COLUNA_TIPO_CONTA, COLUNA_CATEGORIA_CONTA, COLUNA_PAGOU_CONTA,
+            COLUNA_DATA_CONTA, COLUNA_DIA_DATA_CONTA, COLUNA_MES_DATA_CONTA,
+            COLUNA_ANO_DATA_CONTA, COLUNA_VALOR_CONTA,
+            COLUNA_QT_REPETICOES_CONTA, COLUNA_NR_REPETICAO_CONTA,
+            COLUNA_DIA_REPETICAO_CONTA};
     // ELEMENTOS QUE GERENCIAM O BANCO DE DADOS
     private DatabaseHelper DBHelper;
     private Context contexto;
@@ -125,17 +107,6 @@ public class DBContas {
         dadosConta.put(COLUNA_NR_REPETICAO_CONTA, Integer.valueOf(nRepete));
         dadosConta.put(COLUNA_DIA_REPETICAO_CONTA, Integer.valueOf(diaRepete));
         return db.insert(TABELA_CONTAS, null, dadosConta);
-    }
-
-    public long criaCategoriaConta(String nome, String tipo, String paga,
-                                   String repete, String mostra_nr) {
-        ContentValues dadosConta = new ContentValues();
-        dadosConta.put(COLUNA_NOME_CATEGORIA, nome);
-        dadosConta.put(COLUNA_TIPO_CATEGORIA, tipo);
-        dadosConta.put(COLUNA_PAGA_CATEGORIA, paga);
-        dadosConta.put(COLUNA_REPETE_CATEGORIA, repete);
-        dadosConta.put(COLUNA_MOSTRA_NR_CATEGORIA, mostra_nr);
-        return db.insert(TABELA_CATEGORIAS, null, dadosConta);
     }
 
     // ----------- MÉTODOS QUE ALTERAM DADOS DAS CONTAS NO BANCO DE DADOS
@@ -195,17 +166,6 @@ public class DBContas {
 
     }
 
-    public boolean alteraCategoriaContas(String categoria,
-                                         String novaCategoria, String tipo) throws SQLException {
-        ContentValues dadosConta = new ContentValues();
-        categoria = categoria.replace("'", "''");
-        dadosConta.put(COLUNA_TIPO_CONTA, tipo);
-        dadosConta.put(COLUNA_CATEGORIA_CONTA, novaCategoria);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_CATEGORIA_CONTA
-                + " = '" + categoria + "' ", null) > 0;
-
-    }
-
     // -------- MÉTODO QUE ALTERA DADOS EM MAIS DE UMA CONTA
 
     public boolean atualizaDataContas(String nome, String dma, int nr)
@@ -225,7 +185,8 @@ public class DBContas {
         dadosConta.put(COLUNA_PAGOU_CONTA, "paguei");
         return db.update(TABELA_CONTAS, dadosConta, COLUNA_DIA_DATA_CONTA
                         + " < '" + dia + "' AND " + COLUNA_MES_DATA_CONTA + " = '"
-                        + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
+                        + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '" + ano
+                        + "' OR " + COLUNA_ANO_DATA_CONTA + " < '" + ano + "'",
                 null) > 0;
 
     }
@@ -275,18 +236,7 @@ public class DBContas {
         db.delete(TABELA_CONTAS, null, null);
     }
 
-    public void excluiTodasAsCategorias() {
-        db.delete(TABELA_CATEGORIAS, null, null);
-    }
-
     // ----------- MÉTODOS QUE BUSCAM AS CONTAS NO BANCO DE DADOS
-
-    public Cursor buscaCategoriaPorTipo(String tipo) {
-        tipo = tipo.replace("'", "''");
-        return db.query(TABELA_CATEGORIAS, colunas_categorias,
-                COLUNA_TIPO_CATEGORIA + " = '" + tipo + "' ", null, null, null,
-                COLUNA_NOME_CATEGORIA + " ASC ");
-    }
 
     public Cursor buscaTodasDoMes(int mes, int ano, String ordem) {
         return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
@@ -483,15 +433,6 @@ public class DBContas {
         Cursor cursor;
         cursor = db.query(true, TABELA_CONTAS, colunas_contas, null, null,
                 null, null, null, null);
-        int i = cursor.getCount();
-        cursor.close();
-        return i;
-    }
-
-    public int quantasCategorias() {
-        Cursor cursor;
-        cursor = db.query(true, TABELA_CATEGORIAS, colunas_categorias, null,
-                null, null, null, null, null);
         int i = cursor.getCount();
         cursor.close();
         return i;
@@ -736,12 +677,12 @@ public class DBContas {
 
             if (sd.canWrite()) {
                 String currentDBPath = "//data//com.msk.minhascontas//databases//minhas_contas";
-                String backupDBPath = "minhas_contas";
+                //String backupDBPath = "minhas_contas";
                 File currentDB = new File(data, currentDBPath);
-                File backupDB = new File(sd, backupDBPath);
+                //File backupDB = new File(sd, backupDBPath);
 
                 if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(backupDB)
+                    FileChannel src = new FileInputStream(sd)
                             .getChannel();
                     FileChannel dst = new FileOutputStream(currentDB)
                             .getChannel();
@@ -751,6 +692,7 @@ public class DBContas {
                 }
             }
         } catch (Exception e) {
+
         }
     }
 
@@ -771,7 +713,6 @@ public class DBContas {
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(CRIA_TABELA_CONTAS);
-            db.execSQL(CRIA_TABELA_CATEGORIAS);
             Log.w(TAG, "DB criado com sucesso!");
         }
 
@@ -779,8 +720,6 @@ public class DBContas {
         public void onUpgrade(SQLiteDatabase db, int arg1, int arg2) {
             Log.w(TAG, "Atualizando o banco de dados da versao " + arg1
                     + " para " + arg2 + ", todos os dados serao perdidos!");
-            db.execSQL("DROP TABLE IF EXISTS " + TABELA_CATEGORIAS);
-            db.execSQL(CRIA_TABELA_CATEGORIAS);
             // db.execSQL("DROP TABLE IF EXISTS " + TABELA_CONTAS);
             // onCreate(db);
         }
