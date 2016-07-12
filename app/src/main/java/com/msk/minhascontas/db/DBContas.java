@@ -251,6 +251,15 @@ public class DBContas {
                         + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo + "' ",
                 null, null, null, ordem);
     }
+    
+    public Cursor buscaContasTipoPagamento(int mes, int ano, String ordem,
+                                       String tipo, String pagamento) {
+        return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
+                        + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                        + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
+                        + "' AND " + COLUNA_PAGOU_CONTA + " = '" + pagamento + "' ",
+                null, null, null, ordem);
+    }
 
     public Cursor buscaContasClasseDoMes(int mes, int ano, String ordem,
                                          String tipo, String classe) {
