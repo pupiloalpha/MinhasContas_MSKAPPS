@@ -3,9 +3,6 @@
 
     <string-array name="TipoReceita">
         <item>Sencilla receta</item>
-    </string-array>
-    <string-array name="TipoReceita2">
-        <item>Sencilla receta</item>
         <item>Banco</item>
         <item>Cartera</item>
     </string-array>
@@ -31,6 +28,8 @@
         <item>Gastos fijos</item>
         <item>Gastos variables</item>
         <item>Provisión</item>
+        <item>Gastos por pagar</item>
+        <item>Gastos pagados</item>
         <item>Todos los gastos</item>
     </string-array>
     <string-array name="GraficoContas">
