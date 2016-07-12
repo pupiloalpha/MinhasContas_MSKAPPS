@@ -3,9 +3,6 @@
 
     <string-array name="TipoReceita">
         <item>Recette simple</item>
-    </string-array>
-    <string-array name="TipoReceita2">
-        <item>Recette simple</item>
         <item>Banque</item>
         <item>Portefeuille</item>
     </string-array>
@@ -31,6 +28,8 @@
         <item>Dépense fixe</item>
         <item>Dépense variable</item>
         <item>Versement</item>
+        <item>harges à payer</item>
+        <item>Frais payés</item>
         <item>Tous les dépenses</item>
     </string-array>
     <string-array name="GraficoContas">
