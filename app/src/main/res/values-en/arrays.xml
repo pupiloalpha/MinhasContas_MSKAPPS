@@ -3,9 +3,6 @@
 
     <string-array name="TipoReceita">
         <item>Simple recipe</item>
-    </string-array>
-    <string-array name="TipoReceita2">
-        <item>Simple recipe</item>
         <item>Bank</item>
         <item>Wallet</item>
     </string-array>
@@ -31,6 +28,8 @@
         <item>Expense fixed</item>
         <item>Expense variable</item>
         <item>Installment</item>
+        <item>Expenses payable</item>
+        <item>Expenses paid</item>
         <item>All expenses</item>
     </string-array>
     <string-array name="GraficoContas">
