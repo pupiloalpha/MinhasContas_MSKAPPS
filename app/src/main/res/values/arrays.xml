@@ -3,9 +3,6 @@
 
     <string-array name="TipoReceita">
         <item>Receita simples</item>
-    </string-array>
-    <string-array name="TipoReceita2">
-        <item>Receita simples</item>
         <item>Banco</item>
         <item>Carteria</item>
     </string-array>
@@ -31,6 +28,8 @@
         <item>Despesa fixa</item>
         <item>Despesa variável</item>
         <item>Prestação</item>
+        <item>Despesas a pagar</item>
+        <item>Despesas pagas</item>
         <item>Todas as despesas</item>
     </string-array>
     <string-array name="GraficoContas">
