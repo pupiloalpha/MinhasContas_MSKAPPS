@@ -454,26 +454,25 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
 
         dbContasDoMes.open();
 
-        if (tipo.equals(getResources().getString(R.string.linha_receita))) {
-            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    tipo);
-        } else if (tipo.equals(getResources().getString(R.string.linha_despesa))) {
-            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    tipo);
-        } else if (tipo.equals(getResources().getString(R.string.linha_aplicacoes))) {
-            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    tipo);
-        } else {
+        if (tipo.equals(todas)) {
             contasParaLista = dbContasDoMes.buscaTodasDoMes(mes, ano,
                     buscaPreferencias.getString("ordem", ordemListaDeContas));
+        } else {
+            contasParaLista = dbContasDoMes.buscaContasTipoDoMes(mes, ano,
+                    buscaPreferencias.getString("ordem", ordemListaDeContas),
+                    tipo);
         }
+        
         if (!filtro.equals("")) {
             contasParaLista = dbContasDoMes.buscaContasClasseDoMes(mes, ano,
                     buscaPreferencias.getString("ordem", ordemListaDeContas),
                     tipo, filtro);
+            
+            if (filtro.equals("paguei") || filtro.equals("falta")) {
+            contasParaLista = dbContasDoMes.buscaContasTipoPagamento(mes, ano,
+                    buscaPreferencias.getString("ordem", ordemListaDeContas),
+                    tipo, filtro);
+            }
         }
 
         int n = contasParaLista.getCount();
@@ -712,6 +711,10 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                             // DEFINE CONTEUDO LISTA COM FILTRO
                             if (id < 4) {
                                 filtro = classes[id];
+                            } else if (id == 4) {
+                                filtro = "falta";
+                            } else if (id == 5){
+                                filtro = "paguei";
                             } else {
                                 filtro = "";
                             }
