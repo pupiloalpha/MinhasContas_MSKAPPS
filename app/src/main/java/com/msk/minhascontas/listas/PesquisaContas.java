@@ -241,17 +241,21 @@ public class PesquisaContas extends AppCompatActivity implements
                     buscaContas.marcaConta(posicao, true);
                 }
 
-                mActionMode = PesquisaContas.this
-                        .startSupportActionMode(alteraUmaConta);
-                lastView = v;
-                conta = posicao;
+                if (posicao != conta) {
+                    mActionMode = PesquisaContas.this.startSupportActionMode(alteraUmaConta);
+                    lastView = v;
+                    conta = posicao;
+                } else {
+                    mActionMode.finish();
+                    MontaLista();
+                }
 
             } else {
 
                 if (contas.size() != 0) {
 
                     if (contas.contains(idConta)) {
-                        if (primeiraConta == false) {
+                        if (!primeiraConta) {
                             contas.remove(idConta);
                             buscaContas.marcaConta(posicao, false);
                             //v.setSelected(false);
@@ -329,7 +333,7 @@ public class PesquisaContas extends AppCompatActivity implements
                         dbContasPesquisadas.open();
 
                         for (int i = 0; i < contas.size(); i++) {
-                            dbContasPesquisadas.excluiConta(idConta);
+                            dbContasPesquisadas.excluiConta(contas.get(i));
                         }
 
                         dbContasPesquisadas.close();

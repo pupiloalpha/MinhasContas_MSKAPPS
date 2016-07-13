@@ -245,10 +245,15 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                     buscaContas.marcaConta(conta, false);
                     buscaContas.marcaConta(posicao, true);
                 }
-                mActionMode = ListaMensalContas.this
-                        .startSupportActionMode(alteraUmaConta);
-                lastView = v;
-                conta = posicao;
+
+                if (posicao != conta) {
+                    mActionMode = ListaMensalContas.this.startSupportActionMode(alteraUmaConta);
+                    lastView = v;
+                    conta = posicao;
+                } else {
+                    mActionMode.finish();
+                    MontaLista();
+                }
 
             } else {
 
@@ -332,7 +337,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         dbContasDoMes.open();
 
                         for (int i = 0; i < contas.size(); i++) {
-                            dbContasDoMes.excluiConta(idConta);
+                            dbContasDoMes.excluiConta(contas.get(i));
                         }
 
                         dbContasDoMes.close();
@@ -454,7 +459,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
 
         dbContasDoMes.open();
 
-        if (tipo.equals(todas)) {
+        if (tipo.equals("todas")) {
             contasParaLista = dbContasDoMes.buscaTodasDoMes(mes, ano,
                     buscaPreferencias.getString("ordem", ordemListaDeContas));
         } else {
@@ -462,16 +467,16 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                     buscaPreferencias.getString("ordem", ordemListaDeContas),
                     tipo);
         }
-        
+
         if (!filtro.equals("")) {
             contasParaLista = dbContasDoMes.buscaContasClasseDoMes(mes, ano,
                     buscaPreferencias.getString("ordem", ordemListaDeContas),
                     tipo, filtro);
-            
+
             if (filtro.equals("paguei") || filtro.equals("falta")) {
-            contasParaLista = dbContasDoMes.buscaContasTipoPagamento(mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    tipo, filtro);
+                contasParaLista = dbContasDoMes.buscaContasTipoPagamento(mes, ano,
+                        buscaPreferencias.getString("ordem", ordemListaDeContas),
+                        tipo, filtro);
             }
         }
 
@@ -621,6 +626,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
 
         double valores;
         if (!filtro.equals("")) {
+
             // DEFINE TITULO LISTA COM FILTRO
             if (dbContasDoMes.quantasContasPorClasse(
                     filtro, 0, mes, ano) > 0)
@@ -628,7 +634,23 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         filtro, 0, mes, ano);
             else
                 valores = 0.0D;
-            getSupportActionBar().setTitle(filtro);
+
+            if (filtro.equals("paguei") || filtro.equals("falta")) {
+                if (dbContasDoMes.quantasContasPagasPorTipo(tipo,
+                        filtro, 0, mes, ano) > 0)
+                    valores = dbContasDoMes.somaContasPagas(tipo,
+                            filtro, 0, mes, ano);
+                else
+                    valores = 0.0D;
+            }
+
+            if (filtro.equals("paguei")) {
+                getSupportActionBar().setTitle(r.getString(R.string.resumo_pagas));
+            } else if (filtro.equals("falta")) {
+                getSupportActionBar().setTitle(r.getString(R.string.resumo_faltam));
+            } else {
+                getSupportActionBar().setTitle(filtro);
+            }
             getSupportActionBar().setSubtitle(dinheiro.format(valores));
         } else {
             // DEFINE TITULO LISTA SEM FILTRO
@@ -638,6 +660,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         tipo, 0, mes, ano);
             else
                 valores = 0.0D;
+
             if (!tipo.equals("todas")) {
                 getSupportActionBar().setTitle(tipo);
                 getSupportActionBar().setSubtitle(dinheiro.format(valores));
@@ -713,7 +736,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                                 filtro = classes[id];
                             } else if (id == 4) {
                                 filtro = "falta";
-                            } else if (id == 5){
+                            } else if (id == 5) {
                                 filtro = "paguei";
                             } else {
                                 filtro = "";

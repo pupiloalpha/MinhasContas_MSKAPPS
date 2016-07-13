@@ -13,6 +13,7 @@ public class AlertaCalendario {
     public static long adicionarEventoNoCalendario(ContentResolver cr,
                                                    String titulo, String descricao, int dia, int mes, int ano, boolean comAlerta) {
 
+
         String eventUriStr = "content://com.android.calendar/events";
         if (Build.VERSION.SDK_INT < 8)
             eventUriStr = "content://calendar/events";
@@ -32,10 +33,17 @@ public class AlertaCalendario {
         event.put("eventTimezone", TimeZone.getDefault().getID());
         event.put("hasAlarm", 1);
 
-        Uri eventUri = cr.insert(Uri.parse(eventUriStr), event);
-        long eventID = Long.parseLong(eventUri.getLastPathSegment());
+        Uri eventUri;
+        long eventID;
 
-        if (comAlerta == true) {
+        try {
+            eventUri = cr.insert(Uri.parse(eventUriStr), event);
+            eventID = Long.parseLong(eventUri.getLastPathSegment());
+        } catch (Exception e) {
+            eventID = 0;
+        }
+
+        if (comAlerta) {
             String reminderUriString = "content://com.android.calendar/reminders";
             if (Build.VERSION.SDK_INT < 8)
                 reminderUriString = "content://calendar/reminders";
