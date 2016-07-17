@@ -12,21 +12,21 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.Toolbar;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -39,9 +39,9 @@ import com.msk.minhascontas.resumos.ResumoDiario;
 import com.msk.minhascontas.resumos.ResumoMensal;
 
 import java.util.Calendar;
+import java.util.HashMap;
 
-public class MinhasContas extends AppCompatActivity implements
-        OnPageChangeListener {
+public class MinhasContas extends AppCompatActivity {
 
     private static int[] diaConta, mesConta, anoConta;
     private final Context contexto = this;
@@ -51,15 +51,14 @@ public class MinhasContas extends AppCompatActivity implements
     // ELEMENTOS DA TELA
     private Paginas mPaginas;
     private ViewPager mViewPager;
-    private Resources r;
+    private Resources res;
     private SharedPreferences buscaPreferencias = null;
-    private ActionBar actionBar;
     // VARIAVEIS DO APLICATIVO
     private Boolean autobkup = true;
     private Boolean resumoMensal = true;
     private Boolean bloqueioApp = false;
     private Boolean atualizaPagamento = false;
-    private String senhaUsuario, tipo, categoria;
+    private String senhaUsuario;
     private String[] despesas, receitas;
     private String[] Meses;
     private int dia, mes, ano, paginas, nrPagina;
@@ -80,16 +79,10 @@ public class MinhasContas extends AppCompatActivity implements
         }
         setContentView(R.layout.pagina_resumos);
 
-        r = getResources();
-        ImageButton addConta = (ImageButton) findViewById(R.id.ibfab);
-        addConta.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setResult(RESULT_OK, null);
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.NOVACONTA"), 1);
-            }
-        });
+        res = getResources();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // AJUSTES DO BANCO DE DADOS
         dbContas.open();
@@ -130,13 +123,25 @@ public class MinhasContas extends AppCompatActivity implements
         mViewPager.getAdapter().notifyDataSetChanged();
 
         // Define a barra de titulo e as tabs
-        usarActionBar();
+        int normalColor = res.getColor(android.R.color.darker_gray);
+        int selectedColor = res.getColor(android.R.color.white);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        tabLayout.setTabTextColors(normalColor, selectedColor);
+        tabLayout.setupWithViewPager(mViewPager);
+
+        ImageButton addConta = (ImageButton) findViewById(R.id.ibfab);
+        addConta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_OK, null);
+                startActivityForResult(
+                        new Intent("com.msk.minhascontas.NOVACONTA"), 1);
+            }
+        });
 
         // DEFINE O MES QUE APARECERA NA TELA QUANDO ABRIR
         mViewPager.setCurrentItem(nrPagina);
-
-        // RECOMNHECE MUDANCA DE PAGINA
-        mViewPager.setOnPageChangeListener(this);
 
     }
 
@@ -172,7 +177,7 @@ public class MinhasContas extends AppCompatActivity implements
 
                 } else {
 
-                    edit.setHint(r.getString(R.string.senha_errada));
+                    edit.setHint(res.getString(R.string.senha_errada));
                     edit.setHintTextColor(Color.RED);
                     edit.setText("");
 
@@ -216,63 +221,6 @@ public class MinhasContas extends AppCompatActivity implements
             dbContas.atualizaPagamentoContas(dia, mes, ano);
             // db.close();
         }
-
-    }
-
-    private void usarActionBar() {
-
-        actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        actionBar.setHomeButtonEnabled(false);
-
-        // Define a navegaçao por tabs
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Create a tab listener that is called when the user changes tabs.
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // show the given tab
-                mViewPager.setCurrentItem(tab.getPosition());
-
-            }
-
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // hide the given tab
-
-            }
-
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // probably ignore this event
-
-            }
-        };
-
-        String[] MesCompleto = getResources().getStringArray(R.array.MesesDoAno);
-
-        String title;
-        // Adiciona o nome dos meses nas tabs
-        for (int i = 0; i < paginas; i++) {
-
-            if (resumoMensal) {
-
-                if (isTablet(this)) {
-                    title = "  " + MesCompleto[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
-                } else {
-                    title = "  " + Meses[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
-                }
-
-            } else {
-                String s = "" + diaConta[i];
-                if (diaConta[i] < 10)
-                    s = "0" + diaConta[i];
-                title = "  " + s + "/" + Meses[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
-            }
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(title)
-                            .setTabListener(tabListener));
-        }
-        actionBar.setSelectedNavigationItem(nrPagina);
 
     }
 
@@ -373,24 +321,24 @@ public class MinhasContas extends AppCompatActivity implements
             case R.id.botao_enviar:
 
                 dbContas.open();
-                String aplicacoes = dbContas.mostraContasPorTipo(getResources()
-                        .getString(R.string.linha_aplicacoes), mes, ano);
-                String despesas = dbContas.mostraContasPorTipo(getResources()
-                        .getString(R.string.linha_despesa), mes, ano);
-                String receitas = dbContas.mostraContasPorTipo(getResources()
-                        .getString(R.string.linha_receita), mes, ano);
+                String aplicacoes = dbContas.mostraContasPorTipo(
+                        res.getString(R.string.linha_aplicacoes), mes, ano);
+                String despesas = dbContas.mostraContasPorTipo(
+                        res.getString(R.string.linha_despesa), mes, ano);
+                String receitas = dbContas.mostraContasPorTipo(
+                        res.getString(R.string.linha_receita), mes, ano);
 
-                String texto = getResources().getString(R.string.app_name) + " "
+                String texto = res.getString(R.string.app_name) + " "
                         + Meses[mes] + "/" + ano + "\n" + receitas + "\n"
                         + despesas + "\n" + aplicacoes;
 
                 Intent envelope = new Intent("android.intent.action.SEND");
-                envelope.putExtra("android.intent.extra.SUBJECT", getResources()
-                        .getString(R.string.app_name));
+                envelope.putExtra("android.intent.extra.SUBJECT",
+                        res.getString(R.string.app_name));
                 envelope.putExtra("android.intent.extra.TEXT", texto);
                 envelope.setType("*/*");
-                startActivity(Intent.createChooser(envelope, getResources()
-                        .getString(R.string.titulo_grafico)
+                startActivity(Intent.createChooser(envelope,
+                        res.getString(R.string.titulo_grafico)
                         + " "
                         + Meses[mes]
                         + "/" + ano + ":"));
@@ -405,7 +353,6 @@ public class MinhasContas extends AppCompatActivity implements
                         "com.msk.minhascontas.graficos.MEUSGRAFICOS");
                 intentGrafico.putExtras(dataGrafico);
                 startActivity(intentGrafico);
-
                 break;
 
         }
@@ -415,30 +362,16 @@ public class MinhasContas extends AppCompatActivity implements
     }
 
     @Override
-    public void onPageScrollStateChanged(int arg0) {
-        // NAO FAZ NADA
-    }
-
-    @Override
-    public void onPageScrolled(int arg0, float arg1, int arg2) {
-        // NAO FAZ NADA
-    }
-
-    @Override
-    public void onPageSelected(int arg0) {
-        // NAO FAZ NADA
-        actionBar.setSelectedNavigationItem(arg0);
-        nrPagina = arg0;
-
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            mPaginas = new Paginas(getSupportFragmentManager());
-            mViewPager.setAdapter(mPaginas);
-            mViewPager.setCurrentItem(nrPagina);
+
+            nrPagina = mViewPager.getCurrentItem();
+            Fragment current = mPaginas.getFragment(nrPagina);
+            if (current != null) {
+                current.onResume();
+            }
+
         }
     }
 
@@ -451,9 +384,6 @@ public class MinhasContas extends AppCompatActivity implements
     @Override
     protected void onResume() {
         dbContas.open();
-        mPaginas = new Paginas(getSupportFragmentManager());
-        mViewPager.setAdapter(mPaginas);
-        mViewPager.setCurrentItem(nrPagina);
         super.onResume();
     }
 
@@ -487,6 +417,8 @@ public class MinhasContas extends AppCompatActivity implements
      */
     public class Paginas extends FragmentStatePagerAdapter {
 
+        HashMap<Integer, String> tags = new HashMap<Integer, String>();
+
         public Paginas(FragmentManager fm) {
             super(fm);
         }
@@ -506,6 +438,49 @@ public class MinhasContas extends AppCompatActivity implements
         public int getCount() {
             // QUANTIDADE DE PAGINAS QUE SERAO MOSTRADAS
             return paginas;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int i) {
+
+            String[] MesCompleto = res.getStringArray(R.array.MesesDoAno);
+            String title;
+
+            if (resumoMensal) {
+
+                if (isTablet(getApplicationContext())) {
+                    title = "  " + MesCompleto[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
+                } else {
+                    title = "  " + Meses[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
+                }
+
+            } else {
+                String s = "" + diaConta[i];
+                if (diaConta[i] < 10)
+                    s = "0" + diaConta[i];
+                title = "  " + s + "/" + Meses[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
+            }
+
+            return title;
+
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Object obj = super.instantiateItem(container, position);
+            if (obj instanceof Fragment) {
+                Fragment f = (Fragment) obj;
+                String tag = f.getTag();
+                tags.put(position, tag);
+            }
+            return obj;
+        }
+
+        public Fragment getFragment(int position) {
+            String tag = tags.get(position);
+            if (tag == null)
+                return null;
+            return getSupportFragmentManager().findFragmentByTag(tag);
         }
 
     }

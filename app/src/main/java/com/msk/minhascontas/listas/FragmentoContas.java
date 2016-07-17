@@ -2,27 +2,28 @@ package com.msk.minhascontas.listas;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
@@ -32,7 +33,6 @@ import android.widget.Toast;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
-import com.msk.minhascontas.info.Ajustes;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -41,21 +41,24 @@ import java.util.Locale;
 
 @SuppressLint("InflateParams")
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class ListaMensalContas extends AppCompatActivity implements View.OnClickListener {
+public class FragmentoContas extends Fragment {
 
+    public static ActionMode mActionMode = null;
     public ArrayList<Long> contas = new ArrayList<Long>();
-    private DBContas dbContasDoMes = new DBContas(this);
+    private DBContas dbContasDoMes;
     private Calendar c = Calendar.getInstance();
     // BARRA NO TOPO DO APLICATIVO
-    private ActionMode mActionMode = null;
-    private Resources r;
+    private Bundle dados_mes = new Bundle();
+    private Resources res;
     private SharedPreferences buscaPreferencias = null;
     private NumberFormat dinheiro;
+
     // ELEMENTOS DA TELA
     private ImageButton antes, depois, addConta;
     private TextView lista, semContas;
     private ListView listaContas;
-    private View lastView;
+    private View lastView, rootView;
+
     // VARIAVEIS UTILIZADAS
     private String[] MESES, prestacao, semana, classes;
     private int mes, ano, conta;
@@ -71,7 +74,6 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                 SharedPreferences sharedPreferences, String key) {
             if (key.equals("ordem")) {
                 dbContasDoMes.open();
-                AtualizaActionBar();
                 MontaLista();
             }
 
@@ -105,9 +107,8 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         Intent localIntent = new Intent(
                                 "com.msk.minhascontas.EDITACONTA");
                         localIntent.putExtras(localBundle);
-                        startActivityForResult(localIntent, 1);
+                        startActivity(localIntent);
                     }
-                    setResult(RESULT_OK, null);
                     mode.finish();
                     break;
                 case R.id.botao_pagar:
@@ -127,7 +128,6 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         dbContasDoMes.close();
 
                     }
-                    setResult(RESULT_OK, null);
                     mode.finish();
                     break;
                 case R.id.botao_excluir:
@@ -151,7 +151,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                             // Exclui a unica conta
                             dbContasDoMes.excluiConta(idConta);
                             Toast.makeText(
-                                    getApplicationContext(),
+                                    getActivity(),
                                     getResources()
                                             .getString(
                                                     R.string.dica_conta_excluida,
@@ -178,7 +178,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
 
                         double valorConta = dbContasDoMes
                                 .mostraValorConta(idConta);
-                        String nomeContaCalendario = r.getString(
+                        String nomeContaCalendario = res.getString(
                                 R.string.dica_evento, dbContasDoMes
                                         .mostraNomeConta(idConta));
                         dbContasDoMes.close();
@@ -188,7 +188,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         evento.setType("vnd.android.cursor.item/event");
                         evento.putExtra(Events.TITLE,
                                 nomeContaCalendario);
-                        evento.putExtra(Events.DESCRIPTION, r
+                        evento.putExtra(Events.DESCRIPTION, res
                                 .getString(
                                         R.string.dica_calendario,
                                         dinheiro.format(valorConta)));
@@ -206,7 +206,6 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                                 Events.AVAILABILITY_BUSY);
                         startActivity(evento);
                     }
-
                     mode.finish();
                     break;
             }
@@ -217,7 +216,6 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
-            AtualizaActionBar();
             //lastView.setBackgroundColor(Color.WHITE);
             buscaContas.marcaConta(conta, false);
             addConta.setVisibility(View.VISIBLE);
@@ -241,20 +239,23 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                     buscaContas.limpaSelecao();
                     contas = new ArrayList<Long>();
                     buscaContas.marcaConta(posicao, true);
-                } else {
-                    buscaContas.marcaConta(conta, false);
-                    buscaContas.marcaConta(posicao, true);
-                }
-
-                if (posicao != conta) {
-                    mActionMode = ListaMensalContas.this.startSupportActionMode(alteraUmaConta);
+                    AppCompatActivity act = (AppCompatActivity) getActivity();
+                    mActionMode = act.startSupportActionMode(alteraUmaConta);
                     lastView = v;
                     conta = posicao;
                 } else {
-                    mActionMode.finish();
-                    MontaLista();
+                    buscaContas.marcaConta(conta, false);
+                    buscaContas.marcaConta(posicao, true);
+                    if (posicao != conta) {
+                        AppCompatActivity act = (AppCompatActivity) getActivity();
+                        mActionMode = act.startSupportActionMode(alteraUmaConta);
+                        lastView = v;
+                        conta = posicao;
+                    } else {
+                        mActionMode.finish();
+                        MontaLista();
+                    }
                 }
-
             } else {
 
                 if (contas.size() != 0) {
@@ -280,7 +281,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                     }
 
                     if (contas.size() != 0)
-                        mActionMode.setTitle(r.getQuantityString(R.plurals.selecao,
+                        mActionMode.setTitle(res.getQuantityString(R.plurals.selecao,
                                 contas.size(), contas.size()));
                 }
             }
@@ -323,11 +324,8 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                                         contas.get(i), "paguei");
                             }
                         }
-
                         dbContasDoMes.close();
-
                     }
-                    setResult(RESULT_OK, null);
                     mode.finish();
                     break;
                 case R.id.botao_excluir:
@@ -339,10 +337,8 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         for (int i = 0; i < contas.size(); i++) {
                             dbContasDoMes.excluiConta(contas.get(i));
                         }
-
                         dbContasDoMes.close();
                     }
-
                     mode.finish();
                     break;
             }
@@ -353,7 +349,6 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
-            AtualizaActionBar();
             addConta.setVisibility(View.VISIBLE);
             buscaContas.limpaSelecao();
             contas = new ArrayList<Long>();
@@ -386,38 +381,60 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
             buscaContas.marcaConta(posicao, true);
 
             // Mostra selecao na barra de titulo
-            mActionMode = ListaMensalContas.this
-                    .startSupportActionMode(alteraVariasContas);
+            AppCompatActivity act = (AppCompatActivity) getActivity();
+            mActionMode = act.startSupportActionMode(alteraVariasContas);
 
             return false;
         }
     };
 
-    protected void onCreate(Bundle paramBundle) {
-        super.onCreate(paramBundle);
-        setContentView(R.layout.contas_do_mes);
+    public static FragmentoContas newInstance(int mes, int ano, String tipo, String filtro) {
+        FragmentoContas fragment = new FragmentoContas();
+        Bundle args = new Bundle();
+        args.putInt("ano", ano);
+        args.putInt("mes", mes);
+        args.putString("tipo", tipo);
+        args.putString("filtro", filtro);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        dbContasDoMes = new DBContas(activity);
         buscaPreferencias = PreferenceManager
-                .getDefaultSharedPreferences(getBaseContext());
+                .getDefaultSharedPreferences(activity);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        // COLOCA OS MESES NA TELA
+        rootView = inflater.inflate(R.layout.contas_do_mes_novo, container, false);
         ordemListaDeContas = buscaPreferencias.getString("ordem", "conta ASC");
         buscaPreferencias
                 .registerOnSharedPreferenceChangeListener(preferencias);
 
         // Recupera o mes e o ano da lista anterior
-        Bundle localBundle = getIntent().getExtras();
+        Bundle localBundle = getArguments();
         ano = localBundle.getInt("ano");
         mes = localBundle.getInt("mes");
         tipo = localBundle.getString("tipo");
-        filtro = "";
-        r = getResources();
-        Locale current = r.getConfiguration().locale;
+        filtro = localBundle.getString("filtro");
+
+        res = getActivity().getResources();
+        Locale current = res.getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
         dbContasDoMes.open();
         iniciar();
-        usarActionBar();
-
-        lista.setText(new StringBuilder().append(MESES[mes]).append("/")
-                .append(ano));
 
         MontaLista();
 
@@ -425,32 +442,30 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
         lastView = null;
         listaContas.setOnItemClickListener(toqueSimples);
         listaContas.setOnItemLongClickListener(toqueLongo);
-        antes.setOnClickListener(this);
-        depois.setOnClickListener(this);
 
         addConta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_OK, null);
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.NOVACONTA"), 1);
+                startActivity(
+                        new Intent("com.msk.minhascontas.NOVACONTA"));
             }
         });
 
+        return rootView;
     }
 
     private void iniciar() {
-        listaContas = ((ListView) findViewById(R.id.lvContasCriadas));
-        antes = ((ImageButton) findViewById(R.id.ibMesAntes));
-        depois = ((ImageButton) findViewById(R.id.ibMesDepois));
-        lista = ((TextView) findViewById(R.id.tvMesLista));
-        semContas = (TextView) findViewById(R.id.tvSemContas);
+        listaContas = ((ListView) rootView.findViewById(R.id.lvContasCriadas));
+        antes = ((ImageButton) rootView.findViewById(R.id.ibMesAntes));
+        depois = ((ImageButton) rootView.findViewById(R.id.ibMesDepois));
+        lista = ((TextView) rootView.findViewById(R.id.tvMesLista));
+        semContas = (TextView) rootView.findViewById(R.id.tvSemContas);
         MESES = getResources().getStringArray(R.array.MesesDoAno);
 
-        addConta = (ImageButton) findViewById(R.id.ibfab);
+        addConta = (ImageButton) rootView.findViewById(R.id.ibfab);
 
-        prestacao = r.getStringArray(R.array.TipoDespesa);
-        semana = r.getStringArray(R.array.Semana);
+        prestacao = res.getStringArray(R.array.TipoDespesa);
+        semana = res.getStringArray(R.array.Semana);
 
     }
 
@@ -487,7 +502,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
         if (n >= 0) {
 
             int posicao = listaContas.getFirstVisiblePosition();
-            buscaContas = new AdaptaListaMensal(this, contasParaLista,
+            buscaContas = new AdaptaListaMensal(getActivity(), contasParaLista,
                     prestacao, semana);
             listaContas.setAdapter(buscaContas);
             listaContas.setEmptyView(semContas);
@@ -502,43 +517,10 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
 
     }
 
-    @Override
-    public void onClick(View arg0) {
-        switch (arg0.getId()) {
-
-            case R.id.ibMesAntes:
-                mes = (-1 + this.mes);
-                if (mes < 0) {
-                    mes = 11;
-                    ano = (-1 + this.ano);
-                }
-                break;
-
-            case R.id.ibMesDepois:
-                mes = (1 + this.mes);
-                if (mes > 11) {
-                    mes = 0;
-                    ano = (1 + this.ano);
-                }
-                break;
-        }
-        lista.setText(new StringBuilder().append(MESES[mes]).append("/")
-                .append(ano));
-        AtualizaActionBar();
-        MontaLista();
-        if (mActionMode != null)
-            mActionMode.finish();
-
-        setResult(RESULT_OK, null);
-    }
-
     private void Dialogo() {
-        AlertDialog.Builder dialogoBuilder = new AlertDialog.Builder(
-                new ContextThemeWrapper(this, R.style.TemaDialogo));
-
+        AlertDialog.Builder dialogoBuilder = new AlertDialog.Builder(getActivity());
         // set title
         dialogoBuilder.setTitle(getString(R.string.dica_menu_exclusao));
-
         // set dialog message
         dialogoBuilder.setItems(R.array.TipoAjusteConta,
                 new DialogInterface.OnClickListener() {
@@ -565,7 +547,7 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                                 break;
                         }
                         Toast.makeText(
-                                getApplicationContext(),
+                                getActivity(),
                                 getResources().getString(
                                         R.string.dica_conta_excluida,
                                         nomeContaExcluir), Toast.LENGTH_SHORT)
@@ -575,10 +557,8 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
                         MontaLista();
                         idConta = 0;
                         nomeConta = " ";
-                        setResult(RESULT_OK, null);
                     }
                 });
-
         // create alert dialog
         AlertDialog alertDialog = dialogoBuilder.create();
         // show it
@@ -586,215 +566,9 @@ public class ListaMensalContas extends AppCompatActivity implements View.OnClick
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            dbContasDoMes.open();
-            AtualizaActionBar();
-            MontaLista();
-
-        }
-    }
-
-    @SuppressLint("NewApi")
-    private void usarActionBar() {
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        AtualizaActionBar();
-
-    }
-
-    private void AtualizaActionBar() {
-        dbContasDoMes.open();
-
-        ColorDrawable cor;
-
-        if (tipo.equals(r.getString(R.string.linha_receita))) {
-            cor = new ColorDrawable(Color.parseColor("#FF0099CC"));
-            getSupportActionBar().setBackgroundDrawable(cor);
-
-        } else if (tipo.equals(r.getString(R.string.linha_despesa))) {
-            cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
-            getSupportActionBar().setBackgroundDrawable(cor);
-
-        } else if (tipo.equals(r.getString(R.string.linha_aplicacoes))) {
-            cor = new ColorDrawable(Color.parseColor("#FF669900"));
-            getSupportActionBar().setBackgroundDrawable(cor);
-
-        }
-
-        double valores;
-        if (!filtro.equals("")) {
-
-            // DEFINE TITULO LISTA COM FILTRO
-            if (dbContasDoMes.quantasContasPorClasse(
-                    filtro, 0, mes, ano) > 0)
-                valores = dbContasDoMes.somaContasPorClasse(
-                        filtro, 0, mes, ano);
-            else
-                valores = 0.0D;
-
-            if (filtro.equals("paguei") || filtro.equals("falta")) {
-                if (dbContasDoMes.quantasContasPagasPorTipo(tipo,
-                        filtro, 0, mes, ano) > 0)
-                    valores = dbContasDoMes.somaContasPagas(tipo,
-                            filtro, 0, mes, ano);
-                else
-                    valores = 0.0D;
-            }
-
-            if (filtro.equals("paguei")) {
-                getSupportActionBar().setTitle(r.getString(R.string.resumo_pagas));
-            } else if (filtro.equals("falta")) {
-                getSupportActionBar().setTitle(r.getString(R.string.resumo_faltam));
-            } else {
-                getSupportActionBar().setTitle(filtro);
-            }
-            getSupportActionBar().setSubtitle(dinheiro.format(valores));
-        } else {
-            // DEFINE TITULO LISTA SEM FILTRO
-            if (dbContasDoMes.quantasContasPorTipo(
-                    tipo, 0, mes, ano) > 0)
-                valores = dbContasDoMes.somaContas(
-                        tipo, 0, mes, ano);
-            else
-                valores = 0.0D;
-
-            if (!tipo.equals("todas")) {
-                getSupportActionBar().setTitle(tipo);
-                getSupportActionBar().setSubtitle(dinheiro.format(valores));
-            }
-        }
-        // dbContasDoMes.close();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        if (tipo.equals(r.getString(R.string.linha_despesa))
-                || tipo.equals(r.getString(R.string.linha_aplicacoes))) {
-
-            getMenuInflater().inflate(R.menu.barra_botoes_filtra_lista, menu);
-        } else {
-
-            getMenuInflater().inflate(R.menu.barra_botoes_lista, menu);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            case android.R.id.home:
-                setResult(RESULT_OK, null);
-                dbContasDoMes.close();
-                finish();
-                break;
-            case R.id.menu_ajustes:
-                setResult(RESULT_OK, null);
-                startActivityForResult(new Intent(this, Ajustes.class), 0);
-                break;
-            case R.id.menu_sobre:
-                setResult(RESULT_OK, null);
-                startActivity(new Intent("com.msk.minhascontas.SOBRE"));
-                break;
-            case R.id.botao_pesquisar:
-                setResult(RESULT_OK, null);
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.BUSCACONTA"), 2);
-                break;
-            case R.id.botao_filtrar:
-
-                FiltroContas();
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    private void FiltroContas() {
-        AlertDialog.Builder dialogoBuilder = new AlertDialog.Builder(this);
-
-        // set title
-        dialogoBuilder.setTitle(getString(R.string.titulo_filtro));
-
-        if (tipo.equals(r.getString(R.string.linha_despesa))) {
-
-            classes = r.getStringArray(R.array.FiltroDespesa);
-
-            // set dialog message
-            dialogoBuilder.setItems(classes,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // DEFINE CONTEUDO LISTA COM FILTRO
-                            if (id < 4) {
-                                filtro = classes[id];
-                            } else if (id == 4) {
-                                filtro = "falta";
-                            } else if (id == 5) {
-                                filtro = "paguei";
-                            } else {
-                                filtro = "";
-                            }
-                            MontaLista();
-                            AtualizaActionBar();
-                        }
-                    });
-        }
-
-        if (tipo.equals(r.getString(R.string.linha_aplicacoes))) {
-
-            classes = r.getStringArray(R.array.FiltroAplicacao);
-
-            // set dialog message
-            dialogoBuilder.setItems(classes,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // DEFINE CONTEUDO LISTA COM FILTRO
-                            if (id < 3) {
-                                filtro = classes[id];
-                            } else {
-                                filtro = "";
-                            }
-                            MontaLista();
-                            AtualizaActionBar();
-                        }
-                    });
-        }
-
-        // create alert dialog
-        AlertDialog alertDialog = dialogoBuilder.create();
-        // show it
-        alertDialog.show();
-    }
-
-
-    protected void onRestart() {
-        dbContasDoMes.open();
-        super.onRestart();
-    }
-
-    protected void onResume() {
-        dbContasDoMes.open();
+    public void onResume() {
+        MontaLista();
         super.onResume();
-    }
-
-    @Override
-    public void onBackPressed() {
-        setResult(RESULT_OK, null);
-        dbContasDoMes.close();
-        super.onBackPressed();
-    }
-
-    @Override
-    protected void onDestroy() {
-        setResult(RESULT_OK, null);
-        dbContasDoMes.close();
-        super.onDestroy();
     }
 
 }

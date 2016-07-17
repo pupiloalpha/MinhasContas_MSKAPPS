@@ -15,23 +15,22 @@
         <item name="colorPrimary">@color/preto</item>
         <item name="colorPrimaryDark">#000000</item>
         <item name="colorAccent">@color/verde_escuro</item>
-        <item name="actionBarTabTextStyle">@style/ActionBarTabText</item>
         <item name="android:alertDialogTheme">@style/TemaDialogo</item>
     </style>
 
     <!-- Tema das telas do aplicativo -->
-    <style name="TemaTabs" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+    <style name="TemaTabs" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/preto</item>
         <item name="colorPrimaryDark">#000000</item>
-        <item name="colorAccent">@color/branco</item>
-        <item name="actionBarTabTextStyle">@style/ActionBarTabText</item>
+        <item name="colorAccent">@color/verde_escuro</item>
         <item name="android:alertDialogTheme">@style/TemaDialogo</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <!-- Actionbar tab text size -->
-    <style name="ActionBarTabText" parent="@style/Widget.AppCompat.ActionBar.TabText">
-        <item name="android:textColor">@color/tab_text_color</item>
-        <item name="android:textSize">18sp</item>
+    <!-- Actionbar tab text appearance -->
+    <style name="ActionBarTabText" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
     <!-- Tema da splash screen -->

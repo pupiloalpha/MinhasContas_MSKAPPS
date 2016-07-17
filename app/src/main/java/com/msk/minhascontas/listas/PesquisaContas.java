@@ -236,20 +236,21 @@ public class PesquisaContas extends AppCompatActivity implements
                     buscaContas.limpaSelecao();
                     contas = new ArrayList<Long>();
                     buscaContas.marcaConta(posicao, true);
-                } else {
-                    buscaContas.marcaConta(conta, false);
-                    buscaContas.marcaConta(posicao, true);
-                }
-
-                if (posicao != conta) {
                     mActionMode = PesquisaContas.this.startSupportActionMode(alteraUmaConta);
                     lastView = v;
                     conta = posicao;
                 } else {
-                    mActionMode.finish();
-                    MontaLista();
+                    buscaContas.marcaConta(conta, false);
+                    buscaContas.marcaConta(posicao, true);
+                    if (posicao != conta) {
+                        mActionMode = PesquisaContas.this.startSupportActionMode(alteraUmaConta);
+                        lastView = v;
+                        conta = posicao;
+                    } else {
+                        mActionMode.finish();
+                        MontaLista();
+                    }
                 }
-
             } else {
 
                 if (contas.size() != 0) {

@@ -27,7 +27,6 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -181,8 +180,7 @@ public class Ajustes extends PreferenceActivity implements
         if (chave.equals("apagatudo")) {
             // Apaga banco de dados
             // USUARIO ESCOLHE TRANSFORMAR APLICACAO EM DESPESA
-            new AlertDialog.Builder(new ContextThemeWrapper(this,
-                    R.style.TemaDialogo))
+            new AlertDialog.Builder(this)
                     .setTitle(R.string.titulo_exclui_tudo)
                     .setMessage(R.string.texto_exclui_tudo)
                     .setPositiveButton(R.string.ok,
@@ -291,7 +289,7 @@ public class Ajustes extends PreferenceActivity implements
     public void setContentView(int layoutResID) {
         ViewGroup contentView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.ajustes, new LinearLayout(this), false);
-        toolbar = (Toolbar) contentView.findViewById(R.id.msk_toolbar);
+        toolbar = (Toolbar) contentView.findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_back_white);
         toolbar.setBackgroundColor(Color.parseColor("#FF2B2B2B"));
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"));

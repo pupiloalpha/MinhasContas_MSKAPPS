@@ -46,7 +46,6 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
     private int mes, ano;
     private double[] valores, valoresDesp, valoresRec, valoresSaldo,
             valoresAplicados;
-    private Boolean somaSaldo = false;
     // ELEMENTOS DAS PAGINAS
     private View rootView;
 
@@ -74,7 +73,6 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
         dbContas = new DBContas(activity);
         buscaPreferencias = PreferenceManager
                 .getDefaultSharedPreferences(activity);
-        // dbContas.open();
     }
 
     @Override
@@ -87,8 +85,6 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
         mes = args.getInt(MES_PAGINA);
         ano = args.getInt(ANO_PAGINA);
-
-        somaSaldo = buscaPreferencias.getBoolean("saldo", false);
 
         // DEFINE OS ELEMENTOS QUE SERAO EXIBIDOS
         Iniciar();
@@ -303,6 +299,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
             valoresSaldo[1] = 0.0D;
 
         // VALOR DO SALDO ATUAL
+        boolean somaSaldo = buscaPreferencias.getBoolean("saldo", false);
 
         if (somaSaldo) {
             valores[3] = valoresRec[0] - valoresDesp[0]
@@ -345,7 +342,9 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
     @Override
     public void onResume() {
-        //dbContas.open();
+        // CALCULA OS VALORES QUE SERAO EXIBIDOS
+        Saldo();
+        InsereValores();
         super.onResume();
     }
 
