@@ -9,7 +9,7 @@
         layout="@layout/widget_barra" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/barra"
         android:layout_marginLeft="5dp"
@@ -20,16 +20,17 @@
         android:paddingTop="5dp">
 
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1"
-                android:gravity="center_vertical|left"
+                android:gravity="center_vertical|start"
                 android:text="@string/linha_saldo"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/preto"
@@ -39,9 +40,10 @@
                 android:id="@+id/tvValorSaldoAtual"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
-                android:gravity="right|center_vertical"
+                android:gravity="end|center_vertical"
                 android:text="@string/zero"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="@color/preto"
@@ -58,16 +60,17 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1"
-                android:gravity="center_vertical|left"
+                android:gravity="center_vertical|start"
                 android:text="@string/linha_receita"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorPrimary" />
@@ -84,17 +87,18 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
-                android:gravity="center_vertical|right"
+                android:gravity="center_vertical|end"
                 android:text="@string/linha_aplicacoes"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/colorPrimary" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
             android:orientation="horizontal">
 
             <TextView
@@ -102,8 +106,9 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1"
-                android:gravity="left|center_vertical"
+                android:gravity="start|center_vertical"
                 android:text="@string/zero"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/azul" />
@@ -122,9 +127,10 @@
                 android:id="@+id/tvValorAplicacoes"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
-                android:gravity="center_vertical|right"
+                android:gravity="center_vertical|end"
                 android:text="@string/zero"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/verde_escuro" />

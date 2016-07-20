@@ -1,21 +1,18 @@
 package com.msk.minhascontas.graficos;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.app.Activity;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ImageButton;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
-import com.msk.minhascontas.info.Ajustes;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -36,7 +33,7 @@ import lecho.lib.hellocharts.view.ColumnChartView;
 import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PieChartView;
 
-public class GraficoMensalContas extends AppCompatActivity implements OnClickListener {
+public class GraficoMensal extends Fragment {
 
     // GRAFICOS E DADOS
     private List<SliceValue> values;
@@ -46,13 +43,14 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
     private LineChartView gsaldo;
     private ColumnChartView gdespesas, gaplicacoes;
     private ColumnChartData dados;
+
     // ELEMENTOS DA TELA
-    private TextView mesGraficos, semcontas;
-    private ImageButton mesVolta, mesFrente, addConta;
+    private View rootView;
+    private TextView semcontas;
     private LinearLayout grafcontas, grafdesp, grafrec, grafpag, grafaplic, grafsaldo;
 
     // VARIAVEIS
-    private DBContas dbContasFeitas = new DBContas(this);
+    private DBContas dbContasFeitas;
     private String[] MESES;
     private int ano, mes, contas;
     private double vaplic, vdesp, vrec,
@@ -63,57 +61,70 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
     private int[] roleta, cores;
     private NumberFormat dinheiro;
 
+
+    public static GraficoMensal newInstance(int mes, int ano) {
+        GraficoMensal fragment = new GraficoMensal();
+        Bundle args = new Bundle();
+        args.putInt("ano", ano);
+        args.putInt("mes", mes);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.graficos_do_mes);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        dbContasFeitas = new DBContas(activity);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        // COLOCA OS MESES NA TELA
+        rootView = inflater.inflate(R.layout.graficos_do_mes, container, false);
+
+// Recupera o mes e o ano da lista anterior
+        Bundle localBundle = getArguments();
+        ano = localBundle.getInt("ano");
+        mes = localBundle.getInt("mes");
+
         Iniciar();
-        usarActionBar();
+
         Locale current = getResources().getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
 
-        Bundle envelope = getIntent().getExtras();
-        ano = envelope.getInt("ano");
-        mes = envelope.getInt("mes");
-        mesGraficos.setText(MESES[mes] + "/" + ano);
-
         Saldo();
-        mesVolta.setOnClickListener(this);
-        mesFrente.setOnClickListener(this);
-
         AtualizaGrafico();
+        MostraGraficos();
 
-        addConta.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setResult(RESULT_OK, null);
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.NOVACONTA"), 1);
-            }
-        });
+        return rootView;
     }
 
     private void Iniciar() {
 
-        gcontas = (PieChartView) findViewById(R.id.grafico_contas);
-        gdespesas = (ColumnChartView) findViewById(R.id.grafico_despesas);
-        greceitas = (PieChartView) findViewById(R.id.grafico_receitas);
-        gpagamentos = (PieChartView) findViewById(R.id.grafico_pagamentos);
-        gaplicacoes = (ColumnChartView) findViewById(R.id.grafico_aplicacoes);
-        gsaldo = (LineChartView) findViewById(R.id.grafico_saldo);
+        gcontas = (PieChartView) rootView.findViewById(R.id.grafico_contas);
+        gdespesas = (ColumnChartView) rootView.findViewById(R.id.grafico_despesas);
+        greceitas = (PieChartView) rootView.findViewById(R.id.grafico_receitas);
+        gpagamentos = (PieChartView) rootView.findViewById(R.id.grafico_pagamentos);
+        gaplicacoes = (ColumnChartView) rootView.findViewById(R.id.grafico_aplicacoes);
+        gsaldo = (LineChartView) rootView.findViewById(R.id.grafico_saldo);
 
-        grafcontas = (LinearLayout) findViewById(R.id.layout_grafico_contas);
-        grafdesp = (LinearLayout) findViewById(R.id.layout_grafico_despesas);
-        grafaplic = (LinearLayout) findViewById(R.id.layout_grafico_aplicacoes);
-        grafrec = (LinearLayout) findViewById(R.id.layout_grafico_receitas);
-        grafpag = (LinearLayout) findViewById(R.id.layout_grafico_pagamentos);
-        grafsaldo = (LinearLayout) findViewById(R.id.layout_grafico_saldo);
+        grafcontas = (LinearLayout) rootView.findViewById(R.id.layout_grafico_contas);
+        grafdesp = (LinearLayout) rootView.findViewById(R.id.layout_grafico_despesas);
+        grafaplic = (LinearLayout) rootView.findViewById(R.id.layout_grafico_aplicacoes);
+        grafrec = (LinearLayout) rootView.findViewById(R.id.layout_grafico_receitas);
+        grafpag = (LinearLayout) rootView.findViewById(R.id.layout_grafico_pagamentos);
+        grafsaldo = (LinearLayout) rootView.findViewById(R.id.layout_grafico_saldo);
 
-        mesGraficos = (TextView) findViewById(R.id.tvMesAno);
-        semcontas = (TextView) findViewById(R.id.tvSemGrafico);
-        mesVolta = (ImageButton) findViewById(R.id.ibMesVolta);
-        mesFrente = (ImageButton) findViewById(R.id.ibMesFrente);
-        MESES = getResources().getStringArray(R.array.MesesDoAno);
+        semcontas = (TextView) rootView.findViewById(R.id.tvSemGrafico);
+
         values = new ArrayList<SliceValue>();
         roleta = new int[]{Color.parseColor("#33B5E5"),
                 Color.parseColor("#AA66CC"), Color.parseColor("#99CC00"),
@@ -121,15 +132,13 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
                 Color.parseColor("#0099CC"), Color.parseColor("#9933CC"),
                 Color.parseColor("#669900"), Color.parseColor("#FF8800"),
                 Color.parseColor("#CC0000")};
-        addConta = (ImageButton) findViewById(R.id.ibfab);
-
     }
 
     private void Saldo() {
         dbContasFeitas.open();
+        Cursor somador = null;
 
         contas = dbContasFeitas.quantasContasPorMes(mes, ano);
-
         if (contas != 0)
             semcontas.setVisibility(View.GONE);
         else
@@ -140,82 +149,69 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
         despesas = getResources().getStringArray(R.array.TipoDespesa);
         vdesp = 0.0D;
         // Valores de despesas
-        if (dbContasFeitas.quantasContasPorTipo(despesa, 0, mes, ano) > 0)
-            vdesp = dbContasFeitas.somaContas(despesa, 0, mes, ano);
+        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, despesa);
+        if (somador.getCount() > 0)
+            vdesp = SomaContas(somador);
 
         // DADOS DAS RECEITAS
         receita = getResources().getString(R.string.linha_receita);
         vrec = 0.0D;
+
         // Valores de receitas
-        if (dbContasFeitas.quantasContasPorTipo(receita, 0, mes, ano) > 0)
-            vrec = dbContasFeitas.somaContas(receita, 0, mes, ano);
+        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, receita);
+        if (somador.getCount() > 0)
+            vrec = SomaContas(somador);
 
         // DADOS DAS APLICACOES
         aplicacao = getResources().getString(R.string.linha_aplicacoes);
         aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
         vaplic = 0.0D;
-        if (dbContasFeitas.quantasContasPorTipo(aplicacao, 0, mes, ano) > 0)
-            vaplic = dbContasFeitas.somaContas(aplicacao, 0, mes, ano);
+        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, aplicacao);
+        if (somador.getCount() > 0)
+            vaplic = SomaContas(somador);
 
         vsaldo = (vrec - vdesp);
 
         vdesppg = 0.0D;
         vdespnpg = 0.0D;
+
         // Valores de despesas pagas
+        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "paguei");
+        if (somador.getCount() > 0)
+            vdesppg = SomaContas(somador);
 
-        if (dbContasFeitas.quantasContasPagasPorTipo(despesa, "paguei", 0, mes,
-                ano) > 0)
-            vdesppg = dbContasFeitas.somaContasPagas(despesa, "paguei", 0, mes,
-                    ano);
-
-        if (dbContasFeitas.quantasContasPagasPorTipo(despesa, "falta", 0, mes,
-                ano) > 0)
-            vdespnpg = dbContasFeitas.somaContasPagas(despesa, "falta", 0, mes,
-                    ano);
+        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "falta");
+        if (somador.getCount() > 0)
+            vdespnpg = SomaContas(somador);
 
         vrecrec = 0.0D;
         vrecarec = 0.0D;
         // Valores de receitas recebidas
+        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, receita, "paguei");
+        if (somador.getCount() > 0)
+            vrecrec = SomaContas(somador);
 
-        if (dbContasFeitas.quantasContasPagasPorTipo(receita, "paguei", 0, mes,
-                ano) > 0)
-            vrecrec = dbContasFeitas.somaContasPagas(receita, "paguei", 0, mes,
-                    ano);
+        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, receita, "falta");
+        if (somador.getCount() > 0)
+            vrecarec = SomaContas(somador);
 
-        if (dbContasFeitas.quantasContasPagasPorTipo(receita, "falta", 0, mes,
-                ano) > 0)
-            vrecarec = dbContasFeitas.somaContasPagas(receita, "falta", 0, mes,
-                    ano);
-
+        somador.close();
         dbContasFeitas.close();
 
     }
 
-    @Override
-    public void onClick(View graphView) {
-        switch (graphView.getId()) {
-
-            case R.id.ibMesVolta:
-                mes = (-1 + mes);
-                if (mes < 0) {
-                    mes = 11;
-                    ano = (-1 + ano);
-                }
-                mesGraficos.setText(MESES[mes] + "/" + ano);
-                Saldo();
-                break;
-            case R.id.ibMesFrente:
-                mes = (1 + mes);
-                if (mes > 11) {
-                    mes = 0;
-                    ano = (1 + ano);
-                }
-                mesGraficos.setText(MESES[mes] + "/" + ano);
-                Saldo();
-                break;
+    private double SomaContas(Cursor cursor) {
+        int i = cursor.getCount();
+        cursor.moveToLast();
+        double d = 0.0D;
+        for (int j = 0; ; j++) {
+            if (j >= i) {
+                cursor.close();
+                return d;
+            }
+            d += cursor.getDouble(9);
+            cursor.moveToPrevious();
         }
-        AtualizaGrafico();
-        MostraGraficos();
     }
 
     private void MostraGraficos() {
@@ -244,6 +240,7 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
             grafaplic.setVisibility(View.GONE);
         else
             grafaplic.setVisibility(View.VISIBLE);
+
     }
 
     private void AtualizaGrafico() {
@@ -291,6 +288,7 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
     private void GraficoAplicacoes() {
 
         dbContasFeitas.open();
+        Cursor somador = null;
         aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         valores = new float[aplicacoes.length];
@@ -311,14 +309,14 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
                 cores[i] = roleta[i];
             }
 
-            if (dbContasFeitas.quantasContasPorClasse(aplicacoes[i],
-                    0, mes, ano) > 0)
-                valores[i] = (float) dbContasFeitas.somaContasPorClasse(
-                        aplicacoes[i], 0, mes, ano);
+            somador = dbContasFeitas.buscaContasClasse(0, mes, ano, null, aplicacao, aplicacoes[i]);
+            if (somador.getCount() > 0)
+                valores[i] = (float) SomaContas(somador);
             else
                 valores[i] = (float) 0.0D;
         }
 
+        somador.close();
         dbContasFeitas.close();
 
         List<Column> columns = new ArrayList<Column>();
@@ -351,6 +349,7 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
     private void GraficoDespesas() {
 
         dbContasFeitas.open();
+        Cursor somador = null;
         despesas = getResources().getStringArray(R.array.TipoDespesa);
 
         valores = new float[despesas.length];
@@ -370,14 +369,14 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
             } else {
                 cores[i] = roleta[i];
             }
-            if (dbContasFeitas.quantasContasPorClasse(despesas[i], 0,
-                    mes, ano) > 0)
-                valores[i] = (float) dbContasFeitas.somaContasPorClasse(
-                        despesas[i], 0, mes, ano);
+            somador = dbContasFeitas.buscaContasClasse(0, mes, ano, null, despesa, despesas[i]);
+            if (somador.getCount() > 0)
+                valores[i] = (float) SomaContas(somador);
             else
                 valores[i] = (float) 0.0D;
         }
 
+        somador.close();
         dbContasFeitas.close();
 
         List<Column> columns = new ArrayList<Column>();
@@ -487,30 +486,45 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
         List<PointValue> valuesPos = new ArrayList<PointValue>();
         List<PointValue> valuesNeg = new ArrayList<PointValue>();
         List<PointValue> values = new ArrayList<PointValue>();
+
         dbContasFeitas.open();
-        for (int i = 1; i < 32; i++) {
-            // Valores de despesas
-            if (dbContasFeitas.quantasContasPorTipo(despesa, i, mes, ano) > 0)
-                vdesp = dbContasFeitas.somaContas(despesa, i, mes, ano);
-            else
-                vdesp = 0.0D;
-            // Valores de receitas
-            if (dbContasFeitas.quantasContasPorTipo(receita, i, mes, ano) > 0)
-                vrec = dbContasFeitas.somaContas(receita, i, mes, ano);
-            else
+        Cursor somaReceitas = dbContasFeitas.buscaContasTipo(0, mes, ano, "dia_data ASC", receita);
+        Cursor somaDespesas = dbContasFeitas.buscaContasTipo(0, mes, ano, "dia_data ASC", despesa);
+
+        // GERADOR DE DADOS PARA O GRAFICO DE SALDO
+        if (somaDespesas.getCount() > 0 || somaReceitas.getCount() > 0) {
+            vsaldo = 0.0D;
+            for (int i = 1; i < 32; i++) {
                 vrec = 0.0D;
-            vsaldo = (vrec - vdesp);
+                somaReceitas.moveToFirst();
+                while (!somaReceitas.isAfterLast()) {
+                    if (somaReceitas.getInt(6) < i + 1)
+                        vrec = vrec + somaReceitas.getDouble(9);
+                    somaReceitas.moveToNext();
+                }
+                vdesp = 0.0D;
+                somaDespesas.moveToFirst();
+                while (!somaDespesas.isAfterLast()) {
+                    if (somaDespesas.getInt(6) < i + 1)
+                        vdesp = vdesp + somaDespesas.getDouble(9);
+                    somaDespesas.moveToNext();
 
-            values.add(new PointValue(i, (float) vsaldo));
+                }
+                vsaldo = (vrec - vdesp);
+                values.add(new PointValue(i, (float) vsaldo));
 
-            if (vsaldo < 0.0D) {
-                valuesNeg.add(new PointValue(i, (float) vsaldo));
-            } else {
-                valuesPos.add(new PointValue(i, (float) vsaldo));
+                if (vsaldo < 0.0D) {
+                    valuesNeg.add(new PointValue(i, (float) vsaldo));
+                } else {
+                    valuesPos.add(new PointValue(i, (float) vsaldo));
+                }
             }
-
         }
+
+        somaReceitas.close();
+        somaDespesas.close();
         dbContasFeitas.close();
+
         //Linhas do grafico
         List<Line> lines = new ArrayList<Line>();
         Line line = new Line(values).setColor(getResources().getColor(R.color.cinza_claro)).setCubic(true);
@@ -547,42 +561,12 @@ public class GraficoMensalContas extends AppCompatActivity implements OnClickLis
     }
 
 
-    @SuppressLint("NewApi")
-    private void usarActionBar() {
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-    }
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        getMenuInflater().inflate(R.menu.barra_botoes_lista, menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            case android.R.id.home:
-                finish();
-                break;
-            case R.id.menu_ajustes:
-                startActivityForResult(new Intent(this, Ajustes.class), 121212);
-                break;
-            case R.id.menu_sobre:
-                startActivity(new Intent("com.msk.minhascontas.SOBRE"));
-                break;
-            case R.id.botao_pesquisar:
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.BUSCACONTA"), 2424242);
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
+    public void onResume() {
+        Saldo();
+        AtualizaGrafico();
+        MostraGraficos();
+        super.onResume();
     }
 
 }

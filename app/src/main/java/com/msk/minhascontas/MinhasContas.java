@@ -43,6 +43,9 @@ import java.util.HashMap;
 
 public class MinhasContas extends AppCompatActivity {
 
+    private static final int BUSCA_CONTA = 111;
+    private static final int CONFIGURACOES = 222;
+    private static final int CRIA_CONTA = 333;
     private static int[] diaConta, mesConta, anoConta;
     private final Context contexto = this;
     private final Calendar c = Calendar.getInstance();
@@ -123,7 +126,7 @@ public class MinhasContas extends AppCompatActivity {
         mViewPager.getAdapter().notifyDataSetChanged();
 
         // Define a barra de titulo e as tabs
-        int normalColor = res.getColor(android.R.color.darker_gray);
+        int normalColor = Color.parseColor("#90FFFFFF");
         int selectedColor = res.getColor(android.R.color.white);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
@@ -136,7 +139,7 @@ public class MinhasContas extends AppCompatActivity {
             public void onClick(View v) {
                 setResult(RESULT_OK, null);
                 startActivityForResult(
-                        new Intent("com.msk.minhascontas.NOVACONTA"), 1);
+                        new Intent("com.msk.minhascontas.NOVACONTA"), CRIA_CONTA);
             }
         });
 
@@ -309,14 +312,14 @@ public class MinhasContas extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case R.id.menu_ajustes:
-                startActivityForResult(new Intent(this, Ajustes.class), 0);
+                startActivityForResult(new Intent(this, Ajustes.class), CONFIGURACOES);
                 break;
             case R.id.menu_sobre:
                 startActivity(new Intent("com.msk.minhascontas.SOBRE"));
                 break;
             case R.id.botao_pesquisar:
                 startActivityForResult(
-                        new Intent("com.msk.minhascontas.BUSCACONTA"), 2);
+                        new Intent("com.msk.minhascontas.BUSCACONTA"), BUSCA_CONTA);
                 break;
             case R.id.botao_enviar:
 
@@ -346,13 +349,7 @@ public class MinhasContas extends AppCompatActivity {
                 break;
             case R.id.botao_graficos:
 
-                Bundle dataGrafico = new Bundle();
-                dataGrafico.putInt("mes", mes);
-                dataGrafico.putInt("ano", ano);
-                Intent intentGrafico = new Intent(
-                        "com.msk.minhascontas.graficos.MEUSGRAFICOS");
-                intentGrafico.putExtras(dataGrafico);
-                startActivity(intentGrafico);
+                startActivity(new Intent("com.msk.minhascontas.graficos.MEUSGRAFICOS"));
                 break;
 
         }

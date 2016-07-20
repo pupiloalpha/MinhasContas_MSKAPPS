@@ -1,90 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mskapp="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    mskapp:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:ignore="RtlHardcoded">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        tools:ignore="RtlHardcoded">
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:orientation="vertical">
+        <include layout="@layout/grafico_saldo" />
 
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/cinza">
+        <include layout="@layout/grafico_receitas" />
 
-                <ImageButton
-                    android:id="@+id/ibMesVolta"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="5.0dip"
-                    android:layout_marginStart="5.0dip"
-                    android:layout_weight="2.0"
-                    android:background="@color/icone_voltar_fundo"
-                    android:contentDescription="@string/icone"
-                    mskapp:srcCompat="@drawable/anterior" />
+        <include layout="@layout/grafico_pagamentos" />
 
-                <TextView
-                    android:id="@+id/tvMesAno"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1.0"
-                    android:gravity="center_horizontal"
-                    android:padding="5.0dip"
-                    android:text="@string/dica_resumo"
-                    android:textColor="@color/branco"
-                    android:textSize="20.0dip"
-                    android:textStyle="bold" />
+        <include layout="@layout/grafico_despesas" />
 
-                <ImageButton
-                    android:id="@+id/ibMesFrente"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="5.0dip"
-                    android:layout_marginRight="5.0dip"
-                    android:layout_weight="2.0"
-                    android:background="@color/icone_voltar_fundo"
-                    android:contentDescription="@string/icone"
-                    mskapp:srcCompat="@drawable/proximo" />
-            </LinearLayout>
+        <include layout="@layout/grafico_aplicacoes" />
 
-            <include layout="@layout/grafico_saldo" />
+        <include layout="@layout/grafico_contas" />
 
-            <include layout="@layout/grafico_receitas" />
+        <TextView
+            android:id="@+id/tvSemGrafico"
+            android:layout_width="fill_parent"
+            android:layout_height="300dp"
+            android:gravity="center"
+            android:text="@string/dica_vazio"
+            android:textColor="@color/preto"
+            android:textSize="18sp" />
 
-            <include layout="@layout/grafico_pagamentos" />
-
-            <include layout="@layout/grafico_despesas" />
-
-            <include layout="@layout/grafico_aplicacoes" />
-
-            <include layout="@layout/grafico_contas" />
-
-            <TextView
-                android:id="@+id/tvSemGrafico"
-                android:layout_width="fill_parent"
-                android:layout_height="300dp"
-                android:gravity="center"
-                android:text="@string/dica_vazio"
-                android:textColor="@color/preto"
-                android:textSize="18sp" />
-
-        </LinearLayout>
-    </ScrollView>
-
-    <include layout="@layout/fab1" />
-
-</RelativeLayout>
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>

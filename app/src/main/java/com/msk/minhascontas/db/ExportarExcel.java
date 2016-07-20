@@ -19,21 +19,21 @@ import jxl.write.biff.RowsExceededException;
 public class ExportarExcel {
 
     // ELEMENTOS QUE ESCREVEM O ARQUIVO EM EXCEL
-    WritableWorkbook arquivoExcel;
-    WritableSheet planilha;
-    File cartaoSD;
+    private WritableWorkbook arquivoExcel;
+    private WritableSheet planilha;
+    private File cartaoSD;
 
     // FONTE PARA TEXTO
-    WritableFont arial10font, times16font;
+    private WritableFont arial10font, times16font;
 
     // FORMATO DE NUMERO
-    NumberFormat duasCasas;
+    private NumberFormat duasCasas;
 
     // FORMATADORES DE CELULAS COM TEXTO, DATA e NUMEROS
-    WritableCellFormat integerFormat, arial10format, decDuasCasasFontFormat;
+    private WritableCellFormat integerFormat, arial10format, decDuasCasasFontFormat;
 
     // TEXTO PARA CELULA
-    Label nomeColuna, nomeLinha, conteudoColuna;
+    private Label nomeColuna, nomeLinha, conteudoColuna;
 
     // INFORMACOES QUE ALIMENTAM AS PLANILHAS
     private int erro;

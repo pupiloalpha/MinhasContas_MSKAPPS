@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
+import java.util.Locale;
 import java.util.Vector;
 
 public class DBContas {
@@ -60,19 +61,27 @@ public class DBContas {
             COLUNA_ANO_DATA_CONTA, COLUNA_VALOR_CONTA,
             COLUNA_QT_REPETICOES_CONTA, COLUNA_NR_REPETICAO_CONTA,
             COLUNA_DIA_REPETICAO_CONTA};
+    private static DatabaseHelper sInstance;
     // ELEMENTOS QUE GERENCIAM O BANCO DE DADOS
     private DatabaseHelper DBHelper;
     private Context contexto;
     private SQLiteDatabase db;
 
     public DBContas() {
-
+        // CONSTRUTOR NECESSARIO
     }
 
     // CONSTRUTOR DA CLASSE QUE GERENCIA O BANCO DE DADOS
     public DBContas(Context ctx) {
         contexto = ctx;
         DBHelper = new DatabaseHelper(contexto);
+    }
+
+    // CONSTRUTOR ALTERNATIVO DE GESTAO DO BANCO DE DADOS
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        if (sInstance == null)
+            sInstance = new DatabaseHelper(context.getApplicationContext());
+        return sInstance;
     }
 
     // ABERTURA DA CONEXAO COM O BANCO DE DADOS
@@ -238,36 +247,65 @@ public class DBContas {
 
     // ----------- MÉTODOS QUE BUSCAM AS CONTAS NO BANCO DE DADOS
 
-    public Cursor buscaTodasDoMes(int mes, int ano, String ordem) {
-        return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
-                + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
-                + ano + "' ", null, null, null, ordem);
+    public Cursor buscaContas(int dia, int mes, int ano, String ordem) {
+        if (dia != 0)
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
+                    + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
+                    + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                    + ano + "' ", null, null, null, ordem);
+        else
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
+                    + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                    + ano + "' ", null, null, null, ordem);
     }
 
-    public Cursor buscaContasTipoDoMes(int mes, int ano, String ordem,
-                                       String tipo) {
-        return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
-                        + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
-                        + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo + "' ",
-                null, null, null, ordem);
+    public Cursor buscaContasTipo(int dia, int mes, int ano, String ordem,
+                                  String tipo) {
+        if (dia != 0)
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
+                            + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
+                            + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                            + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo + "' ",
+                    null, null, null, ordem);
+        else
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
+                            + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                            + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo + "' ",
+                    null, null, null, ordem);
     }
-    
-    public Cursor buscaContasTipoPagamento(int mes, int ano, String ordem,
-                                       String tipo, String pagamento) {
-        return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
+
+    public Cursor buscaContasTipoPagamento(int dia, int mes, int ano, String ordem,
+                                           String tipo, String pagamento) {
+        if (dia != 0)
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
+                            + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
                         + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
                         + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
                         + "' AND " + COLUNA_PAGOU_CONTA + " = '" + pagamento + "' ",
                 null, null, null, ordem);
+        else
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
+                            + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                            + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
+                            + "' AND " + COLUNA_PAGOU_CONTA + " = '" + pagamento + "' ",
+                    null, null, null, ordem);
     }
 
-    public Cursor buscaContasClasseDoMes(int mes, int ano, String ordem,
-                                         String tipo, String classe) {
-        return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
+    public Cursor buscaContasClasse(int dia, int mes, int ano, String ordem,
+                                    String tipo, String classe) {
+        if (dia != 0)
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
+                            + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
                         + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
                         + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
                         + "' AND " + COLUNA_CATEGORIA_CONTA + " = '" + classe + "' ",
                 null, null, null, ordem);
+        else
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
+                            + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                            + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
+                            + "' AND " + COLUNA_CATEGORIA_CONTA + " = '" + classe + "' ",
+                    null, null, null, ordem);
     }
 
     public Cursor buscaContasPorNome(String nome) {
@@ -286,6 +324,7 @@ public class DBContas {
                         + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                         + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ", null,
                 null, null, COLUNA_NOME_CONTA + " ASC ");
+
         int i = cursor.getColumnIndex(COLUNA_NOME_CONTA);
         int j = cursor.getColumnIndex(COLUNA_VALOR_CONTA);
         String str = tipo + " do mês:\n";
@@ -295,7 +334,7 @@ public class DBContas {
                 cursor.close();
                 return str;
             }
-            str = str + "R$ " + String.format("%.2f", cursor.getDouble(j))
+            str = str + "R$ " + String.format(Locale.US, "%.2f", cursor.getDouble(j))
                     + " de " + cursor.getString(i) + ";\n";
             cursor.moveToNext();
         }
@@ -386,7 +425,7 @@ public class DBContas {
         if (cursor != null && cursor.moveToFirst())
             str = cursor.getString(1);
         v.add(cursor.getString(1));
-        while (cursor.isAfterLast() == false) {
+        while (!cursor.isAfterLast()) {
 
             if (!str.equals(cursor.getString(1)))
                 v.add(cursor.getString(1));

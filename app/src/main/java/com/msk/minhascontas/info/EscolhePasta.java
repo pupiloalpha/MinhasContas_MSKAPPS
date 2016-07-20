@@ -29,7 +29,7 @@ public class EscolhePasta extends ListActivity {
     public static final String CHOSEN_DIRECTORY = "chosenDir";
     private static final String START_DIR = "startDir";
     private static final String SHOW_HIDDEN = "showHidden";
-    private static final int PICK_DIRECTORY = 43522432;
+    private static final int PICK_DIRECTORY = 4352;
     private File dir;
     private String[] pastas;
     private String tipo;

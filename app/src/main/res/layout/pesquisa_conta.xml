@@ -29,6 +29,7 @@
             android:imeOptions="actionDone"
             android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
             android:paddingLeft="10.0dip"
+            android:paddingStart="10.0dip"
             android:textColor="@color/preto" />
 
         <ImageButton

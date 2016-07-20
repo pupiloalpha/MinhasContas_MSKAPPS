@@ -19,12 +19,10 @@ import java.util.Locale;
 
 public class AdaptaListaPesquisa extends CursorAdapter {
 
-    TextView data, dia, nome, categoria, valor;
-    ImageView pagamento;
-    LayoutInflater inflater;
-    String[] prestacao, semana;
-    HashMap<Integer, Boolean> selecoes = new HashMap<Integer, Boolean>();
-    NumberFormat dinheiro;
+    private LayoutInflater inflater;
+    private String[] prestacao, semana;
+    private HashMap<Integer, Boolean> selecoes = new HashMap<Integer, Boolean>();
+    private NumberFormat dinheiro;
 
     @SuppressWarnings("deprecation")
     public AdaptaListaPesquisa(Context context, Cursor c, String[] array, String[] array1) {
@@ -43,12 +41,12 @@ public class AdaptaListaPesquisa extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        nome = ((TextView) view.findViewById(R.id.tvNomeContaCriada));
-        categoria = ((TextView) view.findViewById(R.id.tvNomeCategoria));
-        data = ((TextView) view.findViewById(R.id.tvDataContaCriada));
-        dia = ((TextView) view.findViewById(R.id.tvDiaContaCriada));
-        valor = ((TextView) view.findViewById(R.id.tvValorContaCriada));
-        pagamento = ((ImageView) view.findViewById(R.id.ivPagamento));
+        TextView nome = ((TextView) view.findViewById(R.id.tvNomeContaCriada));
+        TextView categoria = ((TextView) view.findViewById(R.id.tvNomeCategoria));
+        TextView data = ((TextView) view.findViewById(R.id.tvDataContaCriada));
+        TextView dia = ((TextView) view.findViewById(R.id.tvDiaContaCriada));
+        TextView valor = ((TextView) view.findViewById(R.id.tvValorContaCriada));
+        ImageView pagamento = ((ImageView) view.findViewById(R.id.ivPagamento));
 
         int i = cursor.getInt(10);
         String status = cursor.getString(4);

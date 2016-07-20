@@ -31,8 +31,11 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class ListaMensal extends AppCompatActivity {
+public class PaginadorListas extends AppCompatActivity {
 
+    private static final int BUSCA_CONTA = 111;
+    private static final int CONFIGURACOES = 222;
+    private static final int CRIA_CONTA = 333;
     private static int[] mesConta, anoConta;
     // CLASSE DO BANCO DE DADOS
     private DBContas dbContas = new DBContas(this);
@@ -44,7 +47,6 @@ public class ListaMensal extends AppCompatActivity {
     private NumberFormat dinheiro;
     // VARIAVEIS DO APLICATIVO
     private String tipo, filtro;
-    ;
     private String[] Meses, classes;
     private int mes, ano, paginas, nrPagina;
 
@@ -107,12 +109,12 @@ public class ListaMensal extends AppCompatActivity {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                if (FragmentoContas.mActionMode != null) FragmentoContas.mActionMode.finish();
+                if (ListaMensalContas.mActionMode != null) ListaMensalContas.mActionMode.finish();
             }
         });
 
         // Define a barra de titulo e as tabs
-        int normalColor = res.getColor(android.R.color.darker_gray);
+        int normalColor = Color.parseColor("#90FFFFFF");
         int selectedColor = res.getColor(android.R.color.white);
 
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
@@ -127,7 +129,7 @@ public class ListaMensal extends AppCompatActivity {
             public void onClick(View v) {
                 setResult(RESULT_OK, null);
                 startActivityForResult(
-                        new Intent("com.msk.minhascontas.NOVACONTA"), 1);
+                        new Intent("com.msk.minhascontas.NOVACONTA"), CRIA_CONTA);
             }
         });
 
@@ -325,7 +327,7 @@ public class ListaMensal extends AppCompatActivity {
                 break;
             case R.id.menu_ajustes:
                 setResult(RESULT_OK, null);
-                startActivityForResult(new Intent(this, Ajustes.class), 0);
+                startActivityForResult(new Intent(this, Ajustes.class), CONFIGURACOES);
                 break;
             case R.id.menu_sobre:
                 setResult(RESULT_OK, null);
@@ -334,7 +336,7 @@ public class ListaMensal extends AppCompatActivity {
             case R.id.botao_pesquisar:
                 setResult(RESULT_OK, null);
                 startActivityForResult(
-                        new Intent("com.msk.minhascontas.BUSCACONTA"), 2);
+                        new Intent("com.msk.minhascontas.BUSCACONTA"), BUSCA_CONTA);
                 break;
             case R.id.botao_filtrar:
                 FiltroContas();
@@ -379,7 +381,7 @@ public class ListaMensal extends AppCompatActivity {
         @Override
         public Fragment getItem(int i) {
             // DEFINE PAGINA NA TELA
-            return FragmentoContas.newInstance(mesConta[i], anoConta[i], tipo, filtro);
+            return ListaMensalContas.newInstance(mesConta[i], anoConta[i], tipo, filtro);
         }
 
         @Override

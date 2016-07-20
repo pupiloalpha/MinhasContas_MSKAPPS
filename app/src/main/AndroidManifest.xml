@@ -52,8 +52,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".graficos.GraficoMensalContas"
-            android:label="@string/titulo_grafico">
+            android:name=".graficos.PaginadorGraficos"
+            android:label="@string/titulo_grafico"
+            android:theme="@style/TemaTabs">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.graficos.MEUSGRAFICOS" />
 
@@ -61,7 +62,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".listas.ListaMensal"
+            android:name=".listas.PaginadorListas"
             android:label="@string/titulo_resumo"
             android:theme="@style/TemaTabs">
             <intent-filter>
@@ -109,7 +110,7 @@
             android:value="AEdPqrEAAAAIpHF2O26UlB5OMWy7l025hyqZ73sZvLmiH3HErQ" />
 
         <receiver
-            android:name=".info.NewWidget"
+            android:name=".info.WidgetResumo"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

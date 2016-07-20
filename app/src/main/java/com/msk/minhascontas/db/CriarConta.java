@@ -38,12 +38,13 @@ public class CriarConta extends AppCompatActivity implements
         RadioGroup.OnCheckedChangeListener, View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
+    private static final int LER_AGENDA = 444;
+    private static final int ESCREVER_AGENDA = 555;
+    // ELEMENTOS DA TELA
+    private static Button dataConta;
     // VARIAVEIS UTILIZADAS
     private static int dia, mes, ano;
-    private static Button dataConta;
     private final Calendar c = Calendar.getInstance();
-    private DBContas dbNovasContas = new DBContas(this);
-    // ELEMENTOS DA TELA
     private Button criaNovaConta, cancela;
     private TextInputLayout juros;
     private AppCompatAutoCompleteTextView nomeConta;
@@ -52,12 +53,13 @@ public class CriarConta extends AppCompatActivity implements
     private AppCompatCheckBox parcelarConta, pagamento, lembrete;
     private AppCompatSpinner classificaConta, intervaloRepete;
     private LinearLayout cb;
+    private Resources r;
+    private DBContas dbNovasContas = new DBContas(this);
     private int diaRepete, mesRepete, anoRepete;
     private int qtRepete, intervalo, nr;
     private String contaClasse, contaData, contaNome, contaPaga, contaTipo;
     private double contaValor, valorJuros;
     private String[] despesas, receitas, aplicacoes;
-    private Resources r;
 
     @SuppressWarnings("rawtypes")
 
@@ -247,7 +249,8 @@ public class CriarConta extends AppCompatActivity implements
                     || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CALENDAR)) {
 
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR, Manifest.permission.READ_CALENDAR}, 111111);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, LER_AGENDA);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR}, ESCREVER_AGENDA);
             }
         } else {
             // CRIA LEMBRETE E ALERTA NO CALENDARIO

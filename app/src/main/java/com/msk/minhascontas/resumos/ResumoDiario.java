@@ -3,6 +3,7 @@ package com.msk.minhascontas.resumos;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -210,81 +211,83 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
         valoresRec = new double[2];
         valoresSaldo = new double[2];
         valoresAplicados = new double[3];
+
+        Cursor somador = null;
+
         // PREENCHE AS LINHAS DA TABELA
 
         // VALORES DE RECEITAS
-
-        if (dbContas.quantasContasPorTipo(receita, dia, mes, ano) > 0)
-            valores[0] = dbContas.somaContas(receita, dia, mes, ano);
+        somador = dbContas.buscaContasTipo(dia, mes, ano, null, receita);
+        if (somador.getCount() > 0)
+            valores[0] = SomaContas(somador);
         else
             valores[0] = 0.0D;
 
         // VALOR RECEITAS RECEBIDAS
-        if (dbContas
-                .quantasContasPagasPorTipo(receita, "paguei", dia, mes, ano) > 0)
-            valoresRec[0] = dbContas.somaContasPagas(receita, "paguei", dia,
-                    mes, ano);
+        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, receita, "paguei");
+        if (somador.getCount() > 0)
+            valoresRec[0] = SomaContas(somador);
         else
             valoresRec[0] = 0.0D;
 
         // VALOR RECEITAS A RECEBAR
-        if (dbContas.quantasContasPagasPorTipo(receita, "falta", dia, mes, ano) > 0)
-            valoresRec[1] = dbContas.somaContasPagas(receita, "falta", dia,
-                    mes, ano);
+        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, receita, "falta");
+        if (somador.getCount() > 0)
+            valoresRec[1] = SomaContas(somador);
         else
             valoresRec[1] = 0.0D;
 
         // VALORES DE DESPESAS
-
-        if (dbContas.quantasContasPorTipo(despesa, dia, mes, ano) > 0)
-            valores[1] = dbContas.somaContas(despesa, dia, mes, ano);
+        somador = dbContas.buscaContasTipo(dia, mes, ano, null, despesa);
+        if (somador.getCount() > 0)
+            valores[1] = SomaContas(somador);
         else
             valores[1] = 0.0D;
 
         // VALOR CONTAS PAGAS
-        if (dbContas
-                .quantasContasPagasPorTipo(despesa, "paguei", dia, mes, ano) > 0)
-            valoresDesp[0] = dbContas.somaContasPagas(despesa, "paguei", dia,
-                    mes, ano);
+        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, despesa, "paguei");
+        if (somador.getCount() > 0)
+            valoresDesp[0] = SomaContas(somador);
         else
             valoresDesp[0] = 0.0D;
 
         // VALOR CONTAS A PAGAR
-        if (dbContas.quantasContasPagasPorTipo(despesa, "falta", dia, mes, ano) > 0)
-            valoresDesp[1] = dbContas.somaContasPagas(despesa, "falta", dia,
-                    mes, ano);
+        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, despesa, "falta");
+        if (somador.getCount() > 0)
+            valoresDesp[1] = SomaContas(somador);
         else
             valoresDesp[1] = 0.0D;
 
         // VALORES DAS CATEGORIAS DE DESPESAS
         for (int i = 0; i < despesas.length; i++) {
-            if (dbContas.quantasContasPorClasse(despesas[i], dia,
-                    mes, ano) > 0)
-                valoresDesp[i + 2] = dbContas.somaContasPorClasse(
-                        despesas[i], dia, mes, ano);
+            somador = dbContas.buscaContasClasse(dia, mes, ano, null, despesa, despesas[i]);
+            if (somador.getCount() > 0)
+                valoresDesp[i + 2] = SomaContas(somador);
             else
                 valoresDesp[i + 2] = 0.0D;
         }
 
         // VALORES DE APLICACOES
-
-        if (dbContas.quantasContasPorTipo(aplicacao, dia, mes, ano) > 0)
-            valores[2] = dbContas.somaContas(aplicacao, dia, mes, ano);
+        somador = dbContas.buscaContasTipo(dia, mes, ano, null, aplicacao);
+        if (somador.getCount() > 0)
+            valores[2] = SomaContas(somador);
         else
             valores[2] = 0.0D;
 
         for (int j = 0; j < aplicacoes.length; j++) {
-            if (dbContas.quantasContasPorClasse(aplicacoes[j], dia,
-                    mes, ano) > 0)
-                valoresAplicados[j] = dbContas.somaContasPorClasse(
-                        aplicacoes[j], dia, mes, ano);
+            somador = dbContas.buscaContasClasse(dia, mes, ano, null, aplicacao, aplicacoes[j]);
+            if (somador.getCount() > 0)
+                valoresAplicados[j] = SomaContas(somador);
             else
                 valoresAplicados[j] = 0.0D;
         }
 
         // VALOR DO SALDO MENSAL
-
         valoresSaldo[0] = valores[0] - valores[1];
+
+        // VALOR DO SALDO ATUAL
+
+        valores[3] = valores[0] - valoresDesp[0];
 
         // VALOR DO SALDO DO MES ANTERIOR
 
@@ -295,23 +298,26 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
             ano_anterior = ano_anterior - 1;
         }
         double r = 0.0D; // RECEITA MES ANTERIOR
-        if (dbContas.quantasContasPorTipo(receita, 0, mes_anterior,
-                ano_anterior) > 0)
-            r = dbContas.somaContas(receita, 0, mes_anterior, ano_anterior);
+        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, receita);
+        if (somador.getCount() > 0)
+            r = SomaContas(somador);
 
         double d = 0.0D; // DESPESA MES ANTERIOR
-        if (dbContas.quantasContasPorTipo(despesa, 0, mes_anterior,
-                ano_anterior) > 0)
-            d = dbContas.somaContas(despesa, 0, mes_anterior, ano_anterior);
+        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, despesa);
+        if (somador.getCount() > 0)
+            d = SomaContas(somador);
+
+        somador.close(); // FECHA O CURSOR DO SOMADOR
 
         double s = r - d; // SALDO MES ANTERIOR
-        if (dbContas.quantasContasPorMes(mes_anterior, ano_anterior) > 0)
+        if (dbContas.buscaContas(0, mes_anterior, ano_anterior, null).getCount() > 0)
             valoresSaldo[1] = s;
         else
             valoresSaldo[1] = 0.0D;
 
         // VALOR DO SALDO ATUAL
         boolean somaSaldo = buscaPreferencias.getBoolean("saldo", false);
+
         if (somaSaldo) {
             valores[3] = valoresRec[0] - valoresDesp[0]
                     + valoresSaldo[1];
@@ -321,6 +327,20 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
 
         dbContas.close();
 
+    }
+
+    private double SomaContas(Cursor cursor) {
+        int i = cursor.getCount();
+        cursor.moveToLast();
+        double d = 0.0D;
+        for (int j = 0; ; j++) {
+            if (j >= i) {
+                cursor.close();
+                return d;
+            }
+            d += cursor.getDouble(9);
+            cursor.moveToPrevious();
+        }
     }
 
     @Override
