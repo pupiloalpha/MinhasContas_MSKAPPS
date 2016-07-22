@@ -105,6 +105,8 @@ public class PaginadorListas extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
+                nrPagina = position;
+                AtualizaActionBar();
             }
 
             @Override
@@ -185,7 +187,6 @@ public class PaginadorListas extends AppCompatActivity {
                             mPaginas = new Paginas(getSupportFragmentManager());
                             mViewPager.setAdapter(mPaginas);
                             mViewPager.setCurrentItem(nrPagina);
-                            AtualizaActionBar();
                             MontaLista();
                         }
                     });
@@ -227,9 +228,14 @@ public class PaginadorListas extends AppCompatActivity {
         if (current != null) {
             current.onResume();
         }
+        AtualizaActionBar();
     }
 
-    private void AtualizaActionBar() {
+    public void AtualizaActionBar() {
+
+        mes = mesConta[nrPagina];
+        ano = anoConta[nrPagina];
+
         dbContas.open();
 
         ColorDrawable cor;
@@ -314,9 +320,6 @@ public class PaginadorListas extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        mes = mesConta[mViewPager.getCurrentItem()];
-        ano = anoConta[mViewPager.getCurrentItem()];
 
         switch (item.getItemId()) {
 

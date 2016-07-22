@@ -8,8 +8,8 @@ android {
         applicationId "com.msk.minhascontas"
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 1430511
-        versionName "3.5.11"
+        versionCode 1430513
+        versionName "3.5.13"
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {

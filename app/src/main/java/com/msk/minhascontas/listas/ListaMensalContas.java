@@ -65,6 +65,7 @@ public class ListaMensalContas extends Fragment {
     private Cursor contasParaLista = null;
     private boolean alteraContas = false;
     private boolean primeiraConta = false;
+    private double valorConta = 0.0D;
     private OnSharedPreferenceChangeListener preferencias = new OnSharedPreferenceChangeListener() {
 
         public void onSharedPreferenceChanged(
@@ -76,6 +77,7 @@ public class ListaMensalContas extends Fragment {
 
         }
     };
+
     private ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -213,6 +215,7 @@ public class ListaMensalContas extends Fragment {
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
             buscaContas.marcaConta(conta, false);
+            ((PaginadorListas) getActivity()).AtualizaActionBar();
         }
     };
     private OnItemClickListener toqueSimples = new OnItemClickListener() {
@@ -226,6 +229,7 @@ public class ListaMensalContas extends Fragment {
             contasParaLista.moveToPosition(posicao);
             idConta = contasParaLista.getLong(0);
             nomeConta = contasParaLista.getString(1);
+            double vConta = contasParaLista.getDouble(9);
             dbContasDoMes.close();
 
             if (!alteraContas) {
@@ -256,15 +260,16 @@ public class ListaMensalContas extends Fragment {
                         if (!primeiraConta) {
                             contas.remove(idConta);
                             buscaContas.marcaConta(posicao, false);
-
+                            valorConta = valorConta - vConta;
                         } else {
                             primeiraConta = false;
+                            valorConta = valorConta + vConta;
                         }
 
                     } else {
                         contas.add(idConta);
                         buscaContas.marcaConta(posicao, true);
-
+                        valorConta = valorConta + vConta;
                     }
 
                     if (contas.size() == 0) {
@@ -272,9 +277,13 @@ public class ListaMensalContas extends Fragment {
                         MontaLista();
                     }
 
-                    if (contas.size() != 0)
+                    if (contas.size() != 0) {
                         mActionMode.setTitle(res.getQuantityString(R.plurals.selecao,
                                 contas.size(), contas.size()));
+                        if (!tipo.equals("todas"))
+                            mActionMode.setSubtitle(dinheiro.format(valorConta));
+                    }
+
                 }
             }
         }
@@ -343,6 +352,8 @@ public class ListaMensalContas extends Fragment {
             buscaContas.limpaSelecao();
             contas = new ArrayList<Long>();
             alteraContas = false;
+            valorConta = 0.0D;
+            ((PaginadorListas) getActivity()).AtualizaActionBar();
         }
     };
     private AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {

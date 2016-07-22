@@ -19,7 +19,7 @@
         android:id="@+id/grafico_despesas"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:layout_margin="5dp"></lecho.lib.hellocharts.view.ColumnChartView>
+        android:layout_margin="5dp" />
 
     <TableLayout
         android:layout_width="match_parent"

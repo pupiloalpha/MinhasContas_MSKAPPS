@@ -41,27 +41,13 @@ public class EscolhePasta extends ListActivity {
         Bundle extras = getIntent().getExtras();
         tipo = extras.getString("tipo");
 
-        String strSDCardPath = System.getenv("SECONDARY_STORAGE");
-        if ((strSDCardPath == null) || strSDCardPath.length() == 0) {
-            strSDCardPath = System.getenv("EXTERNAL_SDCARD_STORAGE");
-        }
-        if (strSDCardPath != null) {
-            if (strSDCardPath.contains(":")) {
-                strSDCardPath = strSDCardPath.substring(0, strSDCardPath.indexOf(":"));
-            }
-
-            File externalFilePath = new File(strSDCardPath);
-            if (externalFilePath.exists() && externalFilePath.canWrite()) {
-                dir = externalFilePath.getParentFile();
-            } else {
-
-                dir = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS).getParentFile().getParentFile().getParentFile();
-            }
-
+        String strStoragePath = "/storage/";
+        File externalFilePath = new File(strStoragePath);
+        if (externalFilePath.exists() && externalFilePath.canWrite()) {
+            dir = externalFilePath;
         } else {
 
-            dir = Environment.getExternalStorageDirectory();
+            dir = Environment.getExternalStorageDirectory().getParentFile();
         }
 
         String preferredStartDir = extras.getString(START_DIR);
