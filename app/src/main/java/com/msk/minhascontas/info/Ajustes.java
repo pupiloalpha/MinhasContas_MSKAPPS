@@ -1,11 +1,13 @@
 package com.msk.minhascontas.info;
 
+import android.Manifest;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -18,6 +20,8 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatCheckedTextView;
@@ -44,10 +48,14 @@ import java.util.Locale;
 public class Ajustes extends PreferenceActivity implements
         OnPreferenceClickListener, OnPreferenceChangeListener {
 
+    // VARIAVEIS UTILIZADAS
+    private static final int ESCREVE_SD = 666;
+    private static final int ABRE_PASTA = 777;
+    private static final int ABRE_ARQUIVO = 888;
+    private static final int CRIA_ARQUIVO = 999;
     private Toolbar toolbar;
     private DBContas dbMinhasContas = new DBContas(this);
     private ExportarExcel excel = new ExportarExcel();
-
     // ELEMENTOS DA TELA
     private PreferenceScreen prefs;
     private Preference backup, restaura, apagatudo, versao, exportar;
@@ -57,8 +65,6 @@ public class Ajustes extends PreferenceActivity implements
     private PackageInfo info;
     private Resources r = null;
     private NumberFormat dinheiro;
-
-    // VARIAVEIS UTILIZADAS
     private int erro, categorias, ajusteReceita;
     private String[] linhas;
     private String despesa, receita, aplicacao;
@@ -144,7 +150,7 @@ public class Ajustes extends PreferenceActivity implements
         SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
         pastaBackUp = sharedPref.getString("backup", "");
 
-        if (!pastaBackUp.equals("")){
+        if (!pastaBackUp.equals("")) {
 
             backup.setSummary(pastaBackUp);
         }
@@ -171,11 +177,11 @@ public class Ajustes extends PreferenceActivity implements
 
         if (chave.equals("backup")) {
             // Seleciona pasta para backup
-            abrePasta(111);
+            abrePasta(ABRE_PASTA);
         }
         if (chave.equals("restaura")) {
             // Seleciona o arquivo backup
-            abrePasta(222);
+            abrePasta(ABRE_ARQUIVO);
         }
         if (chave.equals("apagatudo")) {
             // Apaga banco de dados
@@ -305,36 +311,46 @@ public class Ajustes extends PreferenceActivity implements
     }
 
     private void CriaArquivoExcel() {
-        // COLOCA VALORES DE DADOS NOS VETORES
-        dbMinhasContas.open();
-        int ano = Calendar.getInstance().get(Calendar.YEAR);
-        String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
-                dez;
-
-        jan = SaldoMensal(0, ano);
-        fev = SaldoMensal(1, ano);
-        mar = SaldoMensal(2, ano);
-        abr = SaldoMensal(3, ano);
-        mai = SaldoMensal(4, ano);
-        jun = SaldoMensal(5, ano);
-        jul = SaldoMensal(6, ano);
-        ago = SaldoMensal(7, ano);
-        set = SaldoMensal(8, ano);
-        out = SaldoMensal(9, ano);
-        nov = SaldoMensal(10, ano);
-        dez = SaldoMensal(11, ano);
-        dbMinhasContas.close();
-
-        String[] colunas = r.getStringArray(R.array.MesesDoAno);
-
-        NomeLinhas(); // DEFINE O NOME DAS LINHAS DA TABELA
 
         // CRIA O ARQUIVO EXCEL
-        erro = excel.CriaExcel(r.getString(R.string.planilha, String.format(
-                r.getConfiguration().locale, "%d", ano)), jan, fev,
-                mar, abr, mai, jun, jul, ago, set, out, nov, dez, colunas,
-                linhas, pastaBackUp);
+        int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
+        int permLer = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
 
+        if (permEscrever != PackageManager.PERMISSION_GRANTED && permLer != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CRIA_ARQUIVO);
+            }
+        } else {
+            // COLOCA VALORES DE DADOS NOS VETORES
+            dbMinhasContas.open();
+            int ano = Calendar.getInstance().get(Calendar.YEAR);
+            String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
+                    dez;
+
+            jan = SaldoMensal(0, ano);
+            fev = SaldoMensal(1, ano);
+            mar = SaldoMensal(2, ano);
+            abr = SaldoMensal(3, ano);
+            mai = SaldoMensal(4, ano);
+            jun = SaldoMensal(5, ano);
+            jul = SaldoMensal(6, ano);
+            ago = SaldoMensal(7, ano);
+            set = SaldoMensal(8, ano);
+            out = SaldoMensal(9, ano);
+            nov = SaldoMensal(10, ano);
+            dez = SaldoMensal(11, ano);
+            dbMinhasContas.close();
+
+            String[] colunas = r.getStringArray(R.array.MesesDoAno);
+
+            NomeLinhas(); // DEFINE O NOME DAS LINHAS DA TABELA
+
+            erro = excel.CriaExcel(r.getString(R.string.planilha, String.format(
+                    r.getConfiguration().locale, "%d", ano)), jan, fev,
+                    mar, abr, mai, jun, jul, ago, set, out, nov, dez, colunas,
+                    linhas, pastaBackUp);
+        }
     }
 
     private String[] SaldoMensal(int mes, int ano) {
@@ -538,15 +554,26 @@ public class Ajustes extends PreferenceActivity implements
 
     public void abrePasta(int nr) {
 
-        if (nr == 111) {
-            Bundle envelope = new Bundle();
-            envelope.putString("tipo", "");
-            Intent atividade = new Intent(this, EscolhePasta.class);
-            atividade.putExtras(envelope);
-            startActivityForResult(atividade, nr);
+        if (nr == ABRE_PASTA) {
+            int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
+            int permLer = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
+
+            if (permEscrever != PackageManager.PERMISSION_GRANTED && permLer != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ESCREVE_SD);
+                }
+            } else {
+                Bundle envelope = new Bundle();
+                envelope.putString("tipo", "");
+                Intent atividade = new Intent(this, EscolhePasta.class);
+                atividade.putExtras(envelope);
+                startActivityForResult(atividade, nr);
+            }
+
         }
 
-        if (nr == 222) {
+        if (nr == ABRE_ARQUIVO) {
             Bundle envelope = new Bundle();
             envelope.putString("tipo", "minhas_contas");
             Intent atividade = new Intent(this, EscolhePasta.class);
@@ -557,13 +584,60 @@ public class Ajustes extends PreferenceActivity implements
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            if (requestCode == ABRE_PASTA) {
+                Bundle envelope = new Bundle();
+                envelope.putString("tipo", "");
+                Intent atividade = new Intent(this, EscolhePasta.class);
+                atividade.putExtras(envelope);
+                startActivityForResult(atividade, ABRE_PASTA);
+            }
+            if (requestCode == CRIA_ARQUIVO) {
+                // COLOCA VALORES DE DADOS NOS VETORES
+                dbMinhasContas.open();
+                int ano = Calendar.getInstance().get(Calendar.YEAR);
+                String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
+                        dez;
+
+                jan = SaldoMensal(0, ano);
+                fev = SaldoMensal(1, ano);
+                mar = SaldoMensal(2, ano);
+                abr = SaldoMensal(3, ano);
+                mai = SaldoMensal(4, ano);
+                jun = SaldoMensal(5, ano);
+                jul = SaldoMensal(6, ano);
+                ago = SaldoMensal(7, ano);
+                set = SaldoMensal(8, ano);
+                out = SaldoMensal(9, ano);
+                nov = SaldoMensal(10, ano);
+                dez = SaldoMensal(11, ano);
+                dbMinhasContas.close();
+
+                String[] colunas = r.getStringArray(R.array.MesesDoAno);
+
+                NomeLinhas(); // DEFINE O NOME DAS LINHAS DA TABELA
+
+                erro = excel.CriaExcel(r.getString(R.string.planilha, String.format(
+                        r.getConfiguration().locale, "%d", ano)), jan, fev,
+                        mar, abr, mai, jun, jul, ago, set, out, nov, dez, colunas,
+                        linhas, pastaBackUp);
+            }
+        }
+
+    }
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode){
+        switch (requestCode) {
             case 111:
 
-                if (resultCode == RESULT_OK){
+                if (resultCode == RESULT_OK) {
 
-                    if (data != null){
+                    if (data != null) {
 
                         Bundle extras = data.getExtras();
                         String path = (String) extras.get(EscolhePasta.CHOSEN_DIRECTORY);
@@ -592,7 +666,7 @@ public class Ajustes extends PreferenceActivity implements
 
                         } catch (Exception e) {
 
-                            Log.e("Seleção de arquivos","Deu erro!!!", e);
+                            Log.e("Seleção de arquivos", "Deu erro!!!", e);
                         }
                     }
                 }

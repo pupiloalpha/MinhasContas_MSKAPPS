@@ -1,11 +1,13 @@
 package com.msk.minhascontas;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -13,9 +15,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -46,6 +50,7 @@ public class MinhasContas extends AppCompatActivity {
     private static final int BUSCA_CONTA = 111;
     private static final int CONFIGURACOES = 222;
     private static final int CRIA_CONTA = 333;
+    private static final int ESCREVE_SD = 666;
     private static int[] diaConta, mesConta, anoConta;
     private final Context contexto = this;
     private final Calendar c = Calendar.getInstance();
@@ -395,7 +400,18 @@ public class MinhasContas extends AppCompatActivity {
 
             SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
             String pastaBackUp = sharedPref.getString("backup", "");
-            dbContas.copiaBD(pastaBackUp);
+
+            int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
+            int permLer = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
+
+            if (permEscrever != PackageManager.PERMISSION_GRANTED && permLer != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ESCREVE_SD);
+                }
+            } else {
+                dbContas.copiaBD(pastaBackUp);
+            }
 
             BackupManager android = new BackupManager(getApplicationContext());
             android.dataChanged();
@@ -405,6 +421,20 @@ public class MinhasContas extends AppCompatActivity {
         dbContas.close();
 
         super.onDestroy();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            dbContas.open();
+            SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
+            String pastaBackUp = sharedPref.getString("backup", "");
+            dbContas.copiaBD(pastaBackUp);
+            dbContas.close();
+        }
+
     }
 
     /**
