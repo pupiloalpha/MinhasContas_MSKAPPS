@@ -1,18 +1,14 @@
 package com.msk.minhascontas.info;
 
-import android.Manifest;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -21,8 +17,6 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -206,15 +200,10 @@ public class Ajustes extends PreferenceActivity implements
 
         }
         if (chave.equals("excel")) {
-
             // EXPORTA TESTES PARA EXCEL
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-                PermissaoSD(2);
-            } else {
                 dbMinhasContas.open();
                 CriaArquivoExcel();
                 dbMinhasContas.close();
-            }
         }
         if (chave.equals("acesso")) {
             if (acesso.isChecked()) {
@@ -302,23 +291,6 @@ public class Ajustes extends PreferenceActivity implements
             atividade.putExtras(envelope);
             startActivityForResult(atividade, nr);
         }
-    }
-
-    private void FazBackup() {
-
-        SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
-        pastaBackUp = sharedPref.getString("backup", "");
-
-        if (!pastaBackUp.equals("")) {
-            backup.setSummary(pastaBackUp);
-        }
-        // Cria um Backup do Banco de Dados
-        dbMinhasContas.open();
-        dbMinhasContas.copiaBD(pastaBackUp);
-        BackupManager android = new BackupManager(getApplicationContext());
-        android.dataChanged();
-        Toast.makeText(getApplicationContext(), getString(R.string.dica_copia_bd), Toast.LENGTH_SHORT).show();
-        dbMinhasContas.close();
     }
 
     private void CriaArquivoExcel() {
@@ -465,22 +437,7 @@ public class Ajustes extends PreferenceActivity implements
         return valores;
     }
 
-    private double SomaContas(Cursor cursor) {
-        int i = cursor.getCount();
-        cursor.moveToLast();
-        double d = 0.0D;
-        for (int j = 0; ; j++) {
-            if (j >= i) {
-                cursor.close();
-                return d;
-            }
-            d += cursor.getDouble(9);
-            cursor.moveToPrevious();
-        }
-    }
-
     private void NomeLinhas() {
-
         // DEFINE OS NOMES DA LINHAS DA TABELA
         despesa = getResources().getString(R.string.linha_despesa);
         despesas = getResources().getStringArray(R.array.TipoDespesa);
@@ -529,7 +486,6 @@ public class Ajustes extends PreferenceActivity implements
         // VALOR DO SALDO ATUAL
         linhas[categorias - 1] = getResources()
                 .getString(R.string.resumo_saldo);
-
     }
 
     @Override
@@ -540,40 +496,6 @@ public class Ajustes extends PreferenceActivity implements
         }
 
         return false;
-    }
-
-
-    private void PermissaoSD(int sd) {
-        int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permEscrever != PackageManager.PERMISSION_GRANTED) {
-            if (sd == 1) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ESCREVE_SD);
-            } else if (sd == 2) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CRIA_ARQUIVO);
-            }
-        } else {
-            if (sd == 1) {
-                FazBackup();
-            } else if (sd == 2) {
-                dbMinhasContas.open();
-                CriaArquivoExcel();
-                dbMinhasContas.close();
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (requestCode == ESCREVE_SD) {
-                FazBackup();
-            } else if (requestCode == CRIA_ARQUIVO) {
-                dbMinhasContas.open();
-                CriaArquivoExcel();
-                dbMinhasContas.close();
-            }
-        }
     }
 
     @Override
@@ -590,12 +512,18 @@ public class Ajustes extends PreferenceActivity implements
                         edit.putString("backup", path);
                         edit.commit();
 
-                        // Cria um Backup do Banco de Dados
-                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-                            PermissaoSD(1);
-                        } else {
-                            FazBackup();
+                        pastaBackUp = sharedPref.getString("backup", "");
+                        if (!pastaBackUp.equals("")) {
+                            backup.setSummary(pastaBackUp);
                         }
+                        // Cria um Backup do Banco de Dados
+                        dbMinhasContas.open();
+                        dbMinhasContas.copiaBD(pastaBackUp);
+                        BackupManager android = new BackupManager(getApplicationContext());
+                        android.dataChanged();
+                        Toast.makeText(getApplicationContext(), getString(R.string.dica_copia_bd), Toast.LENGTH_SHORT).show();
+                        dbMinhasContas.close();
+
                     }
                 }
                 break;

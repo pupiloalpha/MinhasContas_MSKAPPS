@@ -1,26 +1,21 @@
 package com.msk.minhascontas;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -399,44 +394,13 @@ public class MinhasContas extends AppCompatActivity {
         if (autobkup && i != 0) {
             SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
             String pastaBackUp = sharedPref.getString("backup", "");
-
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-                PermissaoSD(pastaBackUp);
-            } else {
-                dbContas.copiaBD(pastaBackUp);
-                BackupManager android = new BackupManager(getApplicationContext());
-                android.dataChanged();
-            }
+            dbContas.copiaBD(pastaBackUp);
+            BackupManager android = new BackupManager(getApplicationContext());
+            android.dataChanged();
         }
         dbContas.close();
 
         super.onDestroy();
-    }
-
-    private void PermissaoSD(String pastaBackUp) {
-        int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permEscrever != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ESCREVE_SD);
-        } else {
-            dbContas.copiaBD(pastaBackUp);
-            BackupManager android = new BackupManager(getApplicationContext());
-            android.dataChanged();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-
-        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            dbContas.open();
-            SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
-            String pastaBackUp = sharedPref.getString("backup", "");
-            dbContas.copiaBD(pastaBackUp);
-            BackupManager android = new BackupManager(getApplicationContext());
-            android.dataChanged();
-            dbContas.close();
-        }
-
     }
 
     /**
