@@ -1,58 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mskapp="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <include layout="@layout/barra_titulo" />
+
+    <include layout="@layout/barra_meses" />
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:background="?colorPrimary"
-        mskapp:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        mskapp:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        android:layout_height="match_parent">
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tablayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/toolbar"
-        android:background="?colorPrimary"
-        mskapp:tabIndicatorColor="@android:color/white"
-        mskapp:tabMode="scrollable"
-        mskapp:tabTextAppearance="@style/ActionBarTabText" />
+        <include layout="@layout/paginas" />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/paginas"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/tablayout" />
+        <ImageButton
+            android:id="@+id/ibfab"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|center"
+            android:layout_margin="10dp"
+            android:background="@color/fab_fundo"
+            android:contentDescription="@string/criar"
+            android:tint="@color/branco"
+            mskapp:srcCompat="@drawable/ic_add_white" />
 
-    <ImageButton
-        android:id="@+id/ibfab"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="bottom|center"
-        android:layout_margin="10dp"
-        android:background="@color/fab_fundo"
-        android:contentDescription="@string/criar"
-        android:tint="@color/branco"
-        mskapp:srcCompat="@drawable/ic_add_white" />
+    </RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>

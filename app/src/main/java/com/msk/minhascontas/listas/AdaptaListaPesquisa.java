@@ -75,7 +75,7 @@ public class AdaptaListaPesquisa extends CursorAdapter {
 
         }
 
-        data.setText(d + "/"+ (m + 1) + "/" + a);
+        data.setText(d + "/" + (m + 1) + "/" + a);
 
         Calendar c = Calendar.getInstance();
         c.set(a, m, d);

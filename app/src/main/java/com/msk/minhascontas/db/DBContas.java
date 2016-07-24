@@ -279,10 +279,10 @@ public class DBContas {
         if (dia != 0)
             return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
-                        + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
-                        + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
-                        + "' AND " + COLUNA_PAGOU_CONTA + " = '" + pagamento + "' ",
-                null, null, null, ordem);
+                            + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                            + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
+                            + "' AND " + COLUNA_PAGOU_CONTA + " = '" + pagamento + "' ",
+                    null, null, null, ordem);
         else
             return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
@@ -296,10 +296,10 @@ public class DBContas {
         if (dia != 0)
             return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
-                        + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
-                        + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
-                        + "' AND " + COLUNA_CATEGORIA_CONTA + " = '" + classe + "' ",
-                null, null, null, ordem);
+                            + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                            + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
+                            + "' AND " + COLUNA_CATEGORIA_CONTA + " = '" + classe + "' ",
+                    null, null, null, ordem);
         else
             return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"

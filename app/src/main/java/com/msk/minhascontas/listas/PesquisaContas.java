@@ -14,7 +14,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
-import android.view.ContextThemeWrapper;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -485,8 +485,7 @@ public class PesquisaContas extends AppCompatActivity implements
     }
 
     private void Dialogo() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                new ContextThemeWrapper(this, R.style.TemaDialogo));
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
         alertDialogBuilder.setTitle(getString(R.string.dica_menu_exclusao));
 
@@ -538,6 +537,8 @@ public class PesquisaContas extends AppCompatActivity implements
     @SuppressLint("NewApi")
     private void usarActionBar() {
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 

@@ -10,6 +10,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,14 +24,7 @@ import android.preference.PreferenceScreen;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.AppCompatCheckedTextView;
-import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.AppCompatRadioButton;
-import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -212,35 +206,24 @@ public class Ajustes extends PreferenceActivity implements
 
         }
         if (chave.equals("excel")) {
+
             // EXPORTA TESTES PARA EXCEL
-
-            new BarraProgresso(this, getResources().getString(
-                    R.string.dica_titulo_barra), getResources().getString(
-                    R.string.dica_barra_exporta), 100, 10).execute();
-
-            CriaArquivoExcel();
-
-            if (erro == 0) {
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.dica_exporta_excel),
-                        Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+                PermissaoSD(2);
             } else {
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.dica_erro_exporta_excel),
-                        Toast.LENGTH_SHORT).show();
+                dbMinhasContas.open();
+                CriaArquivoExcel();
+                dbMinhasContas.close();
             }
         }
         if (chave.equals("acesso")) {
-
             if (acesso.isChecked()) {
                 acesso.setSummary(R.string.pref_descricao_acesso_negado);
             } else {
                 acesso.setSummary(R.string.pref_descricao_acesso_livre);
             }
-
         }
         if (chave.equals("pagamento")) {
-
             if (pagamento.isChecked()) {
                 pagamento.setSummary(R.string.pref_descricao_autopagamento);
             } else {
@@ -250,9 +233,7 @@ public class Ajustes extends PreferenceActivity implements
                     R.string.dica_texto_reinicio,
                     Toast.LENGTH_SHORT).show();
         }
-
         if (chave.equals("resumo")) {
-
             if (resumo.isChecked()) {
                 resumo.setSummary(R.string.pref_descricao_resumo_mensal);
             } else {
@@ -262,9 +243,7 @@ public class Ajustes extends PreferenceActivity implements
                     R.string.dica_texto_reinicio,
                     Toast.LENGTH_SHORT).show();
         }
-
         if (chave.equals("saldo")) {
-
             if (saldo.isChecked()) {
                 saldo.setSummary(R.string.pref_descricao_saldo_somado);
             } else {
@@ -274,9 +253,7 @@ public class Ajustes extends PreferenceActivity implements
                     R.string.dica_texto_reinicio,
                     Toast.LENGTH_SHORT).show();
         }
-
         if (chave.equals("autobkup")) {
-
             if (autobkup.isChecked()) {
                 autobkup.setSummary(R.string.pref_descricao_auto_bkup_sim);
             } else {
@@ -286,7 +263,6 @@ public class Ajustes extends PreferenceActivity implements
                     R.string.dica_texto_reinicio,
                     Toast.LENGTH_SHORT).show();
         }
-
         setResult(RESULT_OK, null);
         return false;
     }
@@ -297,7 +273,6 @@ public class Ajustes extends PreferenceActivity implements
                 R.layout.ajustes, new LinearLayout(this), false);
         toolbar = (Toolbar) contentView.findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_back_white);
-        toolbar.setBackgroundColor(Color.parseColor("#FF2B2B2B"));
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -310,46 +285,79 @@ public class Ajustes extends PreferenceActivity implements
         getWindow().setContentView(contentView);
     }
 
+    public void abrePasta(int nr) {
+
+        if (nr == ABRE_PASTA) {
+            Bundle envelope = new Bundle();
+            envelope.putString("tipo", "");
+            Intent atividade = new Intent(this, EscolhePasta.class);
+            atividade.putExtras(envelope);
+            startActivityForResult(atividade, nr);
+        }
+
+        if (nr == ABRE_ARQUIVO) {
+            Bundle envelope = new Bundle();
+            envelope.putString("tipo", "minhas_contas");
+            Intent atividade = new Intent(this, EscolhePasta.class);
+            atividade.putExtras(envelope);
+            startActivityForResult(atividade, nr);
+        }
+    }
+
+    private void FazBackup() {
+
+        SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
+        pastaBackUp = sharedPref.getString("backup", "");
+
+        if (!pastaBackUp.equals("")) {
+            backup.setSummary(pastaBackUp);
+        }
+        // Cria um Backup do Banco de Dados
+        dbMinhasContas.open();
+        dbMinhasContas.copiaBD(pastaBackUp);
+        BackupManager android = new BackupManager(getApplicationContext());
+        android.dataChanged();
+        Toast.makeText(getApplicationContext(), getString(R.string.dica_copia_bd), Toast.LENGTH_SHORT).show();
+        dbMinhasContas.close();
+    }
+
     private void CriaArquivoExcel() {
 
-        // CRIA O ARQUIVO EXCEL
-        int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
-        int permLer = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
+        // COLOCA VALORES DE DADOS NOS VETORES
+        int ano = Calendar.getInstance().get(Calendar.YEAR);
+        String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
+                dez;
 
-        if (permEscrever != PackageManager.PERMISSION_GRANTED && permLer != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CRIA_ARQUIVO);
-            }
+        jan = SaldoMensal(0, ano);
+        fev = SaldoMensal(1, ano);
+        mar = SaldoMensal(2, ano);
+        abr = SaldoMensal(3, ano);
+        mai = SaldoMensal(4, ano);
+        jun = SaldoMensal(5, ano);
+        jul = SaldoMensal(6, ano);
+        ago = SaldoMensal(7, ano);
+        set = SaldoMensal(8, ano);
+        out = SaldoMensal(9, ano);
+        nov = SaldoMensal(10, ano);
+        dez = SaldoMensal(11, ano);
+
+        String[] colunas = r.getStringArray(R.array.MesesDoAno);
+
+        NomeLinhas(); // DEFINE O NOME DAS LINHAS DA TABELA
+
+        erro = excel.CriaExcel(r.getString(R.string.planilha, String.format(
+                r.getConfiguration().locale, "%d", ano)), jan, fev,
+                mar, abr, mai, jun, jul, ago, set, out, nov, dez, colunas,
+                linhas, pastaBackUp);
+
+        if (erro == 0) {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.dica_exporta_excel),
+                    Toast.LENGTH_SHORT).show();
         } else {
-            // COLOCA VALORES DE DADOS NOS VETORES
-            dbMinhasContas.open();
-            int ano = Calendar.getInstance().get(Calendar.YEAR);
-            String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
-                    dez;
-
-            jan = SaldoMensal(0, ano);
-            fev = SaldoMensal(1, ano);
-            mar = SaldoMensal(2, ano);
-            abr = SaldoMensal(3, ano);
-            mai = SaldoMensal(4, ano);
-            jun = SaldoMensal(5, ano);
-            jul = SaldoMensal(6, ano);
-            ago = SaldoMensal(7, ano);
-            set = SaldoMensal(8, ano);
-            out = SaldoMensal(9, ano);
-            nov = SaldoMensal(10, ano);
-            dez = SaldoMensal(11, ano);
-            dbMinhasContas.close();
-
-            String[] colunas = r.getStringArray(R.array.MesesDoAno);
-
-            NomeLinhas(); // DEFINE O NOME DAS LINHAS DA TABELA
-
-            erro = excel.CriaExcel(r.getString(R.string.planilha, String.format(
-                    r.getConfiguration().locale, "%d", ano)), jan, fev,
-                    mar, abr, mai, jun, jul, ago, set, out, nov, dez, colunas,
-                    linhas, pastaBackUp);
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.dica_erro_exporta_excel),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -457,10 +465,23 @@ public class Ajustes extends PreferenceActivity implements
         return valores;
     }
 
+    private double SomaContas(Cursor cursor) {
+        int i = cursor.getCount();
+        cursor.moveToLast();
+        double d = 0.0D;
+        for (int j = 0; ; j++) {
+            if (j >= i) {
+                cursor.close();
+                return d;
+            }
+            d += cursor.getDouble(9);
+            cursor.moveToPrevious();
+        }
+    }
+
     private void NomeLinhas() {
 
         // DEFINE OS NOMES DA LINHAS DA TABELA
-        dbMinhasContas.open();
         despesa = getResources().getString(R.string.linha_despesa);
         despesas = getResources().getStringArray(R.array.TipoDespesa);
         receita = getResources().getString(R.string.linha_receita);
@@ -509,198 +530,93 @@ public class Ajustes extends PreferenceActivity implements
         linhas[categorias - 1] = getResources()
                 .getString(R.string.resumo_saldo);
 
-        dbMinhasContas.close();
-
     }
 
     @Override
     public boolean onPreferenceChange(Preference itemPref, Object novaSenha) {
-
         chave = itemPref.getKey();
-
         if (chave.equals("senha")) {
-
             senha.setText(novaSenha.toString());
         }
 
         return false;
     }
 
-    @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
-        // Allow super to try and create a view first
-        final View result = super.onCreateView(name, context, attrs);
-        if (result != null) {
-            return result;
-        }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            switch (name) {
-                case "EditText":
-                    return new AppCompatEditText(this, attrs);
-                case "Spinner":
-                    return new AppCompatSpinner(this, attrs);
-                case "CheckBox":
-                    return new AppCompatCheckBox(this, attrs);
-                case "RadioButton":
-                    return new AppCompatRadioButton(this, attrs);
-                case "CheckedTextView":
-                    return new AppCompatCheckedTextView(this, attrs);
+    private void PermissaoSD(int sd) {
+        int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permEscrever != PackageManager.PERMISSION_GRANTED) {
+            if (sd == 1) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ESCREVE_SD);
+            } else if (sd == 2) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, CRIA_ARQUIVO);
+            }
+        } else {
+            if (sd == 1) {
+                FazBackup();
+            } else if (sd == 2) {
+                dbMinhasContas.open();
+                CriaArquivoExcel();
+                dbMinhasContas.close();
             }
         }
-
-        return null;
-    }
-
-    public void abrePasta(int nr) {
-
-        if (nr == ABRE_PASTA) {
-            int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
-            int permLer = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
-
-            if (permEscrever != PackageManager.PERMISSION_GRANTED && permLer != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                } else {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ESCREVE_SD);
-                }
-            } else {
-                Bundle envelope = new Bundle();
-                envelope.putString("tipo", "");
-                Intent atividade = new Intent(this, EscolhePasta.class);
-                atividade.putExtras(envelope);
-                startActivityForResult(atividade, nr);
-            }
-
-        }
-
-        if (nr == ABRE_ARQUIVO) {
-            Bundle envelope = new Bundle();
-            envelope.putString("tipo", "minhas_contas");
-            Intent atividade = new Intent(this, EscolhePasta.class);
-            atividade.putExtras(envelope);
-            startActivityForResult(atividade, nr);
-        }
-
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            if (requestCode == ABRE_PASTA) {
-                Bundle envelope = new Bundle();
-                envelope.putString("tipo", "");
-                Intent atividade = new Intent(this, EscolhePasta.class);
-                atividade.putExtras(envelope);
-                startActivityForResult(atividade, ABRE_PASTA);
-            }
-            if (requestCode == CRIA_ARQUIVO) {
-                // COLOCA VALORES DE DADOS NOS VETORES
+            if (requestCode == ESCREVE_SD) {
+                FazBackup();
+            } else if (requestCode == CRIA_ARQUIVO) {
                 dbMinhasContas.open();
-                int ano = Calendar.getInstance().get(Calendar.YEAR);
-                String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
-                        dez;
-
-                jan = SaldoMensal(0, ano);
-                fev = SaldoMensal(1, ano);
-                mar = SaldoMensal(2, ano);
-                abr = SaldoMensal(3, ano);
-                mai = SaldoMensal(4, ano);
-                jun = SaldoMensal(5, ano);
-                jul = SaldoMensal(6, ano);
-                ago = SaldoMensal(7, ano);
-                set = SaldoMensal(8, ano);
-                out = SaldoMensal(9, ano);
-                nov = SaldoMensal(10, ano);
-                dez = SaldoMensal(11, ano);
+                CriaArquivoExcel();
                 dbMinhasContas.close();
-
-                String[] colunas = r.getStringArray(R.array.MesesDoAno);
-
-                NomeLinhas(); // DEFINE O NOME DAS LINHAS DA TABELA
-
-                erro = excel.CriaExcel(r.getString(R.string.planilha, String.format(
-                        r.getConfiguration().locale, "%d", ano)), jan, fev,
-                        mar, abr, mai, jun, jul, ago, set, out, nov, dez, colunas,
-                        linhas, pastaBackUp);
             }
         }
-
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case 111:
-
+            case ABRE_PASTA:
                 if (resultCode == RESULT_OK) {
-
                     if (data != null) {
-
                         Bundle extras = data.getExtras();
                         String path = (String) extras.get(EscolhePasta.CHOSEN_DIRECTORY);
 
-                        try {
+                        SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor edit = sharedPref.edit();
+                        edit.putString("backup", path);
+                        edit.commit();
 
-                            SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
-                            SharedPreferences.Editor edit = sharedPref.edit();
-                            edit.putString("backup", path);
-                            edit.commit();
-
-                            // Cria um Backup do Banco de Dados
-                            dbMinhasContas.open();
-                            dbMinhasContas.copiaBD(path);
-                            BackupManager android = new BackupManager(getApplicationContext());
-                            android.dataChanged();
-                            Toast.makeText(getApplicationContext(), getString(R.string.dica_copia_bd), Toast.LENGTH_SHORT).show();
-                            dbMinhasContas.close();
-
-                            pastaBackUp = sharedPref.getString("backup", "");
-
-                            if (!pastaBackUp.equals("")) {
-
-                                backup.setSummary(pastaBackUp);
-                            }
-
-                        } catch (Exception e) {
-
-                            Log.e("Seleção de arquivos", "Deu erro!!!", e);
+                        // Cria um Backup do Banco de Dados
+                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            PermissaoSD(1);
+                        } else {
+                            FazBackup();
                         }
                     }
                 }
-
                 break;
-            case 222:
-
+            case ABRE_ARQUIVO:
                 if (resultCode == RESULT_OK) {
-
                     if (data != null) {
-
                         Bundle extras = data.getExtras();
                         String path = (String) extras.get(EscolhePasta.CHOSEN_DIRECTORY);
 
-                        try {
-
-                            // Restaura DB
-                            new BarraProgresso(this, getResources().getString(
-                                    R.string.dica_titulo_barra), getResources().getString(
-                                    R.string.dica_barra_recupera), 100, 10).execute();
-                            dbMinhasContas.open();
-                            dbMinhasContas.restauraBD(path);
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.dica_restaura_bd), Toast.LENGTH_SHORT)
-                                    .show();
-                            dbMinhasContas.close();
-
-                        } catch (Exception e) {
-
-                            Log.e("Seleção de arquivos", "Deu erro!!!", e);
-                        }
+                        // Restaura DB
+                        new BarraProgresso(this, getResources().getString(
+                                R.string.dica_titulo_barra), getResources().getString(
+                                R.string.dica_barra_recupera), 100, 10).execute();
+                        dbMinhasContas.open();
+                        dbMinhasContas.restauraBD(path);
+                        Toast.makeText(getApplicationContext(),
+                                getString(R.string.dica_restaura_bd), Toast.LENGTH_SHORT)
+                                .show();
+                        dbMinhasContas.close();
                     }
                 }
-
                 break;
         }
     }

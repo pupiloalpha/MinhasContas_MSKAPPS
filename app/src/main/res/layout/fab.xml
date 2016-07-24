@@ -6,6 +6,7 @@
     android:layout_height="64dp"
     android:layout_alignParentBottom="true"
     android:layout_centerHorizontal="true"
+    android:layout_gravity="bottom|center"
     android:layout_marginBottom="10dp"
     android:background="@color/fab_fundo"
     android:contentDescription="@string/criar"

@@ -57,8 +57,8 @@ public class AlertaCalendario {
             try {
                 cr.insert(Uri.parse(reminderUriString), reminderValues);
             } catch (Exception e) {
-			    eventID = 0;
-		    }
+                eventID = 0;
+            }
         }
         return eventID;
     }

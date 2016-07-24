@@ -16,7 +16,6 @@ import com.msk.minhascontas.listas.PesquisaContas;
 public class WidgetBarra extends AppWidgetProvider {
 
 
-
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 

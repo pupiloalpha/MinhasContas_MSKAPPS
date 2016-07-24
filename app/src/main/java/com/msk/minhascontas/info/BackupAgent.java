@@ -19,13 +19,13 @@ public class BackupAgent extends BackupAgentHelper {
     private static final String DB_NAME = "minhas_contas";
 
     @Override
-    public void onCreate(){
+    public void onCreate() {
         FileBackupHelper dbs = new FileBackupHelper(this, DB_NAME);
         addHelper("dbs", dbs);
     }
 
     @Override
-    public File getFilesDir(){
+    public File getFilesDir() {
         File path = getDatabasePath(DB_NAME);
         return path.getParentFile();
     }

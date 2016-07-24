@@ -8,6 +8,8 @@
     android:orientation="vertical"
     tools:context=".listas.PesquisaContas">
 
+    <include layout="@layout/barra_titulo" />
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -30,7 +32,8 @@
             android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
             android:paddingLeft="10.0dip"
             android:paddingStart="10.0dip"
-            android:textColor="@color/preto" />
+            android:textColor="@color/preto"
+            tools:ignore="NestedWeights,RtlSymmetry" />
 
         <ImageButton
             android:id="@+id/ibBuscaConta"

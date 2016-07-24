@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:restoreAnyVersion="true"
         android:supportsRtl="true"
-        android:theme="@style/TemaNovo"
+        android:theme="@style/TemaTabs"
         android:uiOptions="splitActionBarWhenNarrow">
         <activity
             android:name=".info.SplashScreen"
@@ -29,9 +29,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".MinhasContas"
-            android:theme="@style/TemaTabs" />
+        <activity android:name=".MinhasContas" />
         <activity
             android:name=".db.CriarConta"
             android:label="@string/titulo_criar">
@@ -53,8 +51,7 @@
         </activity>
         <activity
             android:name=".graficos.PaginadorGraficos"
-            android:label="@string/titulo_grafico"
-            android:theme="@style/TemaTabs">
+            android:label="@string/titulo_grafico">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.graficos.MEUSGRAFICOS" />
 
@@ -63,8 +60,7 @@
         </activity>
         <activity
             android:name=".listas.PaginadorListas"
-            android:label="@string/titulo_resumo"
-            android:theme="@style/TemaTabs">
+            android:label="@string/titulo_resumo">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.CONTASDOMES" />
 
@@ -82,7 +78,8 @@
         </activity>
         <activity
             android:name=".info.Sobre"
-            android:label="@string/menu_sobre">
+            android:label="@string/menu_sobre"
+            android:theme="@style/TemaNovo">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.SOBRE" />
 
@@ -96,8 +93,7 @@
 
         <activity
             android:name=".info.Ajustes"
-            android:label="@string/menu_ajustes"
-            android:theme="@style/TemaNovo">
+            android:label="@string/menu_ajustes">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.AJUSTES" />
 

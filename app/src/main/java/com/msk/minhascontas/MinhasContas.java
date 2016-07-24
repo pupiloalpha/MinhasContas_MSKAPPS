@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
@@ -347,9 +348,9 @@ public class MinhasContas extends AppCompatActivity {
                 envelope.setType("*/*");
                 startActivity(Intent.createChooser(envelope,
                         res.getString(R.string.titulo_grafico)
-                        + " "
-                        + Meses[mes]
-                        + "/" + ano + ":"));
+                                + " "
+                                + Meses[mes]
+                                + "/" + ano + ":"));
 
                 break;
             case R.id.botao_graficos:
@@ -393,45 +394,46 @@ public class MinhasContas extends AppCompatActivity {
     protected void onDestroy() {
 
         dbContas.open();
-
         int i = dbContas.quantasContas();
 
         if (autobkup && i != 0) {
-
             SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
             String pastaBackUp = sharedPref.getString("backup", "");
 
-            int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
-            int permLer = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
-
-            if (permEscrever != PackageManager.PERMISSION_GRANTED && permLer != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                } else {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ESCREVE_SD);
-                }
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+                PermissaoSD(pastaBackUp);
             } else {
                 dbContas.copiaBD(pastaBackUp);
+                BackupManager android = new BackupManager(getApplicationContext());
+                android.dataChanged();
             }
-
-            BackupManager android = new BackupManager(getApplicationContext());
-            android.dataChanged();
-
         }
-
         dbContas.close();
 
         super.onDestroy();
+    }
+
+    private void PermissaoSD(String pastaBackUp) {
+        int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permEscrever != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ESCREVE_SD);
+        } else {
+            dbContas.copiaBD(pastaBackUp);
+            BackupManager android = new BackupManager(getApplicationContext());
+            android.dataChanged();
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
             dbContas.open();
             SharedPreferences sharedPref = getSharedPreferences("backup", Context.MODE_PRIVATE);
             String pastaBackUp = sharedPref.getString("backup", "");
             dbContas.copiaBD(pastaBackUp);
+            BackupManager android = new BackupManager(getApplicationContext());
+            android.dataChanged();
             dbContas.close();
         }
 
