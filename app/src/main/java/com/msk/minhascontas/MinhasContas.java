@@ -50,13 +50,16 @@ public class MinhasContas extends AppCompatActivity {
     private static int[] diaConta, mesConta, anoConta;
     private final Context contexto = this;
     private final Calendar c = Calendar.getInstance();
+
     // CLASSE DO BANCO DE DADOS
     private DBContas dbContas = new DBContas(this);
+
     // ELEMENTOS DA TELA
     private Paginas mPaginas;
     private ViewPager mViewPager;
     private Resources res;
     private SharedPreferences buscaPreferencias = null;
+
     // VARIAVEIS DO APLICATIVO
     private Boolean autobkup = true;
     private Boolean resumoMensal = true;
@@ -171,22 +174,16 @@ public class MinhasContas extends AppCompatActivity {
         final AppCompatEditText edit = (AppCompatEditText) dialogo.findViewById(R.id.etSenha);
 
         Button ok = (Button) dialogo.findViewById(R.id.bEntra);
-
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (senhaUsuario.equals(edit.getText().toString())) {
-
                     dialogo.dismiss();
-
                 } else {
-
                     edit.setHint(res.getString(R.string.senha_errada));
                     edit.setHintTextColor(Color.RED);
                     edit.setText("");
-
                 }
-
             }
         });
 
@@ -204,9 +201,7 @@ public class MinhasContas extends AppCompatActivity {
                 }
             }
         });
-
         dialogo.show();
-
         dialogo.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -218,9 +213,7 @@ public class MinhasContas extends AppCompatActivity {
     private void AjustesBD() {
         // Atualiza pagamentos
         if (atualizaPagamento) {
-
             dia = dia + 1;
-
             // db.open();
             dbContas.atualizaPagamentoContas(dia, mes, ano);
             // db.close();
@@ -280,7 +273,6 @@ public class MinhasContas extends AppCompatActivity {
                         u = u + 1;
                     }
                 }
-
             }
 
             if (u > 11) {
@@ -346,30 +338,27 @@ public class MinhasContas extends AppCompatActivity {
                                 + " "
                                 + Meses[mes]
                                 + "/" + ano + ":"));
-
                 break;
             case R.id.botao_graficos:
-
-                startActivity(new Intent("com.msk.minhascontas.graficos.MEUSGRAFICOS"));
+                Bundle dados_mes = new Bundle();
+                dados_mes.putInt("nr", mViewPager.getCurrentItem());
+                Intent graficos = new Intent("com.msk.minhascontas.graficos.MEUSGRAFICOS");
+                graficos.putExtras(dados_mes);
+                startActivity(graficos);
                 break;
-
         }
-
         return super.onOptionsItemSelected(item);
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-
             nrPagina = mViewPager.getCurrentItem();
             Fragment current = mPaginas.getFragment(nrPagina);
             if (current != null) {
                 current.onResume();
             }
-
         }
     }
 
@@ -387,7 +376,6 @@ public class MinhasContas extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-
         dbContas.open();
         int i = dbContas.quantasContas();
 
@@ -399,7 +387,6 @@ public class MinhasContas extends AppCompatActivity {
             android.dataChanged();
         }
         dbContas.close();
-
         super.onDestroy();
     }
 
@@ -421,7 +408,7 @@ public class MinhasContas extends AppCompatActivity {
 
             // DEFINE PAGINA NA TELA
             if (resumoMensal)
-                return ResumoMensal.newInstance(mesConta[i], anoConta[i]);
+                return ResumoMensal.newInstance(mesConta[i], anoConta[i], i);
             else
                 return ResumoDiario.newInstance(diaConta[i], mesConta[i],
                         anoConta[i]);
@@ -475,7 +462,5 @@ public class MinhasContas extends AppCompatActivity {
                 return null;
             return getSupportFragmentManager().findFragmentByTag(tag);
         }
-
     }
-
 }

@@ -218,7 +218,7 @@ public class CriarConta extends AppCompatActivity implements
                 if (qtRepete > 1) {
                     new BarraProgresso(this, getResources().getString(
                             R.string.dica_titulo_barra), getResources().getString(
-                            R.string.dica_barra_progresso), qtRepete, 0).execute();
+                            R.string.dica_barra_progresso), qtRepete, 0, "mskapp").execute();
                 }
 
                 if (contaTipo.equals(r.getString(R.string.linha_aplicacoes))) {

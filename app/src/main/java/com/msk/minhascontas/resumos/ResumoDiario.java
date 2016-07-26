@@ -317,16 +317,13 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
 
         // VALOR DO SALDO ATUAL
         boolean somaSaldo = buscaPreferencias.getBoolean("saldo", false);
-
         if (somaSaldo) {
             valores[3] = valoresRec[0] - valoresDesp[0]
                     + valoresSaldo[1];
         } else {
             valores[3] = valoresRec[0] - valoresDesp[0];
         }
-
         dbContas.close();
-
     }
 
     private double SomaContas(Cursor cursor) {
@@ -346,9 +343,9 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
 
-
         dados_mes.putInt("mes", mes);
         dados_mes.putInt("ano", ano);
+        dados_mes.putInt("nr", 12);
 
         switch (v.getId()) {
             case R.id.l_saldo:

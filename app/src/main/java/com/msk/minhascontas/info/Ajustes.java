@@ -1,14 +1,17 @@
 package com.msk.minhascontas.info;
 
+import android.Manifest;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -17,6 +20,8 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -37,10 +42,8 @@ public class Ajustes extends PreferenceActivity implements
         OnPreferenceClickListener, OnPreferenceChangeListener {
 
     // VARIAVEIS UTILIZADAS
-    private static final int ESCREVE_SD = 666;
-    private static final int ABRE_PASTA = 777;
-    private static final int ABRE_ARQUIVO = 888;
-    private static final int CRIA_ARQUIVO = 999;
+    private static final int ABRE_PASTA = 666;
+    private static final int ABRE_ARQUIVO = 777;
     private Toolbar toolbar;
     private DBContas dbMinhasContas = new DBContas(this);
     private ExportarExcel excel = new ExportarExcel();
@@ -165,11 +168,17 @@ public class Ajustes extends PreferenceActivity implements
 
         if (chave.equals("backup")) {
             // Seleciona pasta para backup
-            abrePasta(ABRE_PASTA);
+            if (Build.VERSION.SDK_INT >= 23)
+                PermissaoSD(ABRE_PASTA);
+            else
+                abrePasta(ABRE_PASTA);
         }
         if (chave.equals("restaura")) {
             // Seleciona o arquivo backup
-            abrePasta(ABRE_ARQUIVO);
+            if (Build.VERSION.SDK_INT >= 23)
+                PermissaoSD(ABRE_ARQUIVO);
+            else
+                abrePasta(ABRE_ARQUIVO);
         }
         if (chave.equals("apagatudo")) {
             // Apaga banco de dados
@@ -197,13 +206,12 @@ public class Ajustes extends PreferenceActivity implements
                                     pDialogo.dismiss();
                                 }
                             }).show();
-
         }
         if (chave.equals("excel")) {
             // EXPORTA TESTES PARA EXCEL
-                dbMinhasContas.open();
-                CriaArquivoExcel();
-                dbMinhasContas.close();
+            new BarraProgresso(this, getResources().getString(
+                    R.string.dica_titulo_barra), getResources().getString(
+                    R.string.dica_barra_exporta), 100, 10, pastaBackUp).execute();
         }
         if (chave.equals("acesso")) {
             if (acesso.isChecked()) {
@@ -290,6 +298,37 @@ public class Ajustes extends PreferenceActivity implements
             Intent atividade = new Intent(this, EscolhePasta.class);
             atividade.putExtras(envelope);
             startActivityForResult(atividade, nr);
+        }
+    }
+
+    private void PermissaoSD(int nr) {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, nr);
+            }
+        } else {
+            abrePasta(nr);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // permission was granted, yay! Do the
+            abrePasta(requestCode);
+        } else {
+            // permission denied, boo! Disable the
+            finish();
+            Toast.makeText(getApplicationContext(), getString(R.string.titulo_senha), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -534,9 +573,6 @@ public class Ajustes extends PreferenceActivity implements
                         String path = (String) extras.get(EscolhePasta.CHOSEN_DIRECTORY);
 
                         // Restaura DB
-                        new BarraProgresso(this, getResources().getString(
-                                R.string.dica_titulo_barra), getResources().getString(
-                                R.string.dica_barra_recupera), 100, 10).execute();
                         dbMinhasContas.open();
                         dbMinhasContas.restauraBD(path);
                         Toast.makeText(getApplicationContext(),

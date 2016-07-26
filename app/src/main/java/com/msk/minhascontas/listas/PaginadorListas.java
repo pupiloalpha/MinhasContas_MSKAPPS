@@ -79,13 +79,11 @@ public class PaginadorListas extends AppCompatActivity {
 
         // PEGA O ANO ATUAL PARA DEFINIR A PRIMEIRA TELA
         Bundle localBundle = getIntent().getExtras();
-        ano = localBundle.getInt("ano");
-        mes = localBundle.getInt("mes");
+        nrPagina = localBundle.getInt("nr");
         tipo = localBundle.getString("tipo");
         filtro = "";
 
         // PAGINA CONTENDO MESES
-        nrPagina = 12;
         paginas = 24;
         ListaMesesAnos();
 

@@ -25,6 +25,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
     public static final String ANO_PAGINA = "ano_pagina";
     public static final String MES_PAGINA = "mes_pagina";
+    public static final String NR_PAGINA = "nr_pagina";
 
     // BARRA NO TOPO DO APLICATIVO
     private Bundle dados_mes = new Bundle();
@@ -44,7 +45,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
     private LinearLayout aplic, desp, rec, sald;
 
     // VARIAEIS UTILIZADAS
-    private int mes, ano;
+    private int mes, ano, nrPagina;
     private double[] valores, valoresDesp, valoresRec, valoresSaldo,
             valoresAplicados;
     // ELEMENTOS DAS PAGINAS
@@ -53,11 +54,12 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
     /**
      * Returns a new instance of this fragment for the given section number.
      */
-    public static ResumoMensal newInstance(int mes, int ano) {
+    public static ResumoMensal newInstance(int mes, int ano, int nr) {
         ResumoMensal fragment = new ResumoMensal();
         Bundle args = new Bundle();
         args.putInt(ANO_PAGINA, ano);
         args.putInt(MES_PAGINA, mes);
+        args.putInt(NR_PAGINA, nr);
         fragment.setArguments(args);
         return fragment;
     }
@@ -86,6 +88,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
         mes = args.getInt(MES_PAGINA);
         ano = args.getInt(ANO_PAGINA);
+        nrPagina = args.getInt(NR_PAGINA);
 
         // DEFINE OS ELEMENTOS QUE SERAO EXIBIDOS
         Iniciar();
@@ -342,6 +345,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
         dados_mes.putInt("mes", mes);
         dados_mes.putInt("ano", ano);
+        dados_mes.putInt("nr", nrPagina);
 
         switch (v.getId()) {
             case R.id.l_saldo:

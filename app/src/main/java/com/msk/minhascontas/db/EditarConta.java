@@ -271,7 +271,7 @@ public class EditarConta extends AppCompatActivity implements
                 if (qtPrest > 1 && nr > 0) {
                     new BarraProgresso(this, getResources().getString(
                             R.string.dica_titulo_barra), getResources().getString(
-                            R.string.dica_barra_altera), qtPrest, 0).execute();
+                            R.string.dica_barra_altera), qtPrest, 0, "mskapp").execute();
                 }
                 altera = 1;
                 setResult(RESULT_OK, null);

@@ -69,7 +69,8 @@ public class PaginadorGraficos extends AppCompatActivity {
         dbContas.ajustaRepeticoesContas();
 
         // PAGINA CONTENDO MESES
-        nrPagina = 12;
+        Bundle localBundle = getIntent().getExtras();
+        nrPagina = localBundle.getInt("nr");
         paginas = 24;
         ListaMesesAnos();
 
