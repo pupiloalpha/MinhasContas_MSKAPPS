@@ -43,6 +43,7 @@ public class Ajustes extends PreferenceActivity implements
     // VARIAVEIS UTILIZADAS
     private static final int ABRE_PASTA = 666;
     private static final int ABRE_ARQUIVO = 777;
+    private static final int CRIA_EXCEL = 888;
     private Toolbar toolbar;
     private DBContas dbMinhasContas = new DBContas(this);
     private ExportarExcel excel = new ExportarExcel();
@@ -208,9 +209,10 @@ public class Ajustes extends PreferenceActivity implements
         }
         if (chave.equals("excel")) {
             // EXPORTA TESTES PARA EXCEL
-            new BarraProgresso(this, getResources().getString(
-                    R.string.dica_titulo_barra), getResources().getString(
-                    R.string.dica_barra_exporta), 100, 10, pastaBackUp).execute();
+            if (Build.VERSION.SDK_INT >= 23)
+                PermissaoSD(CRIA_EXCEL);
+            else
+                abrePasta(CRIA_EXCEL);
         }
         if (chave.equals("acesso")) {
             if (acesso.isChecked()) {
@@ -298,6 +300,12 @@ public class Ajustes extends PreferenceActivity implements
             atividade.putExtras(envelope);
             startActivityForResult(atividade, nr);
         }
+
+        if (nr == CRIA_EXCEL) {
+            new BarraProgresso(this, getResources().getString(
+                    R.string.dica_titulo_barra), getResources().getString(
+                    R.string.dica_barra_exporta), 100, 10, pastaBackUp).execute();
+        }
     }
 
     private void PermissaoSD(int nr) {
@@ -336,7 +344,6 @@ public class Ajustes extends PreferenceActivity implements
         if (chave.equals("senha")) {
             senha.setText(novaSenha.toString());
         }
-
         return false;
     }
 
@@ -365,7 +372,6 @@ public class Ajustes extends PreferenceActivity implements
                         android.dataChanged();
                         Toast.makeText(getApplicationContext(), getString(R.string.dica_copia_bd), Toast.LENGTH_SHORT).show();
                         dbMinhasContas.close();
-
                     }
                 }
                 break;
