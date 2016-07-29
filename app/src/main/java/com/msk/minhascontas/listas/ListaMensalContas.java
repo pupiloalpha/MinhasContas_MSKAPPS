@@ -74,18 +74,16 @@ public class ListaMensalContas extends Fragment {
                 dbContasDoMes.open();
                 MontaLista();
             }
-
         }
     };
 
     private ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.menu_altera_lista, menu);
             mode.setTitle(nomeConta);
-
+            PaginadorListas.addConta.setVisibility(View.GONE);
             return true;
         }
 
@@ -111,9 +109,7 @@ public class ListaMensalContas extends Fragment {
                     break;
                 case R.id.botao_pagar:
                     if (idConta != 0) {
-
                         dbContasDoMes.open();
-
                         String pg = dbContasDoMes
                                 .mostraPagamentoConta(idConta);
                         if (pg.equals("paguei")) {
@@ -124,7 +120,6 @@ public class ListaMensalContas extends Fragment {
                                     idConta, "paguei");
                         }
                         dbContasDoMes.close();
-
                     }
                     mode.finish();
                     break;
@@ -173,7 +168,6 @@ public class ListaMensalContas extends Fragment {
                         int dia = dmaConta[0];
                         mes = dmaConta[1];
                         ano = dmaConta[2];
-
                         double valorConta = dbContasDoMes
                                 .mostraValorConta(idConta);
                         String nomeContaCalendario = res.getString(
@@ -190,14 +184,12 @@ public class ListaMensalContas extends Fragment {
                                 .getString(
                                         R.string.dica_calendario,
                                         dinheiro.format(valorConta)));
-
                         evento.putExtra(
                                 CalendarContract.EXTRA_EVENT_BEGIN_TIME,
                                 c.getTimeInMillis());
                         evento.putExtra(
                                 CalendarContract.EXTRA_EVENT_END_TIME,
                                 c.getTimeInMillis());
-
                         evento.putExtra(Events.ACCESS_LEVEL,
                                 Events.ACCESS_PRIVATE);
                         evento.putExtra(Events.AVAILABILITY,
@@ -215,6 +207,7 @@ public class ListaMensalContas extends Fragment {
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
             buscaContas.marcaConta(conta, false);
+            PaginadorListas.addConta.setVisibility(View.VISIBLE);
             ((PaginadorListas) getActivity()).AtualizaActionBar();
         }
     };
@@ -253,9 +246,7 @@ public class ListaMensalContas extends Fragment {
                     }
                 }
             } else {
-
                 if (contas.size() != 0) {
-
                     if (contas.contains(idConta)) {
                         if (!primeiraConta) {
                             contas.remove(idConta);
@@ -265,7 +256,6 @@ public class ListaMensalContas extends Fragment {
                             primeiraConta = false;
                             valorConta = valorConta + vConta;
                         }
-
                     } else {
                         contas.add(idConta);
                         buscaContas.marcaConta(posicao, true);
@@ -283,7 +273,6 @@ public class ListaMensalContas extends Fragment {
                         if (!tipo.equals("todas"))
                             mActionMode.setSubtitle(dinheiro.format(valorConta));
                     }
-
                 }
             }
         }
@@ -294,7 +283,7 @@ public class ListaMensalContas extends Fragment {
 
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.menu_altera_contas, menu);
-
+            PaginadorListas.addConta.setVisibility(View.GONE);
             return true;
         }
 
@@ -309,11 +298,8 @@ public class ListaMensalContas extends Fragment {
             switch (item.getItemId()) {
                 case R.id.botao_pagar:
                     if (contas.size() != 0) {
-
                         dbContasDoMes.open();
-
                         for (int i = 0; i < contas.size(); i++) {
-
                             String pg = dbContasDoMes
                                     .mostraPagamentoConta(contas.get(i));
                             if (pg.equals("paguei")) {
@@ -329,11 +315,8 @@ public class ListaMensalContas extends Fragment {
                     mode.finish();
                     break;
                 case R.id.botao_excluir:
-
                     if (contas.size() != 0) {
-
                         dbContasDoMes.open();
-
                         for (int i = 0; i < contas.size(); i++) {
                             dbContasDoMes.excluiConta(contas.get(i));
                         }
@@ -353,6 +336,7 @@ public class ListaMensalContas extends Fragment {
             contas = new ArrayList<Long>();
             alteraContas = false;
             valorConta = 0.0D;
+            PaginadorListas.addConta.setVisibility(View.VISIBLE);
             ((PaginadorListas) getActivity()).AtualizaActionBar();
         }
     };
@@ -384,7 +368,6 @@ public class ListaMensalContas extends Fragment {
             // Mostra selecao na barra de titulo
             AppCompatActivity act = (AppCompatActivity) getActivity();
             mActionMode = act.startSupportActionMode(alteraVariasContas);
-
             return false;
         }
     };
@@ -403,7 +386,6 @@ public class ListaMensalContas extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
     }
 
     @Override
@@ -425,11 +407,11 @@ public class ListaMensalContas extends Fragment {
                 .registerOnSharedPreferenceChangeListener(preferencias);
 
         // Recupera o mes e o ano da lista anterior
-        Bundle localBundle = getArguments();
-        ano = localBundle.getInt("ano");
-        mes = localBundle.getInt("mes");
-        tipo = localBundle.getString("tipo");
-        filtro = localBundle.getString("filtro");
+        Bundle bundle = getArguments();
+        ano = bundle.getInt("ano");
+        mes = bundle.getInt("mes");
+        tipo = bundle.getString("tipo");
+        filtro = bundle.getString("filtro");
 
         res = getActivity().getResources();
         Locale current = res.getConfiguration().locale;
@@ -447,7 +429,6 @@ public class ListaMensalContas extends Fragment {
         // Metodos de click em cada um dos itens da tela
         listaContas.setOnItemClickListener(toqueSimples);
         listaContas.setOnItemLongClickListener(toqueLongo);
-
         return rootView;
     }
 
@@ -455,7 +436,6 @@ public class ListaMensalContas extends Fragment {
     private void MontaLista() {
 
         dbContasDoMes.open();
-
         if (tipo.equals("todas")) {
             contasParaLista = dbContasDoMes.buscaContas(0, mes, ano,
                     buscaPreferencias.getString("ordem", ordemListaDeContas));
@@ -480,23 +460,19 @@ public class ListaMensalContas extends Fragment {
         int n = contasParaLista.getCount();
 
         dbContasDoMes.close();
-
         if (n >= 0) {
-
             int posicao = listaContas.getFirstVisiblePosition();
             buscaContas = new AdaptaListaMensal(getActivity(), contasParaLista,
                     prestacao, semana);
             listaContas.setAdapter(buscaContas);
             listaContas.setEmptyView(semContas);
             listaContas.setSelection(posicao);
-
         }
 
         contas = new ArrayList<Long>();
         primeiraConta = false;
         alteraContas = false;
         buscaContas.limpaSelecao();
-
     }
 
     private void Dialogo() {
@@ -552,5 +528,4 @@ public class ListaMensalContas extends Fragment {
         MontaLista();
         super.onResume();
     }
-
 }

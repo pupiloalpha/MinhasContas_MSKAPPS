@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.msk.minhascontas.R;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class AdaptaListaPesquisa extends CursorAdapter {
     private String[] prestacao, semana;
     private HashMap<Integer, Boolean> selecoes = new HashMap<Integer, Boolean>();
     private NumberFormat dinheiro;
+    private DateFormat dataFormato;
 
     @SuppressWarnings("deprecation")
     public AdaptaListaPesquisa(Context context, Cursor c, String[] array, String[] array1) {
@@ -32,6 +34,7 @@ public class AdaptaListaPesquisa extends CursorAdapter {
         semana = array1;
         Locale current = context.getResources().getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
+        dataFormato = DateFormat.getDateInstance(DateFormat.SHORT, current);
     }
 
     @Override
@@ -75,11 +78,10 @@ public class AdaptaListaPesquisa extends CursorAdapter {
 
         }
 
-        data.setText(d + "/" + (m + 1) + "/" + a);
-
         Calendar c = Calendar.getInstance();
         c.set(a, m, d);
         int s = c.get(Calendar.DAY_OF_WEEK);
+        data.setText(dataFormato.format(c.getTime()));
 
         dia.setText(semana[s - 1]);
 

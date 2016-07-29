@@ -36,6 +36,7 @@ public class PaginadorListas extends AppCompatActivity {
     private static final int BUSCA_CONTA = 111;
     private static final int CONFIGURACOES = 222;
     private static final int CRIA_CONTA = 333;
+    public static ImageButton addConta;
     private static int[] mesConta, anoConta;
     // CLASSE DO BANCO DE DADOS
     private DBContas dbContas = new DBContas(this);
@@ -84,7 +85,7 @@ public class PaginadorListas extends AppCompatActivity {
         filtro = "";
 
         // PAGINA CONTENDO MESES
-        paginas = 24;
+        paginas = 120;
         ListaMesesAnos();
 
         Meses = getResources().getStringArray(R.array.MesResumido);
@@ -123,7 +124,7 @@ public class PaginadorListas extends AppCompatActivity {
 
         AtualizaActionBar();
 
-        ImageButton addConta = (ImageButton) findViewById(R.id.ibfab);
+        addConta = (ImageButton) findViewById(R.id.ibfab);
         addConta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,7 +145,7 @@ public class PaginadorListas extends AppCompatActivity {
         anoConta = new int[paginas];
         Calendar c = Calendar.getInstance();
         int u = c.get(Calendar.MONTH);
-        int n = c.get(Calendar.YEAR) - 1;
+        int n = c.get(Calendar.YEAR) - 5;
         for (int i = 0; i < mesConta.length; i++) {
 
             if (u > 11) {

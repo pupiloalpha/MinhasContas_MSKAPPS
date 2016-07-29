@@ -40,7 +40,6 @@ public class CriarConta extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
 
     private static final int LER_AGENDA = 444;
-    private static final int ESCREVER_AGENDA = 555;
     // ELEMENTOS DA TELA
     private static Button dataConta;
     // VARIAVEIS UTILIZADAS
@@ -239,19 +238,127 @@ public class CriarConta extends AppCompatActivity implements
         }
     }
 
+    private void ConfereDadosConta() {
+
+        if (nomeConta.getText().toString().equals(""))
+            contaNome = r.getString(R.string.sem_nome);
+        else {
+            contaNome = nomeConta.getText().toString();
+        }
+        String nomeConta1 = contaNome;
+        String nomeConta2 = contaNome;
+        dbNovasContas.open();
+        int a = dbNovasContas.quantasContasPorNomeNoDia(nomeConta1, dia, mes,
+                ano);
+        int b = 1;
+
+        if (a != 0) {
+            while (a != 0) {
+                nomeConta2 = nomeConta1 + b;
+                a = dbNovasContas.quantasContasPorNomeNoDia(nomeConta2, dia,
+                        mes, ano);
+                b = b + 1;
+            }
+            contaNome = nomeConta2;
+        }
+
+        if (!repeteConta.getText().toString().equals(""))
+            qtRepete = Integer.parseInt(repeteConta.getText().toString());
+        else
+            qtRepete = 1;
+
+        if (!jurosConta.getText().toString().equals("")) {
+            valorJuros = Double.parseDouble(jurosConta.getText().toString());
+            valorJuros = valorJuros / 100;
+        } else {
+            valorJuros = 0.0D;
+        }
+    }
+
+    private void ArmazenaDadosConta() {
+
+        if (!valorConta.getText().toString().equals("")) {
+
+            Double valorPrestacao;
+            if (parcelarConta.isChecked()) {
+                valorPrestacao = Double.parseDouble(valorConta.getText()
+                        .toString());
+                valorPrestacao = valorPrestacao / qtRepete;
+                contaValor = valorPrestacao;
+
+                String[] prestacao = r.getStringArray(R.array.TipoDespesa);
+
+                if (contaClasse.equals(prestacao[2]) && qtRepete > 1
+                        && valorJuros != 0)
+                    contaValor = contaValor
+                            * ((valorJuros) / (1.0D - (1 / (Math.pow(
+                            (valorJuros + 1.0D), qtRepete)))));
+            } else {
+                contaValor = Double.valueOf(valorConta.getText().toString());
+            }
+
+            contaData = dataConta.getText().toString();
+
+            if (repeteConta.getText().toString().equals("")
+                    || repeteConta.getText().toString().equals("0")) {
+
+                dbNovasContas.geraConta(contaNome, contaTipo, contaClasse,
+                        contaPaga, contaData, dia, mes, ano, contaValor,
+                        qtRepete, 1, intervalo);
+            } else {
+                // Metodo para repetir conta
+                dbNovasContas.geraConta(contaNome, contaTipo, contaClasse,
+                        contaPaga, contaData, dia, mes, ano, contaValor,
+                        qtRepete, 1, intervalo);
+
+                Calendar data = Calendar.getInstance();
+                data.set(ano, mes, dia);
+
+                for (int i = 1; i < qtRepete; i++) {
+
+                    int nRepete = i + 1;
+
+                    if (intervalo == 300) { // Repeticao mensal
+                        data.add(Calendar.DATE, 30);
+                    } else if (intervalo == 3650) { // Repeticao anual
+                        data.add(Calendar.YEAR, 1);
+                    } else { // Repeticao diaria ou semanal
+                        data.add(Calendar.DATE, intervalo - 100);
+                    }
+
+                    diaRepete = data.get(Calendar.DAY_OF_MONTH);
+                    mesRepete = data.get(Calendar.MONTH);
+                    anoRepete = data.get(Calendar.YEAR);
+
+                    String[] aplicacao = r.getStringArray(R.array.TipoReceita);
+
+                    if (contaClasse.equals(aplicacao[0])
+                            || contaClasse.equals(aplicacao[2]))
+                        contaValor = contaValor * (1.0D + valorJuros);
+
+                    dbNovasContas
+                            .geraConta(contaNome, contaTipo, contaClasse,
+                                    contaPaga, contaData, diaRepete, mesRepete,
+                                    anoRepete, contaValor, qtRepete, nRepete,
+                                    intervalo);
+                }
+            }
+        } else {
+            nr = 0;
+        }
+    }
+
     private void AdicionaLembrete() {
 
         int permEscrever = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
         int permLer = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
 
         if (permEscrever != PackageManager.PERMISSION_GRANTED && permLer != PackageManager.PERMISSION_GRANTED) {
-
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_CALENDAR)
                     || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CALENDAR)) {
-
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR}, LER_AGENDA);
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR}, ESCREVER_AGENDA);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR,
+                        Manifest.permission.WRITE_CALENDAR}, LER_AGENDA);
             }
         } else {
             // CRIA LEMBRETE E ALERTA NO CALENDARIO
@@ -261,19 +368,16 @@ public class CriarConta extends AppCompatActivity implements
                             this.getString(R.string.dica_evento, contaNome),
                             this.getString(R.string.dica_calendario,
                                     String.format(Locale.US, "%.2f", contaValor)), dia, mes,
-                            ano, true);
+                            ano, true, qtRepete, intervalo);
             setResult(RESULT_OK, null);
             dbNovasContas.close();
             finish();
         }
-
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
             // CRIA LEMBRETE E ALERTA NO CALENDARIO
             AlertaCalendario
                     .adicionarEventoNoCalendario(
@@ -281,12 +385,11 @@ public class CriarConta extends AppCompatActivity implements
                             this.getString(R.string.dica_evento, contaNome),
                             this.getString(R.string.dica_calendario,
                                     String.format(Locale.US, "%.2f", contaValor)), dia, mes,
-                            ano, true);
+                            ano, true, qtRepete, intervalo);
             setResult(RESULT_OK, null);
             dbNovasContas.close();
             finish();
         }
-
     }
 
     private void CriaAplicacao() {
@@ -328,164 +431,6 @@ public class CriarConta extends AppCompatActivity implements
                                 }
                             }
                         }).show();
-
-    }
-
-    private void ArmazenaDadosConta() {
-
-        if (!valorConta.getText().toString().equals("")) {
-
-            Double valorPrestacao;
-            if (parcelarConta.isChecked()) {
-                valorPrestacao = Double.parseDouble(valorConta.getText()
-                        .toString());
-                valorPrestacao = valorPrestacao / qtRepete;
-                contaValor = valorPrestacao;
-
-                String[] prestacao = r.getStringArray(R.array.TipoDespesa);
-
-                if (contaClasse.equals(prestacao[2]) && qtRepete > 1
-                        && valorJuros != 0)
-                    contaValor = contaValor
-                            * ((valorJuros) / (1.0D - (1 / (Math.pow(
-                            (valorJuros + 1.0D), qtRepete)))));
-            } else {
-                contaValor = Double.valueOf(valorConta.getText().toString());
-            }
-
-            contaData = dataConta.getText().toString();
-
-            diaRepete = dia;
-            mesRepete = mes;
-            anoRepete = ano;
-
-            if (repeteConta.getText().toString().equals("")
-                    || repeteConta.getText().toString().equals("0")) {
-
-                dbNovasContas.geraConta(contaNome, contaTipo, contaClasse,
-                        contaPaga, contaData, dia, mes, ano, contaValor,
-                        qtRepete, 1, intervalo);
-
-            } else {
-
-                // Metodo para repetir conta
-                dbNovasContas.geraConta(contaNome, contaTipo, contaClasse,
-                        contaPaga, contaData, dia, mes, ano, contaValor,
-                        qtRepete, 1, intervalo);
-
-                for (int i = 1; i < qtRepete; i++) {
-
-                    int nRepete = i + 1;
-
-                    if (intervalo == 300) { // Repeticao mensal
-
-                        mesRepete = (1 + mesRepete);
-
-                        if (mesRepete > 11) {
-                            mesRepete = 0;
-                            anoRepete = (1 + anoRepete);
-                        }
-
-                    } else if (intervalo == 3650) { // Repeticao anual
-                        anoRepete = anoRepete + 1;
-                    } else { // Repeticao diaria ou semanal
-                        diaRepete = diaRepete + (intervalo - 100);
-
-                    }
-
-                    ConfereDiaRepete();
-
-                    // Ajustes para acrescentar rendimento mensal/anual em
-                    // aplicacao
-                    String[] aplicacao = r.getStringArray(R.array.TipoReceita);
-
-                    if (contaClasse.equals(aplicacao[0])
-                            || contaClasse.equals(aplicacao[2]))
-                        contaValor = contaValor * (1.0D + valorJuros);
-
-                    dbNovasContas
-                            .geraConta(contaNome, contaTipo, contaClasse,
-                                    contaPaga, contaData, diaRepete, mesRepete,
-                                    anoRepete, contaValor, qtRepete, nRepete,
-                                    intervalo);
-                }
-
-            }
-        } else {
-            nr = 0;
-        }
-        // dbNovasContas.close();
-
-    }
-
-    private void ConfereDiaRepete() {
-        // Fevereiro ano normal
-        if (diaRepete > 28
-                && mesRepete == 1
-                && (int) Math.IEEEremainder(anoRepete, 4.0D) != 0) {
-            diaRepete = diaRepete - 28;
-            mesRepete = 2;
-        } else if (diaRepete > 29
-                && mesRepete == 1
-                && (int) Math.IEEEremainder(anoRepete, 4.0D) == 0) {
-            diaRepete = diaRepete - 29;
-            mesRepete = 2;
-        } else if (diaRepete > 30)
-            if (mesRepete == 3 || mesRepete == 5
-                    || mesRepete == 6 || mesRepete == 8
-                    || mesRepete == 10) {
-                diaRepete = diaRepete - 30;
-                mesRepete = mesRepete + 1;
-
-            } else if (diaRepete > 31)
-                if (mesRepete == 0 || mesRepete == 2
-                        || mesRepete == 4 || mesRepete == 7
-                        || mesRepete == 9 || mesRepete == 11) {
-                    diaRepete = diaRepete - 31;
-                    mesRepete = mesRepete + 1;
-                    if (mesRepete > 11) {
-                        mesRepete = 0;
-                        anoRepete = (1 + anoRepete);
-                    }
-                }
-    }
-
-    private void ConfereDadosConta() {
-
-        if (nomeConta.getText().toString().equals(""))
-            contaNome = r.getString(R.string.sem_nome);
-        else {
-            contaNome = nomeConta.getText().toString();
-        }
-        String nomeConta1 = contaNome;
-        String nomeConta2 = contaNome;
-        dbNovasContas.open();
-        int a = dbNovasContas.quantasContasPorNomeNoDia(nomeConta1, dia, mes,
-                ano);
-        int b = 1;
-
-        if (a != 0) {
-            while (a != 0) {
-                nomeConta2 = nomeConta1 + b;
-                a = dbNovasContas.quantasContasPorNomeNoDia(nomeConta2, dia,
-                        mes, ano);
-                b = b + 1;
-            }
-            contaNome = nomeConta2;
-        }
-
-        if (!repeteConta.getText().toString().equals(""))
-            qtRepete = Integer.parseInt(repeteConta.getText().toString());
-        else
-            qtRepete = 1;
-
-        if (!jurosConta.getText().toString().equals("")) {
-            valorJuros = Double.parseDouble(jurosConta.getText().toString());
-            valorJuros = valorJuros / 100;
-        } else {
-            valorJuros = 0.0D;
-        }
-
     }
 
     @Override

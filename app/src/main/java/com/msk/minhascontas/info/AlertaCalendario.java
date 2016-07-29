@@ -11,8 +11,7 @@ import java.util.TimeZone;
 public class AlertaCalendario {
 
     public static long adicionarEventoNoCalendario(ContentResolver cr,
-                                                   String titulo, String descricao, int dia, int mes, int ano, boolean comAlerta) {
-
+                                                   String titulo, String descricao, int dia, int mes, int ano, boolean comAlerta, int qtRepete, int intervalo) {
 
         String eventUriStr = "content://com.android.calendar/events";
         if (Build.VERSION.SDK_INT < 8)
@@ -31,6 +30,16 @@ public class AlertaCalendario {
         data = relogio.getTimeInMillis();
         event.put("dtend", data);
         event.put("eventTimezone", TimeZone.getDefault().getID());
+        if (qtRepete > 1) {
+            if (intervalo == 300)
+                event.put("rrule", "FREQ=DAILY;INTERVAL=30;COUNT=" + qtRepete);
+            else if (intervalo == 3650)
+                event.put("rrule", "FREQ=YEARLY;COUNT=" + qtRepete);
+            else if (intervalo == 107)
+                event.put("rrule", "FREQ=DAILY;INTERVAL=7;COUNT=" + qtRepete);
+            else
+                event.put("rrule", "FREQ=DAILY;COUNT=" + qtRepete);
+        }
         event.put("hasAlarm", 1);
 
         Uri eventUri;

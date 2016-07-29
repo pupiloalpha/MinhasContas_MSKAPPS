@@ -145,8 +145,19 @@
         <item>TV por suscripción</item>
         <item>Ropa</item>
         <item>Travel</item>
-         
     </string-array>
+
+    <string-array name="CategoriaConta">
+        <item>Comida</item>
+        <item>Educación</item>
+        <item>Ocio</item>
+        <item>Vivienda</item>
+        <item>Salud</item>
+        <item>Transporte</item>
+        <item>Ropa</item>
+        <item>Otro</item>
+    </string-array>
+
     <!-- Cuerdas menú Ajustes -->
     <string-array name="ordem_contas">
         <item>Nombre de la cuenta (A-Z)</item>

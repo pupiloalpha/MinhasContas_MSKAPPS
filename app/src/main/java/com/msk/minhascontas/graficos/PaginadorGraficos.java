@@ -71,7 +71,7 @@ public class PaginadorGraficos extends AppCompatActivity {
         // PAGINA CONTENDO MESES
         Bundle localBundle = getIntent().getExtras();
         nrPagina = localBundle.getInt("nr");
-        paginas = 24;
+        paginas = 120;
         ListaMesesAnos();
 
         Meses = getResources().getStringArray(R.array.MesResumido);
@@ -113,7 +113,7 @@ public class PaginadorGraficos extends AppCompatActivity {
         anoConta = new int[paginas];
         Calendar c = Calendar.getInstance();
         int u = c.get(Calendar.MONTH);
-        int n = c.get(Calendar.YEAR) - 1;
+        int n = c.get(Calendar.YEAR) - 5;
         for (int i = 0; i < mesConta.length; i++) {
 
             if (u > 11) {

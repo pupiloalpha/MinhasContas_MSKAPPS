@@ -28,11 +28,12 @@ import android.widget.Toast;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.info.BarraProgresso;
 
+import java.util.Calendar;
+
 @SuppressLint("NewApi")
 public class EditarConta extends AppCompatActivity implements
         View.OnClickListener, RadioGroup.OnCheckedChangeListener,
         OnItemSelectedListener {
-
 
     private static Button data;
     private static int dia, mes, ano;
@@ -265,7 +266,6 @@ public class EditarConta extends AppCompatActivity implements
                 }
                 if (qtPrest != repeteConta[0] || repeteConta[2] != intervalo
                         || nr > 0) {
-                    //ModificaUmaConta();
                     ModificaContas();
                 }
                 if (qtPrest > 1 && nr > 0) {
@@ -336,13 +336,12 @@ public class EditarConta extends AppCompatActivity implements
 
     private void ModificaContas() {
 
-        if (nr == 1 && nPrest != 1) {
+        Calendar data = Calendar.getInstance();
+        // Metodo para obter data da primeira conta da repeticao
+        int[] dma = dbContaParaEditar.mostraDMAConta(idConta1);
+        data.set(dma[2], dma[1], dma[0]);
 
-            // Metodo para obter data da primeira conta da repeticao
-            int[] dma = dbContaParaEditar.mostraDMAConta(idConta1);
-            diaVenc = dma[0];
-            mesPrest = dma[1];
-            anoPrest = dma[2];
+        if (nr == 1 && nPrest != 1) {
             nPrest = 1;
         }
 
@@ -352,6 +351,9 @@ public class EditarConta extends AppCompatActivity implements
         for (int i = nPrest; i <= qtPrest; i++) {
 
             nPrest = i;
+            diaVenc = data.get(Calendar.DAY_OF_MONTH);
+            mesPrest = data.get(Calendar.MONTH);
+            anoPrest = data.get(Calendar.YEAR);
 
             dbContaParaEditar.geraConta(novoNomeConta, tipoConta, classeConta,
                     novoPagouConta, dataConta, diaVenc, mesPrest, anoPrest,
@@ -359,59 +361,18 @@ public class EditarConta extends AppCompatActivity implements
 
             // CORRECAO DAS DATAS PARA OS INTERVALOS DE REPETICAO
             if (intervalo == 300) { // Repeticao mensal
-
-                mesPrest = (1 + mesPrest);
-
-                if (mesPrest > 11) {
-                    mesPrest = 0;
-                    anoPrest = (1 + anoPrest);
-                }
-
+                data.add(Calendar.DATE, 30);
             } else if (intervalo == 3650) { // Repeticao anual
-                anoPrest = anoPrest + 1;
+                data.add(Calendar.YEAR, 1);
             } else { // Repeticao diaria ou semanal
-                diaVenc = diaVenc + (intervalo - 100);
+                data.add(Calendar.DATE, intervalo - 100);
             }
-
-            ConfereDiaMes();
         }
-
-    }
-
-    private void ConfereDiaMes() {
-
-        // Fevereiro ano normal
-        if (diaVenc > 28 && mesPrest == 1
-                && (int) Math.IEEEremainder(anoPrest, 4.0D) != 0) {
-            diaVenc = diaVenc - 28;
-            mesPrest = 2;
-        } else if (diaVenc > 29 && mesPrest == 1
-                && (int) Math.IEEEremainder(anoPrest, 4.0D) == 0) {
-            diaVenc = diaVenc - 29;
-            mesPrest = 2;
-        } else if (diaVenc > 30) {
-            if (mesPrest == 3 || mesPrest == 5 || mesPrest == 6
-                    || mesPrest == 8 || mesPrest == 10) {
-                diaVenc = diaVenc - 30;
-                mesPrest = mesPrest + 1;
-
-            }
-        } else if (diaVenc > 31)
-            if (mesPrest == 0 || mesPrest == 2 || mesPrest == 4
-                    || mesPrest == 7 || mesPrest == 9 || mesPrest == 11) {
-                diaVenc = diaVenc - 31;
-                mesPrest = mesPrest + 1;
-                if (mesPrest > 11) {
-                    mesPrest = 0;
-                    anoPrest = (1 + anoPrest);
-                }
-            }
-
     }
 
     private void ModificaUmaConta() {
 
-        // Modifica uma conta ou uma repeti��o da conta
+        // Modifica uma conta ou uma repeticao da conta
 
         dbContaParaEditar.alteraNomeConta(idConta, novoNomeConta);
 

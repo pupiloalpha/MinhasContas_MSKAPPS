@@ -95,6 +95,7 @@
         <item>fri</item>
         <item>sat</item>
     </string-array>
+
     <string-array name="NomeConta">
         <item>Academy</item>
         <item>Lunch</item>
@@ -147,6 +148,18 @@
         <item>Clothing</item>
         <item>Travel</item>
     </string-array>
+
+    <string-array name="CategoriaConta">
+        <item>Food</item>
+        <item>Education</item>
+        <item>Leisure</item>
+        <item>Home</item>
+        <item>Health</item>
+        <item>Transportation</item>
+        <item>Clothing</item>
+        <item>Others</item>
+    </string-array>
+
     <string-array name="ordem_contas">
         <item>Bill name (A-Z)</item>
         <item>Bill name (Z-A)</item>

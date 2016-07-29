@@ -147,6 +147,17 @@
         <item>Viagem</item>
     </string-array>
 
+    <string-array name="CategoriaConta">
+        <item>Alimentação</item>
+        <item>Educação</item>
+        <item>Lazer</item>
+        <item>Moradia</item>
+        <item>Saúde</item>
+        <item>Transporte</item>
+        <item>Vestuário</item>
+        <item>Outros</item>
+    </string-array>
+
     <!-- Strings do menu de Ajustes -->
 
     <string-array name="ordem_contas">

@@ -105,8 +105,8 @@ public class MinhasContas extends AppCompatActivity {
 
         if (resumoMensal) {
             // PAGINA CONTENDO MESES
-            nrPagina = 12;
-            paginas = 24;
+            nrPagina = 60;
+            paginas = 120;
             ListaMesesAnos();
         } else {
             // PAGINA CONTENDO DIAS
@@ -227,7 +227,7 @@ public class MinhasContas extends AppCompatActivity {
         mesConta = new int[paginas];
         anoConta = new int[paginas];
         int u = c.get(Calendar.MONTH);
-        int n = c.get(Calendar.YEAR) - 1;
+        int n = c.get(Calendar.YEAR) - 5;
         for (int i = 0; i < mesConta.length; i++) {
 
             if (u > 11) {
