@@ -23,7 +23,6 @@
             android:layout_height="12dp"
             android:background="@android:color/transparent" />
 
-
         <include layout="@layout/linha_aplicacoes" />
 
         <LinearLayout
@@ -31,9 +30,7 @@
             android:layout_height="12dp"
             android:background="@android:color/transparent" />
 
-
         <include layout="@layout/linha_saldo" />
-
 
     </LinearLayout>
 

@@ -31,8 +31,6 @@
     <string name="sobre">Application My Bills was created to ease your financial control.\n\nDeveloped by Paulo E S Mesquita with support Vilar, Flavia Borges. Based on tutorials from the internet and other applications of its kind.\nVersion:%1$s.\nContact: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Application created to facilitate your financial control.</string>
     <string name="tela_inicial">Do not show again</string>
-    <string name="dica_carteira">Wallet</string>
-    <string name="dica_banco">Bank</string>
 
     <!-- Strings do Menu do Aplicativo -->
 
@@ -70,6 +68,16 @@
     <string name="data">00/00/2000</string>
     <string name="dica_vazio">No bill created</string>
     <string name="dica_pesquisa">No bill found</string>
+    <string name="dica_carteira">Wallet</string>
+    <string name="dica_banco">Bank</string>
+    <string name="dica_alimentacao">Food</string>
+    <string name="dica_educacao">Education</string>
+    <string name="dica_lazer">Leisure</string>
+    <string name="dica_moradia">Home</string>
+    <string name="dica_saude">Health</string>
+    <string name="dica_transporte">Transportation</string>
+    <string name="dica_vestuario">Clothing</string>
+    <string name="dica_outros">Others</string>
 
     <!-- Strings Da Telas de ResumoMensal das Contas do Aplicativo -->
 

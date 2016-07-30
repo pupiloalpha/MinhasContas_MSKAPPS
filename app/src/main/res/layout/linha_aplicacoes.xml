@@ -17,7 +17,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="5dp"
             android:layout_weight="1.4"
-            android:gravity="center_vertical|left"
+            android:gravity="left|center_vertical"
             android:text="@string/linha_aplicacoes"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/verde_escuro"
@@ -41,8 +41,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@color/verde_escuro"
-        android:orientation="vertical"></LinearLayout>
+        android:background="@color/verde_escuro" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -54,7 +53,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
-            android:gravity="center_vertical|left"
+            android:gravity="left|center_vertical"
             android:text="@string/linha_fundos"
             android:textAppearance="?android:attr/textAppearanceSmall"
             tools:ignore="RtlHardcoded" />
@@ -89,7 +88,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
-            android:gravity="left"
+            android:gravity="left|center_vertical"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/verde_escuro"

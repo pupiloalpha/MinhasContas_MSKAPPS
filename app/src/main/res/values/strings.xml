@@ -32,8 +32,6 @@
     <string name="sobre">O aplicativo Minhas Contas foi criado para facilitar o seu controle financeiro.\n\nDesenvolvido por Paulo E S Mesquita com apoio de Flávia Vilar Borges.\nBaseado em tutoriais da internet e outros aplicativos do gênero.\nVersão: %1$s\n\nContato: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Aplicativo criado para facilitar o seu controle financeiro.</string>
     <string name="tela_inicial">Não mostrar novamente</string>
-    <string name="dica_carteira">Carteira</string>
-    <string name="dica_banco">Banco</string>
 
     <!-- Strings do Menu do Aplicativo -->
 
@@ -71,6 +69,16 @@
     <string name="data">00/00/2000</string>
     <string name="dica_vazio">Nenhuma conta criada</string>
     <string name="dica_pesquisa">Nenhuma conta encontrada</string>
+    <string name="dica_carteira">Carteira</string>
+    <string name="dica_banco">Banco</string>
+    <string name="dica_alimentacao">Alimentação</string>
+    <string name="dica_educacao">Educação</string>
+    <string name="dica_lazer">Lazer</string>
+    <string name="dica_moradia">Moradia</string>
+    <string name="dica_saude">Saúde</string>
+    <string name="dica_transporte">Transporte</string>
+    <string name="dica_vestuario">Vestuário</string>
+    <string name="dica_outros">Outros</string>
 
     <!-- Strings Da Telas de ResumoMensal das Contas do Aplicativo -->
 

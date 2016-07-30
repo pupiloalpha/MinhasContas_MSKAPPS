@@ -31,8 +31,6 @@
     <string name="sobre">La aplicación Mis Cuentas foi creada para facilitar su control financiero.\n\nDesarrollado por Paulo E S Mesquita con apoyo Vilar Flavia Borges.\nBasado en tutoriales de Internet y otras aplicaciones de su tipo.\n Versión: %1$s.\nContacto: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Aplicación creada para facilitar su control financiero.</string>
     <string name="tela_inicial">No mostrar de nuevo</string>
-    <string name="dica_carteira">Cartera</string>
-    <string name="dica_banco">Banco</string>
 
     <!-- Cuerdas del menú de la aplicación -->
 
@@ -70,6 +68,16 @@
     <string name="data">00/00/2000</string>
     <string name="dica_vazio">No tiene cuenta creada</string>
     <string name="dica_pesquisa">No tienes cuenta encontró</string>
+    <string name="dica_carteira">Cartera</string>
+    <string name="dica_banco">Banco</string>
+    <string name="dica_alimentacao">Comida</string>
+    <string name="dica_educacao">Educación</string>
+    <string name="dica_lazer">Ocio</string>
+    <string name="dica_moradia">Vivenda</string>
+    <string name="dica_saude">Salud</string>
+    <string name="dica_transporte">Transporte</string>
+    <string name="dica_vestuario">Ropa</string>
+    <string name="dica_outros">Otro</string>
 
     <!-- Cuerdas de Pantallas Resumen Cuentas aplicación -->
 

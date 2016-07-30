@@ -5,7 +5,10 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +18,7 @@ import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -42,11 +46,11 @@ public class EditarConta extends AppCompatActivity implements
     // ELEMENTOS DA TELA
     private AppCompatAutoCompleteTextView nome;
     private AppCompatEditText valor, prestacoes;
-    private Button modifica, cancela;
     private RadioGroup tipo;
     private AppCompatRadioButton rec, desp, aplic;
     private AppCompatCheckBox pagamento;
     private AppCompatSpinner classificaConta, intervaloRepete;
+    private AppBarLayout titulo;
     // VARIAVEIS UTILIZADAS
     private double valorConta, valorNovoConta;
     private long idConta, idConta1;
@@ -79,10 +83,7 @@ public class EditarConta extends AppCompatActivity implements
         intervaloRepete.setOnItemSelectedListener(this);
         pagamento.setOnClickListener(this);
         data.setOnClickListener(this);
-        modifica.setOnClickListener(this);
-        cancela.setOnClickListener(this);
         tipo.setOnCheckedChangeListener(this);
-
     }
 
     private void ConfereRepeticaoConta() {
@@ -97,11 +98,11 @@ public class EditarConta extends AppCompatActivity implements
         if (qtConta > 1) {
             Dialogo();
         }
-
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void Iniciar() {
+        titulo = (AppBarLayout) findViewById(R.id.aplBarra);
         nome = (AppCompatAutoCompleteTextView) findViewById(R.id.acNomeContaModificada);
         pagamento = (AppCompatCheckBox) findViewById(R.id.cbPagamento);
         data = (Button) findViewById(R.id.etDataConta);
@@ -111,8 +112,6 @@ public class EditarConta extends AppCompatActivity implements
         desp = (AppCompatRadioButton) findViewById(R.id.rDespContaModificada);
         aplic = (AppCompatRadioButton) findViewById(R.id.rAplicContaModificada);
         prestacoes = (AppCompatEditText) findViewById(R.id.etPrestacoes);
-        modifica = (Button) findViewById(R.id.ibModificaConta);
-        cancela = (Button) findViewById(R.id.ibCancelar);
         classificaConta = (AppCompatSpinner) findViewById(R.id.spClassificaConta);
         intervaloRepete = (AppCompatSpinner) findViewById(R.id.spRepeticoes);
         autocompleta = new ArrayAdapter(this,
@@ -165,7 +164,7 @@ public class EditarConta extends AppCompatActivity implements
             pagamento.setChecked(true);
 
         int i = 0;
-        // dbContaParaEditar.open();
+        ColorDrawable cor;
         if (tipoConta.equals(r.getString(R.string.linha_despesa))) {
             classesContas = new ArrayAdapter(this,
                     android.R.layout.simple_dropdown_item_1line, getResources()
@@ -179,6 +178,9 @@ public class EditarConta extends AppCompatActivity implements
             rec.setChecked(false);
             aplic.setChecked(false);
             desp.setChecked(true);
+            cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
+            getSupportActionBar().setBackgroundDrawable(cor);
+            titulo.setBackgroundColor(Color.parseColor("#FFCC0000"));
             pagamento.setText(R.string.dica_pagamento);
             pagamento.setVisibility(View.VISIBLE);
 
@@ -195,7 +197,9 @@ public class EditarConta extends AppCompatActivity implements
             rec.setChecked(true);
             aplic.setChecked(false);
             desp.setChecked(false);
-
+            cor = new ColorDrawable(Color.parseColor("#FF0099CC"));
+            getSupportActionBar().setBackgroundDrawable(cor);
+            titulo.setBackgroundColor(Color.parseColor("#FF0099CC"));
             pagamento.setText(R.string.dica_recebe);
             pagamento.setVisibility(View.VISIBLE);
 
@@ -214,7 +218,9 @@ public class EditarConta extends AppCompatActivity implements
             aplic.setChecked(true);
             desp.setChecked(false);
             pagamento.setVisibility(View.GONE);
-
+            cor = new ColorDrawable(Color.parseColor("#FF669900"));
+            getSupportActionBar().setBackgroundDrawable(cor);
+            titulo.setBackgroundColor(Color.parseColor("#FF669900"));
         }
 
         classesContas
@@ -234,7 +240,6 @@ public class EditarConta extends AppCompatActivity implements
             intervaloRepete.setSelection(3);
         else if (intervalo == 300)
             intervaloRepete.setSelection(2);
-
     }
 
     @SuppressWarnings("deprecation")
@@ -257,32 +262,7 @@ public class EditarConta extends AppCompatActivity implements
                     novoPagouConta = "falta";
                 }
                 break;
-            case R.id.ibModificaConta:
-
-                ConfereAlteracoesConta();
-
-                if (nr == 0) {
-                    ModificaUmaConta();
-                }
-                if (qtPrest != repeteConta[0] || repeteConta[2] != intervalo
-                        || nr > 0) {
-                    ModificaContas();
-                }
-                if (qtPrest > 1 && nr > 0) {
-                    new BarraProgresso(this, getResources().getString(
-                            R.string.dica_titulo_barra), getResources().getString(
-                            R.string.dica_barra_altera), qtPrest, 0, "mskapp").execute();
-                }
-                altera = 1;
-                setResult(RESULT_OK, null);
-                finish();
-                break;
-            case R.id.ibCancelar:
-                setResult(RESULT_OK, null);
-                finish();
-                break;
         }
-
     }
 
     private void ConfereAlteracoesConta() {
@@ -302,7 +282,6 @@ public class EditarConta extends AppCompatActivity implements
             int a = dbContaParaEditar.quantasContasPorNomeNoDia(nomeConta1,
                     dia, mes, ano);
             int b = 1;
-
             if (a != 0) {
                 while (a != 0) {
                     nomeConta2 = nomeConta1 + b;
@@ -312,7 +291,6 @@ public class EditarConta extends AppCompatActivity implements
                 }
                 novoNomeConta = nomeConta2;
             }
-
         }
 
         // Confere o valor digitado com o valor da conta
@@ -331,7 +309,6 @@ public class EditarConta extends AppCompatActivity implements
             qtPrest = Integer.parseInt(prestacoes.getText().toString());
         else
             qtPrest = 0;
-
     }
 
     private void ModificaContas() {
@@ -424,10 +401,6 @@ public class EditarConta extends AppCompatActivity implements
                         }
 
                         dialogo.dismiss();
-                        // ModificaDadosConta();
-                        // setResult(RESULT_OK, null);
-                        // finish();
-
                     }
 
                 });
@@ -436,33 +409,45 @@ public class EditarConta extends AppCompatActivity implements
         dialogo = alertDialogBuilder.create();
         // show it
         dialogo.show();
-
     }
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
 
+        ColorDrawable cor;
         switch (checkedId) {
-
             case R.id.rDespContaModificada:
                 tipoConta = r.getString(R.string.linha_despesa);
+                cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
+                getSupportActionBar().setBackgroundDrawable(cor);
+                titulo.setBackgroundColor(Color.parseColor("#FFCC0000"));
                 pagamento.setVisibility(View.VISIBLE);
                 break;
             case R.id.rRecContaModificada:
                 tipoConta = r.getString(R.string.linha_receita);
-
+                cor = new ColorDrawable(Color.parseColor("#FF0099CC"));
+                getSupportActionBar().setBackgroundDrawable(cor);
+                titulo.setBackgroundColor(Color.parseColor("#FF0099CC"));
                 pagamento.setText(R.string.dica_recebe);
                 pagamento.setVisibility(View.VISIBLE);
-
                 break;
             case R.id.rAplicContaModificada:
                 tipoConta = r.getString(R.string.linha_aplicacoes);
+                cor = new ColorDrawable(Color.parseColor("#FF669900"));
+                getSupportActionBar().setBackgroundDrawable(cor);
+                titulo.setBackgroundColor(Color.parseColor("#FF669900"));
                 pagamento.setVisibility(View.GONE);
-
                 break;
         }
         MostraDados();
+    }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_edita_conta, menu);
+        return true;
     }
 
     @Override
@@ -471,6 +456,26 @@ public class EditarConta extends AppCompatActivity implements
             case android.R.id.home:
                 setResult(RESULT_OK, null);
                 dbContaParaEditar.close();
+                finish();
+                return true;
+            case R.id.menu_edita:
+
+                ConfereAlteracoesConta();
+
+                if (nr == 0) {
+                    ModificaUmaConta();
+                }
+                if (qtPrest != repeteConta[0] || repeteConta[2] != intervalo
+                        || nr > 0) {
+                    ModificaContas();
+                }
+                if (qtPrest > 1 && nr > 0) {
+                    new BarraProgresso(this, getResources().getString(
+                            R.string.dica_titulo_barra), getResources().getString(
+                            R.string.dica_barra_altera), qtPrest, 0, "mskapp").execute();
+                }
+                altera = 1;
+                setResult(RESULT_OK, null);
                 finish();
                 return true;
             default:
@@ -484,7 +489,8 @@ public class EditarConta extends AppCompatActivity implements
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel_white);
     }
 
     @Override
@@ -526,14 +532,11 @@ public class EditarConta extends AppCompatActivity implements
                     intervalo = 3650;
                     break;
             }
-
         }
-
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> arg0) {
-
     }
 
     @Override

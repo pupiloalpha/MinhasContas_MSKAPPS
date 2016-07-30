@@ -31,8 +31,6 @@
     <string name="sobre">Application Mes Comptes créée pour faciliter votre contrôle financier.\nDéveloppé par Paulo E S Mesquita avec le soutien Flavia Vilar Borges. Basé sur les tutoriels à partir d\'Internet et d\'autres applications de ce type.\nVersion:%1$s\nContact: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Application créée pour faciliter votre contrôle financier.</string>
     <string name="tela_inicial">Ne pas montrer de nouveau</string>
-    <string name="dica_carteira">Portefeuille</string>
-    <string name="dica_banco">Banque</string>
 
     <!-- Strings do Menu do Aplicativo -->
 
@@ -70,6 +68,16 @@
     <string name="data">00/00/2000</string>
     <string name="dica_vazio">Pas de compte créé</string>
     <string name="dica_pesquisa">Pas de compte trouvé</string>
+    <string name="dica_carteira">Portefeuille</string>
+    <string name="dica_banco">Banque</string>
+    <string name="dica_alimentacao">Alimentation</string>
+    <string name="dica_educacao">Éducation</string>
+    <string name="dica_lazer">Loisir</string>
+    <string name="dica_moradia">Habitation</string>
+    <string name="dica_saude">Santé</string>
+    <string name="dica_transporte">Transport</string>
+    <string name="dica_vestuario">Vêtements</string>
+    <string name="dica_outros">Autre</string>
 
     <!-- Strings Da Telas de ResumoMensal das Contas do Aplicativo -->
 

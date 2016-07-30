@@ -6,7 +6,10 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
@@ -18,6 +21,7 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,8 +49,8 @@ public class CriarConta extends AppCompatActivity implements
     // VARIAVEIS UTILIZADAS
     private static int dia, mes, ano;
     private final Calendar c = Calendar.getInstance();
-    private Button criaNovaConta, cancela;
     private TextInputLayout juros;
+    private AppBarLayout titulo;
     private AppCompatAutoCompleteTextView nomeConta;
     private AppCompatEditText repeteConta, valorConta, jurosConta;
     private RadioGroup tipo;
@@ -76,8 +80,6 @@ public class CriarConta extends AppCompatActivity implements
         tipo.setOnCheckedChangeListener(this);
         parcelarConta.setVisibility(View.GONE);
         dataConta.setOnClickListener(this);
-        criaNovaConta.setOnClickListener(this);
-        cancela.setOnClickListener(this);
         pagamento.setOnClickListener(this);
         classificaConta.setOnItemSelectedListener(this);
         intervaloRepete.setOnItemSelectedListener(this);
@@ -85,12 +87,11 @@ public class CriarConta extends AppCompatActivity implements
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void iniciar() {
+        titulo = (AppBarLayout) findViewById(R.id.aplBarra);
         nomeConta = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeNovaConta));
         valorConta = ((AppCompatEditText) findViewById(R.id.etValorNovaConta));
         jurosConta = (AppCompatEditText) findViewById(R.id.etJurosNovaConta);
         repeteConta = ((AppCompatEditText) findViewById(R.id.etRepeticoes));
-        criaNovaConta = ((Button) findViewById(R.id.ibNovaConta));
-        cancela = (Button) findViewById(R.id.ibCancelar);
         tipo = ((RadioGroup) findViewById(R.id.rgTipoNovaConta));
         cb = (LinearLayout) findViewById(R.id.layout_pagamento);
         parcelarConta = ((AppCompatCheckBox) findViewById(R.id.cbValorParcelar));
@@ -203,37 +204,6 @@ public class CriarConta extends AppCompatActivity implements
                 } else {
                     contaPaga = "falta";
                 }
-                break;
-            case R.id.ibNovaConta:
-
-                nr = 1;
-
-                ConfereDadosConta();
-
-                ArmazenaDadosConta();
-
-                setResult(RESULT_OK, null);
-
-                if (qtRepete > 1) {
-                    new BarraProgresso(this, getResources().getString(
-                            R.string.dica_titulo_barra), getResources().getString(
-                            R.string.dica_barra_progresso), qtRepete, 0, "mskapp").execute();
-                }
-
-                if (contaTipo.equals(r.getString(R.string.linha_aplicacoes))) {
-                    CriaAplicacao();
-                } else {
-                    if (lembrete.isChecked()) {
-                        AdicionaLembrete();
-                    } else {
-                        finish();
-                    }
-                }
-
-                break;
-            case R.id.ibCancelar:
-                setResult(RESULT_OK, null);
-                finish();
                 break;
         }
     }
@@ -437,11 +407,13 @@ public class CriarConta extends AppCompatActivity implements
     public void onItemSelected(AdapterView<?> spinner, View itemsp,
                                int posicao, long paramLong) {
 
+        ColorDrawable cor;
         if (spinner.getId() == R.id.spClasseConta) {
             if (contaTipo.equals(r.getString(R.string.linha_despesa))) {
-
                 contaClasse = despesas[posicao];
-
+                cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
+                getSupportActionBar().setBackgroundDrawable(cor);
+                titulo.setBackgroundColor(Color.parseColor("#FFCC0000"));
                 juros.setVisibility(View.VISIBLE);
                 pagamento.setText(R.string.dica_pagamento);
                 pagamento.setVisibility(View.VISIBLE);
@@ -457,30 +429,31 @@ public class CriarConta extends AppCompatActivity implements
                     repeteConta.setText("");
                 }
             } else if (contaTipo.equals(r.getString(R.string.linha_receita))) {
-
                 contaClasse = receitas[posicao];
+                cor = new ColorDrawable(Color.parseColor("#FF0099CC"));
+                getSupportActionBar().setBackgroundDrawable(cor);
+                titulo.setBackgroundColor(Color.parseColor("#FF0099CC"));
                 pagamento.setText(R.string.dica_recebe);
                 pagamento.setVisibility(View.VISIBLE);
                 juros.setVisibility(View.GONE);
                 repeteConta.setText("");
                 parcelarConta.setVisibility(View.GONE);
             } else {
-
                 contaClasse = aplicacoes[posicao];
+                cor = new ColorDrawable(Color.parseColor("#FF669900"));
+                getSupportActionBar().setBackgroundDrawable(cor);
+                titulo.setBackgroundColor(Color.parseColor("#FF669900"));
                 juros.setVisibility(View.VISIBLE);
                 repeteConta.setText("");
                 pagamento.setVisibility(View.GONE);
                 parcelarConta.setVisibility(View.GONE);
             }
-
             parcelarConta.setChecked(false);
-
         }
 
         if (spinner.getId() == R.id.spRepeticoes) {
 
             switch (posicao) {
-
                 case 0: // Diariamente
                     intervalo = 101;
                     break;
@@ -494,13 +467,18 @@ public class CriarConta extends AppCompatActivity implements
                     intervalo = 3650;
                     break;
             }
-
         }
-
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> paramAdapterView) {
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_cria_conta, menu);
+        return true;
     }
 
     @Override
@@ -510,6 +488,29 @@ public class CriarConta extends AppCompatActivity implements
                 setResult(RESULT_OK, null);
                 dbNovasContas.close();
                 finish();
+                return true;
+            case R.id.menu_cria:
+
+                nr = 1;
+                ConfereDadosConta();
+                ArmazenaDadosConta();
+                setResult(RESULT_OK, null);
+
+                if (qtRepete > 1) {
+                    new BarraProgresso(this, getResources().getString(
+                            R.string.dica_titulo_barra), getResources().getString(
+                            R.string.dica_barra_progresso), qtRepete, 0, "mskapp").execute();
+                }
+
+                if (contaTipo.equals(r.getString(R.string.linha_aplicacoes))) {
+                    CriaAplicacao();
+                } else {
+                    if (lembrete.isChecked()) {
+                        AdicionaLembrete();
+                    } else {
+                        finish();
+                    }
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -522,7 +523,12 @@ public class CriarConta extends AppCompatActivity implements
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel_white);
+        getSupportActionBar().setTitle("");
+        ColorDrawable cor;
+        cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
+        getSupportActionBar().setBackgroundDrawable(cor);
+        titulo.setBackgroundColor(Color.parseColor("#FFCC0000"));
     }
 
     @Override

@@ -5,7 +5,36 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <include layout="@layout/barra_titulo" />
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/aplBarra"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingEnd="10dp"
+        android:paddingRight="10dp"
+        tools:ignore="RtlSymmetry">
+
+        <include layout="@layout/barra_titulo" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
+            android:theme="@style/TemaTexto">
+
+            <android.support.v7.widget.AppCompatAutoCompleteTextView
+                android:id="@+id/acNomeContaModificada"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/dica_conta"
+                android:imeOptions="actionDone"
+                android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
+                android:textColor="@color/branco" />
+        </android.support.design.widget.TextInputLayout>
+
+    </android.support.design.widget.AppBarLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -17,21 +46,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:orientation="vertical">
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <android.support.v7.widget.AppCompatAutoCompleteTextView
-                    android:id="@+id/acNomeContaModificada"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:hint="@string/dica_conta"
-                    android:imeOptions="actionDone"
-                    android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
-                    android:textColor="@color/preto" />
-            </android.support.design.widget.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -181,44 +195,5 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/ibCancelar"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:background="@color/widget_fundo"
-            android:contentDescription="@string/icone"
-            android:drawableLeft="@drawable/ic_cancel_white"
-            android:drawableStart="@drawable/ic_cancel_white"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/cancelar"
-            android:textColor="@color/branco"
-            android:textStyle="bold"
-            tools:ignore="ButtonStyle,RtlHardcoded" />
-
-        <Button
-            android:id="@+id/ibModificaConta"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:background="@color/widget_fundo"
-            android:contentDescription="@string/icone"
-            android:drawableLeft="@drawable/ic_done_white"
-            android:drawableStart="@drawable/ic_done_white"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/salvar"
-            android:textColor="@color/branco"
-            android:textStyle="bold"
-            tools:ignore="ButtonStyle,RtlHardcoded" />
-
-    </LinearLayout>
 
 </LinearLayout>
