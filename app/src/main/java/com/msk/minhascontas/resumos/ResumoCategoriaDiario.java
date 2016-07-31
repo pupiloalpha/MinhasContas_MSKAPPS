@@ -36,10 +36,10 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
     private SharedPreferences buscaPreferencias = null;
 
     // ELEMENTOS UTILIZADOS EM TELA
-    private TextView valorDesp, valorRec, valorAplic, valorSaldo,
+    private TextView valorDesp, valorRec, valorAplic, valorSaldo, valorBanco,
             valorPagar, valorPago, valorCartao, valorSaldoAtual, valorSaldoAnterior,
-            valorFundos, valorPoupanca, valorPrevidencia, valorDespFixa, valorDespVar,
-            valorPrestacoes, valorReceber, valorRecebido;
+            valorFundos, valorPoupanca, valorPrevidencia, vAlimentacao, vEducacao,
+            vMoradia, vTransporte, vSaude, vOutros, valorReceber, valorRecebido;
 
     private LinearLayout aplic, desp, rec, sald;
 
@@ -113,12 +113,20 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
                 .findViewById(R.id.tvValorDespPaga));
         valorPagar = ((TextView) rootView
                 .findViewById(R.id.tvValorDespPagar));
-        valorDespFixa = ((TextView) rootView
-                .findViewById(R.id.tvValorDespFixa));
-        valorDespVar = ((TextView) rootView
-                .findViewById(R.id.tvValorDespVar));
-        valorPrestacoes = ((TextView) rootView
-                .findViewById(R.id.tvValorPrestacoes));
+        valorBanco = ((TextView) rootView
+                .findViewById(R.id.tvValorBanco));
+        vAlimentacao = ((TextView) rootView
+                .findViewById(R.id.tvValorAlimentacao));
+        vEducacao = ((TextView) rootView
+                .findViewById(R.id.tvValorEducacao));
+        vMoradia = ((TextView) rootView
+                .findViewById(R.id.tvValorMoradia));
+        vSaude = ((TextView) rootView
+                .findViewById(R.id.tvValorSaude));
+        vTransporte = ((TextView) rootView
+                .findViewById(R.id.tvValorTransporte));
+        vOutros = ((TextView) rootView
+                .findViewById(R.id.tvValorOutros));
         valorCartao = ((TextView) rootView
                 .findViewById(R.id.tvValorCartaoCredito));
         valorReceber = ((TextView) rootView
@@ -160,9 +168,13 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
         valorPago.setText(dinheiro.format(valoresDesp[0]));
         valorPagar.setText(dinheiro.format(valoresDesp[1]));
         valorCartao.setText(dinheiro.format(valoresDesp[2]));
-        valorDespFixa.setText(dinheiro.format(valoresDesp[3]));
-        valorDespVar.setText(dinheiro.format(valoresDesp[4]));
-        valorPrestacoes.setText(dinheiro.format(valoresDesp[5]));
+
+        vAlimentacao.setText(dinheiro.format(valoresDesp[3]));
+        vEducacao.setText(dinheiro.format(valoresDesp[4]));
+        vMoradia.setText(dinheiro.format(valoresDesp[5]));
+        vSaude.setText(dinheiro.format(valoresDesp[6]));
+        vTransporte.setText(dinheiro.format(valoresDesp[7]));
+        vOutros.setText(dinheiro.format(valoresDesp[8]));
 
         valorReceber.setText(dinheiro.format(valoresRec[1]));
         valorRecebido.setText(dinheiro.format(valoresRec[0]));
@@ -173,6 +185,7 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
 
         valorSaldoAtual.setText(dinheiro.format(valoresSaldo[0]));
         valorSaldoAnterior.setText(dinheiro.format(valoresSaldo[1]));
+        valorBanco.setText(dinheiro.format(valores[3]));
 
         valorRec.setText(dinheiro.format(valores[0]));
         valorDesp.setText(dinheiro.format(valores[1]));
@@ -197,11 +210,6 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
         // DEFINE OS NOMES DA LINHAS DA TABELA
 
         dbContas.open();
-        String despesa = getResources().getString(R.string.linha_despesa);
-        String[] despesas = getResources().getStringArray(R.array.TipoDespesa);
-        String receita = getResources().getString(R.string.linha_receita);
-        String aplicacao = getResources().getString(R.string.linha_aplicacoes);
-        String[] aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         valores = new double[4];
         valoresDesp = new double[6];
@@ -256,8 +264,8 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
             valoresDesp[1] = 0.0D;
 
         // VALORES DAS CATEGORIAS DE DESPESAS
-        for (int i = 0; i < despesas.length; i++) {
-            somador = dbContas.buscaContasClasse(dia, mes, ano, null, 0, i);
+        for (int i = 0; i < 8; i++) {
+            somador = dbContas.buscaContasCategoria(dia, mes, ano, null, i);
             if (somador.getCount() > 0)
                 valoresDesp[i + 2] = SomaContas(somador);
             else
@@ -271,7 +279,7 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
         else
             valores[2] = 0.0D;
 
-        for (int j = 0; j < aplicacoes.length; j++) {
+        for (int j = 0; j < 3; j++) {
             somador = dbContas.buscaContasClasse(dia, mes, ano, null, 2, j);
             if (somador.getCount() > 0)
                 valoresAplicados[j] = SomaContas(somador);

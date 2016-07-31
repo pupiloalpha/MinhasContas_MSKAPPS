@@ -180,7 +180,7 @@ public class ResumoCategoriaMensal extends Fragment implements View.OnClickListe
 
         valorSaldoAtual.setText(dinheiro.format(valoresSaldo[0]));
         valorSaldoAnterior.setText(dinheiro.format(valoresSaldo[1]));
-        valorBanco.setText(dinheiro.format(valoresSaldo[2]));
+        valorBanco.setText(dinheiro.format(valores[3]));
 
         valorRec.setText(dinheiro.format(valores[0]));
         valorDesp.setText(dinheiro.format(valores[1]));
@@ -203,11 +203,6 @@ public class ResumoCategoriaMensal extends Fragment implements View.OnClickListe
         // DEFINE OS NOMES DA LINHAS DA TABELA
 
         dbContas.open();
-        String despesa = getResources().getString(R.string.linha_despesa);
-        String[] despesas = getResources().getStringArray(R.array.CategoriaConta);
-        String receita = getResources().getString(R.string.linha_receita);
-        String aplicacao = getResources().getString(R.string.linha_aplicacoes);
-        String[] aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         valores = new double[4];
         valoresDesp = new double[9];
@@ -262,8 +257,8 @@ public class ResumoCategoriaMensal extends Fragment implements View.OnClickListe
             valoresDesp[1] = 0.0D;
 
         // VALORES DAS CATEGORIAS DE DESPESAS
-        for (int i = 0; i < despesas.length; i++) {
-            somador = dbContas.buscaContasClasse(0, mes, ano, null, 0, i);
+        for (int i = 0; i < 8; i++) {
+            somador = dbContas.buscaContasCategoria(0, mes, ano, null, i);
             if (somador.getCount() > 0)
                 valoresDesp[i + 2] = SomaContas(somador);
             else
@@ -277,7 +272,7 @@ public class ResumoCategoriaMensal extends Fragment implements View.OnClickListe
         else
             valores[2] = 0.0D;
 
-        for (int j = 0; j < aplicacoes.length; j++) {
+        for (int j = 0; j < 3; j++) {
             somador = dbContas.buscaContasClasse(0, mes, ano, null, 2, j);
             if (somador.getCount() > 0)
                 valoresAplicados[j] = SomaContas(somador);

@@ -196,11 +196,6 @@ public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
         // DEFINE OS NOMES DA LINHAS DA TABELA
 
         dbContas.open();
-        String despesa = getResources().getString(R.string.linha_despesa);
-        String[] despesas = getResources().getStringArray(R.array.TipoDespesa);
-        String receita = getResources().getString(R.string.linha_receita);
-        String aplicacao = getResources().getString(R.string.linha_aplicacoes);
-        String[] aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         valores = new double[4];
         valoresDesp = new double[6];
@@ -255,7 +250,7 @@ public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
             valoresDesp[1] = 0.0D;
 
         // VALORES DAS CATEGORIAS DE DESPESAS
-        for (int i = 0; i < despesas.length; i++) {
+        for (int i = 0; i < 4; i++) {
             somador = dbContas.buscaContasClasse(0, mes, ano, null, 0, i);
             if (somador.getCount() > 0)
                 valoresDesp[i + 2] = SomaContas(somador);
@@ -270,7 +265,7 @@ public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
         else
             valores[2] = 0.0D;
 
-        for (int j = 0; j < aplicacoes.length; j++) {
+        for (int j = 0; j < 3; j++) {
             somador = dbContas.buscaContasClasse(0, mes, ano, null, 2, j);
             if (somador.getCount() > 0)
                 valoresAplicados[j] = SomaContas(somador);

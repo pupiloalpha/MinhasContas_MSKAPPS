@@ -828,6 +828,7 @@ public class DBContas {
                             cv.put(COLUNA_CLASSE_CONTA, j);
                         }
                     }
+                    cv.put(COLUNA_CATEGORIA_CONTA, 7);
                 } else if (cursor.getString(12).equals(res.getString(R.string.linha_receita))) {
                     cv.put(COLUNA_TIPO_CONTA, 1);
                     for (int j = 0; j < rec.length; j++) {
