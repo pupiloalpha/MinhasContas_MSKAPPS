@@ -55,8 +55,8 @@ public class CriarConta extends AppCompatActivity implements
     private AppCompatEditText repeteConta, valorConta, jurosConta;
     private RadioGroup tipo;
     private AppCompatCheckBox parcelarConta, pagamento, lembrete;
-    private AppCompatSpinner classificaConta, intervaloRepete;
-    private LinearLayout cb;
+    private AppCompatSpinner classificaConta, categoriaConta, intervaloRepete;
+    private LinearLayout cb, categoria;
     private Resources res;
     private DBContas dbNovasContas = new DBContas(this);
     private int contaTipo, contaClasse, contaCategoria, qtRepete, intervalo, nr;
@@ -80,6 +80,7 @@ public class CriarConta extends AppCompatActivity implements
         dataConta.setOnClickListener(this);
         pagamento.setOnClickListener(this);
         classificaConta.setOnItemSelectedListener(this);
+        categoriaConta.setOnItemSelectedListener(this);
         intervaloRepete.setOnItemSelectedListener(this);
     }
 
@@ -90,6 +91,7 @@ public class CriarConta extends AppCompatActivity implements
         jurosConta = (AppCompatEditText) findViewById(R.id.etJurosNovaConta);
         repeteConta = ((AppCompatEditText) findViewById(R.id.etRepeticoes));
         tipo = ((RadioGroup) findViewById(R.id.rgTipoNovaConta));
+        categoria = (LinearLayout) findViewById(R.id.layout_categoria);
         cb = (LinearLayout) findViewById(R.id.layout_pagamento);
         parcelarConta = ((AppCompatCheckBox) findViewById(R.id.cbValorParcelar));
         pagamento = ((AppCompatCheckBox) findViewById(R.id.cbPagamento));
@@ -106,7 +108,8 @@ public class CriarConta extends AppCompatActivity implements
 
         intervaloRepete = ((AppCompatSpinner) findViewById(R.id.spRepeticoes));
         intervaloRepete.setSelection(2);
-        contaTipo = contaClasse = contaCategoria = 0;
+        contaTipo = contaClasse = 0;
+        contaCategoria = 7;
         contaPaga = "falta";
         intervalo = 300;
         nr = 0;
@@ -135,6 +138,7 @@ public class CriarConta extends AppCompatActivity implements
                 pagamento.setText(R.string.dica_pagamento);
                 parcelarConta.setVisibility(View.GONE);
                 cb.setVisibility(View.VISIBLE);
+                categoria.setVisibility(View.VISIBLE);
                 break;
             case R.id.rRecNovaConta:
                 contaTipo = 1;
@@ -142,12 +146,14 @@ public class CriarConta extends AppCompatActivity implements
                 pagamento.setText(R.string.dica_recebe);
                 parcelarConta.setVisibility(View.GONE);
                 cb.setVisibility(View.VISIBLE);
+                categoria.setVisibility(View.GONE);
                 break;
             case R.id.rAplicNovaConta:
                 contaTipo = 2;
                 pagamento.setVisibility(View.GONE);
                 parcelarConta.setVisibility(View.GONE);
                 cb.setVisibility(View.GONE);
+                categoria.setVisibility(View.GONE);
                 break;
         }
         MostraClasseConta();
@@ -426,10 +432,9 @@ public class CriarConta extends AppCompatActivity implements
                 parcelarConta.setVisibility(View.GONE);
             }
             parcelarConta.setChecked(false);
-        }
-
-        if (spinner.getId() == R.id.spRepeticoes) {
-
+        } else if (spinner.getId() == R.id.spCategoriaConta) {
+            contaCategoria = posicao;
+        } else {
             switch (posicao) {
                 case 0: // Diariamente
                     intervalo = 101;

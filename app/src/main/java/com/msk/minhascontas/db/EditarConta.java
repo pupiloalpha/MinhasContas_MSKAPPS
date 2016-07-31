@@ -27,6 +27,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -52,8 +53,9 @@ public class EditarConta extends AppCompatActivity implements
     private RadioGroup tipo;
     private AppCompatRadioButton rec, desp, aplic;
     private AppCompatCheckBox pagamento;
-    private AppCompatSpinner classificaConta, intervaloRepete;
+    private AppCompatSpinner classificaConta, contaCategoria, intervaloRepete;
     private AppBarLayout titulo;
+    private LinearLayout categoria;
     // VARIAVEIS UTILIZADAS
     private double valorConta, valorNovoConta;
     private long idConta, idConta1;
@@ -81,8 +83,8 @@ public class EditarConta extends AppCompatActivity implements
         PegaConta();
         MostraDados();
         ConfereRepeticaoConta();
-
         classificaConta.setOnItemSelectedListener(this);
+        contaCategoria.setOnItemSelectedListener(this);
         intervaloRepete.setOnItemSelectedListener(this);
         pagamento.setOnClickListener(this);
         data.setOnClickListener(this);
@@ -111,6 +113,7 @@ public class EditarConta extends AppCompatActivity implements
         prestacoes = (AppCompatEditText) findViewById(R.id.etPrestacoes);
         classificaConta = (AppCompatSpinner) findViewById(R.id.spClassificaConta);
         intervaloRepete = (AppCompatSpinner) findViewById(R.id.spRepeticoes);
+        categoria = (LinearLayout) findViewById(R.id.layout_categoria);
 
         autocompleta = new ArrayAdapter(this,
                 android.R.layout.simple_dropdown_item_1line, getResources()
@@ -284,6 +287,7 @@ public class EditarConta extends AppCompatActivity implements
                 getSupportActionBar().setBackgroundDrawable(cor);
                 titulo.setBackgroundColor(Color.parseColor("#FFCC0000"));
                 pagamento.setVisibility(View.VISIBLE);
+                categoria.setVisibility(View.VISIBLE);
                 break;
             case R.id.rRecContaModificada:
                 tipoConta = 1;
@@ -292,6 +296,7 @@ public class EditarConta extends AppCompatActivity implements
                 titulo.setBackgroundColor(Color.parseColor("#FF0099CC"));
                 pagamento.setText(R.string.dica_recebe);
                 pagamento.setVisibility(View.VISIBLE);
+                categoria.setVisibility(View.GONE);
                 break;
             case R.id.rAplicContaModificada:
                 tipoConta = 2;
@@ -299,6 +304,7 @@ public class EditarConta extends AppCompatActivity implements
                 getSupportActionBar().setBackgroundDrawable(cor);
                 titulo.setBackgroundColor(Color.parseColor("#FF669900"));
                 pagamento.setVisibility(View.GONE);
+                categoria.setVisibility(View.GONE);
                 break;
         }
         MostraDados();
@@ -479,6 +485,8 @@ public class EditarConta extends AppCompatActivity implements
                 pagamento.setText(R.string.dica_recebe);
                 pagamento.setVisibility(View.VISIBLE);
             }
+        } else if (spinner.getId() == R.id.spCategoriaConta) {
+            categoriaConta = posicao;
         } else {
 
             switch (posicao) {

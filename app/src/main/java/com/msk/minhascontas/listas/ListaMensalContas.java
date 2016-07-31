@@ -57,7 +57,6 @@ public class ListaMensalContas extends Fragment {
     private ListView listaContas;
 
     // VARIAVEIS UTILIZADAS
-    private String[] prestacao, semana;
     private int mes, ano, conta, tipo, filtro;
     private long idConta = 0;
     private String ordemListaDeContas, nomeConta;
@@ -422,9 +421,6 @@ public class ListaMensalContas extends Fragment {
         listaContas = ((ListView) rootView.findViewById(R.id.lvContasCriadas));
         semContas = (TextView) rootView.findViewById(R.id.tvSemContas);
 
-        prestacao = res.getStringArray(R.array.TipoDespesa);
-        semana = res.getStringArray(R.array.Semana);
-
         MontaLista();
 
         // Metodos de click em cada um dos itens da tela
@@ -466,8 +462,8 @@ public class ListaMensalContas extends Fragment {
         dbContasDoMes.close();
         if (n >= 0) {
             int posicao = listaContas.getFirstVisiblePosition();
-            buscaContas = new AdaptaListaMensal(getActivity(), contasParaLista,
-                    prestacao, semana);
+            String[] semana = res.getStringArray(R.array.Semana);
+            buscaContas = new AdaptaListaMensal(getActivity(), contasParaLista, semana);
             listaContas.setAdapter(buscaContas);
             listaContas.setEmptyView(semContas);
             listaContas.setSelection(posicao);

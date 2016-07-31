@@ -74,7 +74,8 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:tint="@color/cinza"
-                    mskapp:srcCompat="@drawable/ic_date_grey" />
+                    mskapp:srcCompat="@drawable/ic_date_grey"
+                    tools:ignore="ContentDescription" />
 
                 <Button
                     android:id="@+id/etData"
@@ -143,7 +144,30 @@
                 android:id="@+id/spClasseConta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:entries="@array/TipoDespesa"
                 android:prompt="@string/dica_spinner" />
+
+            <LinearLayout
+                android:id="@+id/layout_categoria"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/titulo_categoria"
+                    android:textColor="@color/verde_escuro" />
+
+                <android.support.v7.widget.AppCompatSpinner
+                    android:id="@+id/spCategoriaConta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/CategoriaConta"
+                    android:prompt="@string/dica_spinner" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/layout_pagamento"

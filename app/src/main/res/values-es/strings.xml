@@ -5,7 +5,7 @@
 
     <string name="app_name">Mis cuentas</string>
     <string name="titulo_criar">Crear nueva cuenta</string>
-    <string name="titulo_categoria">Crear nueva categoría</string>
+    <string name="titulo_categoria">Elige una categoría</string>
     <string name="titulo_editar">Cambiar cuenta</string>
     <string name="titulo_resumo">Resumen Mensual</string>
     <string name="titulo_enviar">Enviar resumen mensual</string>

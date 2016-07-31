@@ -1,6 +1,7 @@
 package com.msk.minhascontas.listas;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -20,17 +21,18 @@ import java.util.Locale;
 public class AdaptaListaMensal extends CursorAdapter {
 
     private LayoutInflater inflater;
-    private String[] prestacao, semana;
+    private String[] semana;
     private HashMap<Integer, Boolean> selecoes = new HashMap<Integer, Boolean>();
     private NumberFormat dinheiro;
+    private Resources res = null;
 
     @SuppressWarnings("deprecation")
-    public AdaptaListaMensal(Context context, Cursor c, String[] array, String[] array1) {
+    public AdaptaListaMensal(Context context, Cursor c, String[] array) {
         super(context, c);
         inflater = LayoutInflater.from(context);
-        prestacao = array;
-        semana = array1;
-        Locale current = context.getResources().getConfiguration().locale;
+        semana = array;
+        res = context.getResources();
+        Locale current = res.getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
     }
 
@@ -48,15 +50,15 @@ public class AdaptaListaMensal extends CursorAdapter {
         TextView valor = ((TextView) view.findViewById(R.id.tvValorContaCriada));
         ImageView pagamento = ((ImageView) view.findViewById(R.id.ivPagamento));
 
-        int i = cursor.getInt(10);
-        String status = cursor.getString(4);
-        int classe = cursor.getInt(3);
-        int tipo = cursor.getInt(2);
         String nomeconta = cursor.getString(1);
-        int d = cursor.getInt(6);
-        int m = cursor.getInt(7);
-        int a = cursor.getInt(8);
-
+        int tipo = cursor.getInt(2);
+        int classe = cursor.getInt(3);
+        int categ = cursor.getInt(4);
+        int d = cursor.getInt(5);
+        int m = cursor.getInt(6);
+        int a = cursor.getInt(7);
+        String status = cursor.getString(9);
+        int i = cursor.getInt(10);
         nome.setText(nomeconta);
 
         if ((i > 1) && classe == 0 && tipo == 0) {
@@ -76,8 +78,19 @@ public class AdaptaListaMensal extends CursorAdapter {
         int s = c.get(Calendar.DAY_OF_WEEK);
 
         dia.setText(semana[s - 1]);
+        String[] classeConta;
+        String[] categoriaConta = res.getStringArray(R.array.CategoriaConta);
 
-        categoria.setText(classe);
+        if (tipo == 0) {
+            classeConta = res.getStringArray(R.array.TipoDespesa);
+            categoria.setText(classeConta[classe] + " | " + categoriaConta[categ]);
+        } else if (tipo == 1) {
+            classeConta = res.getStringArray(R.array.TipoReceita);
+            categoria.setText(classeConta[classe]);
+        } else {
+            classeConta = res.getStringArray(R.array.TipoAplicacao);
+            categoria.setText(classeConta[classe]);
+        }
 
         pagamento.setVisibility(View.INVISIBLE);
 
@@ -105,7 +118,6 @@ public class AdaptaListaMensal extends CursorAdapter {
     }
 
     public void limpaSelecao() {
-
         selecoes = new HashMap<Integer, Boolean>();
         notifyDataSetChanged();
     }
@@ -117,7 +129,6 @@ public class AdaptaListaMensal extends CursorAdapter {
             view.setBackgroundColor(Color.parseColor("#FFC5E1A5"));
         else
             view.setBackgroundColor(Color.WHITE);
-
         return view;
     }
 }

@@ -394,7 +394,6 @@ public class PesquisaContas extends AppCompatActivity implements
         lastView = null;
         listaContas.setOnItemClickListener(toqueSimples);
         listaContas.setOnItemLongClickListener(toqueLongo);
-
     }
 
     private void iniciar() {
@@ -405,7 +404,6 @@ public class PesquisaContas extends AppCompatActivity implements
         listaContas.setEmptyView(resultado);
 
         nomeContaBuscar = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeContaBusca));
-
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -414,7 +412,6 @@ public class PesquisaContas extends AppCompatActivity implements
         ArrayAdapter completa;
 
         if (dbContasPesquisadas.quantasContas() != 0) {
-
             completa = new ArrayAdapter(this,
                     android.R.layout.simple_dropdown_item_1line,
                     dbContasPesquisadas.mostraNomeContas());
@@ -436,12 +433,8 @@ public class PesquisaContas extends AppCompatActivity implements
         if (i >= 0) {
 
             int posicao = listaContas.getFirstVisiblePosition();
-
-            String[] prestacao = r.getStringArray(R.array.TipoDespesa);
             String[] semana = r.getStringArray(R.array.Semana);
-
-            buscaContas = new AdaptaListaPesquisa(this, contasParaLista,
-                    prestacao, semana);
+            buscaContas = new AdaptaListaPesquisa(this, contasParaLista, semana);
 
             listaContas.setAdapter(buscaContas);
             listaContas.setEmptyView(resultado);

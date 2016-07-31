@@ -5,7 +5,7 @@
 
     <string name="app_name">My Bills</string>
     <string name="titulo_criar">New bill</string>
-    <string name="titulo_categoria">New category</string>
+    <string name="titulo_categoria">Choose category</string>
     <string name="titulo_editar">Change bill</string>
     <string name="titulo_resumo">Monthly Summary</string>
     <string name="titulo_enviar">Send monthly summary</string>
