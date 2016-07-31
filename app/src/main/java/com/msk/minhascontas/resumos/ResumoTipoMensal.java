@@ -347,16 +347,16 @@ public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
 
         switch (v.getId()) {
             case R.id.l_saldo:
-                dados_mes.putString("tipo", "todas");
+                dados_mes.putInt("tipo", -1);
                 break;
             case R.id.l_aplicacoes:
-                dados_mes.putString("tipo", getResources().getString(R.string.linha_aplicacoes));
+                dados_mes.putInt("tipo", 2);
                 break;
             case R.id.l_despesas:
-                dados_mes.putString("tipo", getResources().getString(R.string.linha_despesa));
+                dados_mes.putInt("tipo", 0);
                 break;
             case R.id.l_receitas:
-                dados_mes.putString("tipo", getResources().getString(R.string.linha_receita));
+                dados_mes.putInt("tipo", 1);
                 break;
         }
 

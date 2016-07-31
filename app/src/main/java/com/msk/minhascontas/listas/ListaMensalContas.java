@@ -57,10 +57,10 @@ public class ListaMensalContas extends Fragment {
     private ListView listaContas;
 
     // VARIAVEIS UTILIZADAS
-    private String[] prestacao, semana, classes;
-    private int mes, ano, conta;
+    private String[] prestacao, semana;
+    private int mes, ano, conta, tipo, filtro;
     private long idConta = 0;
-    private String ordemListaDeContas, nomeConta, tipo, filtro;
+    private String ordemListaDeContas, nomeConta;
     private AdaptaListaMensal buscaContas;
     private Cursor contasParaLista = null;
     private boolean alteraContas = false;
@@ -271,7 +271,7 @@ public class ListaMensalContas extends Fragment {
                     if (contas.size() != 0) {
                         mActionMode.setTitle(res.getQuantityString(R.plurals.selecao,
                                 contas.size(), contas.size()));
-                        if (!tipo.equals("todas"))
+                        if (tipo != -1)
                             mActionMode.setSubtitle(dinheiro.format(valorConta));
                     }
                 }
@@ -373,13 +373,13 @@ public class ListaMensalContas extends Fragment {
         }
     };
 
-    public static ListaMensalContas newInstance(int mes, int ano, String tipo, String filtro) {
+    public static ListaMensalContas newInstance(int mes, int ano, int tipo, int filtro) {
         ListaMensalContas fragment = new ListaMensalContas();
         Bundle args = new Bundle();
         args.putInt("ano", ano);
         args.putInt("mes", mes);
-        args.putString("tipo", tipo);
-        args.putString("filtro", filtro);
+        args.putInt("tipo", tipo);
+        args.putInt("filtro", filtro);
         fragment.setArguments(args);
         return fragment;
     }
@@ -411,8 +411,8 @@ public class ListaMensalContas extends Fragment {
         Bundle bundle = getArguments();
         ano = bundle.getInt("ano");
         mes = bundle.getInt("mes");
-        tipo = bundle.getString("tipo");
-        filtro = bundle.getString("filtro");
+        tipo = bundle.getInt("tipo");
+        filtro = bundle.getInt("filtro");
 
         res = getActivity().getResources();
         Locale current = res.getConfiguration().locale;
@@ -437,7 +437,7 @@ public class ListaMensalContas extends Fragment {
     private void MontaLista() {
 
         dbContasDoMes.open();
-        if (tipo.equals("todas")) {
+        if (tipo == -1) {
             contasParaLista = dbContasDoMes.buscaContas(0, mes, ano,
                     buscaPreferencias.getString("ordem", ordemListaDeContas));
         } else {
@@ -446,20 +446,23 @@ public class ListaMensalContas extends Fragment {
                     tipo);
         }
 
-        if (!filtro.equals("")) {
+        if (filtro >= 0) {
             contasParaLista = dbContasDoMes.buscaContasClasse(0, mes, ano,
                     buscaPreferencias.getString("ordem", ordemListaDeContas),
                     tipo, filtro);
 
-            if (filtro.equals("paguei") || filtro.equals("falta")) {
+            if (filtro == 4) {
                 contasParaLista = dbContasDoMes.buscaContasTipoPagamento(0, mes, ano,
                         buscaPreferencias.getString("ordem", ordemListaDeContas),
-                        tipo, filtro);
+                        tipo, "falta");
+            } else if (filtro == 5) {
+                contasParaLista = dbContasDoMes.buscaContasTipoPagamento(0, mes, ano,
+                        buscaPreferencias.getString("ordem", ordemListaDeContas),
+                        tipo, "paguei");
             }
         }
 
         int n = contasParaLista.getCount();
-
         dbContasDoMes.close();
         if (n >= 0) {
             int posicao = listaContas.getFirstVisiblePosition();

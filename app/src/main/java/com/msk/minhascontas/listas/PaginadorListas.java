@@ -47,9 +47,8 @@ public class PaginadorListas extends AppCompatActivity {
     private Resources res;
     private NumberFormat dinheiro;
     // VARIAVEIS DO APLICATIVO
-    private String tipo, filtro;
     private String[] Meses, classes;
-    private int mes, ano, paginas, nrPagina;
+    private int mes, ano, tipo, filtro, paginas, nrPagina;
 
     private static boolean isTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
@@ -81,8 +80,8 @@ public class PaginadorListas extends AppCompatActivity {
         // PEGA O ANO ATUAL PARA DEFINIR A PRIMEIRA TELA
         Bundle localBundle = getIntent().getExtras();
         nrPagina = localBundle.getInt("nr");
-        tipo = localBundle.getString("tipo");
-        filtro = "";
+        tipo = localBundle.getInt("tipo");
+        filtro = -2;
 
         // PAGINA CONTENDO MESES
         paginas = 120;
@@ -164,23 +163,18 @@ public class PaginadorListas extends AppCompatActivity {
         // set title
         dialogoBuilder.setTitle(getString(R.string.titulo_filtro));
 
-        if (tipo.equals(res.getString(R.string.linha_despesa))) {
+        if (tipo == 0) {
 
             classes = res.getStringArray(R.array.FiltroDespesa);
-
             // set dialog message
             dialogoBuilder.setItems(classes,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // DEFINE CONTEUDO LISTA COM FILTRO
-                            if (id < 4) {
-                                filtro = classes[id];
-                            } else if (id == 4) {
-                                filtro = "falta";
-                            } else if (id == 5) {
-                                filtro = "paguei";
+                            if (id < 6) {
+                                filtro = id;
                             } else {
-                                filtro = "";
+                                filtro = -1;
                             }
                             nrPagina = mViewPager.getCurrentItem();
                             mPaginas = new Paginas(getSupportFragmentManager());
@@ -191,19 +185,18 @@ public class PaginadorListas extends AppCompatActivity {
                     });
         }
 
-        if (tipo.equals(res.getString(R.string.linha_aplicacoes))) {
+        if (tipo == 2) {
 
             classes = res.getStringArray(R.array.FiltroAplicacao);
-
             // set dialog message
             dialogoBuilder.setItems(classes,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // DEFINE CONTEUDO LISTA COM FILTRO
                             if (id < 3) {
-                                filtro = classes[id];
+                                filtro = id;
                             } else {
-                                filtro = "";
+                                filtro = -1;
                             }
                             nrPagina = mViewPager.getCurrentItem();
                             mPaginas = new Paginas(getSupportFragmentManager());
@@ -234,59 +227,61 @@ public class PaginadorListas extends AppCompatActivity {
 
         mes = mesConta[nrPagina];
         ano = anoConta[nrPagina];
-
         dbContas.open();
-
         ColorDrawable cor;
+        double valores;
 
-        if (tipo.equals(res.getString(R.string.linha_receita))) {
+        if (tipo == 1) {
             cor = new ColorDrawable(Color.parseColor("#FF0099CC"));
             getSupportActionBar().setBackgroundDrawable(cor);
             tabLayout.setBackgroundColor(Color.parseColor("#FF0099CC"));
             tabLayout.setTabTextColors(Color.parseColor("#90FFFFFF"), res.getColor(R.color.branco));
-
-        } else if (tipo.equals(res.getString(R.string.linha_despesa))) {
+            getSupportActionBar().setTitle(res.getString(R.string.linha_receita));
+        } else if (tipo == 0) {
             cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
             getSupportActionBar().setBackgroundDrawable(cor);
             tabLayout.setBackgroundColor(Color.parseColor("#FFCC0000"));
             tabLayout.setTabTextColors(Color.parseColor("#90FFFFFF"), res.getColor(R.color.branco));
-
-        } else if (tipo.equals(res.getString(R.string.linha_aplicacoes))) {
+            classes = res.getStringArray(R.array.TipoDespesa);
+            getSupportActionBar().setTitle(res.getString(R.string.linha_despesa));
+        } else if (tipo == 2) {
             cor = new ColorDrawable(Color.parseColor("#FF669900"));
             getSupportActionBar().setBackgroundDrawable(cor);
             tabLayout.setBackgroundColor(Color.parseColor("#FF669900"));
             tabLayout.setTabTextColors(Color.parseColor("#90FFFFFF"), res.getColor(R.color.branco));
+            classes = res.getStringArray(R.array.TipoAplicacao);
+            getSupportActionBar().setTitle(res.getString(R.string.linha_aplicacoes));
         }
 
-        double valores;
-        if (!filtro.equals("")) {
-
+        if (filtro >= 0) {
             // DEFINE TITULO LISTA COM FILTRO
-            if (dbContas.quantasContasPorClasse(
-                    filtro, 0, mes, ano) > 0)
-                valores = dbContas.somaContasPorClasse(
-                        filtro, 0, mes, ano);
-            else
-                valores = 0.0D;
-
-            if (filtro.equals("paguei") || filtro.equals("falta")) {
+            if (filtro == 4) {
                 if (dbContas.quantasContasPagasPorTipo(tipo,
-                        filtro, 0, mes, ano) > 0)
+                        "falta", 0, mes, ano) > 0)
                     valores = dbContas.somaContasPagas(tipo,
+                            "falta", 0, mes, ano);
+                else
+                    valores = 0.0D;
+                getSupportActionBar().setTitle(res.getString(R.string.resumo_faltam));
+            } else if (filtro == 5) {
+                if (dbContas.quantasContasPagasPorTipo(tipo,
+                        "paguei", 0, mes, ano) > 0)
+                    valores = dbContas.somaContasPagas(tipo,
+                            "paguei", 0, mes, ano);
+                else
+                    valores = 0.0D;
+                getSupportActionBar().setTitle(res.getString(R.string.resumo_pagas));
+            } else {
+                if (dbContas.quantasContasPorClasse(
+                        filtro, 0, mes, ano) > 0)
+                    valores = dbContas.somaContasPorClasse(
                             filtro, 0, mes, ano);
                 else
                     valores = 0.0D;
-            }
-
-            if (filtro.equals("paguei")) {
-                getSupportActionBar().setTitle(res.getString(R.string.resumo_pagas));
-            } else if (filtro.equals("falta")) {
-                getSupportActionBar().setTitle(res.getString(R.string.resumo_faltam));
-            } else {
-                getSupportActionBar().setTitle(filtro);
+                getSupportActionBar().setTitle(classes[filtro]);
             }
             getSupportActionBar().setSubtitle(dinheiro.format(valores));
-        } else {
+        } else if (filtro == -1) {
             // DEFINE TITULO LISTA SEM FILTRO
             if (dbContas.quantasContasPorTipo(
                     tipo, 0, mes, ano) > 0)
@@ -294,26 +289,18 @@ public class PaginadorListas extends AppCompatActivity {
                         tipo, 0, mes, ano);
             else
                 valores = 0.0D;
-
-            if (!tipo.equals("todas")) {
-                getSupportActionBar().setTitle(tipo);
-                getSupportActionBar().setSubtitle(dinheiro.format(valores));
-            }
+            getSupportActionBar().setSubtitle(dinheiro.format(valores));
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        if (tipo.equals(res.getString(R.string.linha_despesa))
-                || tipo.equals(res.getString(R.string.linha_aplicacoes))) {
-
+        if (tipo != 1) {
             getMenuInflater().inflate(R.menu.barra_botoes_filtra_lista, menu);
         } else {
-
             getMenuInflater().inflate(R.menu.barra_botoes_lista, menu);
         }
-
         return true;
     }
 
@@ -344,7 +331,6 @@ public class PaginadorListas extends AppCompatActivity {
                 FiltroContas();
                 break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

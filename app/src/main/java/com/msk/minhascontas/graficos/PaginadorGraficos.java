@@ -39,7 +39,6 @@ public class PaginadorGraficos extends AppCompatActivity {
     private ViewPager mViewPager;
     private Resources res;
     // VARIAVEIS DO APLICATIVO
-    private String tipo, filtro;
     private String[] Meses;
     private int paginas, nrPagina;
 
