@@ -3,12 +3,15 @@ package com.msk.minhascontas.db;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.util.Log;
+
+import com.msk.minhascontas.R;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,47 +23,50 @@ import java.util.Vector;
 public class DBContas {
 
     // Nomes das Colunas do Banco de Dados
-    public static final String COLUNA_ANO_DATA_CONTA = "ano_data";
-    public static final String COLUNA_CATEGORIA_CONTA = "classificacao";
-    public static final String COLUNA_DATA_CONTA = "data";
-    public static final String COLUNA_DIA_DATA_CONTA = "dia_data";
-    public static final String COLUNA_DIA_REPETICAO_CONTA = "dia_repeticao";
+    private static final String COLUNA_ANO_DATA_CONTA = "ano_data";
+    private static final String COLUNA_CODIGO_CONTA = "codigo";
+    private static final String COLUNA_DIA_DATA_CONTA = "dia_data";
+    private static final String COLUNA_INTERVALO_CONTA = "dia_repeticao";
     // NOVO VALOR ADICIONADO AO BANCO DE DADOS PARA ATUALIZAR
-    public static final String COLUNA_ID_CONTA = "_id";
-    public static final String COLUNA_MES_DATA_CONTA = "mes_data";
-    public static final String COLUNA_NOME_CONTA = "conta";
-    public static final String COLUNA_NR_REPETICAO_CONTA = "nr_repeticao";
-    public static final String COLUNA_PAGOU_CONTA = "pagou";
-    public static final String COLUNA_QT_REPETICOES_CONTA = "qt_repeticoes";
-    public static final String COLUNA_TIPO_CONTA = "tipo_conta";
-    public static final String COLUNA_VALOR_CONTA = "valor";
+    private static final String COLUNA_ID_CONTA = "_id";
+    private static final String COLUNA_MES_DATA_CONTA = "mes_data";
+    private static final String COLUNA_NOME_CONTA = "conta";
+    private static final String COLUNA_NR_REPETICAO_CONTA = "nr_repeticao";
+    private static final String COLUNA_PAGOU_CONTA = "pagou";
+    private static final String COLUNA_QT_REPETICOES_CONTA = "qt_repeticoes";
+    private static final String COLUNA_TIPO_CONTA = "tipo_conta";
+    private static final String COLUNA_CLASSE_CONTA = "classe_conta";
+    private static final String COLUNA_CATEGORIA_CONTA = "categoria_conta";
+    private static final String COLUNA_VALOR_CONTA = "valor";
     // Nomes para criar o Bancos de Dados
     private static final String BANCO_DE_DADOS = "minhas_contas";
     private static final String TABELA_CONTAS = "contas";
     // Comando SQL para criar o Banco de Dados com as colunas
-    private static final String CRIA_TABELA_CONTAS = "CREATE TABLE "
-            + TABELA_CONTAS + " ( " + COLUNA_ID_CONTA
-            + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUNA_NOME_CONTA
-            + " TEXT NOT NULL," + COLUNA_TIPO_CONTA + " TEXT NOT NULL, "
-            + COLUNA_CATEGORIA_CONTA + " TEXT NOT NULL," + COLUNA_PAGOU_CONTA
-            + " TEXT NOT NULL, " + COLUNA_DATA_CONTA + " TEXT NOT NULL, "
-            + COLUNA_DIA_DATA_CONTA + " INTEGER NOT NULL, "
-            + COLUNA_MES_DATA_CONTA + " INTEGER NOT NULL, "
-            + COLUNA_ANO_DATA_CONTA + " INTEGER NOT NULL, "
-            + COLUNA_VALOR_CONTA + " REAL NOT NULL, "
-            + COLUNA_QT_REPETICOES_CONTA + " INTEGER NOT NULL, "
-            + COLUNA_NR_REPETICAO_CONTA + " INTEGER NOT NULL, "
-            + COLUNA_DIA_REPETICAO_CONTA + " INTEGER NOT NULL);";
+    private static final String CRIA_TABELA_CONTAS = "CREATE TABLE " + TABELA_CONTAS + " ( "
+            + COLUNA_ID_CONTA + " INTEGER PRIMARY KEY AUTOINCREMENT," // coluna 0
+            + COLUNA_NOME_CONTA + " TEXT NOT NULL,"                   // coluna 1
+            + COLUNA_TIPO_CONTA + " INTEGER NOT NULL, "               // coluna 2
+            + COLUNA_CLASSE_CONTA + " INTEGER NOT NULL,"              // coluna 3
+            + COLUNA_CATEGORIA_CONTA + " TEXT, "                      // coluna 4
+            + COLUNA_DIA_DATA_CONTA + " INTEGER NOT NULL, "           // coluna 5
+            + COLUNA_MES_DATA_CONTA + " INTEGER NOT NULL, "           // coluna 6
+            + COLUNA_ANO_DATA_CONTA + " INTEGER NOT NULL, "           // coluna 7
+            + COLUNA_VALOR_CONTA + " REAL NOT NULL, "                 // coluna 8
+            + COLUNA_PAGOU_CONTA + " TEXT NOT NULL, "                 // coluna 9
+            + COLUNA_QT_REPETICOES_CONTA + " INTEGER NOT NULL, "      // coluna 10
+            + COLUNA_NR_REPETICAO_CONTA + " INTEGER NOT NULL, "       // coluna 11
+            + COLUNA_INTERVALO_CONTA + " INTEGER NOT NULL,"           // coluna 12
+            + COLUNA_CODIGO_CONTA + " TEXT NOT NULL );";              // coluna 13
+
     private static final String TAG = "DBContas";
     // NOVO VALOR ADICIONADO AO BANCO DE DADOS PARA ATUALIZAR
     private static final int VERSAO_BANCO_DE_DADOS = 3;
     // NOMES DAS COLUNAS DAS TABELAS
-    static String[] colunas_contas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
-            COLUNA_TIPO_CONTA, COLUNA_CATEGORIA_CONTA, COLUNA_PAGOU_CONTA,
-            COLUNA_DATA_CONTA, COLUNA_DIA_DATA_CONTA, COLUNA_MES_DATA_CONTA,
-            COLUNA_ANO_DATA_CONTA, COLUNA_VALOR_CONTA,
-            COLUNA_QT_REPETICOES_CONTA, COLUNA_NR_REPETICAO_CONTA,
-            COLUNA_DIA_REPETICAO_CONTA};
+    private static String[] colunas_contas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
+            COLUNA_TIPO_CONTA, COLUNA_CLASSE_CONTA, COLUNA_CATEGORIA_CONTA,
+            COLUNA_DIA_DATA_CONTA, COLUNA_MES_DATA_CONTA, COLUNA_ANO_DATA_CONTA,
+            COLUNA_VALOR_CONTA, COLUNA_PAGOU_CONTA, COLUNA_QT_REPETICOES_CONTA,
+            COLUNA_NR_REPETICAO_CONTA, COLUNA_INTERVALO_CONTA, COLUNA_CODIGO_CONTA};
     private static DatabaseHelper sInstance;
     // ELEMENTOS QUE GERENCIAM O BANCO DE DADOS
     private DatabaseHelper DBHelper;
@@ -99,42 +105,45 @@ public class DBContas {
 
     // --------- MÉTODOS DE INCLUEM, ALTERAM E EXCLUEM DADOS NA TABELA
 
-    public long geraConta(String nome, String tipo, String classifica,
-                          String pagamento, String data, int dia, int mes, int ano,
-                          double valor, int qtRepete, int nRepete, int diaRepete) {
+    public long geraConta(String nome, int tipo, int classeConta, int categoria,
+                          int dia, int mes, int ano, double valor, String pagamento, int qtRepete,
+                          int nRepete, int intervalo, String codigo) {
         ContentValues dadosConta = new ContentValues();
         dadosConta.put(COLUNA_NOME_CONTA, nome);
         dadosConta.put(COLUNA_TIPO_CONTA, tipo);
-        dadosConta.put(COLUNA_CATEGORIA_CONTA, classifica);
+        dadosConta.put(COLUNA_CLASSE_CONTA, classeConta);
+        dadosConta.put(COLUNA_CATEGORIA_CONTA, categoria);
+        dadosConta.put(COLUNA_DIA_DATA_CONTA, dia);
+        dadosConta.put(COLUNA_MES_DATA_CONTA, mes);
+        dadosConta.put(COLUNA_ANO_DATA_CONTA, ano);
+        dadosConta.put(COLUNA_VALOR_CONTA, valor);
         dadosConta.put(COLUNA_PAGOU_CONTA, pagamento);
-        dadosConta.put(COLUNA_DATA_CONTA, data);
-        dadosConta.put(COLUNA_DIA_DATA_CONTA, Integer.valueOf(dia));
-        dadosConta.put(COLUNA_MES_DATA_CONTA, Integer.valueOf(mes));
-        dadosConta.put(COLUNA_ANO_DATA_CONTA, Integer.valueOf(ano));
-        dadosConta.put(COLUNA_VALOR_CONTA, Double.valueOf(valor));
-        dadosConta.put(COLUNA_QT_REPETICOES_CONTA, Integer.valueOf(qtRepete));
-        dadosConta.put(COLUNA_NR_REPETICAO_CONTA, Integer.valueOf(nRepete));
-        dadosConta.put(COLUNA_DIA_REPETICAO_CONTA, Integer.valueOf(diaRepete));
+        dadosConta.put(COLUNA_QT_REPETICOES_CONTA, qtRepete);
+        dadosConta.put(COLUNA_NR_REPETICAO_CONTA, nRepete);
+        dadosConta.put(COLUNA_INTERVALO_CONTA, intervalo);
+        dadosConta.put(COLUNA_CODIGO_CONTA, codigo);
         return db.insert(TABELA_CONTAS, null, dadosConta);
     }
 
     // ----------- MÉTODOS QUE ALTERAM DADOS DAS CONTAS NO BANCO DE DADOS
 
-    public boolean alteraClasseConta(long idConta, String classeConta)
-            throws SQLException {
+    public boolean alteraDadosConta(long idConta, String nome, int tipo, int classeConta, int categoria,
+                                    int dia, int mes, int ano, double valor, String pagamento, int qtRepete,
+                                    int nRepete, int intervalo, String codigo) {
         ContentValues dadosConta = new ContentValues();
-        dadosConta.put(COLUNA_CATEGORIA_CONTA, classeConta);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
-                + idConta + "' ", null) > 0;
-    }
-
-    public boolean alteraDataConta(long idConta, String data, int dia, int mes,
-                                   int ano) throws SQLException {
-        ContentValues dadosConta = new ContentValues();
-        dadosConta.put(COLUNA_DATA_CONTA, data);
-        dadosConta.put(COLUNA_DIA_DATA_CONTA, Integer.valueOf(dia));
-        dadosConta.put(COLUNA_MES_DATA_CONTA, Integer.valueOf(mes));
-        dadosConta.put(COLUNA_ANO_DATA_CONTA, Integer.valueOf(ano));
+        dadosConta.put(COLUNA_NOME_CONTA, nome);
+        dadosConta.put(COLUNA_TIPO_CONTA, tipo);
+        dadosConta.put(COLUNA_CLASSE_CONTA, classeConta);
+        dadosConta.put(COLUNA_CATEGORIA_CONTA, categoria);
+        dadosConta.put(COLUNA_DIA_DATA_CONTA, dia);
+        dadosConta.put(COLUNA_MES_DATA_CONTA, mes);
+        dadosConta.put(COLUNA_ANO_DATA_CONTA, ano);
+        dadosConta.put(COLUNA_VALOR_CONTA, valor);
+        dadosConta.put(COLUNA_PAGOU_CONTA, pagamento);
+        dadosConta.put(COLUNA_QT_REPETICOES_CONTA, qtRepete);
+        dadosConta.put(COLUNA_NR_REPETICAO_CONTA, nRepete);
+        dadosConta.put(COLUNA_INTERVALO_CONTA, intervalo);
+        dadosConta.put(COLUNA_CODIGO_CONTA, codigo);
         return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
                 + idConta + "' ", null) > 0;
     }
@@ -147,23 +156,46 @@ public class DBContas {
                 + idConta + "' ", null) > 0;
     }
 
-    public boolean alteraTipoConta(long idConta, String tipo)
+    public boolean alteraTipoConta(long idConta, int tipo)
             throws SQLException {
         ContentValues dadosConta = new ContentValues();
         dadosConta.put(COLUNA_TIPO_CONTA, tipo);
         return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
                 + idConta + "' ", null) > 0;
+    }
 
+    public boolean alteraClasseConta(long idConta, int classeConta)
+            throws SQLException {
+        ContentValues dadosConta = new ContentValues();
+        dadosConta.put(COLUNA_CLASSE_CONTA, classeConta);
+        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
+                + idConta + "' ", null) > 0;
+    }
+
+    public boolean alteraCategoriaConta(long idConta, int categoria)
+            throws SQLException {
+        ContentValues dadosConta = new ContentValues();
+        dadosConta.put(COLUNA_CATEGORIA_CONTA, categoria);
+        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
+                + idConta + "' ", null) > 0;
+    }
+
+    public boolean alteraDataConta(long idConta, int dia, int mes, int ano) throws SQLException {
+        ContentValues dadosConta = new ContentValues();
+        dadosConta.put(COLUNA_DIA_DATA_CONTA, dia);
+        dadosConta.put(COLUNA_MES_DATA_CONTA, mes);
+        dadosConta.put(COLUNA_ANO_DATA_CONTA, ano);
+        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
+                + idConta + "' ", null) > 0;
     }
 
     public boolean alteraValorConta(long idConta, double valor, String pagamento)
             throws SQLException {
         ContentValues dadosConta = new ContentValues();
-        dadosConta.put(COLUNA_VALOR_CONTA, Double.valueOf(valor));
+        dadosConta.put(COLUNA_VALOR_CONTA, valor);
         dadosConta.put(COLUNA_PAGOU_CONTA, pagamento);
         return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
                 + idConta + "' ", null) > 0;
-
     }
 
     public boolean alteraPagamentoConta(long idConta, String pagamento)
@@ -172,20 +204,18 @@ public class DBContas {
         dadosConta.put(COLUNA_PAGOU_CONTA, pagamento);
         return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
                 + idConta + "' ", null) > 0;
-
     }
 
     // -------- MÉTODO QUE ALTERA DADOS EM MAIS DE UMA CONTA
 
-    public boolean atualizaDataContas(String nome, String dma, int nr)
+    public boolean atualizaDataContas(String nome, String codigo, int nr)
             throws SQLException {
         ContentValues dataContas = new ContentValues();
         nome = nome.replace("'", "''");
-        dataContas.put(COLUNA_DATA_CONTA, dma);
+        dataContas.put(COLUNA_CODIGO_CONTA, codigo);
         return db.update(TABELA_CONTAS, dataContas, COLUNA_NOME_CONTA + " = '"
                 + nome + "' AND " + COLUNA_QT_REPETICOES_CONTA + " = '" + nr
                 + "' ", null) > 0;
-
     }
 
     public boolean atualizaPagamentoContas(int dia, int mes, int ano)
@@ -197,7 +227,6 @@ public class DBContas {
                         + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '" + ano
                         + "' OR " + COLUNA_ANO_DATA_CONTA + " < '" + ano + "'",
                 null) > 0;
-
     }
 
     public boolean confirmaPagamentos() throws SQLException {
@@ -206,17 +235,15 @@ public class DBContas {
         dadosConta.put(COLUNA_PAGOU_CONTA, "falta");
         return db.update(TABELA_CONTAS, dadosConta, COLUNA_PAGOU_CONTA
                 + " != '" + pg + "' ", null) > 0;
-
     }
 
     public boolean ajustaRepeticoesContas() throws SQLException {
         ContentValues dadosConta = new ContentValues();
         int intervalo = 300;
         int dia = 31;
-        dadosConta.put(COLUNA_DIA_REPETICAO_CONTA, intervalo);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_DIA_REPETICAO_CONTA
+        dadosConta.put(COLUNA_INTERVALO_CONTA, intervalo);
+        return db.update(TABELA_CONTAS, dadosConta, COLUNA_INTERVALO_CONTA
                 + " <= '" + dia + "' ", null) > 0;
-
     }
 
     // ----------- MÉTODOS QUE EXCLUEM AS CONTAS NO BANCO DE DADOS
@@ -226,18 +253,18 @@ public class DBContas {
                 + "' ", null) > 0;
     }
 
-    public boolean excluiContaPorNome(String nome, String dma) {
+    public boolean excluiContaPorNome(String nome, String codigo) {
         nome = nome.replace("'", "''");
         return db.delete(TABELA_CONTAS, COLUNA_NOME_CONTA + " = '" + nome
-                + "' AND " + COLUNA_DATA_CONTA + " = '" + dma + "' ", null) > 0;
+                + "' AND " + COLUNA_CODIGO_CONTA + " = '" + codigo + "' ", null) > 0;
     }
 
-    public boolean excluiSerieContaPorNome(String nome, String dma,
+    public boolean excluiSerieContaPorNome(String nome, String codigo,
                                            int nr_repete) {
         nr_repete = nr_repete - 1;
         nome = nome.replace("'", "''");
         return db.delete(TABELA_CONTAS, COLUNA_NOME_CONTA + " = '" + nome
-                + "' AND " + COLUNA_DATA_CONTA + " = '" + dma + "' AND "
+                + "' AND " + COLUNA_CODIGO_CONTA + " = '" + codigo + "' AND "
                 + COLUNA_NR_REPETICAO_CONTA + " > '" + nr_repete + "' ", null) > 0;
     }
 
@@ -246,6 +273,11 @@ public class DBContas {
     }
 
     // ----------- MÉTODOS QUE BUSCAM AS CONTAS NO BANCO DE DADOS
+
+    public Cursor buscaUmaConta(long idConta) {
+        return db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
+                + " = '" + idConta + "' ", null, null, null, null);
+    }
 
     public Cursor buscaContas(int dia, int mes, int ano, String ordem) {
         if (dia != 0)
@@ -260,7 +292,7 @@ public class DBContas {
     }
 
     public Cursor buscaContasTipo(int dia, int mes, int ano, String ordem,
-                                  String tipo) {
+                                  int tipo) {
         if (dia != 0)
             return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
@@ -275,7 +307,7 @@ public class DBContas {
     }
 
     public Cursor buscaContasTipoPagamento(int dia, int mes, int ano, String ordem,
-                                           String tipo, String pagamento) {
+                                           int tipo, String pagamento) {
         if (dia != 0)
             return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
@@ -292,19 +324,35 @@ public class DBContas {
     }
 
     public Cursor buscaContasClasse(int dia, int mes, int ano, String ordem,
-                                    String tipo, String classe) {
+                                    int tipo, int classe) {
         if (dia != 0)
             return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
-                            + "' AND " + COLUNA_CATEGORIA_CONTA + " = '" + classe + "' ",
+                            + "' AND " + COLUNA_CLASSE_CONTA + " = '" + classe + "' ",
                     null, null, null, ordem);
         else
             return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + COLUNA_TIPO_CONTA + " = '" + tipo
-                            + "' AND " + COLUNA_CATEGORIA_CONTA + " = '" + classe + "' ",
+                            + "' AND " + COLUNA_CLASSE_CONTA + " = '" + classe + "' ",
+                    null, null, null, ordem);
+    }
+
+    public Cursor buscaContasCategoria(int dia, int mes, int ano, String ordem, int categoria) {
+        if (dia != 0)
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_DIA_DATA_CONTA
+                            + " = '" + dia + "' AND " + COLUNA_MES_DATA_CONTA
+                            + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                            + ano + "' AND " + COLUNA_TIPO_CONTA + " = 0 AND "
+                            + COLUNA_CATEGORIA_CONTA + " = '" + categoria + "' ",
+                    null, null, null, ordem);
+        else
+            return db.query(TABELA_CONTAS, colunas_contas, COLUNA_MES_DATA_CONTA
+                            + " = '" + mes + "' AND " + COLUNA_ANO_DATA_CONTA + " = '"
+                            + ano + "' AND " + COLUNA_TIPO_CONTA + " = 0 AND "
+                            + COLUNA_CATEGORIA_CONTA + " = '" + categoria + "' ",
                     null, null, null, ordem);
     }
 
@@ -324,9 +372,6 @@ public class DBContas {
                         + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                         + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ", null,
                 null, null, COLUNA_NOME_CONTA + " ASC ");
-
-        int i = cursor.getColumnIndex(COLUNA_NOME_CONTA);
-        int j = cursor.getColumnIndex(COLUNA_VALOR_CONTA);
         String str = tipo + " do mês:\n";
         cursor.moveToFirst();
         while (true) {
@@ -334,77 +379,10 @@ public class DBContas {
                 cursor.close();
                 return str;
             }
-            str = str + "R$ " + String.format(Locale.US, "%.2f", cursor.getDouble(j))
-                    + " de " + cursor.getString(i) + ";\n";
+            str = str + "R$ " + String.format(Locale.US, "%.2f", cursor.getDouble(8))
+                    + " de " + cursor.getString(1) + ";\n";
             cursor.moveToNext();
         }
-    }
-
-    public int[] mostraDMAConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
-                + " = '" + idConta + "' ", null, null, null, null);
-        int[] arrayOfInt = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            int i = cursor.getInt(6);
-            int j = cursor.getInt(7);
-            int k = cursor.getInt(8);
-            arrayOfInt = new int[3];
-            arrayOfInt[0] = i;
-            arrayOfInt[1] = j;
-            arrayOfInt[2] = k;
-        }
-        cursor.close();
-        return arrayOfInt;
-
-    }
-
-    public String mostraDataConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
-                + " = '" + idConta + "' ", null, null, null, null);
-        String dConta = "";
-        if (cursor != null && cursor.moveToFirst()) {
-            dConta = cursor.getString(5);
-        }
-        cursor.close();
-        return dConta;
-
-    }
-
-    public long mostraPrimeiraRepeticaoConta(String nome, int nrRepete)
-            throws SQLException {
-        nome = nome.replace("'", "''");
-        Cursor cursor = db
-                .query(TABELA_CONTAS, colunas_contas, COLUNA_NOME_CONTA
-                        + " = '" + nome + "' AND " + COLUNA_QT_REPETICOES_CONTA
-                        + " = '" + nrRepete + "' ", null, null, null, null);
-        long u = 0;
-        if (cursor != null && cursor.moveToFirst()) {
-            u = cursor.getLong(0);
-        }
-        cursor.close();
-        return u;
-    }
-
-    public String[] mostraDadosConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
-                + " = '" + idConta + "' ", null, null, null, null);
-        String[] arrayOfString = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            String str1 = cursor.getString(1);
-            String str2 = cursor.getString(2);
-            String str3 = cursor.getString(3);
-            String str4 = cursor.getString(4);
-            String str5 = cursor.getString(5);
-            arrayOfString = new String[5];
-            arrayOfString[0] = str1;
-            arrayOfString[1] = str2;
-            arrayOfString[2] = str3;
-            arrayOfString[3] = str4;
-            arrayOfString[4] = str5;
-        }
-        cursor.close();
-        return arrayOfString;
-
     }
 
     public String mostraNomeConta(long idConta) throws SQLException {
@@ -417,24 +395,41 @@ public class DBContas {
         return str;
     }
 
-    public Vector<String> mostraNomeContas() throws SQLException {
-        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, null, null,
-                null, null, COLUNA_NOME_CONTA + " ASC ");
-        Vector<String> v = new Vector<String>();
-        String str = " ";
-        if (cursor != null && cursor.moveToFirst())
-            str = cursor.getString(1);
-        v.add(cursor.getString(1));
-        while (!cursor.isAfterLast()) {
-
-            if (!str.equals(cursor.getString(1)))
-                v.add(cursor.getString(1));
-            str = cursor.getString(1);
-            cursor.moveToNext();
-
+    public int[] mostraDMAConta(long idConta) throws SQLException {
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
+                + " = '" + idConta + "' ", null, null, null, null);
+        int[] arrayOfInt = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            int i = cursor.getInt(5);
+            int j = cursor.getInt(6);
+            int k = cursor.getInt(7);
+            arrayOfInt = new int[3];
+            arrayOfInt[0] = i;
+            arrayOfInt[1] = j;
+            arrayOfInt[2] = k;
         }
         cursor.close();
-        return v;
+        return arrayOfInt;
+    }
+
+    public double mostraValorConta(long idConta) throws SQLException {
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
+                + " = '" + idConta + "' ", null, null, null, null);
+        double d = 0.0D;
+        if (cursor != null && cursor.moveToFirst())
+            d = cursor.getDouble(8);
+        cursor.close();
+        return d;
+    }
+
+    public String mostraPagamentoConta(long idConta) throws SQLException {
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
+                + " = '" + idConta + "' ", null, null, null, null);
+        String pg = "";
+        if (cursor != null && cursor.moveToFirst())
+            pg = cursor.getString(9);
+        cursor.close();
+        return pg;
     }
 
     public int[] mostraRepeticaoConta(long idConta) throws SQLException {
@@ -452,27 +447,51 @@ public class DBContas {
         }
         cursor.close();
         return arrayOfInt;
-
     }
 
-    public double mostraValorConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
-                + " = '" + idConta + "' ", null, null, null, null);
-        double d = 0.0D;
-        if (cursor != null && cursor.moveToFirst())
-            d = cursor.getDouble(9);
+    public long mostraPrimeiraRepeticaoConta(String nome, int qtRepete, String codigo)
+            throws SQLException {
+        nome = nome.replace("'", "''");
+        Cursor cursor = db
+                .query(TABELA_CONTAS, colunas_contas, COLUNA_NOME_CONTA
+                        + " = '" + nome + "' AND " + COLUNA_QT_REPETICOES_CONTA
+                        + " = '" + qtRepete + "' AND " + COLUNA_CODIGO_CONTA
+                        + " = '" + codigo + "' ", null, null, null, null);
+        long u = 0;
+        if (cursor != null && cursor.moveToFirst()) {
+            u = cursor.getLong(0);
+        }
         cursor.close();
-        return d;
+        return u;
     }
 
-    public String mostraPagamentoConta(long idConta) throws SQLException {
+    public String mostraCodigoConta(long idConta) throws SQLException {
         Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_ID_CONTA
                 + " = '" + idConta + "' ", null, null, null, null);
-        String pg = "";
-        if (cursor != null && cursor.moveToFirst())
-            pg = cursor.getString(4);
+        String dConta = "";
+        if (cursor != null && cursor.moveToFirst()) {
+            dConta = cursor.getString(13);
+        }
         cursor.close();
-        return pg;
+        return dConta;
+    }
+
+    public Vector<String> mostraNomeContas() throws SQLException {
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, null, null,
+                null, null, COLUNA_NOME_CONTA + " ASC ");
+        Vector<String> v = new Vector<String>();
+        String str = " ";
+        if (cursor != null && cursor.moveToFirst())
+            str = cursor.getString(1);
+        v.add(cursor.getString(1));
+        while (!cursor.isAfterLast()) {
+            if (!str.equals(cursor.getString(1)))
+                v.add(cursor.getString(1));
+            str = cursor.getString(1);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return v;
     }
 
     // - MÉTODOS QUE CONTAM QUANTAS CONTAS EXISTEM NO BANCO DE DADOS
@@ -486,7 +505,7 @@ public class DBContas {
         return i;
     }
 
-    public int quantasContasPagasPorTipo(String tipo, String pagamento,
+    public int quantasContasPagasPorTipo(int tipo, String pagamento,
                                          int dia, int mes, int ano) {
         Cursor cursor;
         if (dia == 0)
@@ -507,25 +526,25 @@ public class DBContas {
         return i;
     }
 
-    public int quantasContasPorClasse(String classe, int dia, int mes, int ano) {
+    public int quantasContasPorClasse(int classe, int dia, int mes, int ano) {
         Cursor cursor;
         if (dia == 0)
             cursor = db.query(TABELA_CONTAS, colunas_contas,
-                    COLUNA_CATEGORIA_CONTA + " = '" + classe + "' AND "
+                    COLUNA_CLASSE_CONTA + " = '" + classe + "' AND "
                             + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                             + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
                     null, null, null, null);
         else if (ano != 0) {
             dia = dia + 1;
             cursor = db.query(TABELA_CONTAS, colunas_contas,
-                    COLUNA_CATEGORIA_CONTA + " = '" + classe + "' AND "
+                    COLUNA_CLASSE_CONTA + " = '" + classe + "' AND "
                             + COLUNA_DIA_DATA_CONTA + " < '" + dia + "' AND "
                             + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                             + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
                     null, null, null, null);
         } else {
             cursor = db.query(TABELA_CONTAS, colunas_contas,
-                    COLUNA_CATEGORIA_CONTA + " = '" + classe + "'", null, null,
+                    COLUNA_CLASSE_CONTA + " = '" + classe + "'", null, null,
                     null, null);
         }
         int i = cursor.getCount();
@@ -543,7 +562,7 @@ public class DBContas {
         return i;
     }
 
-    public int quantasContasPorTipo(String tipo, int dia, int mes, int ano) {
+    public int quantasContasPorTipo(int tipo, int dia, int mes, int ano) {
         Cursor cursor;
         if (dia == 0)
             cursor = db.query(TABELA_CONTAS, colunas_contas, COLUNA_TIPO_CONTA
@@ -588,7 +607,7 @@ public class DBContas {
 
     // ----------- MÉTODOS QUE SOMAM AS CONTAS DO BANCO DE DADOS
 
-    public double somaContas(String tipo, int dia, int mes, int ano)
+    public double somaContas(int tipo, int dia, int mes, int ano)
             throws SQLException {
         Cursor cursor;
         if (dia == 0)
@@ -612,12 +631,12 @@ public class DBContas {
                 cursor.close();
                 return d;
             }
-            d += cursor.getDouble(9);
+            d += cursor.getDouble(8);
             cursor.moveToPrevious();
         }
     }
 
-    public double somaContasPagas(String tipo, String pagamento, int dia,
+    public double somaContasPagas(int tipo, String pagamento, int dia,
                                   int mes, int ano) throws SQLException {
         Cursor cursor;
         if (dia == 0)
@@ -643,25 +662,25 @@ public class DBContas {
                 cursor.close();
                 return d;
             }
-            d += cursor.getDouble(9);
+            d += cursor.getDouble(8);
             cursor.moveToPrevious();
         }
     }
 
-    public double somaContasPorClasse(String classe, int dia, int mes, int ano)
+    public double somaContasPorClasse(int classe, int dia, int mes, int ano)
             throws SQLException {
 
         Cursor cursor;
         if (dia == 0)
             cursor = db.query(TABELA_CONTAS, colunas_contas,
-                    COLUNA_CATEGORIA_CONTA + " = '" + classe + "' AND "
+                    COLUNA_CLASSE_CONTA + " = '" + classe + "' AND "
                             + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                             + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
                     null, null, null, null);
         else {
             dia = dia + 1;
             cursor = db.query(TABELA_CONTAS, colunas_contas,
-                    COLUNA_CATEGORIA_CONTA + " = '" + classe + "' AND "
+                    COLUNA_CLASSE_CONTA + " = '" + classe + "' AND "
                             + COLUNA_DIA_DATA_CONTA + " < '" + dia + "' AND "
                             + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                             + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
@@ -675,7 +694,39 @@ public class DBContas {
                 cursor.close();
                 return d;
             }
-            d += cursor.getDouble(9);
+            d += cursor.getDouble(8);
+            cursor.moveToPrevious();
+        }
+    }
+
+    public double somaContasPorCategoria(int categoria, int dia, int mes, int ano)
+            throws SQLException {
+
+        Cursor cursor;
+        if (dia == 0)
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
+                    COLUNA_CATEGORIA_CONTA + " = '" + categoria + "' AND "
+                            + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
+                            + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
+                    null, null, null, null);
+        else {
+            dia = dia + 1;
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
+                    COLUNA_CATEGORIA_CONTA + " = '" + categoria + "' AND "
+                            + COLUNA_DIA_DATA_CONTA + " < '" + dia + "' AND "
+                            + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
+                            + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
+                    null, null, null, null);
+        }
+        int i = cursor.getCount();
+        cursor.moveToLast();
+        double d = 0.0D;
+        for (int j = 0; ; j++) {
+            if (j >= i) {
+                cursor.close();
+                return d;
+            }
+            d += cursor.getDouble(8);
             cursor.moveToPrevious();
         }
     }
@@ -693,7 +744,7 @@ public class DBContas {
 
             if (sd.canWrite()) {
                 String currentDBPath = "//data//com.msk.minhascontas//databases//minhas_contas";
-                String backupDBPath = "minhas_contas";
+                String backupDBPath = BANCO_DE_DADOS;
                 File currentDB = new File(data, currentDBPath);
                 File backupDB = new File(sd, backupDBPath);
 
@@ -708,6 +759,7 @@ public class DBContas {
                 }
             }
         } catch (Exception e) {
+            Log.w(TAG, "Erro ao guardar dados");
         }
     }
 
@@ -725,7 +777,7 @@ public class DBContas {
 
             if (sd.canWrite()) {
                 String currentDBPath = "//data//com.msk.minhascontas//databases//minhas_contas";
-                //String backupDBPath = "minhas_contas";
+                //String backupDBPath = BANCO_DE_DADOS;
                 File currentDB = new File(data, currentDBPath);
                 //File backupDB = new File(sd, backupDBPath);
 
@@ -740,7 +792,84 @@ public class DBContas {
                 }
             }
         } catch (Exception e) {
+            Log.w(TAG, "Erro ao recuperar dados");
+        }
+    }
 
+    public void atualizaBD() throws SQLException {
+
+        String[] colunas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
+                COLUNA_TIPO_CONTA, COLUNA_CLASSE_CONTA, COLUNA_CATEGORIA_CONTA,
+                "data", COLUNA_VALOR_CONTA, COLUNA_PAGOU_CONTA,
+                COLUNA_QT_REPETICOES_CONTA, COLUNA_NR_REPETICAO_CONTA,
+                COLUNA_INTERVALO_CONTA, COLUNA_CODIGO_CONTA, COLUNA_TIPO_CONTA,
+                "classificacao", COLUNA_PAGOU_CONTA, COLUNA_DIA_DATA_CONTA,
+                COLUNA_MES_DATA_CONTA, COLUNA_ANO_DATA_CONTA};
+
+        Cursor cursor = db.query(true, "tabela_temporaria", colunas, null, null,
+                null, null, null, null);
+        cursor.moveToLast();
+        long idLong;
+        ContentValues cv;
+        Resources res = null;
+        res = contexto.getResources();
+        String[] rec = res.getStringArray(R.array.TipoReceita);
+        String[] desp = res.getStringArray(R.array.TipoDespesa);
+        String[] apl = res.getStringArray(R.array.TipoAplicacao);
+
+        try {
+            for (int i = 0; i < cursor.getCount(); i++) {
+                cv = new ContentValues();
+                idLong = cursor.getLong(0);
+                if (cursor.getString(12).equals(res.getString(R.string.linha_despesa))) {
+                    cv.put(COLUNA_TIPO_CONTA, 0);
+                    for (int j = 0; j < desp.length; j++) {
+                        if (cursor.getString(13).equals(desp[j])) {
+                            cv.put(COLUNA_CLASSE_CONTA, j);
+                        }
+                    }
+                } else if (cursor.getString(12).equals(res.getString(R.string.linha_receita))) {
+                    cv.put(COLUNA_TIPO_CONTA, 1);
+                    for (int j = 0; j < rec.length; j++) {
+                        if (cursor.getString(13).equals(rec[j])) {
+                            cv.put(COLUNA_CLASSE_CONTA, j);
+                        }
+                    }
+                } else {
+                    cv.put(COLUNA_TIPO_CONTA, 2);
+                    for (int j = 0; j < apl.length; j++) {
+                        if (cursor.getString(13).equals(apl[j])) {
+                            cv.put(COLUNA_CLASSE_CONTA, j);
+                        }
+                    }
+                }
+                db.update(TABELA_CONTAS, cv, COLUNA_ID_CONTA + " = '"
+                        + idLong + "' ", null);
+                cursor.moveToPrevious();
+            }
+            cursor.close();
+
+            db.execSQL("INSERT INTO " + TABELA_CONTAS
+                    + " SELECT " + COLUNA_ID_CONTA
+                    + ", " + COLUNA_NOME_CONTA
+                    + ", " + COLUNA_TIPO_CONTA
+                    + ", " + COLUNA_CLASSE_CONTA
+                    + ", " + COLUNA_CATEGORIA_CONTA
+                    + ", " + COLUNA_DIA_DATA_CONTA
+                    + ", " + COLUNA_MES_DATA_CONTA
+                    + ", " + COLUNA_ANO_DATA_CONTA
+                    + ", " + COLUNA_VALOR_CONTA
+                    + ", " + COLUNA_PAGOU_CONTA
+                    + ", " + COLUNA_QT_REPETICOES_CONTA
+                    + ", " + COLUNA_NR_REPETICAO_CONTA
+                    + ", " + COLUNA_INTERVALO_CONTA
+                    + ", " + COLUNA_CODIGO_CONTA
+                    + " FROM tabela_temporaria");
+
+            db.execSQL("DROP TABLE tabela_temporaria");
+
+        } catch (Exception e) {
+            Log.w(TAG, "Erro ao modificar dados");
         }
     }
 
@@ -770,8 +899,49 @@ public class DBContas {
                     + " para " + arg2 + ", todos os dados serao perdidos!");
             // db.execSQL("DROP TABLE IF EXISTS " + TABELA_CONTAS);
             // onCreate(db);
+            db.execSQL("DROP TABLE IF EXISTS categorias_contas");
+
+            db.execSQL("CREATE TABLE tabela_temporaria" + " ( "
+                    + COLUNA_ID_CONTA + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + COLUNA_NOME_CONTA + " TEXT, "
+                    + COLUNA_TIPO_CONTA + " INTEGER, "
+                    + COLUNA_CLASSE_CONTA + " INTEGER, "
+                    + COLUNA_CATEGORIA_CONTA + " INTEGER, "
+                    + COLUNA_DIA_DATA_CONTA + " INTEGER, "
+                    + COLUNA_MES_DATA_CONTA + " INTEGER, "
+                    + COLUNA_ANO_DATA_CONTA + " INTEGER, "
+                    + COLUNA_VALOR_CONTA + " REAL, "
+                    + COLUNA_PAGOU_CONTA + " TEXT, "
+                    + COLUNA_QT_REPETICOES_CONTA + " INTEGER, "
+                    + COLUNA_NR_REPETICAO_CONTA + " INTEGER, "
+                    + COLUNA_INTERVALO_CONTA + " INTEGER, "
+                    + COLUNA_CODIGO_CONTA + " TEXT, "
+                    + COLUNA_TIPO_CONTA + " TEXT, "
+                    + " classificacao TEXT )");
+
+            db.execSQL("INSERT INTO tabela_temporaria"
+                    + " SELECT " + COLUNA_ID_CONTA
+                    + ", " + COLUNA_NOME_CONTA
+                    + ", " + null
+                    + ", " + null
+                    + ", " + null
+                    + ", " + COLUNA_DIA_DATA_CONTA
+                    + ", " + COLUNA_MES_DATA_CONTA
+                    + ", " + COLUNA_ANO_DATA_CONTA
+                    + ", " + COLUNA_VALOR_CONTA
+                    + ", " + COLUNA_PAGOU_CONTA
+                    + ", " + COLUNA_QT_REPETICOES_CONTA
+                    + ", " + COLUNA_NR_REPETICAO_CONTA
+                    + ", " + COLUNA_INTERVALO_CONTA
+                    + ", data"
+                    + ", " + COLUNA_TIPO_CONTA
+                    + ", classificacao FROM " + TABELA_CONTAS);
+
+            db.execSQL("DROP TABLE " + TABELA_CONTAS);
+
+            db.execSQL(CRIA_TABELA_CONTAS);
+
+            //db.execSQL("DROP TABLE tabela_temporaria");
         }
-
     }
-
 }

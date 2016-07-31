@@ -34,9 +34,6 @@ import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.db.ExportarExcel;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 public class Ajustes extends PreferenceActivity implements
         OnPreferenceClickListener, OnPreferenceChangeListener {
 
@@ -51,15 +48,10 @@ public class Ajustes extends PreferenceActivity implements
     private PreferenceScreen prefs;
     private Preference backup, restaura, apagatudo, versao, exportar;
     private EditTextPreference senha;
-    private CheckBoxPreference acesso, pagamento, resumo, saldo, autobkup;
+    private CheckBoxPreference acesso, categoria, pagamento, resumo, saldo, autobkup;
     private String chave, pastaBackUp;
     private PackageInfo info;
-    private Resources r = null;
-    private NumberFormat dinheiro;
-    private int erro, categorias, ajusteReceita;
-    private String[] linhas;
-    private String despesa, receita, aplicacao;
-    private String[] despesas, receitas, aplicacoes;
+    private Resources res = null;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -69,34 +61,34 @@ public class Ajustes extends PreferenceActivity implements
 
         addPreferencesFromResource(R.xml.preferencias);
 
-        r = getResources();
-        Locale current = r.getConfiguration().locale;
-        dinheiro = NumberFormat.getCurrencyInstance(current);
+        res = getResources();
 
         prefs = getPreferenceScreen();
 
         // ELEMENTOS DAS PREFERENCIAS QUE SERAO UTILIZADOS
-        exportar = (Preference) prefs.findPreference(r
+        exportar = (Preference) prefs.findPreference(res
                 .getString(R.string.pref_key_exportar));
-        backup = (Preference) prefs.findPreference(r
+        backup = (Preference) prefs.findPreference(res
                 .getString(R.string.pref_key_bkup));
-        restaura = (Preference) prefs.findPreference(r
+        restaura = (Preference) prefs.findPreference(res
                 .getString(R.string.pref_key_restaura));
-        apagatudo = (Preference) prefs.findPreference(r
+        apagatudo = (Preference) prefs.findPreference(res
                 .getString(R.string.pref_key_apagatudo));
-        versao = (Preference) prefs.findPreference(r
+        versao = (Preference) prefs.findPreference(res
                 .getString(R.string.pref_key_versao));
-        senha = (EditTextPreference) prefs.findPreference(r
+        senha = (EditTextPreference) prefs.findPreference(res
                 .getString(R.string.pref_key_senha));
-        acesso = (CheckBoxPreference) prefs.findPreference(r
+        acesso = (CheckBoxPreference) prefs.findPreference(res
                 .getString(R.string.pref_key_acesso));
-        pagamento = (CheckBoxPreference) prefs.findPreference(r
+        categoria = (CheckBoxPreference) prefs.findPreference(res
+                .getString(R.string.pref_key_categoria));
+        pagamento = (CheckBoxPreference) prefs.findPreference(res
                 .getString(R.string.pref_key_pagamento));
-        resumo = (CheckBoxPreference) prefs.findPreference(r
+        resumo = (CheckBoxPreference) prefs.findPreference(res
                 .getString(R.string.pref_key_resumo));
-        saldo = (CheckBoxPreference) prefs.findPreference(r
+        saldo = (CheckBoxPreference) prefs.findPreference(res
                 .getString(R.string.pref_key_saldo));
-        autobkup = (CheckBoxPreference) prefs.findPreference(r
+        autobkup = (CheckBoxPreference) prefs.findPreference(res
                 .getString(R.string.pref_key_auto_bkup));
 
         try {
@@ -106,7 +98,7 @@ public class Ajustes extends PreferenceActivity implements
         }
         String nrVersao = info.versionName;
 
-        versao.setSummary(r.getString(R.string.pref_descricao_versao, nrVersao));
+        versao.setSummary(res.getString(R.string.pref_descricao_versao, nrVersao));
 
         if (acesso.isChecked()) {
             acesso.setSummary(R.string.pref_descricao_acesso_negado);
@@ -114,6 +106,11 @@ public class Ajustes extends PreferenceActivity implements
             acesso.setSummary(R.string.pref_descricao_acesso_livre);
         }
 
+        if (categoria.isChecked()) {
+            categoria.setSummary(R.string.pref_descricao_categoria);
+        } else {
+            categoria.setSummary(R.string.pref_descricao_sem_categoria);
+        }
         if (pagamento.isChecked()) {
             pagamento.setSummary(R.string.pref_descricao_autopagamento);
         } else {
@@ -154,6 +151,7 @@ public class Ajustes extends PreferenceActivity implements
         apagatudo.setOnPreferenceClickListener(this);
         exportar.setOnPreferenceClickListener(this);
         acesso.setOnPreferenceClickListener(this);
+        categoria.setOnPreferenceClickListener(this);
         pagamento.setOnPreferenceClickListener(this);
         resumo.setOnPreferenceClickListener(this);
         saldo.setOnPreferenceClickListener(this);
@@ -220,6 +218,16 @@ public class Ajustes extends PreferenceActivity implements
             } else {
                 acesso.setSummary(R.string.pref_descricao_acesso_livre);
             }
+        }
+        if (chave.equals("categoria")) {
+            if (categoria.isChecked()) {
+                categoria.setSummary(R.string.pref_descricao_categoria);
+            } else {
+                categoria.setSummary(R.string.pref_descricao_sem_categoria);
+            }
+            Toast.makeText(getApplicationContext(),
+                    R.string.dica_texto_reinicio,
+                    Toast.LENGTH_SHORT).show();
         }
         if (chave.equals("pagamento")) {
             if (pagamento.isChecked()) {

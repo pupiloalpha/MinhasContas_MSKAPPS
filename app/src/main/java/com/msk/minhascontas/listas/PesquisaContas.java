@@ -103,13 +103,13 @@ public class PesquisaContas extends AppCompatActivity implements
                                 .mostraNomeConta(idConta);
                         int qtRepeteConta = dbContasPesquisadas
                                 .quantasContasPorNome(nomeContaExcluir);
-
+                        String dataAntiga = dbContasPesquisadas
+                                .mostraCodigoConta(idConta);
                         long ii = dbContasPesquisadas
                                 .mostraPrimeiraRepeticaoConta(
                                         nomeContaExcluir,
-                                        qtRepeteConta);
-                        String dataAntiga = dbContasPesquisadas
-                                .mostraDataConta(ii);
+                                        qtRepeteConta, dataAntiga);
+                        dataAntiga = dbContasPesquisadas.mostraCodigoConta(ii);
                         dbContasPesquisadas.atualizaDataContas(
                                 nomeContaExcluir, dataAntiga,
                                 qtRepeteConta);
@@ -305,11 +305,8 @@ public class PesquisaContas extends AppCompatActivity implements
             switch (item.getItemId()) {
                 case R.id.botao_pagar:
                     if (contas.size() != 0) {
-
                         dbContasPesquisadas.open();
-
                         for (int i = 0; i < contas.size(); i++) {
-
                             String pg = dbContasPesquisadas
                                     .mostraPagamentoConta(contas.get(i));
                             if (pg.equals("paguei")) {
@@ -320,26 +317,19 @@ public class PesquisaContas extends AppCompatActivity implements
                                         contas.get(i), "paguei");
                             }
                         }
-
                         dbContasPesquisadas.close();
-
                     }
                     setResult(RESULT_OK, null);
                     mode.finish();
                     break;
                 case R.id.botao_excluir:
-
                     if (contas.size() != 0) {
-
                         dbContasPesquisadas.open();
-
                         for (int i = 0; i < contas.size(); i++) {
                             dbContasPesquisadas.excluiConta(contas.get(i));
                         }
-
                         dbContasPesquisadas.close();
                     }
-
                     mode.finish();
                     break;
             }
@@ -496,7 +486,7 @@ public class PesquisaContas extends AppCompatActivity implements
                         String nomeContaExcluir = dbContasPesquisadas
                                 .mostraNomeConta(idConta);
                         String dataContaExcluir = dbContasPesquisadas
-                                .mostraDataConta(idConta);
+                                .mostraCodigoConta(idConta);
                         switch (id) {
                             case 0:
                                 dbContasPesquisadas.excluiConta(idConta);

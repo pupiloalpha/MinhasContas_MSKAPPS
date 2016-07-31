@@ -35,8 +35,10 @@ import android.widget.LinearLayout;
 
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.info.Ajustes;
-import com.msk.minhascontas.resumos.ResumoDiario;
-import com.msk.minhascontas.resumos.ResumoMensal;
+import com.msk.minhascontas.resumos.ResumoCategoriaDiario;
+import com.msk.minhascontas.resumos.ResumoCategoriaMensal;
+import com.msk.minhascontas.resumos.ResumoTipoDiario;
+import com.msk.minhascontas.resumos.ResumoTipoMensal;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -61,12 +63,9 @@ public class MinhasContas extends AppCompatActivity {
     private SharedPreferences buscaPreferencias = null;
 
     // VARIAVEIS DO APLICATIVO
-    private Boolean autobkup = true;
-    private Boolean resumoMensal = true;
-    private Boolean bloqueioApp = false;
-    private Boolean atualizaPagamento = false;
+    private Boolean autobkup = true, resumoMensal = true;
+    private Boolean bloqueioApp = false, atualizaPagamento = false, resumoCategoria = false;
     private String senhaUsuario;
-    private String[] despesas, receitas;
     private String[] Meses;
     private int dia, mes, ano, paginas, nrPagina;
 
@@ -146,10 +145,8 @@ public class MinhasContas extends AppCompatActivity {
                         new Intent("com.msk.minhascontas.NOVACONTA"), CRIA_CONTA);
             }
         });
-
         // DEFINE O MES QUE APARECERA NA TELA QUANDO ABRIR
         mViewPager.setCurrentItem(nrPagina);
-
     }
 
     private void PreferenciasUsuario() {
@@ -157,6 +154,7 @@ public class MinhasContas extends AppCompatActivity {
         buscaPreferencias = PreferenceManager.getDefaultSharedPreferences(this);
         autobkup = buscaPreferencias.getBoolean("autobkup", true);
         resumoMensal = buscaPreferencias.getBoolean("resumo", true);
+        resumoCategoria = buscaPreferencias.getBoolean("categoria", false);
         bloqueioApp = buscaPreferencias.getBoolean("acesso", false);
         atualizaPagamento = buscaPreferencias.getBoolean("pagamento", false);
         senhaUsuario = buscaPreferencias.getString("senha", "");
@@ -392,8 +390,6 @@ public class MinhasContas extends AppCompatActivity {
 
     /**
      * CLASSE QUE GERENCIA OS FRAGMENTOS
-     * <p/>
-     * *
      */
     public class Paginas extends FragmentStatePagerAdapter {
 
@@ -405,13 +401,20 @@ public class MinhasContas extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int i) {
-
             // DEFINE PAGINA NA TELA
-            if (resumoMensal)
-                return ResumoMensal.newInstance(mesConta[i], anoConta[i], i);
-            else
-                return ResumoDiario.newInstance(diaConta[i], mesConta[i],
+            if (resumoMensal) {
+                if (resumoCategoria)
+                    return ResumoCategoriaMensal.newInstance(mesConta[i], anoConta[i], i);
+                else
+                    return ResumoTipoMensal.newInstance(mesConta[i], anoConta[i], i);
+            } else {
+                if (resumoCategoria)
+                    return ResumoCategoriaDiario.newInstance(diaConta[i], mesConta[i],
                         anoConta[i]);
+                else
+                    return ResumoTipoDiario.newInstance(diaConta[i], mesConta[i],
+                            anoConta[i]);
+            }
         }
 
         @Override

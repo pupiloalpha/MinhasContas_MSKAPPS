@@ -69,7 +69,7 @@
     <string name="dica_vazio">No tiene cuenta creada</string>
     <string name="dica_pesquisa">No tienes cuenta encontró</string>
     <string name="dica_carteira">Cartera</string>
-    <string name="dica_banco">Banco</string>
+    <string name="dica_banco">Banco/Cartera</string>
     <string name="dica_alimentacao">Comida</string>
     <string name="dica_educacao">Educación</string>
     <string name="dica_lazer">Ocio</string>
@@ -109,7 +109,7 @@
     <string name="dica_barra_recupera">La recuperación de las cuentas &#x2026;</string>
     <string name="dica_barra_exclui">Eliminación de cuentas &#x2026;</string>
 
-    <!-- Strings Do Dialogo de ResumoMensal do Saldo mensal -->
+    <!-- Strings Do Dialogo de ResumoTipoMensal do Saldo mensal -->
 
     <string name="resumo_mes_anterior">Saldo mes anterior</string>
     <string name="resumo_saldo">Saldo mes actual</string>
@@ -202,5 +202,8 @@
     <string name="dica_aplicacao">Aplicatione</string>
     <string name="dica_despesas">Todos los gastos</string>
     <string name="dica_aplicacoes">Todas las aplicationes</string>
+    <string name="pref_descricao_categoria">Mostrar categorías en resumen</string>
+    <string name="pref_descricao_sem_categoria">Mostrar tipos de gastos en el resumen</string>
+    <string name="pref_titulo_categoria">Categorías de gastos</string>
 
 </resources>

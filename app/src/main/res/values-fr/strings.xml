@@ -69,7 +69,7 @@
     <string name="dica_vazio">Pas de compte créé</string>
     <string name="dica_pesquisa">Pas de compte trouvé</string>
     <string name="dica_carteira">Portefeuille</string>
-    <string name="dica_banco">Banque</string>
+    <string name="dica_banco">Banque/Portefeuille</string>
     <string name="dica_alimentacao">Alimentation</string>
     <string name="dica_educacao">Éducation</string>
     <string name="dica_lazer">Loisir</string>
@@ -79,7 +79,7 @@
     <string name="dica_vestuario">Vêtements</string>
     <string name="dica_outros">Autre</string>
 
-    <!-- Strings Da Telas de ResumoMensal das Contas do Aplicativo -->
+    <!-- Strings Da Telas de ResumoTipoMensal das Contas do Aplicativo -->
 
     <string name="linha_receita">RECETTES</string>
     <string name="linha_aplicacoes">APPLICATIONS</string>
@@ -109,7 +109,7 @@
     <string name="dica_barra_recupera">Récupération des comptes &#x2026;</string>
     <string name="dica_barra_exclui">Suppression de comptes &#x2026;</string>
 
-    <!-- Strings Do Dialogo de ResumoMensal do Saldo mensal -->
+    <!-- Strings Do Dialogo de ResumoTipoMensal do Saldo mensal -->
 
     <string name="resumo_mes_anterior">Solde mois précédent</string>
     <string name="resumo_saldo">Solde mois courant</string>
@@ -204,5 +204,8 @@
     <string name="dica_aplicacao">Application</string>
     <string name="dica_despesas">Tous les dépenses</string>
     <string name="dica_aplicacoes">Tous les applications</string>
+    <string name="pref_descricao_categoria">Afficher les catégories en résumé</string>
+    <string name="pref_descricao_sem_categoria">Afficher les types de dépenses dans le résumé</string>
+    <string name="pref_titulo_categoria">Catégories de dépenses</string>
 
 </resources>

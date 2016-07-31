@@ -96,7 +96,7 @@
 
             <RadioGroup
                 android:id="@+id/rgTipoNovaConta"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -172,7 +172,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:baselineAligned="false"
                 android:orientation="horizontal">
@@ -237,7 +237,7 @@
 
             <android.support.v7.widget.AppCompatCheckBox
                 android:id="@+id/cbLembrete"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/titulo_calendario"
                 android:textAppearance="?android:attr/textAppearanceMedium"

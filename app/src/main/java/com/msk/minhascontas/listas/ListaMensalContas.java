@@ -130,12 +130,13 @@ public class ListaMensalContas extends Fragment {
                                 .mostraNomeConta(idConta);
                         int qtRepeteConta = dbContasDoMes
                                 .quantasContasPorNome(nomeContaExcluir);
+                        String dataAntiga = dbContasDoMes
+                                .mostraCodigoConta(idConta);
                         long ii = dbContasDoMes
                                 .mostraPrimeiraRepeticaoConta(
                                         nomeContaExcluir,
-                                        qtRepeteConta);
-                        String dataAntiga = dbContasDoMes
-                                .mostraDataConta(ii);
+                                        qtRepeteConta, dataAntiga);
+                        dataAntiga = dbContasDoMes.mostraCodigoConta(ii);
                         dbContasDoMes.atualizaDataContas(
                                 nomeContaExcluir, dataAntiga,
                                 qtRepeteConta);
@@ -487,7 +488,7 @@ public class ListaMensalContas extends Fragment {
                         String nomeContaExcluir = dbContasDoMes
                                 .mostraNomeConta(idConta);
                         String dmaContaExcluir = dbContasDoMes
-                                .mostraDataConta(idConta);
+                                .mostraCodigoConta(idConta);
                         switch (id) {
                             case 0:
                                 dbContasDoMes.excluiConta(idConta);

@@ -20,11 +20,11 @@ import com.msk.minhascontas.db.DBContas;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class ResumoDiario extends Fragment implements View.OnClickListener {
+public class ResumoCategoriaMensal extends Fragment implements View.OnClickListener {
 
     public static final String ANO_PAGINA = "ano_pagina";
     public static final String MES_PAGINA = "mes_pagina";
-    public static final String DIA_PAGINA = "dia_pagina";
+    public static final String NR_PAGINA = "nr_pagina";
 
     // BARRA NO TOPO DO APLICATIVO
     private Bundle dados_mes = new Bundle();
@@ -36,33 +36,29 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
     private SharedPreferences buscaPreferencias = null;
 
     // ELEMENTOS UTILIZADOS EM TELA
-    private TextView valorDesp, valorRec, valorAplic, valorSaldo,
+    private TextView valorDesp, valorRec, valorAplic, valorSaldo, valorBanco,
             valorPagar, valorPago, valorCartao, valorSaldoAtual, valorSaldoAnterior,
-            valorFundos, valorPoupanca, valorPrevidencia, valorDespFixa, valorDespVar,
-            valorPrestacoes, valorReceber, valorRecebido;
+            valorFundos, valorPoupanca, valorPrevidencia, vAlimentacao, vEducacao,
+            vMoradia, vTransporte, vSaude, vOutros, valorReceber, valorRecebido;
 
     private LinearLayout aplic, desp, rec, sald;
 
     // VARIAEIS UTILIZADAS
-    private int dia, mes, ano;
+    private int mes, ano, nrPagina;
     private double[] valores, valoresDesp, valoresRec, valoresSaldo,
             valoresAplicados;
-
     // ELEMENTOS DAS PAGINAS
     private View rootView;
-
-    public ResumoDiario() {
-    }
 
     /**
      * Returns a new instance of this fragment for the given section number.
      */
-    public static ResumoDiario newInstance(int dia, int mes, int ano) {
-        ResumoDiario fragment = new ResumoDiario();
+    public static ResumoCategoriaMensal newInstance(int mes, int ano, int nr) {
+        ResumoCategoriaMensal fragment = new ResumoCategoriaMensal();
         Bundle args = new Bundle();
         args.putInt(ANO_PAGINA, ano);
         args.putInt(MES_PAGINA, mes);
-        args.putInt(DIA_PAGINA, dia);
+        args.putInt(NR_PAGINA, nr);
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,7 +66,6 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
     }
 
     @Override
@@ -84,21 +79,19 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // COLOCA OS MESES NA TELA
-        rootView = inflater.inflate(R.layout.conteudo_resumos, container, false);
+        rootView = inflater.inflate(R.layout.resumo_por_categoria, container, false);
         Bundle args = getArguments();
 
-        dia = args.getInt(DIA_PAGINA);
         mes = args.getInt(MES_PAGINA);
         ano = args.getInt(ANO_PAGINA);
+        nrPagina = args.getInt(NR_PAGINA);
 
         // DEFINE OS ELEMENTOS QUE SERAO EXIBIDOS
         Iniciar();
 
         // CALCULA OS VALORES QUE SERAO EXIBIDOS
         Saldo();
-
         InsereValores();
 
         aplic.setOnClickListener(this);
@@ -115,12 +108,20 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
                 .findViewById(R.id.tvValorDespPaga));
         valorPagar = ((TextView) rootView
                 .findViewById(R.id.tvValorDespPagar));
-        valorDespFixa = ((TextView) rootView
-                .findViewById(R.id.tvValorDespFixa));
-        valorDespVar = ((TextView) rootView
-                .findViewById(R.id.tvValorDespVar));
-        valorPrestacoes = ((TextView) rootView
-                .findViewById(R.id.tvValorPrestacoes));
+        valorBanco = ((TextView) rootView
+                .findViewById(R.id.tvValorBanco));
+        vAlimentacao = ((TextView) rootView
+                .findViewById(R.id.tvValorAlimentacao));
+        vEducacao = ((TextView) rootView
+                .findViewById(R.id.tvValorEducacao));
+        vMoradia = ((TextView) rootView
+                .findViewById(R.id.tvValorMoradia));
+        vSaude = ((TextView) rootView
+                .findViewById(R.id.tvValorSaude));
+        vTransporte = ((TextView) rootView
+                .findViewById(R.id.tvValorTransporte));
+        vOutros = ((TextView) rootView
+                .findViewById(R.id.tvValorOutros));
         valorCartao = ((TextView) rootView
                 .findViewById(R.id.tvValorCartaoCredito));
         valorReceber = ((TextView) rootView
@@ -150,7 +151,6 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
         desp = (LinearLayout) rootView.findViewById(R.id.l_despesas);
         rec = (LinearLayout) rootView.findViewById(R.id.l_receitas);
         sald = (LinearLayout) rootView.findViewById(R.id.l_saldo);
-
     }
 
     private void InsereValores() {
@@ -163,9 +163,13 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
         valorPago.setText(dinheiro.format(valoresDesp[0]));
         valorPagar.setText(dinheiro.format(valoresDesp[1]));
         valorCartao.setText(dinheiro.format(valoresDesp[2]));
-        valorDespFixa.setText(dinheiro.format(valoresDesp[3]));
-        valorDespVar.setText(dinheiro.format(valoresDesp[4]));
-        valorPrestacoes.setText(dinheiro.format(valoresDesp[5]));
+
+        vAlimentacao.setText(dinheiro.format(valoresDesp[3]));
+        vEducacao.setText(dinheiro.format(valoresDesp[4]));
+        vMoradia.setText(dinheiro.format(valoresDesp[5]));
+        vSaude.setText(dinheiro.format(valoresDesp[6]));
+        vTransporte.setText(dinheiro.format(valoresDesp[7]));
+        vOutros.setText(dinheiro.format(valoresDesp[8]));
 
         valorReceber.setText(dinheiro.format(valoresRec[1]));
         valorRecebido.setText(dinheiro.format(valoresRec[0]));
@@ -176,6 +180,7 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
 
         valorSaldoAtual.setText(dinheiro.format(valoresSaldo[0]));
         valorSaldoAnterior.setText(dinheiro.format(valoresSaldo[1]));
+        valorBanco.setText(dinheiro.format(valoresSaldo[2]));
 
         valorRec.setText(dinheiro.format(valores[0]));
         valorDesp.setText(dinheiro.format(valores[1]));
@@ -186,10 +191,8 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
             valorSaldoAtual.setTextColor(Color.parseColor("#CC0000"));
         }
         if (valoresSaldo[1] < 0.0D) {
-            valorSaldoAnterior
-                    .setTextColor(Color.parseColor("#CC0000"));
+            valorSaldoAnterior.setTextColor(Color.parseColor("#CC0000"));
         }
-
         if (valores[3] < 0.0D) {
             valorSaldo.setTextColor(Color.parseColor("#CC0000"));
         }
@@ -201,13 +204,13 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
 
         dbContas.open();
         String despesa = getResources().getString(R.string.linha_despesa);
-        String[] despesas = getResources().getStringArray(R.array.TipoDespesa);
+        String[] despesas = getResources().getStringArray(R.array.CategoriaConta);
         String receita = getResources().getString(R.string.linha_receita);
         String aplicacao = getResources().getString(R.string.linha_aplicacoes);
         String[] aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         valores = new double[4];
-        valoresDesp = new double[6];
+        valoresDesp = new double[9];
         valoresRec = new double[2];
         valoresSaldo = new double[2];
         valoresAplicados = new double[3];
@@ -217,42 +220,42 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
         // PREENCHE AS LINHAS DA TABELA
 
         // VALORES DE RECEITAS
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, receita);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, receita);
         if (somador.getCount() > 0)
             valores[0] = SomaContas(somador);
         else
             valores[0] = 0.0D;
 
         // VALOR RECEITAS RECEBIDAS
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, receita, "paguei");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, receita, "paguei");
         if (somador.getCount() > 0)
             valoresRec[0] = SomaContas(somador);
         else
             valoresRec[0] = 0.0D;
 
         // VALOR RECEITAS A RECEBAR
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, receita, "falta");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, receita, "falta");
         if (somador.getCount() > 0)
             valoresRec[1] = SomaContas(somador);
         else
             valoresRec[1] = 0.0D;
 
         // VALORES DE DESPESAS
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, despesa);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, despesa);
         if (somador.getCount() > 0)
             valores[1] = SomaContas(somador);
         else
             valores[1] = 0.0D;
 
         // VALOR CONTAS PAGAS
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, despesa, "paguei");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "paguei");
         if (somador.getCount() > 0)
             valoresDesp[0] = SomaContas(somador);
         else
             valoresDesp[0] = 0.0D;
 
         // VALOR CONTAS A PAGAR
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, despesa, "falta");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "falta");
         if (somador.getCount() > 0)
             valoresDesp[1] = SomaContas(somador);
         else
@@ -260,7 +263,7 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
 
         // VALORES DAS CATEGORIAS DE DESPESAS
         for (int i = 0; i < despesas.length; i++) {
-            somador = dbContas.buscaContasClasse(dia, mes, ano, null, despesa, despesas[i]);
+            somador = dbContas.buscaContasClasse(0, mes, ano, null, despesa, despesas[i]);
             if (somador.getCount() > 0)
                 valoresDesp[i + 2] = SomaContas(somador);
             else
@@ -268,14 +271,14 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
         }
 
         // VALORES DE APLICACOES
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, aplicacao);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, aplicacao);
         if (somador.getCount() > 0)
             valores[2] = SomaContas(somador);
         else
             valores[2] = 0.0D;
 
         for (int j = 0; j < aplicacoes.length; j++) {
-            somador = dbContas.buscaContasClasse(dia, mes, ano, null, aplicacao, aplicacoes[j]);
+            somador = dbContas.buscaContasClasse(0, mes, ano, null, aplicacao, aplicacoes[j]);
             if (somador.getCount() > 0)
                 valoresAplicados[j] = SomaContas(somador);
             else
@@ -286,11 +289,9 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
         valoresSaldo[0] = valores[0] - valores[1];
 
         // VALOR DO SALDO ATUAL
-
         valores[3] = valores[0] - valoresDesp[0];
 
         // VALOR DO SALDO DO MES ANTERIOR
-
         int mes_anterior = mes - 1; // DEFINE MES ANTERIOR
         int ano_anterior = ano;
         if (mes_anterior < 0) {
@@ -317,6 +318,7 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
 
         // VALOR DO SALDO ATUAL
         boolean somaSaldo = buscaPreferencias.getBoolean("saldo", false);
+
         if (somaSaldo) {
             valores[3] = valoresRec[0] - valoresDesp[0]
                     + valoresSaldo[1];
@@ -343,9 +345,10 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
 
+
         dados_mes.putInt("mes", mes);
         dados_mes.putInt("ano", ano);
-        dados_mes.putInt("nr", 12);
+        dados_mes.putInt("nr", nrPagina);
 
         switch (v.getId()) {
             case R.id.l_saldo:
@@ -374,5 +377,4 @@ public class ResumoDiario extends Fragment implements View.OnClickListener {
         InsereValores();
         super.onResume();
     }
-
 }

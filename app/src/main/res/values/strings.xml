@@ -70,7 +70,7 @@
     <string name="dica_vazio">Nenhuma conta criada</string>
     <string name="dica_pesquisa">Nenhuma conta encontrada</string>
     <string name="dica_carteira">Carteira</string>
-    <string name="dica_banco">Banco</string>
+    <string name="dica_banco">Banco/Carteira</string>
     <string name="dica_alimentacao">Alimentação</string>
     <string name="dica_educacao">Educação</string>
     <string name="dica_lazer">Lazer</string>
@@ -80,7 +80,7 @@
     <string name="dica_vestuario">Vestuário</string>
     <string name="dica_outros">Outros</string>
 
-    <!-- Strings Da Telas de ResumoMensal das Contas do Aplicativo -->
+    <!-- Strings Da Telas de ResumoTipoMensal das Contas do Aplicativo -->
 
     <string name="linha_receita">RECEITAS</string>
     <string name="linha_aplicacoes">APLICAÇÕES</string>
@@ -144,7 +144,6 @@
 
     <!-- Strings do Menu de Ajustes -->
 
-
     <!-- Ajustes Gerais -->
 
     <string name="pref_categoria_geral_key" translatable="false">geral</string>
@@ -161,6 +160,10 @@
     <string name="pref_descricao_resumo_mensal">Mostra o resumo mensal de contas</string>
     <string name="pref_descricao_resumo_diario">Mostra o resumo diário de contas</string>
     <string name="pref_key_resumo" translatable="false">resumo</string>
+    <string name="pref_titulo_categoria">Categorias de despesas</string>
+    <string name="pref_descricao_categoria">Mostrar categorias no resumo de contas</string>
+    <string name="pref_descricao_sem_categoria">Mostrar tipos de despesas no resumo</string>
+    <string name="pref_key_categoria" translatable="false">categoria</string>
     <string name="pref_titulo_saldo">Somar saldo anterior</string>
     <string name="pref_descricao_saldo_somado">Soma o saldo do mês anterior</string>
     <string name="pref_descricao_saldo_real">Mostra saldo mês atual</string>

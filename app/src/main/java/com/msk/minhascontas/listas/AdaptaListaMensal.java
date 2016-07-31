@@ -50,8 +50,8 @@ public class AdaptaListaMensal extends CursorAdapter {
 
         int i = cursor.getInt(10);
         String status = cursor.getString(4);
-        String classe = cursor.getString(3);
-        String tipo = cursor.getString(2);
+        int classe = cursor.getInt(3);
+        int tipo = cursor.getInt(2);
         String nomeconta = cursor.getString(1);
         int d = cursor.getInt(6);
         int m = cursor.getInt(7);
@@ -59,20 +59,14 @@ public class AdaptaListaMensal extends CursorAdapter {
 
         nome.setText(nomeconta);
 
-        if ((i > 1) && classe.equals(prestacao[0])
-                && tipo.equals(context.getString(R.string.linha_despesa))) {
-
+        if ((i > 1) && classe == 0 && tipo == 0) {
             String str4 = nomeconta + " " + cursor.getInt(11) + "/" + i;
             nome.setText(str4);
-
         }
 
-        if ((i > 1) && classe.equals(prestacao[3])
-                && tipo.equals(context.getString(R.string.linha_despesa))) {
-
+        if ((i > 1) && classe == 3 && tipo == 0) {
             String str4 = nomeconta + " " + cursor.getInt(11) + "/" + i;
             nome.setText(str4);
-
         }
 
         data.setText("" + d);
@@ -89,18 +83,17 @@ public class AdaptaListaMensal extends CursorAdapter {
 
         valor.setText(dinheiro.format(cursor.getDouble(9)));
 
-        if (tipo.equals(context.getString(R.string.linha_despesa))) {
+        if (tipo == 0) {
             valor.setTextColor(Color.parseColor("#CC0000"));
             if (status.equals("paguei"))
                 pagamento.setVisibility(View.VISIBLE);
-        } else if (tipo.equals(context.getString(R.string.linha_aplicacoes))) {
+        } else if (tipo == 2) {
             valor.setTextColor(Color.parseColor("#669900"));
         } else {
             valor.setTextColor(Color.parseColor("#0099CC"));
             if (status.equals("paguei"))
                 pagamento.setVisibility(View.VISIBLE);
         }
-
     }
 
     public void marcaConta(Integer i, Boolean b) {

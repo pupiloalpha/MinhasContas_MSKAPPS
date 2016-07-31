@@ -149,7 +149,7 @@ public class GraficoMensal extends Fragment {
         despesas = getResources().getStringArray(R.array.TipoDespesa);
         vdesp = 0.0D;
         // Valores de despesas
-        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, despesa);
+        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 0);
         if (somador.getCount() > 0)
             vdesp = SomaContas(somador);
 
@@ -158,7 +158,7 @@ public class GraficoMensal extends Fragment {
         vrec = 0.0D;
 
         // Valores de receitas
-        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, receita);
+        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 1);
         if (somador.getCount() > 0)
             vrec = SomaContas(somador);
 
@@ -166,7 +166,7 @@ public class GraficoMensal extends Fragment {
         aplicacao = getResources().getString(R.string.linha_aplicacoes);
         aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
         vaplic = 0.0D;
-        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, aplicacao);
+        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 2);
         if (somador.getCount() > 0)
             vaplic = SomaContas(somador);
 
@@ -176,22 +176,22 @@ public class GraficoMensal extends Fragment {
         vdespnpg = 0.0D;
 
         // Valores de despesas pagas
-        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "paguei");
+        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, 0, "paguei");
         if (somador.getCount() > 0)
             vdesppg = SomaContas(somador);
 
-        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "falta");
+        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, 0, "falta");
         if (somador.getCount() > 0)
             vdespnpg = SomaContas(somador);
 
         vrecrec = 0.0D;
         vrecarec = 0.0D;
         // Valores de receitas recebidas
-        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, receita, "paguei");
+        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, 1, "paguei");
         if (somador.getCount() > 0)
             vrecrec = SomaContas(somador);
 
-        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, receita, "falta");
+        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, 1, "falta");
         if (somador.getCount() > 0)
             vrecarec = SomaContas(somador);
 
@@ -309,7 +309,7 @@ public class GraficoMensal extends Fragment {
                 cores[i] = roleta[i];
             }
 
-            somador = dbContasFeitas.buscaContasClasse(0, mes, ano, null, aplicacao, aplicacoes[i]);
+            somador = dbContasFeitas.buscaContasClasse(0, mes, ano, null, 2, i);
             if (somador.getCount() > 0)
                 valores[i] = (float) SomaContas(somador);
             else
@@ -369,7 +369,7 @@ public class GraficoMensal extends Fragment {
             } else {
                 cores[i] = roleta[i];
             }
-            somador = dbContasFeitas.buscaContasClasse(0, mes, ano, null, despesa, despesas[i]);
+            somador = dbContasFeitas.buscaContasClasse(0, mes, ano, null, 0, i);
             if (somador.getCount() > 0)
                 valores[i] = (float) SomaContas(somador);
             else
@@ -488,8 +488,8 @@ public class GraficoMensal extends Fragment {
         List<PointValue> values = new ArrayList<PointValue>();
 
         dbContasFeitas.open();
-        Cursor somaReceitas = dbContasFeitas.buscaContasTipo(0, mes, ano, "dia_data ASC", receita);
-        Cursor somaDespesas = dbContasFeitas.buscaContasTipo(0, mes, ano, "dia_data ASC", despesa);
+        Cursor somaReceitas = dbContasFeitas.buscaContasTipo(0, mes, ano, "dia_data ASC", 1);
+        Cursor somaDespesas = dbContasFeitas.buscaContasTipo(0, mes, ano, "dia_data ASC", 0);
 
         // GERADOR DE DADOS PARA O GRAFICO DE SALDO
         if (somaDespesas.getCount() > 0 || somaReceitas.getCount() > 0) {

@@ -20,7 +20,7 @@ import com.msk.minhascontas.db.DBContas;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class ResumoMensal extends Fragment implements View.OnClickListener {
+public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
 
 
     public static final String ANO_PAGINA = "ano_pagina";
@@ -54,8 +54,8 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
     /**
      * Returns a new instance of this fragment for the given section number.
      */
-    public static ResumoMensal newInstance(int mes, int ano, int nr) {
-        ResumoMensal fragment = new ResumoMensal();
+    public static ResumoTipoMensal newInstance(int mes, int ano, int nr) {
+        ResumoTipoMensal fragment = new ResumoTipoMensal();
         Bundle args = new Bundle();
         args.putInt(ANO_PAGINA, ano);
         args.putInt(MES_PAGINA, mes);
@@ -81,9 +81,8 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // COLOCA OS MESES NA TELA
-        rootView = inflater.inflate(R.layout.conteudo_resumos, container, false);
+        rootView = inflater.inflate(R.layout.resumo_por_tipo, container, false);
         Bundle args = getArguments();
 
         mes = args.getInt(MES_PAGINA);
@@ -160,6 +159,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
         valorPago.setText(dinheiro.format(valoresDesp[0]));
         valorPagar.setText(dinheiro.format(valoresDesp[1]));
         valorCartao.setText(dinheiro.format(valoresDesp[2]));
+
         valorDespFixa.setText(dinheiro.format(valoresDesp[3]));
         valorDespVar.setText(dinheiro.format(valoresDesp[4]));
         valorPrestacoes.setText(dinheiro.format(valoresDesp[5]));
@@ -213,42 +213,42 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
         // PREENCHE AS LINHAS DA TABELA
 
         // VALORES DE RECEITAS
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, receita);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, 1);
         if (somador.getCount() > 0)
             valores[0] = SomaContas(somador);
         else
             valores[0] = 0.0D;
 
         // VALOR RECEITAS RECEBIDAS
-        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, receita, "paguei");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, 1, "paguei");
         if (somador.getCount() > 0)
             valoresRec[0] = SomaContas(somador);
         else
             valoresRec[0] = 0.0D;
 
         // VALOR RECEITAS A RECEBAR
-        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, receita, "falta");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, 1, "falta");
         if (somador.getCount() > 0)
             valoresRec[1] = SomaContas(somador);
         else
             valoresRec[1] = 0.0D;
 
         // VALORES DE DESPESAS
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, despesa);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, 0);
         if (somador.getCount() > 0)
             valores[1] = SomaContas(somador);
         else
             valores[1] = 0.0D;
 
         // VALOR CONTAS PAGAS
-        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "paguei");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, 0, "paguei");
         if (somador.getCount() > 0)
             valoresDesp[0] = SomaContas(somador);
         else
             valoresDesp[0] = 0.0D;
 
         // VALOR CONTAS A PAGAR
-        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "falta");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, 0, "falta");
         if (somador.getCount() > 0)
             valoresDesp[1] = SomaContas(somador);
         else
@@ -256,7 +256,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
 
         // VALORES DAS CATEGORIAS DE DESPESAS
         for (int i = 0; i < despesas.length; i++) {
-            somador = dbContas.buscaContasClasse(0, mes, ano, null, despesa, despesas[i]);
+            somador = dbContas.buscaContasClasse(0, mes, ano, null, 0, i);
             if (somador.getCount() > 0)
                 valoresDesp[i + 2] = SomaContas(somador);
             else
@@ -264,14 +264,14 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
         }
 
         // VALORES DE APLICACOES
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, aplicacao);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, 2);
         if (somador.getCount() > 0)
             valores[2] = SomaContas(somador);
         else
             valores[2] = 0.0D;
 
         for (int j = 0; j < aplicacoes.length; j++) {
-            somador = dbContas.buscaContasClasse(0, mes, ano, null, aplicacao, aplicacoes[j]);
+            somador = dbContas.buscaContasClasse(0, mes, ano, null, 2, j);
             if (somador.getCount() > 0)
                 valoresAplicados[j] = SomaContas(somador);
             else
@@ -294,12 +294,12 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
             ano_anterior = ano_anterior - 1;
         }
         double r = 0.0D; // RECEITA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, receita);
+        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 1);
         if (somador.getCount() > 0)
             r = SomaContas(somador);
 
         double d = 0.0D; // DESPESA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, despesa);
+        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 0);
         if (somador.getCount() > 0)
             d = SomaContas(somador);
 
@@ -320,9 +320,7 @@ public class ResumoMensal extends Fragment implements View.OnClickListener {
         } else {
             valores[3] = valoresRec[0] - valoresDesp[0];
         }
-
         dbContas.close();
-
     }
 
     private double SomaContas(Cursor cursor) {

@@ -152,26 +152,25 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
         double dvalor0, dvalor1;
 
         // PREENCHE OS VALORES DE DESPESAS
-        if (dbMinhasContas.quantasContasPorTipo(despesa, 0, mes, ano) > 0) {
-            valores[0] = dinheiro.format(dbMinhasContas.somaContas(despesa, 0, mes, ano));
-            dvalor0 = dbMinhasContas.somaContas(despesa, 0, mes, ano);
+        if (dbMinhasContas.quantasContasPorTipo(0, 0, mes, ano) > 0) {
+            valores[0] = dinheiro.format(dbMinhasContas.somaContas(0, 0, mes, ano));
+            dvalor0 = dbMinhasContas.somaContas(0, 0, mes, ano);
         } else {
             valores[0] = dinheiro.format(0.0D);
             dvalor0 = 0.0D;
         }
         for (int i = 0; i < despesas.length; i++) {
-            if (dbMinhasContas.quantasContasPorClasse(despesas[i], 0,
-                    mes, ano) > 0)
+            if (dbMinhasContas.quantasContasPorClasse(i, 0, mes, ano) > 0)
                 valores[i + 1] = dinheiro.format(dbMinhasContas.somaContasPorClasse(
-                        despesas[i], 0, mes, ano));
+                        i, 0, mes, ano));
             else
                 valores[i + 1] = dinheiro.format(0.0D);
         }
         // VALORES DE RECEITAS
-        if (dbMinhasContas.quantasContasPorTipo(receita, 0, mes, ano) > 0) {
+        if (dbMinhasContas.quantasContasPorTipo(1, 0, mes, ano) > 0) {
             valores[despesas.length + 1] = dinheiro.format(dbMinhasContas.somaContas(
-                    receita, 0, mes, ano));
-            dvalor1 = dbMinhasContas.somaContas(receita, 0, mes, ano);
+                    1, 0, mes, ano));
+            dvalor1 = dbMinhasContas.somaContas(1, 0, mes, ano);
         } else {
             valores[despesas.length + 1] = dinheiro.format(0.0D);
             dvalor1 = 0.0D;
@@ -179,23 +178,22 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
         if (receitas.length > 1)
             for (int j = 0; j < receitas.length; j++) {
                 if (dbMinhasContas.quantasContasPorClasse(
-                        receitas[j], 0, mes, ano) > 0)
+                        j, 0, mes, ano) > 0)
                     valores[j + despesas.length + 2] = dinheiro.format(
-                            dbMinhasContas.somaContasPorClasse(receitas[j], 0, mes, ano));
+                            dbMinhasContas.somaContasPorClasse(j, 0, mes, ano));
                 else
                     valores[j + despesas.length + 2] = dinheiro.format(0.0D);
             }
         // VALORES DE APLICACOES
-        if (dbMinhasContas.quantasContasPorTipo(aplicacao, 0, mes, ano) > 0)
+        if (dbMinhasContas.quantasContasPorTipo(2, 0, mes, ano) > 0)
             valores[despesas.length + ajusteReceita + 2] = dinheiro.format(
-                    dbMinhasContas.somaContas(aplicacao, 0, mes, ano));
+                    dbMinhasContas.somaContas(2, 0, mes, ano));
         else
             valores[despesas.length + ajusteReceita + 2] = dinheiro.format(0.0D);
         for (int k = 0; k < aplicacoes.length; k++) {
-            if (dbMinhasContas.quantasContasPorClasse(aplicacoes[k],
-                    0, mes, ano) > 0)
+            if (dbMinhasContas.quantasContasPorClasse(k, 0, mes, ano) > 0)
                 valores[k + despesas.length + ajusteReceita + 3] = dinheiro.format(
-                        dbMinhasContas.somaContasPorClasse(aplicacoes[k], 0, mes, ano));
+                        dbMinhasContas.somaContasPorClasse(k, 0, mes, ano));
             else
                 valores[k + despesas.length + ajusteReceita + 3] = dinheiro.format(0.0D);
 
@@ -205,22 +203,19 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
         valores[categorias - 4] = dinheiro.format(dvalor1 - dvalor0);
 
         // VALOR CONTAS PAGAS
-        if (dbMinhasContas.quantasContasPagasPorTipo(despesa, "paguei", 0, mes,
-                ano) > 0) {
+        if (dbMinhasContas.quantasContasPagasPorTipo(0, "paguei", 0, mes, ano) > 0) {
             valores[categorias - 3] = dinheiro.format(dbMinhasContas.somaContasPagas(
-                    despesa, "paguei", 0, mes, ano));
-            dvalor1 = dbMinhasContas.somaContasPagas(despesa, "paguei", 0, mes,
-                    ano);
+                    0, "paguei", 0, mes, ano));
+            dvalor1 = dbMinhasContas.somaContasPagas(0, "paguei", 0, mes, ano);
         } else {
             valores[categorias - 3] = dinheiro.format(0.0D);
             dvalor1 = 0.0D;
         }
 
         // VALOR CONTAS A PAGAR
-        if (dbMinhasContas.quantasContasPagasPorTipo(despesa, "falta", 0, mes,
-                ano) > 0)
+        if (dbMinhasContas.quantasContasPagasPorTipo(0, "falta", 0, mes, ano) > 0)
             valores[categorias - 2] = dinheiro.format(dbMinhasContas.somaContasPagas(
-                    despesa, "falta", 0, mes, ano));
+                    0, "falta", 0, mes, ano));
         else
             valores[categorias - 2] = dinheiro.format(0.0D);
 

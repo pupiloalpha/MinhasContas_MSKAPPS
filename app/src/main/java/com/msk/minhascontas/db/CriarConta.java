@@ -36,6 +36,7 @@ import com.msk.minhascontas.R;
 import com.msk.minhascontas.info.AlertaCalendario;
 import com.msk.minhascontas.info.BarraProgresso;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -47,8 +48,7 @@ public class CriarConta extends AppCompatActivity implements
     // ELEMENTOS DA TELA
     private static Button dataConta;
     // VARIAVEIS UTILIZADAS
-    private static int dia, mes, ano;
-    private final Calendar c = Calendar.getInstance();
+    private static int dia, mes, ano, diaRepete, mesRepete, anoRepete;
     private TextInputLayout juros;
     private AppBarLayout titulo;
     private AppCompatAutoCompleteTextView nomeConta;
@@ -57,13 +57,11 @@ public class CriarConta extends AppCompatActivity implements
     private AppCompatCheckBox parcelarConta, pagamento, lembrete;
     private AppCompatSpinner classificaConta, intervaloRepete;
     private LinearLayout cb;
-    private Resources r;
+    private Resources res;
     private DBContas dbNovasContas = new DBContas(this);
-    private int diaRepete, mesRepete, anoRepete;
-    private int qtRepete, intervalo, nr;
-    private String contaClasse, contaData, contaNome, contaPaga, contaTipo;
+    private int contaTipo, contaClasse, contaCategoria, qtRepete, intervalo, nr;
+    private String contaData, contaNome, contaPaga;
     private double contaValor, valorJuros;
-    private String[] despesas, receitas, aplicacoes;
 
     @SuppressWarnings("rawtypes")
 
@@ -71,11 +69,11 @@ public class CriarConta extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cria_conta);
-        r = getResources();
+        res = getResources();
         dbNovasContas.open();
         iniciar();
         usarActionBar();
-        DataDeHoje(dia, mes, ano);
+        DataDeHoje();
         MostraClasseConta();
         tipo.setOnCheckedChangeListener(this);
         parcelarConta.setVisibility(View.GONE);
@@ -88,7 +86,6 @@ public class CriarConta extends AppCompatActivity implements
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void iniciar() {
         titulo = (AppBarLayout) findViewById(R.id.aplBarra);
-        nomeConta = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeNovaConta));
         valorConta = ((AppCompatEditText) findViewById(R.id.etValorNovaConta));
         jurosConta = (AppCompatEditText) findViewById(R.id.etJurosNovaConta);
         repeteConta = ((AppCompatEditText) findViewById(R.id.etRepeticoes));
@@ -100,58 +97,31 @@ public class CriarConta extends AppCompatActivity implements
         dataConta = ((Button) findViewById(R.id.etData));
         juros = (TextInputLayout) findViewById(R.id.layout_juros);
         classificaConta = ((AppCompatSpinner) findViewById(R.id.spClasseConta));
-        intervaloRepete = ((AppCompatSpinner) findViewById(R.id.spRepeticoes));
-        intervaloRepete.setSelection(2);
+
+        nomeConta = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeNovaConta));
         ArrayAdapter completa = new ArrayAdapter(this,
                 android.R.layout.simple_dropdown_item_1line, getResources()
                 .getStringArray(R.array.NomeConta));
         nomeConta.setAdapter(completa);
-        dia = c.get(Calendar.DAY_OF_MONTH);
-        mes = c.get(Calendar.MONTH);
-        ano = c.get(Calendar.YEAR);
-        contaTipo = r.getString(R.string.linha_despesa);
-        contaClasse = r.getString(R.string.linha_cartao);
+
+        intervaloRepete = ((AppCompatSpinner) findViewById(R.id.spRepeticoes));
+        intervaloRepete.setSelection(2);
+        contaTipo = contaClasse = contaCategoria = 0;
         contaPaga = "falta";
         intervalo = 300;
-        despesas = r.getStringArray(R.array.TipoDespesa);
-        receitas = r.getStringArray(R.array.TipoReceita);
-        aplicacoes = r.getStringArray(R.array.TipoAplicacao);
         nr = 0;
     }
 
-    private void DataDeHoje(int dia, int mes, int ano) {
-
-        dataConta.setText(dia + "/" + (mes + 1) + "/" + ano);
+    private void DataDeHoje() {
+        Locale current = res.getConfiguration().locale;
+        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, current);
+        Calendar c = Calendar.getInstance();
+        dia = c.get(Calendar.DAY_OF_MONTH);
+        mes = c.get(Calendar.MONTH);
+        ano = c.get(Calendar.YEAR);
+        dataConta.setText(df.format(c.getTime()));
         diaRepete = dia;
         anoRepete = ano;
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private void MostraClasseConta() {
-        int i = 0;
-        ArrayAdapter classesContas;
-
-        if (contaTipo.equals(r.getString(R.string.linha_receita))) {
-            classesContas = new ArrayAdapter(this,
-                    android.R.layout.simple_dropdown_item_1line, getResources()
-                    .getStringArray(R.array.TipoReceita));
-
-        } else if (contaTipo.equals(r.getString(R.string.linha_aplicacoes))) {
-            classesContas = new ArrayAdapter(this,
-                    android.R.layout.simple_dropdown_item_1line, getResources()
-                    .getStringArray(R.array.TipoAplicacao));
-            i = 1;
-        } else {
-            classesContas = new ArrayAdapter(this,
-                    android.R.layout.simple_dropdown_item_1line, getResources()
-                    .getStringArray(R.array.TipoDespesa));
-
-        }
-        classesContas
-                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        classificaConta.setAdapter(classesContas);
-        classificaConta.setSelection(i);
-        // dbNovasContas.close();
     }
 
     @Override
@@ -160,29 +130,53 @@ public class CriarConta extends AppCompatActivity implements
         switch (tipoId) {
 
             case R.id.rDespNovaConta:
-                contaTipo = r.getString(R.string.linha_despesa);
+                contaTipo = 0;
                 pagamento.setVisibility(View.VISIBLE);
                 pagamento.setText(R.string.dica_pagamento);
                 parcelarConta.setVisibility(View.GONE);
                 cb.setVisibility(View.VISIBLE);
                 break;
             case R.id.rRecNovaConta:
-                contaTipo = r.getString(R.string.linha_receita);
+                contaTipo = 1;
                 pagamento.setVisibility(View.VISIBLE);
                 pagamento.setText(R.string.dica_recebe);
                 parcelarConta.setVisibility(View.GONE);
                 cb.setVisibility(View.VISIBLE);
                 break;
             case R.id.rAplicNovaConta:
-                contaTipo = r.getString(R.string.linha_aplicacoes);
+                contaTipo = 2;
                 pagamento.setVisibility(View.GONE);
                 parcelarConta.setVisibility(View.GONE);
                 cb.setVisibility(View.GONE);
                 break;
         }
-
         MostraClasseConta();
+    }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void MostraClasseConta() {
+        int i = 0;
+        ArrayAdapter classesContas;
+
+        if (contaTipo == 1) {
+            classesContas = new ArrayAdapter(this,
+                    android.R.layout.simple_dropdown_item_1line, getResources()
+                    .getStringArray(R.array.TipoReceita));
+        } else if (contaTipo == 2) {
+            classesContas = new ArrayAdapter(this,
+                    android.R.layout.simple_dropdown_item_1line, getResources()
+                    .getStringArray(R.array.TipoAplicacao));
+            i = 1;
+        } else {
+            classesContas = new ArrayAdapter(this,
+                    android.R.layout.simple_dropdown_item_1line, getResources()
+                    .getStringArray(R.array.TipoDespesa));
+        }
+        classesContas
+                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        classificaConta.setAdapter(classesContas);
+        classificaConta.setSelection(i);
+        // dbNovasContas.close();
     }
 
     @SuppressWarnings("deprecation")
@@ -190,13 +184,9 @@ public class CriarConta extends AppCompatActivity implements
     public void onClick(View paramView) {
 
         switch (paramView.getId()) {
-
             case R.id.etData:
-
                 DialogFragment newFragment = new DatePickerFragment();
                 newFragment.show(getSupportFragmentManager(), "datePicker");
-                DataDeHoje(dia, mes, ano);
-
                 break;
             case R.id.cbPagamento:
                 if (pagamento.isChecked()) {
@@ -211,7 +201,7 @@ public class CriarConta extends AppCompatActivity implements
     private void ConfereDadosConta() {
 
         if (nomeConta.getText().toString().equals(""))
-            contaNome = r.getString(R.string.sem_nome);
+            contaNome = res.getString(R.string.sem_nome);
         else {
             contaNome = nomeConta.getText().toString();
         }
@@ -248,7 +238,6 @@ public class CriarConta extends AppCompatActivity implements
     private void ArmazenaDadosConta() {
 
         if (!valorConta.getText().toString().equals("")) {
-
             Double valorPrestacao;
             if (parcelarConta.isChecked()) {
                 valorPrestacao = Double.parseDouble(valorConta.getText()
@@ -256,10 +245,7 @@ public class CriarConta extends AppCompatActivity implements
                 valorPrestacao = valorPrestacao / qtRepete;
                 contaValor = valorPrestacao;
 
-                String[] prestacao = r.getStringArray(R.array.TipoDespesa);
-
-                if (contaClasse.equals(prestacao[2]) && qtRepete > 1
-                        && valorJuros != 0)
+                if (contaClasse == 2 && qtRepete > 1 && valorJuros != 0)
                     contaValor = contaValor
                             * ((valorJuros) / (1.0D - (1 / (Math.pow(
                             (valorJuros + 1.0D), qtRepete)))));
@@ -273,13 +259,13 @@ public class CriarConta extends AppCompatActivity implements
                     || repeteConta.getText().toString().equals("0")) {
 
                 dbNovasContas.geraConta(contaNome, contaTipo, contaClasse,
-                        contaPaga, contaData, dia, mes, ano, contaValor,
-                        qtRepete, 1, intervalo);
+                        contaCategoria, dia, mes, ano, contaValor, contaPaga,
+                        qtRepete, 1, intervalo, contaData);
             } else {
                 // Metodo para repetir conta
                 dbNovasContas.geraConta(contaNome, contaTipo, contaClasse,
-                        contaPaga, contaData, dia, mes, ano, contaValor,
-                        qtRepete, 1, intervalo);
+                        contaCategoria, dia, mes, ano, contaValor, contaPaga,
+                        qtRepete, 1, intervalo, contaData);
 
                 Calendar data = Calendar.getInstance();
                 data.set(ano, mes, dia);
@@ -300,17 +286,13 @@ public class CriarConta extends AppCompatActivity implements
                     mesRepete = data.get(Calendar.MONTH);
                     anoRepete = data.get(Calendar.YEAR);
 
-                    String[] aplicacao = r.getStringArray(R.array.TipoReceita);
-
-                    if (contaClasse.equals(aplicacao[0])
-                            || contaClasse.equals(aplicacao[2]))
+                    if (contaClasse == 0 || contaClasse == 2)
                         contaValor = contaValor * (1.0D + valorJuros);
 
                     dbNovasContas
-                            .geraConta(contaNome, contaTipo, contaClasse,
-                                    contaPaga, contaData, diaRepete, mesRepete,
-                                    anoRepete, contaValor, qtRepete, nRepete,
-                                    intervalo);
+                            .geraConta(contaNome, contaTipo, contaClasse, contaCategoria,
+                                    diaRepete, mesRepete, anoRepete, contaValor, contaPaga,
+                                    qtRepete, nRepete, intervalo, contaData);
                 }
             }
         } else {
@@ -365,7 +347,6 @@ public class CriarConta extends AppCompatActivity implements
     private void CriaAplicacao() {
 
         // USUARIO ESCOLHE TRANSFORMAR APLICACAO EM DESPESA
-
         new AlertDialog.Builder(this)
                 .setTitle(R.string.titulo_despesa_saque)
                 .setMessage(R.string.texto_despesa_saque)
@@ -373,14 +354,10 @@ public class CriarConta extends AppCompatActivity implements
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface pDialogo,
                                                 int pInt) {
-                                String[] despesas = r
-                                        .getStringArray(R.array.TipoDespesa);
-                                // dbNovasContas.open();
                                 dbNovasContas.geraConta(contaNome,
-                                        r.getString(R.string.linha_despesa),
-                                        despesas[1], contaPaga, contaData, dia,
-                                        mes, ano, contaValor, qtRepete, 1,
-                                        intervalo);
+                                        0, 1, 7, dia, mes, ano,
+                                        contaValor, contaPaga, qtRepete, 1,
+                                        intervalo, contaData);
                                 // dbNovasContas.close();
                                 if (lembrete.isChecked()) {
                                     AdicionaLembrete();
@@ -409,8 +386,8 @@ public class CriarConta extends AppCompatActivity implements
 
         ColorDrawable cor;
         if (spinner.getId() == R.id.spClasseConta) {
-            if (contaTipo.equals(r.getString(R.string.linha_despesa))) {
-                contaClasse = despesas[posicao];
+            if (contaTipo == 0) {
+                contaClasse = posicao;
                 cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
                 getSupportActionBar().setBackgroundDrawable(cor);
                 titulo.setBackgroundColor(Color.parseColor("#FFCC0000"));
@@ -428,8 +405,8 @@ public class CriarConta extends AppCompatActivity implements
                 } else {
                     repeteConta.setText("");
                 }
-            } else if (contaTipo.equals(r.getString(R.string.linha_receita))) {
-                contaClasse = receitas[posicao];
+            } else if (contaTipo == 1) {
+                contaClasse = posicao;
                 cor = new ColorDrawable(Color.parseColor("#FF0099CC"));
                 getSupportActionBar().setBackgroundDrawable(cor);
                 titulo.setBackgroundColor(Color.parseColor("#FF0099CC"));
@@ -439,7 +416,7 @@ public class CriarConta extends AppCompatActivity implements
                 repeteConta.setText("");
                 parcelarConta.setVisibility(View.GONE);
             } else {
-                contaClasse = aplicacoes[posicao];
+                contaClasse = posicao;
                 cor = new ColorDrawable(Color.parseColor("#FF669900"));
                 getSupportActionBar().setBackgroundDrawable(cor);
                 titulo.setBackgroundColor(Color.parseColor("#FF669900"));
@@ -502,7 +479,7 @@ public class CriarConta extends AppCompatActivity implements
                             R.string.dica_barra_progresso), qtRepete, 0, "mskapp").execute();
                 }
 
-                if (contaTipo.equals(r.getString(R.string.linha_aplicacoes))) {
+                if (contaTipo == 2) {
                     CriaAplicacao();
                 } else {
                     if (lembrete.isChecked()) {
@@ -558,7 +535,6 @@ public class CriarConta extends AppCompatActivity implements
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-
             return new DatePickerDialog(getActivity(), this, ano, mes, dia);
         }
 
@@ -566,9 +542,13 @@ public class CriarConta extends AppCompatActivity implements
             ano = mAno;
             mes = mMes;
             dia = mDia;
-
-            dataConta.setText(dia + "/" + (mes + 1) + "/" + ano);
+            Calendar data = Calendar.getInstance();
+            data.set(ano, mes, dia);
+            Locale current = getActivity().getResources().getConfiguration().locale;
+            DateFormat dataFormato = DateFormat.getDateInstance(DateFormat.SHORT, current);
+            dataConta.setText(dataFormato.format(data.getTime()));
+            diaRepete = dia;
+            anoRepete = ano;
         }
     }
-
 }
