@@ -214,42 +214,42 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
         // PREENCHE AS LINHAS DA TABELA
 
         // VALORES DE RECEITAS
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, receita);
+        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 1);
         if (somador.getCount() > 0)
             valores[0] = SomaContas(somador);
         else
             valores[0] = 0.0D;
 
         // VALOR RECEITAS RECEBIDAS
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, receita, "paguei");
+        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 1, "paguei");
         if (somador.getCount() > 0)
             valoresRec[0] = SomaContas(somador);
         else
             valoresRec[0] = 0.0D;
 
         // VALOR RECEITAS A RECEBAR
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, receita, "falta");
+        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 1, "falta");
         if (somador.getCount() > 0)
             valoresRec[1] = SomaContas(somador);
         else
             valoresRec[1] = 0.0D;
 
         // VALORES DE DESPESAS
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, despesa);
+        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 0);
         if (somador.getCount() > 0)
             valores[1] = SomaContas(somador);
         else
             valores[1] = 0.0D;
 
         // VALOR CONTAS PAGAS
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, despesa, "paguei");
+        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 0, "paguei");
         if (somador.getCount() > 0)
             valoresDesp[0] = SomaContas(somador);
         else
             valoresDesp[0] = 0.0D;
 
         // VALOR CONTAS A PAGAR
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, despesa, "falta");
+        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 0, "falta");
         if (somador.getCount() > 0)
             valoresDesp[1] = SomaContas(somador);
         else
@@ -257,7 +257,7 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
 
         // VALORES DAS CATEGORIAS DE DESPESAS
         for (int i = 0; i < despesas.length; i++) {
-            somador = dbContas.buscaContasClasse(dia, mes, ano, null, despesa, despesas[i]);
+            somador = dbContas.buscaContasClasse(dia, mes, ano, null, 0, i);
             if (somador.getCount() > 0)
                 valoresDesp[i + 2] = SomaContas(somador);
             else
@@ -265,14 +265,14 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
         }
 
         // VALORES DE APLICACOES
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, aplicacao);
+        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 2);
         if (somador.getCount() > 0)
             valores[2] = SomaContas(somador);
         else
             valores[2] = 0.0D;
 
         for (int j = 0; j < aplicacoes.length; j++) {
-            somador = dbContas.buscaContasClasse(dia, mes, ano, null, aplicacao, aplicacoes[j]);
+            somador = dbContas.buscaContasClasse(dia, mes, ano, null, 2, j);
             if (somador.getCount() > 0)
                 valoresAplicados[j] = SomaContas(somador);
             else
@@ -295,12 +295,12 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
             ano_anterior = ano_anterior - 1;
         }
         double r = 0.0D; // RECEITA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, receita);
+        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 1);
         if (somador.getCount() > 0)
             r = SomaContas(somador);
 
         double d = 0.0D; // DESPESA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, despesa);
+        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 0);
         if (somador.getCount() > 0)
             d = SomaContas(somador);
 
@@ -346,16 +346,16 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
 
         switch (v.getId()) {
             case R.id.l_saldo:
-                dados_mes.putString("tipo", "todas");
+                dados_mes.putInt("tipo", -1);
                 break;
             case R.id.l_aplicacoes:
-                dados_mes.putString("tipo", getResources().getString(R.string.linha_aplicacoes));
+                dados_mes.putInt("tipo", 2);
                 break;
             case R.id.l_despesas:
-                dados_mes.putString("tipo", getResources().getString(R.string.linha_despesa));
+                dados_mes.putInt("tipo", 0);
                 break;
             case R.id.l_receitas:
-                dados_mes.putString("tipo", getResources().getString(R.string.linha_receita));
+                dados_mes.putInt("tipo", 1);
                 break;
         }
 

@@ -114,21 +114,21 @@ public class WidgetResumo extends AppWidgetProvider {
         // PREENCHE AS LINHAS DA TABELA
 
         // VALORES DE RECEITAS
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, receita);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, 1);
         if (somador.getCount() > 0)
             valores[0] = SomaContas(somador);
         else
             valores[0] = 0.0D;
 
         // VALORES DE DESPESAS
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, despesa);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, 0);
         if (somador.getCount() > 0)
             valores[1] = SomaContas(somador);
         else
             valores[1] = 0.0D;
 
         // VALORES DE APLICACOES
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, aplicacao);
+        somador = dbContas.buscaContasTipo(0, mes, ano, null, 2);
         if (somador.getCount() > 0)
             valores[2] = SomaContas(somador);
         else
@@ -137,14 +137,14 @@ public class WidgetResumo extends AppWidgetProvider {
         // VALOR SALDO ATUAL
 
         // VALOR RECEITAS RECEBIDAS
-        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, receita, "paguei");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, 1, "paguei");
         if (somador.getCount() > 0)
             rec = SomaContas(somador);
         else
             rec = 0.0D;
 
         // VALOR CONTAS PAGAS
-        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, despesa, "paguei");
+        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, 0, "paguei");
         if (somador.getCount() > 0)
             desp = SomaContas(somador);
         else
@@ -159,12 +159,12 @@ public class WidgetResumo extends AppWidgetProvider {
             ano_anterior = ano_anterior - 1;
         }
         double r = 0.0D; // RECEITA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, receita);
+        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 1);
         if (somador.getCount() > 0)
             r = SomaContas(somador);
 
         double d = 0.0D; // DESPESA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, despesa);
+        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 0);
         if (somador.getCount() > 0)
             d = SomaContas(somador);
 
