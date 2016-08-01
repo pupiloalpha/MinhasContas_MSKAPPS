@@ -99,6 +99,7 @@ public class CriarConta extends AppCompatActivity implements
         dataConta = ((Button) findViewById(R.id.etData));
         juros = (TextInputLayout) findViewById(R.id.layout_juros);
         classificaConta = ((AppCompatSpinner) findViewById(R.id.spClasseConta));
+        categoriaConta = ((AppCompatSpinner) findViewById(R.id.spCategoriaConta));
 
         nomeConta = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeNovaConta));
         ArrayAdapter completa = new ArrayAdapter(this,

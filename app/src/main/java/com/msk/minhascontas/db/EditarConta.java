@@ -112,6 +112,7 @@ public class EditarConta extends AppCompatActivity implements
         aplic = (AppCompatRadioButton) findViewById(R.id.rAplicContaModificada);
         prestacoes = (AppCompatEditText) findViewById(R.id.etPrestacoes);
         classificaConta = (AppCompatSpinner) findViewById(R.id.spClassificaConta);
+        contaCategoria = (AppCompatSpinner) findViewById(R.id.spCategoriaConta);
         intervaloRepete = (AppCompatSpinner) findViewById(R.id.spRepeticoes);
         categoria = (LinearLayout) findViewById(R.id.layout_categoria);
 
@@ -446,11 +447,11 @@ public class EditarConta extends AppCompatActivity implements
         // Atualiza tipo, classe e data da conta
         dbContaParaEditar.alteraTipoConta(idConta, tipoConta);
         dbContaParaEditar.alteraClasseConta(idConta, classeConta);
+        dbContaParaEditar.alteraCategoriaConta(idConta, categoriaConta);
 
         // Altera Data Contas
         if (dia != diaVenc || mes != mesPrest
                 || ano != anoPrest) {
-
             dbContaParaEditar.alteraDataConta(idConta, diaVenc,
                     mesPrest, anoPrest);
         }

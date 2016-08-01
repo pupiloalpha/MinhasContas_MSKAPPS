@@ -60,7 +60,7 @@ public class DBContas {
 
     private static final String TAG = "DBContas";
     // NOVO VALOR ADICIONADO AO BANCO DE DADOS PARA ATUALIZAR
-    private static final int VERSAO_BANCO_DE_DADOS = 3;
+    private static final int VERSAO_BANCO_DE_DADOS = 4;
     // NOMES DAS COLUNAS DAS TABELAS
     private static String[] colunas_contas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
             COLUNA_TIPO_CONTA, COLUNA_CLASSE_CONTA, COLUNA_CATEGORIA_CONTA,
@@ -798,53 +798,51 @@ public class DBContas {
 
     public void atualizaBD() throws SQLException {
 
-        String[] colunas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
-                COLUNA_TIPO_CONTA, COLUNA_CLASSE_CONTA, COLUNA_CATEGORIA_CONTA,
-                "data", COLUNA_VALOR_CONTA, COLUNA_PAGOU_CONTA,
-                COLUNA_QT_REPETICOES_CONTA, COLUNA_NR_REPETICAO_CONTA,
-                COLUNA_INTERVALO_CONTA, COLUNA_CODIGO_CONTA, COLUNA_TIPO_CONTA,
-                "classificacao", COLUNA_PAGOU_CONTA, COLUNA_DIA_DATA_CONTA,
-                COLUNA_MES_DATA_CONTA, COLUNA_ANO_DATA_CONTA};
-
-        Cursor cursor = db.query(true, "tabela_temporaria", colunas, null, null,
-                null, null, null, null);
-        cursor.moveToLast();
-        long idLong;
-        ContentValues cv;
-        Resources res = null;
-        res = contexto.getResources();
-        String[] rec = res.getStringArray(R.array.TipoReceita);
-        String[] desp = res.getStringArray(R.array.TipoDespesa);
-        String[] apl = res.getStringArray(R.array.TipoAplicacao);
-
         try {
+
+            String[] colunas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
+                    COLUNA_TIPO_CONTA, COLUNA_CLASSE_CONTA, COLUNA_CATEGORIA_CONTA,
+                    COLUNA_DIA_DATA_CONTA, COLUNA_MES_DATA_CONTA, COLUNA_ANO_DATA_CONTA,
+                    COLUNA_VALOR_CONTA, COLUNA_PAGOU_CONTA, COLUNA_QT_REPETICOES_CONTA,
+                    COLUNA_NR_REPETICAO_CONTA, COLUNA_INTERVALO_CONTA, COLUNA_CODIGO_CONTA,
+                    "auxiliar", "classifica"};
+
+            Cursor cursor = db.query("tabela_temporaria", colunas, null, null, null, null, null);
+            cursor.moveToLast();
+            long idLong;
+            ContentValues cv;
+            Resources res = contexto.getResources();
+            String[] rec = res.getStringArray(R.array.TipoReceita);
+            String[] desp = res.getStringArray(R.array.TipoDespesa);
+            String[] apl = res.getStringArray(R.array.TipoAplicacao);
+
             for (int i = 0; i < cursor.getCount(); i++) {
                 cv = new ContentValues();
                 idLong = cursor.getLong(0);
-                if (cursor.getString(12).equals(res.getString(R.string.linha_despesa))) {
+                if (cursor.getString(14).equals(res.getString(R.string.linha_despesa))) {
                     cv.put(COLUNA_TIPO_CONTA, 0);
                     for (int j = 0; j < desp.length; j++) {
-                        if (cursor.getString(13).equals(desp[j])) {
+                        if (cursor.getString(15).equals(desp[j])) {
                             cv.put(COLUNA_CLASSE_CONTA, j);
                         }
                     }
                     cv.put(COLUNA_CATEGORIA_CONTA, 7);
-                } else if (cursor.getString(12).equals(res.getString(R.string.linha_receita))) {
+                } else if (cursor.getString(14).equals(res.getString(R.string.linha_receita))) {
                     cv.put(COLUNA_TIPO_CONTA, 1);
                     for (int j = 0; j < rec.length; j++) {
-                        if (cursor.getString(13).equals(rec[j])) {
+                        if (cursor.getString(15).equals(rec[j])) {
                             cv.put(COLUNA_CLASSE_CONTA, j);
                         }
                     }
                 } else {
                     cv.put(COLUNA_TIPO_CONTA, 2);
                     for (int j = 0; j < apl.length; j++) {
-                        if (cursor.getString(13).equals(apl[j])) {
+                        if (cursor.getString(15).equals(apl[j])) {
                             cv.put(COLUNA_CLASSE_CONTA, j);
                         }
                     }
                 }
-                db.update(TABELA_CONTAS, cv, COLUNA_ID_CONTA + " = '"
+                db.update("tabela_temporaria", cv, COLUNA_ID_CONTA + " = '"
                         + idLong + "' ", null);
                 cursor.moveToPrevious();
             }
@@ -917,8 +915,8 @@ public class DBContas {
                     + COLUNA_NR_REPETICAO_CONTA + " INTEGER, "
                     + COLUNA_INTERVALO_CONTA + " INTEGER, "
                     + COLUNA_CODIGO_CONTA + " TEXT, "
-                    + COLUNA_TIPO_CONTA + " TEXT, "
-                    + " classificacao TEXT )");
+                    + "auxiliar TEXT, "
+                    + " classifica TEXT )");
 
             db.execSQL("INSERT INTO tabela_temporaria"
                     + " SELECT " + COLUNA_ID_CONTA

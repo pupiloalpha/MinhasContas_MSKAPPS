@@ -205,7 +205,7 @@ public class ResumoCategoriaMensal extends Fragment implements View.OnClickListe
         dbContas.open();
 
         valores = new double[4];
-        valoresDesp = new double[9];
+        valoresDesp = new double[11];
         valoresRec = new double[2];
         valoresSaldo = new double[2];
         valoresAplicados = new double[3];
@@ -256,14 +256,23 @@ public class ResumoCategoriaMensal extends Fragment implements View.OnClickListe
         else
             valoresDesp[1] = 0.0D;
 
+        // VALOR CARTAO DE CREDITO
+        somador = dbContas.buscaContasClasse(0, mes, ano, null, 0, 0);
+        if (somador.getCount() > 0)
+            valoresDesp[2] = SomaContas(somador);
+        else
+            valoresDesp[2] = 0.0D;
+
         // VALORES DAS CATEGORIAS DE DESPESAS
         for (int i = 0; i < 8; i++) {
             somador = dbContas.buscaContasCategoria(0, mes, ano, null, i);
             if (somador.getCount() > 0)
-                valoresDesp[i + 2] = SomaContas(somador);
+                valoresDesp[i + 3] = SomaContas(somador);
             else
-                valoresDesp[i + 2] = 0.0D;
+                valoresDesp[i + 3] = 0.0D;
         }
+        // VALOR DA CATEGORIA OUTROS
+        valoresDesp[8] = valoresDesp[8] + valoresDesp[9] + valoresDesp[10];
 
         // VALORES DE APLICACOES
         somador = dbContas.buscaContasTipo(0, mes, ano, null, 2);
@@ -332,7 +341,7 @@ public class ResumoCategoriaMensal extends Fragment implements View.OnClickListe
                 cursor.close();
                 return d;
             }
-            d += cursor.getDouble(9);
+            d += cursor.getDouble(8);
             cursor.moveToPrevious();
         }
     }

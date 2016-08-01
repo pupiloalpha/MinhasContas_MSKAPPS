@@ -90,16 +90,14 @@ public class GraficoMensal extends Fragment {
         // COLOCA OS MESES NA TELA
         rootView = inflater.inflate(R.layout.graficos_do_mes, container, false);
 
-// Recupera o mes e o ano da lista anterior
+        // Recupera o mes e o ano da lista anterior
         Bundle localBundle = getArguments();
         ano = localBundle.getInt("ano");
         mes = localBundle.getInt("mes");
 
         Iniciar();
-
         Locale current = getResources().getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
-
         Saldo();
         AtualizaGrafico();
         MostraGraficos();
@@ -197,7 +195,6 @@ public class GraficoMensal extends Fragment {
 
         somador.close();
         dbContasFeitas.close();
-
     }
 
     private double SomaContas(Cursor cursor) {
@@ -209,7 +206,7 @@ public class GraficoMensal extends Fragment {
                 cursor.close();
                 return d;
             }
-            d += cursor.getDouble(9);
+            d += cursor.getDouble(8);
             cursor.moveToPrevious();
         }
     }
@@ -240,7 +237,6 @@ public class GraficoMensal extends Fragment {
             grafaplic.setVisibility(View.GONE);
         else
             grafaplic.setVisibility(View.VISIBLE);
-
     }
 
     private void AtualizaGrafico() {
@@ -498,17 +494,16 @@ public class GraficoMensal extends Fragment {
                 vrec = 0.0D;
                 somaReceitas.moveToFirst();
                 while (!somaReceitas.isAfterLast()) {
-                    if (somaReceitas.getInt(6) < i + 1)
-                        vrec = vrec + somaReceitas.getDouble(9);
+                    if (somaReceitas.getInt(5) < i + 1)
+                        vrec = vrec + somaReceitas.getDouble(8);
                     somaReceitas.moveToNext();
                 }
                 vdesp = 0.0D;
                 somaDespesas.moveToFirst();
                 while (!somaDespesas.isAfterLast()) {
-                    if (somaDespesas.getInt(6) < i + 1)
-                        vdesp = vdesp + somaDespesas.getDouble(9);
+                    if (somaDespesas.getInt(5) < i + 1)
+                        vdesp = vdesp + somaDespesas.getDouble(8);
                     somaDespesas.moveToNext();
-
                 }
                 vsaldo = (vrec - vdesp);
                 values.add(new PointValue(i, (float) vsaldo));
@@ -560,7 +555,6 @@ public class GraficoMensal extends Fragment {
         gsaldo.setLineChartData(data);
     }
 
-
     @Override
     public void onResume() {
         Saldo();
@@ -568,5 +562,4 @@ public class GraficoMensal extends Fragment {
         MostraGraficos();
         super.onResume();
     }
-
 }

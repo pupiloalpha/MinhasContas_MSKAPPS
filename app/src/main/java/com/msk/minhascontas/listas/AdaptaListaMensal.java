@@ -94,7 +94,7 @@ public class AdaptaListaMensal extends CursorAdapter {
 
         pagamento.setVisibility(View.INVISIBLE);
 
-        valor.setText(dinheiro.format(cursor.getDouble(9)));
+        valor.setText(dinheiro.format(cursor.getDouble(8)));
 
         if (tipo == 0) {
             valor.setTextColor(Color.parseColor("#CC0000"));

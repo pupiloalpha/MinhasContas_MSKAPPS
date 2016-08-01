@@ -327,7 +327,7 @@ public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
                 cursor.close();
                 return d;
             }
-            d += cursor.getDouble(9);
+            d += cursor.getDouble(8);
             cursor.moveToPrevious();
         }
     }

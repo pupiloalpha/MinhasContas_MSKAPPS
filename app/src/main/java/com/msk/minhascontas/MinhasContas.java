@@ -90,11 +90,6 @@ public class MinhasContas extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // AJUSTES DO BANCO DE DADOS
-        dbContas.open();
-        dbContas.confirmaPagamentos();
-        dbContas.ajustaRepeticoesContas();
-
         // PEGA O ANO ATUAL PARA DEFINIR A PRIMEIRA TELA
         ano = c.get(Calendar.YEAR);
         mes = c.get(Calendar.MONTH);
@@ -209,6 +204,11 @@ public class MinhasContas extends AppCompatActivity {
     }
 
     private void AjustesBD() {
+        // AJUSTES DO BANCO DE DADOS
+        dbContas.open();
+        dbContas.confirmaPagamentos();
+        dbContas.ajustaRepeticoesContas();
+        dbContas.atualizaBD();
         // Atualiza pagamentos
         if (atualizaPagamento) {
             dia = dia + 1;
@@ -216,7 +216,6 @@ public class MinhasContas extends AppCompatActivity {
             dbContas.atualizaPagamentoContas(dia, mes, ano);
             // db.close();
         }
-
     }
 
     private void ListaMesesAnos() {
