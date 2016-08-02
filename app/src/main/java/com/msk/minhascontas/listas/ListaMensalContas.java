@@ -462,8 +462,7 @@ public class ListaMensalContas extends Fragment {
         dbContasDoMes.close();
         if (n >= 0) {
             int posicao = listaContas.getFirstVisiblePosition();
-            String[] semana = res.getStringArray(R.array.Semana);
-            buscaContas = new AdaptaListaMensal(getActivity(), contasParaLista, semana);
+            buscaContas = new AdaptaListaMensal(getActivity(), contasParaLista);
             listaContas.setAdapter(buscaContas);
             listaContas.setEmptyView(semContas);
             listaContas.setSelection(posicao);

@@ -22,21 +22,22 @@ import java.util.Locale;
 public class AdaptaListaPesquisa extends CursorAdapter {
 
     private LayoutInflater inflater;
-    private String[] semana;
+    private String[] semana, classeConta, categoriaConta;
     private HashMap<Integer, Boolean> selecoes = new HashMap<Integer, Boolean>();
     private NumberFormat dinheiro;
     private DateFormat dataFormato;
     private Resources res = null;
 
     @SuppressWarnings("deprecation")
-    public AdaptaListaPesquisa(Context context, Cursor c, String[] array) {
+    public AdaptaListaPesquisa(Context context, Cursor c) {
         super(context, c);
         inflater = LayoutInflater.from(context);
-        semana = array;
         res = context.getResources();
         Locale current = res.getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
         dataFormato = DateFormat.getDateInstance(DateFormat.SHORT, current);
+        semana = res.getStringArray(R.array.Semana);
+        categoriaConta = res.getStringArray(R.array.CategoriaConta);
     }
 
     @Override
@@ -80,8 +81,6 @@ public class AdaptaListaPesquisa extends CursorAdapter {
         data.setText(dataFormato.format(c.getTime()));
 
         dia.setText(semana[s - 1]);
-        String[] classeConta;
-        String[] categoriaConta = res.getStringArray(R.array.CategoriaConta);
 
         if (tipo == 0) {
             classeConta = res.getStringArray(R.array.TipoDespesa);
@@ -95,7 +94,6 @@ public class AdaptaListaPesquisa extends CursorAdapter {
         }
 
         pagamento.setVisibility(View.INVISIBLE);
-
         valor.setText(dinheiro.format(cursor.getDouble(8)));
 
         if (tipo == 0) {

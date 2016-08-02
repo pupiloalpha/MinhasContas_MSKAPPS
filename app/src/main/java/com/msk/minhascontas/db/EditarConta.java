@@ -62,7 +62,7 @@ public class EditarConta extends AppCompatActivity implements
     private int tipoConta, classeConta, categoriaConta,
             anoPrest, diaVenc, mesPrest, nPrest, qtPrest,
             intervalo, qtConta, nr, altera;
-    private int[] repeteConta;
+    private int[] repeteConta, dataConta;
     private String nomeConta, pagouConta, codigoConta,
             novoPagouConta, novoNomeConta;
     private Resources res;
@@ -78,11 +78,11 @@ public class EditarConta extends AppCompatActivity implements
         res = getResources();
         dia = mes = ano = altera = qtConta = nr = 0;
         dbContaParaEditar.open();
+        PegaConta();
+        ConfereRepeticaoConta();
         Iniciar();
         usarActionBar();
-        PegaConta();
         MostraDados();
-        ConfereRepeticaoConta();
         classificaConta.setOnItemSelectedListener(this);
         contaCategoria.setOnItemSelectedListener(this);
         intervaloRepete.setOnItemSelectedListener(this);
@@ -93,9 +93,7 @@ public class EditarConta extends AppCompatActivity implements
 
     private void ConfereRepeticaoConta() {
         // CONFERE SE A CONTA REPETE
-
-        dbContaParaEditar.open();
-        qtConta = dbContaParaEditar.quantasContasPorNome(nomeConta);
+        qtConta = dbContaParaEditar.quantasRepeticoesDaConta(nomeConta, codigoConta);
         if (qtConta > 1) {
             Dialogo();
         }
@@ -111,7 +109,7 @@ public class EditarConta extends AppCompatActivity implements
         desp = (AppCompatRadioButton) findViewById(R.id.rDespContaModificada);
         aplic = (AppCompatRadioButton) findViewById(R.id.rAplicContaModificada);
         prestacoes = (AppCompatEditText) findViewById(R.id.etPrestacoes);
-        classificaConta = (AppCompatSpinner) findViewById(R.id.spClassificaConta);
+        classificaConta = (AppCompatSpinner) findViewById(R.id.spClasseConta);
         contaCategoria = (AppCompatSpinner) findViewById(R.id.spCategoriaConta);
         intervaloRepete = (AppCompatSpinner) findViewById(R.id.spRepeticoes);
         categoria = (LinearLayout) findViewById(R.id.layout_categoria);
@@ -127,8 +125,8 @@ public class EditarConta extends AppCompatActivity implements
     }
 
     private void PegaConta() {
-        dbContaParaEditar.open();
         Cursor cursor = dbContaParaEditar.buscaUmaConta(idConta);
+        cursor.moveToFirst();
         nomeConta = cursor.getString(1);
         tipoConta = cursor.getInt(2);
         classeConta = cursor.getInt(3);
@@ -136,6 +134,7 @@ public class EditarConta extends AppCompatActivity implements
         dia = cursor.getInt(5);
         mes = cursor.getInt(6);
         ano = cursor.getInt(7);
+        dataConta = new int[]{dia, mes, ano};
         valorConta = cursor.getDouble(8);
         pagouConta = cursor.getString(9);
         qtPrest = cursor.getInt(10);
@@ -149,7 +148,6 @@ public class EditarConta extends AppCompatActivity implements
         String dataAntiga = dbContaParaEditar.mostraCodigoConta(idConta1);
         dbContaParaEditar.atualizaDataContas(nomeConta, dataAntiga, qtPrest);
         codigoConta = dataAntiga;
-        // dbContaParaEditar.close();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -212,8 +210,7 @@ public class EditarConta extends AppCompatActivity implements
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         classificaConta.setAdapter(classesContas);
         classificaConta.setSelection(classeConta);
-
-        // dbContaParaEditar.close();
+        contaCategoria.setSelection(categoriaConta);
 
         prestacoes.setText(qtPrest + "");
 
@@ -328,17 +325,24 @@ public class EditarConta extends AppCompatActivity implements
                 return true;
             case R.id.menu_edita:
                 ConfereAlteracoesConta();
-                if (nr == 0) {
-                    ModificaUmaConta();
-                }
-                if (qtPrest != repeteConta[0] || repeteConta[2] != intervalo
-                        || nr > 0) {
-                    ModificaContas();
-                }
-                if (qtPrest > 1 && nr > 0) {
-                    new BarraProgresso(this, getResources().getString(
-                            R.string.dica_titulo_barra), getResources().getString(
-                            R.string.dica_barra_altera), qtPrest, 0, "mskapp").execute();
+                if (nr == 0 && valorNovoConta != 0.0D) {
+                    dbContaParaEditar.alteraDadosConta(idConta, novoNomeConta,
+                            tipoConta, classeConta, categoriaConta,
+                            diaVenc, mesPrest, anoPrest, valorNovoConta, novoPagouConta,
+                            qtPrest, nPrest, intervalo, codigoConta);
+                } else {
+                    if (qtPrest != repeteConta[0] || repeteConta[2] != intervalo
+                            || dia != dataConta[0] || mes != dataConta[1]
+                            || ano != dataConta[2]) {
+                        ModificaContas();
+                    } else {
+                        AtualizaDadosContas();
+                    }
+                    if (qtPrest > 1) {
+                        new BarraProgresso(this, getResources().getString(
+                                R.string.dica_titulo_barra), getResources().getString(
+                                R.string.dica_barra_altera), qtPrest, 0, "mskapp").execute();
+                    }
                 }
                 altera = 1;
                 setResult(RESULT_OK, null);
@@ -348,7 +352,6 @@ public class EditarConta extends AppCompatActivity implements
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     private void ConfereAlteracoesConta() {
 
@@ -382,7 +385,7 @@ public class EditarConta extends AppCompatActivity implements
         if (!valor.getText().toString().equals(""))
             valorNovoConta = Double.parseDouble(valor.getText().toString());
         else
-            valorNovoConta = 0;
+            valorNovoConta = 0.0D;
 
         // Atualiza data para contas
         diaVenc = dia;
@@ -394,6 +397,20 @@ public class EditarConta extends AppCompatActivity implements
             qtPrest = Integer.parseInt(prestacoes.getText().toString());
         else
             qtPrest = 0;
+
+        if (nr == 1 && nPrest != 1) {
+            nPrest = 1;
+        }
+    }
+
+    private void AtualizaDadosContas() {
+        dbContaParaEditar.alteraTipoContas(tipoConta, classeConta, categoriaConta, nomeConta, codigoConta, nPrest);
+        if (valorConta != valorNovoConta) {
+            dbContaParaEditar.alteraValorContas(valorNovoConta, pagouConta, nomeConta, codigoConta, nPrest);
+        }
+        if (!nomeConta.equals(novoNomeConta)) {
+            dbContaParaEditar.alteraNomeContas(novoNomeConta, nomeConta, codigoConta, nPrest);
+        }
     }
 
     private void ModificaContas() {
@@ -402,10 +419,6 @@ public class EditarConta extends AppCompatActivity implements
         // Metodo para obter data da primeira conta da repeticao
         int[] dma = dbContaParaEditar.mostraDMAConta(idConta1);
         data.set(dma[2], dma[1], dma[0]);
-
-        if (nr == 1 && nPrest != 1) {
-            nPrest = 1;
-        }
 
         dbContaParaEditar.excluiSerieContaPorNome(nomeConta, codigoConta, nPrest);
 
@@ -423,37 +436,12 @@ public class EditarConta extends AppCompatActivity implements
 
             // CORRECAO DAS DATAS PARA OS INTERVALOS DE REPETICAO
             if (intervalo == 300) { // Repeticao mensal
-                data.add(Calendar.DATE, 30);
+                data.add(Calendar.MONTH, 1);
             } else if (intervalo == 3650) { // Repeticao anual
                 data.add(Calendar.YEAR, 1);
             } else { // Repeticao diaria ou semanal
                 data.add(Calendar.DATE, intervalo - 100);
             }
-        }
-    }
-
-    private void ModificaUmaConta() {
-
-        // Modifica uma conta ou uma repeticao da conta
-
-        dbContaParaEditar.alteraNomeConta(idConta, novoNomeConta);
-
-        // Altera o valor da Conta
-        if (valorConta != valorNovoConta || !pagouConta.equals(novoPagouConta)) {
-            dbContaParaEditar.alteraValorConta(idConta, valorNovoConta,
-                    novoPagouConta);
-        }
-
-        // Atualiza tipo, classe e data da conta
-        dbContaParaEditar.alteraTipoConta(idConta, tipoConta);
-        dbContaParaEditar.alteraClasseConta(idConta, classeConta);
-        dbContaParaEditar.alteraCategoriaConta(idConta, categoriaConta);
-
-        // Altera Data Contas
-        if (dia != diaVenc || mes != mesPrest
-                || ano != anoPrest) {
-            dbContaParaEditar.alteraDataConta(idConta, diaVenc,
-                    mesPrest, anoPrest);
         }
     }
 
@@ -471,39 +459,42 @@ public class EditarConta extends AppCompatActivity implements
     public void onItemSelected(AdapterView<?> spinner, View arg1, int posicao,
                                long arg3) {
 
-        if (spinner.getId() == R.id.spClassificaConta) {
-            if (tipoConta == 0) {
-                classeConta = posicao;
-                if (posicao == 1) {
-                    prestacoes.setText(120 + "");
-                    qtPrest = 120;
+        switch (spinner.getId()) {
+            case R.id.spClasseConta:
+                if (tipoConta == 0) {
+                    classeConta = posicao;
+                    if (posicao == 1) {
+                        prestacoes.setText(120 + "");
+                        qtPrest = 120;
+                    }
+                } else if (tipoConta == 2) {
+                    classeConta = posicao;
+                    pagamento.setVisibility(View.GONE);
+                } else {
+                    classeConta = posicao;
+                    pagamento.setText(R.string.dica_recebe);
+                    pagamento.setVisibility(View.VISIBLE);
                 }
-            } else if (tipoConta == 2) {
-                classeConta = posicao;
-                pagamento.setVisibility(View.GONE);
-            } else {
-                classeConta = posicao;
-                pagamento.setText(R.string.dica_recebe);
-                pagamento.setVisibility(View.VISIBLE);
-            }
-        } else if (spinner.getId() == R.id.spCategoriaConta) {
-            categoriaConta = posicao;
-        } else {
-
-            switch (posicao) {
-                case 0: // Diariamente
-                    intervalo = 101;
-                    break;
-                case 1: // Semanalmente
-                    intervalo = 107;
-                    break;
-                case 2: // Mensalmente
-                    intervalo = 300;
-                    break;
-                case 3: // Anualmente
-                    intervalo = 3650;
-                    break;
-            }
+                break;
+            case R.id.spCategoriaConta:
+                categoriaConta = posicao;
+                break;
+            case R.id.spRepeticoes:
+                switch (posicao) {
+                    case 0: // Diariamente
+                        intervalo = 101;
+                        break;
+                    case 1: // Semanalmente
+                        intervalo = 107;
+                        break;
+                    case 2: // Mensalmente
+                        intervalo = 300;
+                        break;
+                    case 3: // Anualmente
+                        intervalo = 3650;
+                        break;
+                }
+                break;
         }
     }
 
@@ -513,7 +504,6 @@ public class EditarConta extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-
         if (altera == 1) {
             Toast.makeText(
                     getApplicationContext(),

@@ -282,7 +282,7 @@ public class CriarConta extends AppCompatActivity implements
                     int nRepete = i + 1;
 
                     if (intervalo == 300) { // Repeticao mensal
-                        data.add(Calendar.DATE, 30);
+                        data.add(Calendar.MONTH, 1);
                     } else if (intervalo == 3650) { // Repeticao anual
                         data.add(Calendar.YEAR, 1);
                     } else { // Repeticao diaria ou semanal

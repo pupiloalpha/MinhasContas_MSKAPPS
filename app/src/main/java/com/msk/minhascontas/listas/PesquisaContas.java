@@ -433,8 +433,7 @@ public class PesquisaContas extends AppCompatActivity implements
         if (i >= 0) {
 
             int posicao = listaContas.getFirstVisiblePosition();
-            String[] semana = r.getStringArray(R.array.Semana);
-            buscaContas = new AdaptaListaPesquisa(this, contasParaLista, semana);
+            buscaContas = new AdaptaListaPesquisa(this, contasParaLista);
 
             listaContas.setAdapter(buscaContas);
             listaContas.setEmptyView(resultado);

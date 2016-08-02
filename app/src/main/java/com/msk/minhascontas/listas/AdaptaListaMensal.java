@@ -21,19 +21,20 @@ import java.util.Locale;
 public class AdaptaListaMensal extends CursorAdapter {
 
     private LayoutInflater inflater;
-    private String[] semana;
+    private String[] semana, categoriaConta;
     private HashMap<Integer, Boolean> selecoes = new HashMap<Integer, Boolean>();
     private NumberFormat dinheiro;
     private Resources res = null;
 
     @SuppressWarnings("deprecation")
-    public AdaptaListaMensal(Context context, Cursor c, String[] array) {
+    public AdaptaListaMensal(Context context, Cursor c) {
         super(context, c);
         inflater = LayoutInflater.from(context);
-        semana = array;
         res = context.getResources();
         Locale current = res.getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
+        semana = res.getStringArray(R.array.Semana);
+        categoriaConta = res.getStringArray(R.array.CategoriaConta);
     }
 
     @Override
@@ -79,7 +80,6 @@ public class AdaptaListaMensal extends CursorAdapter {
 
         dia.setText(semana[s - 1]);
         String[] classeConta;
-        String[] categoriaConta = res.getStringArray(R.array.CategoriaConta);
 
         if (tipo == 0) {
             classeConta = res.getStringArray(R.array.TipoDespesa);

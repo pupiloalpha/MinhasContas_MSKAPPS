@@ -81,7 +81,8 @@ public class PaginadorListas extends AppCompatActivity {
         Bundle localBundle = getIntent().getExtras();
         nrPagina = localBundle.getInt("nr");
         tipo = localBundle.getInt("tipo");
-        filtro = -2;
+        if (tipo == -1) filtro = -2;
+        else filtro = -1;
 
         // PAGINA CONTENDO MESES
         paginas = 120;
@@ -296,10 +297,10 @@ public class PaginadorListas extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        if (tipo != 1) {
-            getMenuInflater().inflate(R.menu.barra_botoes_filtra_lista, menu);
-        } else {
+        if (tipo == 1 || tipo == -1) {
             getMenuInflater().inflate(R.menu.barra_botoes_lista, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.barra_botoes_filtra_lista, menu);
         }
         return true;
     }

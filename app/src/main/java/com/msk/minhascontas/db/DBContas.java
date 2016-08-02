@@ -148,54 +148,40 @@ public class DBContas {
                 + idConta + "' ", null) > 0;
     }
 
-    public boolean alteraNomeConta(long idConta, String nome)
+    public boolean alteraNomeContas(String nomeNovo, String nomeAntigo, String codigo, int nrRepete)
             throws SQLException {
         ContentValues dadosConta = new ContentValues();
-        dadosConta.put(COLUNA_NOME_CONTA, nome);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
-                + idConta + "' ", null) > 0;
+        nomeAntigo = nomeAntigo.replace("'", "''");
+        nrRepete = nrRepete - 1;
+        dadosConta.put(COLUNA_NOME_CONTA, nomeNovo);
+        return db.update(TABELA_CONTAS, dadosConta, COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
+                + COLUNA_CODIGO_CONTA + " = '" + codigo + "' AND " + COLUNA_NR_REPETICAO_CONTA
+                + " > " + nrRepete + " ", null) > 0;
     }
 
-    public boolean alteraTipoConta(long idConta, int tipo)
-            throws SQLException {
+    public boolean alteraTipoContas(int tipo, int classeConta, int categoria, String nomeAntigo,
+                                    String codigo, int nrRepete) throws SQLException {
         ContentValues dadosConta = new ContentValues();
+        nomeAntigo = nomeAntigo.replace("'", "''");
+        nrRepete = nrRepete - 1;
         dadosConta.put(COLUNA_TIPO_CONTA, tipo);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
-                + idConta + "' ", null) > 0;
-    }
-
-    public boolean alteraClasseConta(long idConta, int classeConta)
-            throws SQLException {
-        ContentValues dadosConta = new ContentValues();
         dadosConta.put(COLUNA_CLASSE_CONTA, classeConta);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
-                + idConta + "' ", null) > 0;
-    }
-
-    public boolean alteraCategoriaConta(long idConta, int categoria)
-            throws SQLException {
-        ContentValues dadosConta = new ContentValues();
         dadosConta.put(COLUNA_CATEGORIA_CONTA, categoria);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
-                + idConta + "' ", null) > 0;
+        return db.update(TABELA_CONTAS, dadosConta, COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
+                + COLUNA_CODIGO_CONTA + " = '" + codigo + "' AND " + COLUNA_NR_REPETICAO_CONTA
+                + " > " + nrRepete + " ", null) > 0;
     }
 
-    public boolean alteraDataConta(long idConta, int dia, int mes, int ano) throws SQLException {
+    public boolean alteraValorContas(double valor, String pagamento, String nomeAntigo,
+                                     String codigo, int nrRepete) throws SQLException {
         ContentValues dadosConta = new ContentValues();
-        dadosConta.put(COLUNA_DIA_DATA_CONTA, dia);
-        dadosConta.put(COLUNA_MES_DATA_CONTA, mes);
-        dadosConta.put(COLUNA_ANO_DATA_CONTA, ano);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
-                + idConta + "' ", null) > 0;
-    }
-
-    public boolean alteraValorConta(long idConta, double valor, String pagamento)
-            throws SQLException {
-        ContentValues dadosConta = new ContentValues();
+        nomeAntigo = nomeAntigo.replace("'", "''");
+        nrRepete = nrRepete - 1;
         dadosConta.put(COLUNA_VALOR_CONTA, valor);
         dadosConta.put(COLUNA_PAGOU_CONTA, pagamento);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_ID_CONTA + " = '"
-                + idConta + "' ", null) > 0;
+        return db.update(TABELA_CONTAS, dadosConta, COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
+                + COLUNA_CODIGO_CONTA + " = '" + codigo + "' AND " + COLUNA_NR_REPETICAO_CONTA
+                + " > " + nrRepete + " ", null) > 0;
     }
 
     public boolean alteraPagamentoConta(long idConta, String pagamento)
@@ -587,6 +573,18 @@ public class DBContas {
         Cursor cursor = db
                 .query(TABELA_CONTAS, colunas_contas, COLUNA_NOME_CONTA
                         + " = '" + nome + "'", null, null, null, null);
+        int i = cursor.getCount();
+        cursor.close();
+        return i;
+    }
+
+    public int quantasRepeticoesDaConta(String nome, String codigo) {
+        nome = nome.replace("'", "''");
+        Cursor cursor = db
+                .query(TABELA_CONTAS, colunas_contas, COLUNA_NOME_CONTA
+                                + " = '" + nome + "' AND "
+                                + COLUNA_CODIGO_CONTA + " = '" + codigo + "' ",
+                        null, null, null, null);
         int i = cursor.getCount();
         cursor.close();
         return i;
