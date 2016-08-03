@@ -139,7 +139,6 @@ public class Ajustes extends PreferenceActivity implements
         pastaBackUp = sharedPref.getString("backup", "");
 
         if (!pastaBackUp.equals("")) {
-
             backup.setSummary(pastaBackUp);
         }
 
@@ -347,10 +346,10 @@ public class Ajustes extends PreferenceActivity implements
     }
 
     @Override
-    public boolean onPreferenceChange(Preference itemPref, Object novaSenha) {
+    public boolean onPreferenceChange(Preference itemPref, Object objeto) {
         chave = itemPref.getKey();
         if (chave.equals("senha")) {
-            senha.setText(novaSenha.toString());
+            senha.setText(objeto.toString());
         }
         return false;
     }

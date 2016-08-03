@@ -216,20 +216,28 @@ public class DBContas {
     }
 
     public boolean confirmaPagamentos() throws SQLException {
-        ContentValues dadosConta = new ContentValues();
-        String pg = "paguei";
-        dadosConta.put(COLUNA_PAGOU_CONTA, "falta");
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_PAGOU_CONTA
-                + " != '" + pg + "' ", null) > 0;
+        Cursor c = db.query(TABELA_CONTAS, colunas_contas, COLUNA_PAGOU_CONTA
+                + " != 'paguei' ", null, null, null, null);
+        if (c.getCount() > 0) {
+            ContentValues dadosConta = new ContentValues();
+            String pg = "paguei";
+            dadosConta.put(COLUNA_PAGOU_CONTA, "falta");
+            return db.update(TABELA_CONTAS, dadosConta, COLUNA_PAGOU_CONTA
+                    + " != '" + pg + "' ", null) > 0;
+        } else return true;
     }
 
     public boolean ajustaRepeticoesContas() throws SQLException {
-        ContentValues dadosConta = new ContentValues();
-        int intervalo = 300;
-        int dia = 31;
-        dadosConta.put(COLUNA_INTERVALO_CONTA, intervalo);
-        return db.update(TABELA_CONTAS, dadosConta, COLUNA_INTERVALO_CONTA
-                + " <= '" + dia + "' ", null) > 0;
+        Cursor c = db.query(TABELA_CONTAS, colunas_contas, COLUNA_INTERVALO_CONTA
+                + " < '32' ", null, null, null, null);
+        if (c.getCount() > 0) {
+            ContentValues dadosConta = new ContentValues();
+            int intervalo = 300;
+            int dia = 31;
+            dadosConta.put(COLUNA_INTERVALO_CONTA, intervalo);
+            return db.update(TABELA_CONTAS, dadosConta, COLUNA_INTERVALO_CONTA
+                    + " <= '" + dia + "' ", null) > 0;
+        } else return true;
     }
 
     // ----------- MÉTODOS QUE EXCLUEM AS CONTAS NO BANCO DE DADOS
@@ -741,9 +749,10 @@ public class DBContas {
                 sd = new File(pasta);
 
             if (sd.canWrite()) {
-                String currentDBPath = "//data//com.msk.minhascontas//databases//minhas_contas";
+                //String currentDBPath = "//data//com.msk.minhascontas//databases//minhas_contas";
                 String backupDBPath = BANCO_DE_DADOS;
-                File currentDB = new File(data, currentDBPath);
+
+                File currentDB = contexto.getDatabasePath(BANCO_DE_DADOS);
                 File backupDB = new File(sd, backupDBPath);
 
                 if (currentDB.exists()) {
@@ -776,8 +785,9 @@ public class DBContas {
             if (sd.canWrite()) {
                 String currentDBPath = "//data//com.msk.minhascontas//databases//minhas_contas";
                 //String backupDBPath = BANCO_DE_DADOS;
-                File currentDB = new File(data, currentDBPath);
+                //File currentDB = new File(data, currentDBPath);
                 //File backupDB = new File(sd, backupDBPath);
+                File currentDB = contexto.getDatabasePath(BANCO_DE_DADOS);
 
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(sd)
@@ -805,46 +815,45 @@ public class DBContas {
                     COLUNA_NR_REPETICAO_CONTA, COLUNA_INTERVALO_CONTA, COLUNA_CODIGO_CONTA,
                     "auxiliar", "classifica"};
 
-            Cursor cursor = db.query("tabela_temporaria", colunas, null, null, null, null, null);
-            cursor.moveToLast();
-            long idLong;
             ContentValues cv;
             Resources res = contexto.getResources();
             String[] rec = res.getStringArray(R.array.TipoReceita);
             String[] desp = res.getStringArray(R.array.TipoDespesa);
             String[] apl = res.getStringArray(R.array.TipoAplicacao);
 
-            for (int i = 0; i < cursor.getCount(); i++) {
+            // ATUALIZA TIPO DESPESA
+            String st = res.getString(R.string.linha_despesa);
+            for (int j = 0; j < desp.length; j++) {
                 cv = new ContentValues();
-                idLong = cursor.getLong(0);
-                if (cursor.getString(14).equals(res.getString(R.string.linha_despesa))) {
-                    cv.put(COLUNA_TIPO_CONTA, 0);
-                    for (int j = 0; j < desp.length; j++) {
-                        if (cursor.getString(15).equals(desp[j])) {
-                            cv.put(COLUNA_CLASSE_CONTA, j);
-                        }
-                    }
-                    cv.put(COLUNA_CATEGORIA_CONTA, 7);
-                } else if (cursor.getString(14).equals(res.getString(R.string.linha_receita))) {
-                    cv.put(COLUNA_TIPO_CONTA, 1);
-                    for (int j = 0; j < rec.length; j++) {
-                        if (cursor.getString(15).equals(rec[j])) {
-                            cv.put(COLUNA_CLASSE_CONTA, j);
-                        }
-                    }
-                } else {
-                    cv.put(COLUNA_TIPO_CONTA, 2);
-                    for (int j = 0; j < apl.length; j++) {
-                        if (cursor.getString(15).equals(apl[j])) {
-                            cv.put(COLUNA_CLASSE_CONTA, j);
-                        }
-                    }
-                }
-                db.update("tabela_temporaria", cv, COLUNA_ID_CONTA + " = '"
-                        + idLong + "' ", null);
-                cursor.moveToPrevious();
+                cv.put(COLUNA_TIPO_CONTA, 0);
+                cv.put(COLUNA_CATEGORIA_CONTA, 7);
+                cv.put(COLUNA_CLASSE_CONTA, j);
+                db.update("tabela_temporaria", cv, " auxiliar = '"
+                        + st + "' AND classifica = '"
+                        + desp[j] + "' ", null);
             }
-            cursor.close();
+
+            // ATUALIZA TIPO RECEITA
+            st = res.getString(R.string.linha_receita);
+            for (int i = 0; i < rec.length; i++) {
+                cv = new ContentValues();
+                cv.put(COLUNA_TIPO_CONTA, 1);
+                cv.put(COLUNA_CLASSE_CONTA, i);
+                db.update("tabela_temporaria", cv, " auxiliar = '"
+                        + st + "' AND classifica = '"
+                        + rec[i] + "' ", null);
+            }
+
+            // ATUALIZA TIPO APLICACAO
+            st = res.getString(R.string.linha_aplicacoes);
+            for (int k = 0; k < apl.length; k++) {
+                cv = new ContentValues();
+                cv.put(COLUNA_TIPO_CONTA, 2);
+                cv.put(COLUNA_CLASSE_CONTA, k);
+                db.update("tabela_temporaria", cv, " auxiliar = '"
+                        + st + "' AND classifica = '"
+                        + apl[k] + "' ", null);
+            }
 
             db.execSQL("INSERT INTO " + TABELA_CONTAS
                     + " SELECT " + COLUNA_ID_CONTA

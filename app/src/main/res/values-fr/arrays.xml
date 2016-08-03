@@ -170,16 +170,7 @@
         <item>Valeur du compte\n(Haute-Basse)</item>
         <item>Valeur du compte\n(Basse-Haute)</item>
     </string-array>
-    <string-array name="ordem_contas_valores">
-        <item>conta ASC</item>
-        <item>conta DESC</item>
-        <item>dia_data ASC</item>
-        <item>dia_data DESC</item>
-        <item>tipo_conta DESC, classificacao DESC</item>
-        <item>tipo_conta ASC, classificacao ASC</item>
-        <item>valor DESC</item>
-        <item>valor ASC</item>
-    </string-array>
+
     <string-array name="repete_conta">
         <item>Quotidienne</item>
         <item>Hebdomadaire</item>

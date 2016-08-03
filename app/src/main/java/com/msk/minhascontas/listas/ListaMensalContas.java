@@ -222,7 +222,7 @@ public class ListaMensalContas extends Fragment {
             contasParaLista.moveToPosition(posicao);
             idConta = contasParaLista.getLong(0);
             nomeConta = contasParaLista.getString(1);
-            double vConta = contasParaLista.getDouble(9);
+            double vConta = contasParaLista.getDouble(8);
             dbContasDoMes.close();
 
             if (!alteraContas) {

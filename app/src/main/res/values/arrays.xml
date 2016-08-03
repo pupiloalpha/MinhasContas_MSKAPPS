@@ -170,13 +170,13 @@
         <item>Por valor de conta\n(Maior-Menor)</item>
         <item>Por valor de conta\n(Menor-Maior)</item>
     </string-array>
-    <string-array name="ordem_contas_valores">
+    <string-array name="ordem_contas_valores" translatable="false">
         <item>conta ASC</item>
         <item>conta DESC</item>
         <item>dia_data ASC</item>
         <item>dia_data DESC</item>
-        <item>tipo_conta DESC, classificacao DESC</item>
-        <item>tipo_conta ASC, classificacao ASC</item>
+        <item>tipo_conta DESC, classe_conta DESC</item>
+        <item>tipo_conta ASC, classe_conta ASC</item>
         <item>valor DESC</item>
         <item>valor ASC</item>
     </string-array>
