@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -230,6 +231,7 @@ public class PaginadorListas extends AppCompatActivity {
         ano = anoConta[nrPagina];
         dbContas.open();
         ColorDrawable cor;
+        Cursor somador;
         double valores;
 
         if (tipo == 1) {
@@ -257,26 +259,23 @@ public class PaginadorListas extends AppCompatActivity {
         if (filtro >= 0) {
             // DEFINE TITULO LISTA COM FILTRO
             if (filtro == 4) {
-                if (dbContas.quantasContasPagasPorTipo(tipo,
-                        "falta", 0, mes, ano) > 0)
-                    valores = dbContas.somaContasPagas(tipo,
-                            "falta", 0, mes, ano);
+                somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "falta");
+                if (somador.getCount() > 0)
+                    valores = SomaContas(somador);
                 else
                     valores = 0.0D;
                 getSupportActionBar().setTitle(res.getString(R.string.resumo_faltam));
             } else if (filtro == 5) {
-                if (dbContas.quantasContasPagasPorTipo(tipo,
-                        "paguei", 0, mes, ano) > 0)
-                    valores = dbContas.somaContasPagas(tipo,
-                            "paguei", 0, mes, ano);
+                somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "paguei");
+                if (somador.getCount() > 0)
+                    valores = SomaContas(somador);
                 else
                     valores = 0.0D;
                 getSupportActionBar().setTitle(res.getString(R.string.resumo_pagas));
             } else {
-                if (dbContas.quantasContasPorClasse(
-                        filtro, 0, mes, ano) > 0)
-                    valores = dbContas.somaContasPorClasse(
-                            filtro, 0, mes, ano);
+                somador = dbContas.buscaContasClasse(0, mes, ano, null, tipo, filtro);
+                if (somador.getCount() > 0)
+                    valores = SomaContas(somador);
                 else
                     valores = 0.0D;
                 getSupportActionBar().setTitle(classes[filtro]);
@@ -284,13 +283,26 @@ public class PaginadorListas extends AppCompatActivity {
             getSupportActionBar().setSubtitle(dinheiro.format(valores));
         } else if (filtro == -1) {
             // DEFINE TITULO LISTA SEM FILTRO
-            if (dbContas.quantasContasPorTipo(
-                    tipo, 0, mes, ano) > 0)
-                valores = dbContas.somaContas(
-                        tipo, 0, mes, ano);
+            somador = dbContas.buscaContasTipo(0, mes, ano, null, tipo);
+            if (somador.getCount() > 0)
+                valores = SomaContas(somador);
             else
                 valores = 0.0D;
             getSupportActionBar().setSubtitle(dinheiro.format(valores));
+        }
+    }
+
+    private double SomaContas(Cursor cursor) {
+        int i = cursor.getCount();
+        cursor.moveToLast();
+        double d = 0.0D;
+        for (int j = 0; ; j++) {
+            if (j >= i) {
+                cursor.close();
+                return d;
+            }
+            d += cursor.getDouble(8);
+            cursor.moveToPrevious();
         }
     }
 

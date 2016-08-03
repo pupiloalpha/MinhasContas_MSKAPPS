@@ -36,7 +36,6 @@ public class WidgetResumo extends AppWidgetProvider {
 
     private Boolean somaSaldo = false;
 
-    private String despesa, receita, aplicacao;
     private double[] valores;
     private double rec, desp, mes_ant;
     private int mes, ano;
@@ -102,13 +101,7 @@ public class WidgetResumo extends AppWidgetProvider {
         valores = new double[4];
 
         dbContas = new DBContas(context);
-
-        despesa = context.getString(R.string.linha_despesa);
-        receita = context.getString(R.string.linha_receita);
-        aplicacao = context.getString(R.string.linha_aplicacoes);
-
         dbContas.open();
-
         Cursor somador = null;
 
         // PREENCHE AS LINHAS DA TABELA

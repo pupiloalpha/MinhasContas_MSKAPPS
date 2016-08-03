@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_grafico_categorias"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:text="@string/pref_titulo_categoria"
+        android:textColor="@color/preto"
+        android:textSize="18sp" />
+
+    <lecho.lib.hellocharts.view.ColumnChartView
+        android:id="@+id/grafico_categorias"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_margin="5dp" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
+
+        <TableRow>
+
+            <LinearLayout
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="5.0dip"
+                android:background="@color/vermelho_claro"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5.0dip"
+                android:layout_weight="0.85"
+                android:gravity="left"
+                android:text="@string/dica_alimentacao"
+                tools:ignore="RtlHardcoded" />
+
+            <LinearLayout
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="5.0dip"
+                android:background="@color/roxo"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5.0dip"
+                android:layout_weight="0.85"
+                android:gravity="left"
+                android:text="@string/dica_educacao"
+                tools:ignore="RtlHardcoded" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <LinearLayout
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="5.0dip"
+                android:background="@color/amarelo"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5.0dip"
+                android:layout_weight="0.85"
+                android:gravity="left"
+                android:text="@string/dica_lazer"
+                tools:ignore="RtlHardcoded" />
+
+            <LinearLayout
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="5.0dip"
+                android:background="@color/azul"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5.0dip"
+                android:layout_weight="0.85"
+                android:gravity="left"
+                android:text="@string/dica_moradia"
+                tools:ignore="RtlHardcoded" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <LinearLayout
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="5.0dip"
+                android:background="@color/verde"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5.0dip"
+                android:layout_weight="0.85"
+                android:gravity="left"
+                android:text="@string/dica_saude"
+                tools:ignore="RtlHardcoded" />
+
+            <LinearLayout
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="5.0dip"
+                android:background="@color/laranja"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5.0dip"
+                android:layout_weight="0.85"
+                android:gravity="left"
+                android:text="@string/dica_transporte"
+                tools:ignore="RtlHardcoded" />
+
+        </TableRow>
+
+        <TableRow>
+
+            <LinearLayout
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="5.0dip"
+                android:background="@color/marrom"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5.0dip"
+                android:layout_weight="0.85"
+                android:gravity="left"
+                android:text="@string/dica_vestuario"
+                tools:ignore="RtlHardcoded" />
+
+            <LinearLayout
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="5.0dip"
+                android:background="@color/cinza_claro"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5.0dip"
+                android:layout_weight="0.85"
+                android:gravity="left"
+                android:text="@string/dica_outros"
+                tools:ignore="RtlHardcoded" />
+
+        </TableRow>
+
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0.1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@color/cinza_claro" />
+
+</LinearLayout>

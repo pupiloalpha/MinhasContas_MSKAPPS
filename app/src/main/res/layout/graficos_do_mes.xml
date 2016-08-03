@@ -21,6 +21,8 @@
 
         <include layout="@layout/grafico_despesas" />
 
+        <include layout="@layout/grafico_categorias" />
+
         <include layout="@layout/grafico_aplicacoes" />
 
         <include layout="@layout/grafico_contas" />

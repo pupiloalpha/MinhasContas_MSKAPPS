@@ -131,12 +131,8 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
     private String[] SaldoMensal(int mes, int ano) {
 
         // DEFINE OS NOMES DA LINHAS DA TABELA
-        dbMinhasContas.open();
-        despesa = res.getString(R.string.linha_despesa);
         despesas = res.getStringArray(R.array.TipoDespesa);
-        receita = res.getString(R.string.linha_receita);
         receitas = res.getStringArray(R.array.TipoReceita);
-        aplicacao = res.getString(R.string.linha_aplicacoes);
         aplicacoes = res.getStringArray(R.array.TipoAplicacao);
 
         // AJUSTE QUANDO EXISTE APENAS UMA RECEITA
@@ -222,19 +218,14 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
         // VALOR DO SALDO ATUAL
         valores[categorias - 1] = dinheiro.format(dvalor0 - dvalor1);
 
-        dbMinhasContas.close();
-
         return valores;
     }
 
     private void NomeLinhas() {
         // DEFINE OS NOMES DA LINHAS DA TABELA
         despesa = res.getString(R.string.linha_despesa);
-        despesas = res.getStringArray(R.array.TipoDespesa);
         receita = res.getString(R.string.linha_receita);
-        receitas = res.getStringArray(R.array.TipoReceita);
         aplicacao = res.getString(R.string.linha_aplicacoes);
-        aplicacoes = res.getStringArray(R.array.TipoAplicacao);
 
         // AJUSTE QUANDO EXISTE APENAS UMA RECEITA
         if (receitas.length > 1)

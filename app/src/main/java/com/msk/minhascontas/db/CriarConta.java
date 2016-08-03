@@ -100,7 +100,7 @@ public class CriarConta extends AppCompatActivity implements
         juros = (TextInputLayout) findViewById(R.id.layout_juros);
         classificaConta = ((AppCompatSpinner) findViewById(R.id.spClasseConta));
         categoriaConta = ((AppCompatSpinner) findViewById(R.id.spCategoriaConta));
-
+        categoriaConta.setSelection(7);
         nomeConta = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeNovaConta));
         ArrayAdapter completa = new ArrayAdapter(this,
                 android.R.layout.simple_dropdown_item_1line, getResources()

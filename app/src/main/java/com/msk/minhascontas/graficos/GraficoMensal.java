@@ -41,13 +41,13 @@ public class GraficoMensal extends Fragment {
     private PieChartView gcontas, greceitas, gpagamentos;
     private PieChartData data;
     private LineChartView gsaldo;
-    private ColumnChartView gdespesas, gaplicacoes;
+    private ColumnChartView gdespesas, gcategortias, gaplicacoes;
     private ColumnChartData dados;
 
     // ELEMENTOS DA TELA
     private View rootView;
     private TextView semcontas;
-    private LinearLayout grafcontas, grafdesp, grafrec, grafpag, grafaplic, grafsaldo;
+    private LinearLayout grafcontas, grafdesp, grafcat, grafrec, grafpag, grafaplic, grafsaldo;
 
     // VARIAVEIS
     private DBContas dbContasFeitas;
@@ -55,9 +55,8 @@ public class GraficoMensal extends Fragment {
     private int ano, mes, contas;
     private double vaplic, vdesp, vrec,
             vsaldo, vdesppg, vdespnpg, vrecarec, vrecrec;
-    private String despesa, receita, aplicacao;
     private float[] valores;
-    private String[] series, despesas, aplicacoes;
+    private String[] series;
     private int[] roleta, cores;
     private NumberFormat dinheiro;
 
@@ -109,6 +108,7 @@ public class GraficoMensal extends Fragment {
 
         gcontas = (PieChartView) rootView.findViewById(R.id.grafico_contas);
         gdespesas = (ColumnChartView) rootView.findViewById(R.id.grafico_despesas);
+        gcategortias = (ColumnChartView) rootView.findViewById(R.id.grafico_categorias);
         greceitas = (PieChartView) rootView.findViewById(R.id.grafico_receitas);
         gpagamentos = (PieChartView) rootView.findViewById(R.id.grafico_pagamentos);
         gaplicacoes = (ColumnChartView) rootView.findViewById(R.id.grafico_aplicacoes);
@@ -116,6 +116,7 @@ public class GraficoMensal extends Fragment {
 
         grafcontas = (LinearLayout) rootView.findViewById(R.id.layout_grafico_contas);
         grafdesp = (LinearLayout) rootView.findViewById(R.id.layout_grafico_despesas);
+        grafcat = (LinearLayout) rootView.findViewById(R.id.layout_grafico_categorias);
         grafaplic = (LinearLayout) rootView.findViewById(R.id.layout_grafico_aplicacoes);
         grafrec = (LinearLayout) rootView.findViewById(R.id.layout_grafico_receitas);
         grafpag = (LinearLayout) rootView.findViewById(R.id.layout_grafico_pagamentos);
@@ -143,8 +144,6 @@ public class GraficoMensal extends Fragment {
             semcontas.setVisibility(View.VISIBLE);
 
         // DADOS DAS DESPESAS
-        despesa = getResources().getString(R.string.linha_despesa);
-        despesas = getResources().getStringArray(R.array.TipoDespesa);
         vdesp = 0.0D;
         // Valores de despesas
         somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 0);
@@ -152,17 +151,13 @@ public class GraficoMensal extends Fragment {
             vdesp = SomaContas(somador);
 
         // DADOS DAS RECEITAS
-        receita = getResources().getString(R.string.linha_receita);
         vrec = 0.0D;
-
         // Valores de receitas
         somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 1);
         if (somador.getCount() > 0)
             vrec = SomaContas(somador);
 
         // DADOS DAS APLICACOES
-        aplicacao = getResources().getString(R.string.linha_aplicacoes);
-        aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
         vaplic = 0.0D;
         somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 2);
         if (somador.getCount() > 0)
@@ -222,9 +217,11 @@ public class GraficoMensal extends Fragment {
         }
         if (vdesp == 0 || contas == 0) {
             grafdesp.setVisibility(View.GONE);
+            grafcat.setVisibility(View.GONE);
             grafpag.setVisibility(View.GONE);
         } else {
             grafdesp.setVisibility(View.VISIBLE);
+            grafcat.setVisibility(View.VISIBLE);
             grafpag.setVisibility(View.VISIBLE);
         }
 
@@ -242,6 +239,7 @@ public class GraficoMensal extends Fragment {
     private void AtualizaGrafico() {
         GraficoContas();
         GraficoDespesas();
+        GraficoCategorias();
         GraficoAplicacoes();
         GraficoPagamentos();
         GraficoReceitas();
@@ -285,7 +283,7 @@ public class GraficoMensal extends Fragment {
 
         dbContasFeitas.open();
         Cursor somador = null;
-        aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
+        String[] aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         valores = new float[aplicacoes.length];
         series = new String[aplicacoes.length];
@@ -346,7 +344,7 @@ public class GraficoMensal extends Fragment {
 
         dbContasFeitas.open();
         Cursor somador = null;
-        despesas = getResources().getStringArray(R.array.TipoDespesa);
+        String[] despesas = getResources().getStringArray(R.array.TipoDespesa);
 
         valores = new float[despesas.length];
         series = new String[despesas.length];
@@ -400,6 +398,65 @@ public class GraficoMensal extends Fragment {
         dados.setAxisYLeft(axisY);
 
         gdespesas.setColumnChartData(dados);
+    }
+
+    private void GraficoCategorias() {
+
+        dbContasFeitas.open();
+        Cursor somador = null;
+        String[] categorias = getResources().getStringArray(R.array.CategoriaConta);
+
+        valores = new float[categorias.length];
+        series = new String[categorias.length];
+        cores = new int[categorias.length];
+        roleta = new int[]{Color.parseColor("#FF4444"),
+                Color.parseColor("#AA66CC"), Color.parseColor("#FFBB33"),
+                Color.parseColor("#0099CC"), Color.parseColor("#99CC00"),
+                Color.parseColor("#FF8800"), Color.parseColor("#9E9D24"),
+                Color.parseColor("#696969")};
+
+        for (int i = 0; i < categorias.length; i++) {
+            series[i] = categorias[i];
+            if (i > 9) {
+                cores[i] = roleta[i - 9];
+            } else {
+                cores[i] = roleta[i];
+            }
+            somador = dbContasFeitas.buscaContasCategoria(0, mes, ano, null, i);
+            if (somador.getCount() > 0)
+                valores[i] = (float) SomaContas(somador);
+            else
+                valores[i] = (float) 0.0D;
+        }
+
+        somador.close();
+        dbContasFeitas.close();
+
+        List<Column> columns = new ArrayList<Column>();
+        List<SubcolumnValue> valorColuna;
+
+        for (int i = 0; i < categorias.length; ++i) {
+            valorColuna = new ArrayList<SubcolumnValue>();
+            SubcolumnValue sc;
+            for (int j = 0; j < 1; ++j) {
+                sc = new SubcolumnValue(valores[i], cores[i]);
+                sc.setLabel(dinheiro.format(valores[i]));
+                valorColuna.add(sc);
+            }
+            Column column = new Column(valorColuna);
+            column.setHasLabels(true);
+            columns.add(column);
+        }
+
+        dados = new ColumnChartData(columns);
+
+        Axis axisY = new Axis().setHasLines(true);
+        axisY.setName(getResources().getString(R.string.dica_valor)).setMaxLabelChars(4);
+        axisY.setTextColor(getResources().getColor(R.color.cinza));
+        axisY.setAutoGenerated(true);
+        dados.setAxisYLeft(axisY);
+
+        gcategortias.setColumnChartData(dados);
     }
 
     private void GraficoPagamentos() {
