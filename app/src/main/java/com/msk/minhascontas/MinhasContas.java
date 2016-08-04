@@ -1,11 +1,13 @@
 package com.msk.minhascontas;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -13,9 +15,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -32,6 +36,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.info.Ajustes;
@@ -94,7 +99,7 @@ public class MinhasContas extends AppCompatActivity {
         ano = c.get(Calendar.YEAR);
         mes = c.get(Calendar.MONTH);
         dia = c.get(Calendar.DAY_OF_MONTH);
-        AjustesBD();
+        PermissaoSD(ESCREVE_SD);
         dia = c.get(Calendar.DAY_OF_MONTH);
 
         if (resumoMensal) {
@@ -218,6 +223,36 @@ public class MinhasContas extends AppCompatActivity {
         }
     }
 
+    private void PermissaoSD(int nr) {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, nr);
+            }
+        } else {
+            AjustesBD();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // permission was granted, yay! Do the
+            AjustesBD();
+        } else {
+            // permission denied, boo! Disable the
+            Toast.makeText(getApplicationContext(), getString(R.string.titulo_senha), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void ListaMesesAnos() {
 
         // DEFINE OS MESES E ANOS QUE APARECERAM NA TELA
@@ -315,11 +350,11 @@ public class MinhasContas extends AppCompatActivity {
 
                 dbContas.open();
                 String aplicacoes = dbContas.mostraContasPorTipo(
-                        res.getString(R.string.linha_aplicacoes), mes, ano);
+                        res.getString(R.string.linha_aplicacoes), 2, mes, ano);
                 String despesas = dbContas.mostraContasPorTipo(
-                        res.getString(R.string.linha_despesa), mes, ano);
+                        res.getString(R.string.linha_despesa), 0, mes, ano);
                 String receitas = dbContas.mostraContasPorTipo(
-                        res.getString(R.string.linha_receita), mes, ano);
+                        res.getString(R.string.linha_receita), 1, mes, ano);
 
                 String texto = res.getString(R.string.app_name) + " "
                         + Meses[mes] + "/" + ano + "\n" + receitas + "\n"

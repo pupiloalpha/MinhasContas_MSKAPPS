@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
+import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -359,22 +360,26 @@ public class DBContas {
 
     // ----------- MÉTODOS QUE MOSTRAM AS CONTAS DO BANCO DE DADOS
 
-    public String mostraContasPorTipo(String tipo, int mes, int ano)
+    public String mostraContasPorTipo(String nome, int tipo, int mes, int ano)
             throws SQLException {
         Cursor cursor = db.query(TABELA_CONTAS, colunas_contas,
                 COLUNA_TIPO_CONTA + " = '" + tipo + "' AND "
                         + COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                         + COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ", null,
                 null, null, COLUNA_NOME_CONTA + " ASC ");
-        String str = tipo + " do mês:\n";
+        String str = nome + " do mês:\n";
+
+        Locale current = contexto.getResources().getConfiguration().locale;
+        NumberFormat dinheiro = NumberFormat.getCurrencyInstance(current);
+
         cursor.moveToFirst();
         while (true) {
             if (cursor.isAfterLast()) {
                 cursor.close();
                 return str;
             }
-            str = str + "R$ " + String.format(Locale.US, "%.2f", cursor.getDouble(8))
-                    + " de " + cursor.getString(1) + ";\n";
+            str = str + dinheiro.format(cursor.getDouble(8))
+                    + " " + cursor.getString(1) + ";\n";
             cursor.moveToNext();
         }
     }
@@ -806,76 +811,76 @@ public class DBContas {
 
     public void atualizaBD() throws SQLException {
 
-        try {
+        Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        while (c.moveToNext()) {
+            String s = c.getString(0);
+            if (s.equals("tabela_temporaria")) {
+                String[] colunas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
+                        COLUNA_TIPO_CONTA, COLUNA_CLASSE_CONTA, COLUNA_CATEGORIA_CONTA,
+                        COLUNA_DIA_DATA_CONTA, COLUNA_MES_DATA_CONTA, COLUNA_ANO_DATA_CONTA,
+                        COLUNA_VALOR_CONTA, COLUNA_PAGOU_CONTA, COLUNA_QT_REPETICOES_CONTA,
+                        COLUNA_NR_REPETICAO_CONTA, COLUNA_INTERVALO_CONTA, COLUNA_CODIGO_CONTA,
+                        "auxiliar", "classifica"};
 
-            String[] colunas = {COLUNA_ID_CONTA, COLUNA_NOME_CONTA,
-                    COLUNA_TIPO_CONTA, COLUNA_CLASSE_CONTA, COLUNA_CATEGORIA_CONTA,
-                    COLUNA_DIA_DATA_CONTA, COLUNA_MES_DATA_CONTA, COLUNA_ANO_DATA_CONTA,
-                    COLUNA_VALOR_CONTA, COLUNA_PAGOU_CONTA, COLUNA_QT_REPETICOES_CONTA,
-                    COLUNA_NR_REPETICAO_CONTA, COLUNA_INTERVALO_CONTA, COLUNA_CODIGO_CONTA,
-                    "auxiliar", "classifica"};
+                ContentValues cv;
+                Resources res = contexto.getResources();
+                String[] rec = res.getStringArray(R.array.TipoReceita);
+                String[] desp = res.getStringArray(R.array.TipoDespesa);
+                String[] apl = res.getStringArray(R.array.TipoAplicacao);
 
-            ContentValues cv;
-            Resources res = contexto.getResources();
-            String[] rec = res.getStringArray(R.array.TipoReceita);
-            String[] desp = res.getStringArray(R.array.TipoDespesa);
-            String[] apl = res.getStringArray(R.array.TipoAplicacao);
+                // ATUALIZA TIPO DESPESA
+                String st = res.getString(R.string.linha_despesa);
+                for (int j = 0; j < desp.length; j++) {
+                    cv = new ContentValues();
+                    cv.put(COLUNA_TIPO_CONTA, 0);
+                    cv.put(COLUNA_CATEGORIA_CONTA, 7);
+                    cv.put(COLUNA_CLASSE_CONTA, j);
+                    db.update("tabela_temporaria", cv, " auxiliar = '"
+                            + st + "' AND classifica = '"
+                            + desp[j] + "' ", null);
+                }
 
-            // ATUALIZA TIPO DESPESA
-            String st = res.getString(R.string.linha_despesa);
-            for (int j = 0; j < desp.length; j++) {
-                cv = new ContentValues();
-                cv.put(COLUNA_TIPO_CONTA, 0);
-                cv.put(COLUNA_CATEGORIA_CONTA, 7);
-                cv.put(COLUNA_CLASSE_CONTA, j);
-                db.update("tabela_temporaria", cv, " auxiliar = '"
-                        + st + "' AND classifica = '"
-                        + desp[j] + "' ", null);
+                // ATUALIZA TIPO RECEITA
+                st = res.getString(R.string.linha_receita);
+                for (int i = 0; i < rec.length; i++) {
+                    cv = new ContentValues();
+                    cv.put(COLUNA_TIPO_CONTA, 1);
+                    cv.put(COLUNA_CLASSE_CONTA, i);
+                    db.update("tabela_temporaria", cv, " auxiliar = '"
+                            + st + "' AND classifica = '"
+                            + rec[i] + "' ", null);
+                }
+
+                // ATUALIZA TIPO APLICACAO
+                st = res.getString(R.string.linha_aplicacoes);
+                for (int k = 0; k < apl.length; k++) {
+                    cv = new ContentValues();
+                    cv.put(COLUNA_TIPO_CONTA, 2);
+                    cv.put(COLUNA_CLASSE_CONTA, k);
+                    db.update("tabela_temporaria", cv, " auxiliar = '"
+                            + st + "' AND classifica = '"
+                            + apl[k] + "' ", null);
+                }
+
+                db.execSQL("INSERT INTO " + TABELA_CONTAS
+                        + " SELECT " + COLUNA_ID_CONTA
+                        + ", " + COLUNA_NOME_CONTA
+                        + ", " + COLUNA_TIPO_CONTA
+                        + ", " + COLUNA_CLASSE_CONTA
+                        + ", " + COLUNA_CATEGORIA_CONTA
+                        + ", " + COLUNA_DIA_DATA_CONTA
+                        + ", " + COLUNA_MES_DATA_CONTA
+                        + ", " + COLUNA_ANO_DATA_CONTA
+                        + ", " + COLUNA_VALOR_CONTA
+                        + ", " + COLUNA_PAGOU_CONTA
+                        + ", " + COLUNA_QT_REPETICOES_CONTA
+                        + ", " + COLUNA_NR_REPETICAO_CONTA
+                        + ", " + COLUNA_INTERVALO_CONTA
+                        + ", " + COLUNA_CODIGO_CONTA
+                        + " FROM tabela_temporaria");
+
+                db.execSQL("DROP TABLE tabela_temporaria");
             }
-
-            // ATUALIZA TIPO RECEITA
-            st = res.getString(R.string.linha_receita);
-            for (int i = 0; i < rec.length; i++) {
-                cv = new ContentValues();
-                cv.put(COLUNA_TIPO_CONTA, 1);
-                cv.put(COLUNA_CLASSE_CONTA, i);
-                db.update("tabela_temporaria", cv, " auxiliar = '"
-                        + st + "' AND classifica = '"
-                        + rec[i] + "' ", null);
-            }
-
-            // ATUALIZA TIPO APLICACAO
-            st = res.getString(R.string.linha_aplicacoes);
-            for (int k = 0; k < apl.length; k++) {
-                cv = new ContentValues();
-                cv.put(COLUNA_TIPO_CONTA, 2);
-                cv.put(COLUNA_CLASSE_CONTA, k);
-                db.update("tabela_temporaria", cv, " auxiliar = '"
-                        + st + "' AND classifica = '"
-                        + apl[k] + "' ", null);
-            }
-
-            db.execSQL("INSERT INTO " + TABELA_CONTAS
-                    + " SELECT " + COLUNA_ID_CONTA
-                    + ", " + COLUNA_NOME_CONTA
-                    + ", " + COLUNA_TIPO_CONTA
-                    + ", " + COLUNA_CLASSE_CONTA
-                    + ", " + COLUNA_CATEGORIA_CONTA
-                    + ", " + COLUNA_DIA_DATA_CONTA
-                    + ", " + COLUNA_MES_DATA_CONTA
-                    + ", " + COLUNA_ANO_DATA_CONTA
-                    + ", " + COLUNA_VALOR_CONTA
-                    + ", " + COLUNA_PAGOU_CONTA
-                    + ", " + COLUNA_QT_REPETICOES_CONTA
-                    + ", " + COLUNA_NR_REPETICAO_CONTA
-                    + ", " + COLUNA_INTERVALO_CONTA
-                    + ", " + COLUNA_CODIGO_CONTA
-                    + " FROM tabela_temporaria");
-
-            db.execSQL("DROP TABLE tabela_temporaria");
-
-        } catch (Exception e) {
-            Log.w(TAG, "Erro ao modificar dados");
         }
     }
 
