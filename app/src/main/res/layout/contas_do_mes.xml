@@ -10,11 +10,10 @@
 
     <ListView
         android:id="@+id/lvContasCriadas"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:background="@color/branco"
         android:choiceMode="singleChoice"
         android:nestedScrollingEnabled="true"
         android:scrollingCache="false"
@@ -22,8 +21,8 @@
 
     <TextView
         android:id="@+id/tvSemContas"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:gravity="center"
         android:text="@string/dica_vazio"
         android:textColor="@color/preto"

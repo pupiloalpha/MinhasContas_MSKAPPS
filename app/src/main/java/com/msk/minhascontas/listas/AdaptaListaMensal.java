@@ -128,7 +128,7 @@ public class AdaptaListaMensal extends CursorAdapter {
         if (selecoes.get(position) != null)
             view.setBackgroundColor(Color.parseColor("#FFC5E1A5"));
         else
-            view.setBackgroundColor(Color.WHITE);
+            view.setBackgroundColor(Color.TRANSPARENT);
         return view;
     }
 }
