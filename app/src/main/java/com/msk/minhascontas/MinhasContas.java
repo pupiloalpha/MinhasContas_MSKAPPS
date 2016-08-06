@@ -158,6 +158,11 @@ public class MinhasContas extends AppCompatActivity {
         bloqueioApp = buscaPreferencias.getBoolean("acesso", false);
         atualizaPagamento = buscaPreferencias.getBoolean("pagamento", false);
         senhaUsuario = buscaPreferencias.getString("senha", "");
+        String ordem = buscaPreferencias.getString("ordem", "");
+        if (ordem.equals("tipo_conta DESC, classificacao DESC") || ordem.equals("tipo_conta ASC, classificacao ASC")) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply();
+            PreferenceManager.setDefaultValues(this, R.xml.preferencias, true);
+        }
     }
 
     private void Dialogo() {

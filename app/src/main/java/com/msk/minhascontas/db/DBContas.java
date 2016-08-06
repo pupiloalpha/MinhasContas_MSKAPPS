@@ -862,6 +862,13 @@ public class DBContas {
                             + apl[k] + "' ", null);
                 }
 
+                // ATUALIZA TIPO APLICACAO
+                cv = new ContentValues();
+                cv.put(COLUNA_TIPO_CONTA, 0);
+                cv.put(COLUNA_CLASSE_CONTA, 2);
+                db.update("tabela_temporaria", cv,
+                        " auxiliar IS NULL OR classifica IS NULL ", null);
+
                 db.execSQL("INSERT INTO " + TABELA_CONTAS
                         + " SELECT " + COLUNA_ID_CONTA
                         + ", " + COLUNA_NOME_CONTA
