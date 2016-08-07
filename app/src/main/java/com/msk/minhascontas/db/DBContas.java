@@ -46,8 +46,8 @@ public class DBContas {
     private static final String CRIA_TABELA_CONTAS = "CREATE TABLE " + TABELA_CONTAS + " ( "
             + COLUNA_ID_CONTA + " INTEGER PRIMARY KEY AUTOINCREMENT," // coluna 0
             + COLUNA_NOME_CONTA + " TEXT NOT NULL,"                   // coluna 1
-            + COLUNA_TIPO_CONTA + " INTEGER NOT NULL, "               // coluna 2
-            + COLUNA_CLASSE_CONTA + " INTEGER NOT NULL,"              // coluna 3
+            + COLUNA_TIPO_CONTA + " INTEGER, "                        // coluna 2
+            + COLUNA_CLASSE_CONTA + " INTEGER,"                       // coluna 3
             + COLUNA_CATEGORIA_CONTA + " TEXT, "                      // coluna 4
             + COLUNA_DIA_DATA_CONTA + " INTEGER NOT NULL, "           // coluna 5
             + COLUNA_MES_DATA_CONTA + " INTEGER NOT NULL, "           // coluna 6
@@ -822,6 +822,9 @@ public class DBContas {
                         COLUNA_NR_REPETICAO_CONTA, COLUNA_INTERVALO_CONTA, COLUNA_CODIGO_CONTA,
                         "auxiliar", "classifica"};
 
+                db.execSQL("DROP TABLE IF EXISTS " + TABELA_CONTAS);
+                db.execSQL(CRIA_TABELA_CONTAS);
+
                 ContentValues cv;
                 Resources res = contexto.getResources();
                 String[] rec = res.getStringArray(R.array.TipoReceita);
@@ -940,9 +943,9 @@ public class DBContas {
             db.execSQL("INSERT INTO tabela_temporaria"
                     + " SELECT " + COLUNA_ID_CONTA
                     + ", " + COLUNA_NOME_CONTA
-                    + ", " + null
-                    + ", " + null
-                    + ", " + null
+                    + ", " + 0
+                    + ", " + 0
+                    + ", " + 0
                     + ", " + COLUNA_DIA_DATA_CONTA
                     + ", " + COLUNA_MES_DATA_CONTA
                     + ", " + COLUNA_ANO_DATA_CONTA
