@@ -365,11 +365,11 @@ public class MinhasContas extends AppCompatActivity {
                         + Meses[mes] + "/" + ano + "\n" + receitas + "\n"
                         + despesas + "\n" + aplicacoes;
 
-                Intent envelope = new Intent("android.intent.action.SEND");
-                envelope.putExtra("android.intent.extra.SUBJECT",
+                Intent envelope = new Intent(Intent.ACTION_SEND);
+                envelope.putExtra(Intent.EXTRA_SUBJECT,
                         res.getString(R.string.app_name));
-                envelope.putExtra("android.intent.extra.TEXT", texto);
-                envelope.setType("*/*");
+                envelope.putExtra(Intent.EXTRA_TEXT, texto);
+                envelope.setType("text/plain");
                 startActivity(Intent.createChooser(envelope,
                         res.getString(R.string.titulo_grafico)
                                 + " "
