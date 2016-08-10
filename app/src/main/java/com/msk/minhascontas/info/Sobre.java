@@ -4,6 +4,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -30,6 +31,7 @@ public class Sobre extends AppCompatActivity {
         versao = pinfo.versionName;
 
         sobre.setText(getResources().getString(R.string.sobre, versao));
+        Linkify.addLinks(sobre, Linkify.ALL);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);

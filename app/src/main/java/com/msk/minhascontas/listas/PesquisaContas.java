@@ -2,6 +2,7 @@ package com.msk.minhascontas.listas;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -10,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
@@ -343,7 +343,6 @@ public class PesquisaContas extends AppCompatActivity implements
             buscaContas.limpaSelecao();
             contas = new ArrayList<Long>();
             alteraContas = false;
-
         }
     };
     private AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {

@@ -1,6 +1,7 @@
 package com.msk.minhascontas.info;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,7 +23,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
