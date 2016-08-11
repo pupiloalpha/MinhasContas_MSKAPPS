@@ -93,7 +93,8 @@
 
         <activity
             android:name=".info.Ajustes"
-            android:label="@string/menu_ajustes">
+            android:label="@string/menu_ajustes"
+            android:theme="@style/TemaAjuda">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.AJUSTES" />
 

@@ -203,7 +203,6 @@ public class PesquisaContas extends AppCompatActivity implements
                         startActivity(evento);
                     }
                     break;
-
             }
             mode.finish();
             return true;
@@ -211,12 +210,8 @@ public class PesquisaContas extends AppCompatActivity implements
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-
             mActionMode = null;
-            //buscaContas.limpaSelecao();
             buscaContas.marcaConta(conta, false);
-            //lastView.setBackgroundColor(Color.WHITE);
-
         }
     };
     private OnItemClickListener toqueSimples = new OnItemClickListener() {
@@ -287,10 +282,8 @@ public class PesquisaContas extends AppCompatActivity implements
     private ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.menu_altera_contas, menu);
-
             return true;
         }
 
@@ -373,7 +366,6 @@ public class PesquisaContas extends AppCompatActivity implements
             // Mostra selecao na barra de titulo
             mActionMode = PesquisaContas.this
                     .startSupportActionMode(alteraVariasContas);
-
             return false;
         }
     };
@@ -419,7 +411,6 @@ public class PesquisaContas extends AppCompatActivity implements
                     android.R.layout.simple_dropdown_item_1line, getResources()
                     .getStringArray(R.array.NomeConta));
         }
-
         dbContasPesquisadas.close();
         nomeContaBuscar.setAdapter(completa);
     }
@@ -456,7 +447,6 @@ public class PesquisaContas extends AppCompatActivity implements
                 else {
                     nomeBuscado = nomeContaBuscar.getText().toString();
                 }
-
                 MontaLista();
                 MontaAutoCompleta();
                 nomeContaBuscar.setText("");
@@ -517,19 +507,15 @@ public class PesquisaContas extends AppCompatActivity implements
 
     @SuppressLint("NewApi")
     private void usarActionBar() {
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         getMenuInflater().inflate(R.menu.menu_inicial, menu);
-
         return true;
     }
 
@@ -551,7 +537,6 @@ public class PesquisaContas extends AppCompatActivity implements
                 startActivity(new Intent("com.msk.minhascontas.SOBRE"));
                 break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

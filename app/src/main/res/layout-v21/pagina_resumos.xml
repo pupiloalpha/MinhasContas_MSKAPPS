@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <include layout="@layout/barra_titulo" />
+
+        <include layout="@layout/barra_meses" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <include layout="@layout/paginas" />
+
+    <include layout="@layout/fab" />
+
+</android.support.design.widget.CoordinatorLayout>

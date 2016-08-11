@@ -5,6 +5,10 @@
         <item name="colorAccent">@color/verde_escuro</item>
     </style>
 
+    <style name="TemaDialogo" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/verde_escuro</item>
+    </style>
+
     <!-- Tema das telas do aplicativo -->
     <style name="TemaNovo" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/preto</item>
@@ -18,6 +22,15 @@
         <item name="colorPrimaryDark">#000000</item>
         <item name="colorAccent">@color/verde_escuro</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:dialogTheme">@style/TemaDialogo</item>
+        <item name="android:alertDialogTheme">@style/TemaDialogo</item>
+    </style>
+
+    <!-- Tema das telas do aplicativo -->
+    <style name="TemaAjuda" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/preto</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorAccent">@color/verde_escuro</item>
     </style>
 
     <!-- Actionbar tab text appearance -->
