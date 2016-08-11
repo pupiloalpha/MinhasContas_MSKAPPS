@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".db.CriarConta">
+    tools:context=".db.CriarConta"
+    tools:ignore="RtlSymmetry,RtlHardcoded">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/aplBarra"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingEnd="10dp"
-        android:paddingRight="10dp"
-        tools:ignore="RtlSymmetry">
+        android:paddingRight="10dp">
 
         <include layout="@layout/barra_titulo" />
 
@@ -46,7 +46,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="5dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -101,8 +104,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="2.0dip">
+                android:orientation="horizontal">
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/rRecNovaConta"
@@ -127,7 +129,7 @@
                     android:id="@+id/rAplicNovaConta"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
+                    android:layout_weight="1.2"
                     android:text="@string/dica_aplicacao"
                     android:textColor="@color/verde_escuro"
                     android:textSize="18.0dip" />
