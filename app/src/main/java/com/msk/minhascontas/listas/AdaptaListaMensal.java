@@ -29,7 +29,8 @@ public class AdaptaListaMensal extends CursorAdapter {
     @SuppressWarnings("deprecation")
     public AdaptaListaMensal(Context context, Cursor c) {
         super(context, c);
-        inflater = LayoutInflater.from(context);
+        inflater = (LayoutInflater) context.getSystemService(
+                     Context.LAYOUT_INFLATER_SERVICE);
         res = context.getResources();
         Locale current = res.getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
