@@ -354,8 +354,8 @@ public class DBContas {
     public Cursor buscaContasPorNome(String nome) {
         nome = nome.replace("'", "''");
         return db.query(TABELA_CONTAS, colunas_contas, COLUNA_NOME_CONTA
-                + " = '" + nome + "' ", null, null, null, COLUNA_NOME_CONTA
-                + " ASC");
+                + " = '" + nome + "' ", null, null, null, COLUNA_ANO_DATA_CONTA
+                + " ASC, " + COLUNA_MES_DATA_CONTA + " ASC, " + COLUNA_DIA_DATA_CONTA + " ASC");
     }
 
     // ----------- MÉTODOS QUE MOSTRAM AS CONTAS DO BANCO DE DADOS

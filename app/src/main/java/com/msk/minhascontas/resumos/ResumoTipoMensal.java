@@ -94,7 +94,6 @@ public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
 
         // CALCULA OS VALORES QUE SERAO EXIBIDOS
         Saldo();
-
         InsereValores();
 
         aplic.setOnClickListener(this);
@@ -181,13 +180,18 @@ public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
 
         if (valoresSaldo[0] < 0.0D) {
             valorSaldoAtual.setTextColor(Color.parseColor("#CC0000"));
+        } else {
+            valorSaldoAtual.setTextColor(Color.parseColor("#2B2B2B"));
         }
         if (valoresSaldo[1] < 0.0D) {
             valorSaldoAnterior.setTextColor(Color.parseColor("#CC0000"));
+        } else {
+            valorSaldoAnterior.setTextColor(Color.parseColor("#2B2B2B"));
         }
-
         if (valores[3] < 0.0D) {
             valorSaldo.setTextColor(Color.parseColor("#CC0000"));
+        } else {
+            valorSaldo.setTextColor(Color.parseColor("#2B2B2B"));
         }
     }
 
