@@ -185,12 +185,12 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
         if (valoresSaldo[0] < 0.0D) {
             valorSaldoAtual.setTextColor(Color.parseColor("#CC0000"));
         } else {
-            valorSaldoAtual.setTextColor(Color.parseColor("#2B2B2B"));
+            valorSaldoAtual.setTextColor(Color.parseColor("#669900"));
         }
         if (valoresSaldo[1] < 0.0D) {
             valorSaldoAnterior.setTextColor(Color.parseColor("#CC0000"));
         } else {
-            valorSaldoAnterior.setTextColor(Color.parseColor("#2B2B2B"));
+            valorSaldoAnterior.setTextColor(Color.parseColor("#669900"));
         }
         if (valores[3] < 0.0D) {
             valorSaldo.setTextColor(Color.parseColor("#CC0000"));
