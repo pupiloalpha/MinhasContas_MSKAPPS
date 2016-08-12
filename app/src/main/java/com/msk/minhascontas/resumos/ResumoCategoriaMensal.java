@@ -197,10 +197,12 @@ public class ResumoCategoriaMensal extends Fragment implements View.OnClickListe
         } else {
             valorSaldoAnterior.setTextColor(Color.parseColor("#669900"));
         }
-        if (valores[3] < 0.0D) {
+         if (valores[3] < 0.0D) {
             valorSaldo.setTextColor(Color.parseColor("#CC0000"));
+            valorBanco.setTextColor(Color.parseColor("#CC0000"));
         } else {
             valorSaldo.setTextColor(Color.parseColor("#2B2B2B"));
+            valorBanco.setTextColor(Color.parseColor("#669900"));
         }
     }
 
