@@ -171,10 +171,10 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
 
         vAlimentacao.setText(dinheiro.format(valoresDesp[3]));
         vEducacao.setText(dinheiro.format(valoresDesp[4]));
-        vMoradia.setText(dinheiro.format(valoresDesp[5]));
-        vSaude.setText(dinheiro.format(valoresDesp[6]));
-        vTransporte.setText(dinheiro.format(valoresDesp[7]));
-        vOutros.setText(dinheiro.format(valoresDesp[8]));
+        vMoradia.setText(dinheiro.format(valoresDesp[6]));
+        vSaude.setText(dinheiro.format(valoresDesp[7]));
+        vTransporte.setText(dinheiro.format(valoresDesp[8]));
+        vOutros.setText(dinheiro.format(valoresDesp[10]));
 
         valorReceber.setText(dinheiro.format(valoresRec[1]));
         valorRecebido.setText(dinheiro.format(valoresRec[0]));
@@ -284,7 +284,7 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
                 valoresDesp[i + 3] = 0.0D;
         }
         // VALOR DA CATEGORIA OUTROS
-        valoresDesp[8] = valoresDesp[8] + valoresDesp[9] + valoresDesp[10];
+        valoresDesp[10] = valoresDesp[5] + valoresDesp[9] + valoresDesp[10];
 
         // VALORES DE APLICACOES
         somador = dbContas.buscaContasTipo(dia, mes, ano, null, 2);
