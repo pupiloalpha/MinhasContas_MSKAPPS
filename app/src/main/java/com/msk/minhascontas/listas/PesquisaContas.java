@@ -375,7 +375,6 @@ public class PesquisaContas extends AppCompatActivity implements
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pesquisa_conta);
-        setTheme(android.R.style.Theme);
         r = getResources();
         dbContasPesquisadas.open();
         iniciar();
