@@ -418,7 +418,10 @@ public class EditarConta extends AppCompatActivity implements
         Calendar data = Calendar.getInstance();
         // Metodo para obter data da primeira conta da repeticao
         int[] dma = dbContaParaEditar.mostraDMAConta(idConta1);
-        data.set(dma[2], dma[1], dma[0]);
+        if (nPrest == 1)
+            data.set(dma[2], dma[1], dma[0]);
+        else
+            data.set(ano, mes, dia);
 
         dbContaParaEditar.excluiSerieContaPorNome(nomeConta, codigoConta, nPrest);
 

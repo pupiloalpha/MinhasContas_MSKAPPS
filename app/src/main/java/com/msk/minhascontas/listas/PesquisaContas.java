@@ -22,14 +22,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
-import com.msk.minhascontas.info.Ajustes;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -37,15 +35,13 @@ import java.util.Calendar;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
-public class PesquisaContas extends AppCompatActivity implements
-        View.OnClickListener {
+public class PesquisaContas extends AppCompatActivity {
 
     private DBContas dbContasPesquisadas = new DBContas(this);
     private Calendar c = Calendar.getInstance();
     private Resources r;
     private ActionMode mActionMode;
     // ELEMENTOS DA TELA
-    private ImageButton buscaConta;
     private ListView listaContas;
     private View lastView;
     private TextView resultado;
@@ -380,7 +376,6 @@ public class PesquisaContas extends AppCompatActivity implements
         iniciar();
         usarActionBar();
         MontaAutoCompleta();
-        buscaConta.setOnClickListener(this);
         lastView = null;
         listaContas.setOnItemClickListener(toqueSimples);
         listaContas.setOnItemLongClickListener(toqueLongo);
@@ -389,10 +384,8 @@ public class PesquisaContas extends AppCompatActivity implements
     private void iniciar() {
 
         listaContas = ((ListView) findViewById(R.id.lvContasPesquisadas));
-        buscaConta = ((ImageButton) findViewById(R.id.ibBuscaConta));
         resultado = ((TextView) findViewById(R.id.tvSemResultados));
         listaContas.setEmptyView(resultado);
-
         nomeContaBuscar = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeContaBusca));
     }
 
@@ -432,26 +425,6 @@ public class PesquisaContas extends AppCompatActivity implements
         alteraContas = false;
         primeiraConta = false;
         buscaContas.limpaSelecao();
-    }
-
-    @Override
-    public void onClick(View arg0) {
-
-        switch (arg0.getId()) {
-
-            case R.id.ibBuscaConta:
-
-                if (nomeContaBuscar.getText().toString().equals(""))
-                    nomeBuscado = " ";
-                else {
-                    nomeBuscado = nomeContaBuscar.getText().toString();
-                }
-                MontaLista();
-                MontaAutoCompleta();
-                nomeContaBuscar.setText("");
-                idConta = 0;
-                break;
-        }
     }
 
     private void Dialogo() {
@@ -514,7 +487,7 @@ public class PesquisaContas extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_inicial, menu);
+        getMenuInflater().inflate(R.menu.menu_pesquisa_conta, menu);
         return true;
     }
 
@@ -527,13 +500,16 @@ public class PesquisaContas extends AppCompatActivity implements
                 dbContasPesquisadas.close();
                 finish();
                 break;
-            case R.id.menu_ajustes:
-                setResult(RESULT_OK, null);
-                startActivityForResult(new Intent(this, Ajustes.class), 0);
-                break;
-            case R.id.menu_sobre:
-                setResult(RESULT_OK, null);
-                startActivity(new Intent("com.msk.minhascontas.SOBRE"));
+            case R.id.botao_pesquisar:
+                if (nomeContaBuscar.getText().toString().equals(""))
+                    nomeBuscado = " ";
+                else {
+                    nomeBuscado = nomeContaBuscar.getText().toString();
+                }
+                MontaLista();
+                MontaAutoCompleta();
+                nomeContaBuscar.setText("");
+                idConta = 0;
                 break;
         }
         return super.onOptionsItemSelected(item);

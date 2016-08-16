@@ -1,54 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mskapp="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/branco"
-    android:orientation="vertical"
     tools:context=".listas.PesquisaContas"
-    tools:ignore="NestedWeights,RtlSymmetry">
+    tools:ignore="NestedWeights,RtlSymmetry,RtlHardcode">
 
-    <include layout="@layout/barra_titulo" />
-
-    <LinearLayout
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/aplBarra"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dp"
-        android:layout_weight="1"
-        android:background="@color/cinza"
-        android:orientation="horizontal">
+        android:layout_alignParentTop="true">
 
-        <android.support.v7.widget.AppCompatAutoCompleteTextView
-            android:id="@+id/acNomeContaBusca"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_margin="2dp"
-            android:layout_weight="0.77"
-            android:background="@color/branco"
-            android:ems="10"
-            android:hint="@string/dica_pesquisa_conta"
-            android:imeOptions="actionDone"
-            android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
-            android:paddingLeft="10.0dip"
-            android:paddingStart="10.0dip"
-            android:textColor="@color/preto" />
+        <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:mskapp="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            mskapp:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            mskapp:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <ImageButton
-            android:id="@+id/ibBuscaConta"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center_vertical"
-            android:background="@color/icone_voltar_fundo"
-            android:contentDescription="@string/icone"
-            mskapp:srcCompat="@drawable/ic_search_white" />
-    </LinearLayout>
+            <android.support.v7.widget.AppCompatAutoCompleteTextView
+                android:id="@+id/acNomeContaBusca"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ems="10"
+                android:hint="@string/dica_pesquisa_conta"
+                android:imeOptions="actionDone"
+                android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
+                android:textColor="@color/branco"
+                android:theme="@style/TemaTexto" />
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="360"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/aplBarra"
         android:orientation="vertical">
 
         <ListView
@@ -70,4 +62,4 @@
             android:textSize="18sp" />
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>
