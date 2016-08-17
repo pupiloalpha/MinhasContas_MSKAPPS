@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
@@ -71,17 +70,7 @@ public class WidgetResumo extends AppWidgetProvider {
         remoteViews.setOnClickPendingIntent(R.id.ibPesquisaConta, piPesquisa);
 
         AtualizaSaldo(context);
-
-        Locale current = context.getResources().getConfiguration().locale;
-        NumberFormat dinheiro = NumberFormat.getCurrencyInstance(current);
-
-        remoteViews.setTextViewText(R.id.tvValorSaldoAtual, dinheiro.format(valores[3]));
-        remoteViews.setTextViewText(R.id.tvValorReceitas, dinheiro.format(valores[0]));
-        remoteViews.setTextViewText(R.id.tvValorDespesas, dinheiro.format(valores[1]));
-        remoteViews.setTextViewText(R.id.tvValorAplicacoes, dinheiro.format(valores[2]));
-        if (valores[3] < 0)
-            remoteViews.setTextColor(R.id.tvValorSaldoAtual, Color.parseColor("#CC0000"));
-
+        ColocaDados(context);
 
         thisWidget = new ComponentName(context, WidgetResumo.class);
         manager = AppWidgetManager.getInstance(context);
@@ -97,54 +86,51 @@ public class WidgetResumo extends AppWidgetProvider {
         c = Calendar.getInstance();
         ano = c.get(Calendar.YEAR);
         mes = c.get(Calendar.MONTH);
-
         valores = new double[4];
-
         dbContas = new DBContas(context);
         dbContas.open();
-        Cursor somador = null;
 
         // PREENCHE AS LINHAS DA TABELA
 
         // VALORES DE RECEITAS
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, 1);
-        if (somador.getCount() > 0)
-            valores[0] = SomaContas(somador);
-        else
+        if (dbContas.quantasContasPorTipo(1, 0, mes, ano) > 0) {
+            valores[0] = dbContas.somaContas(1, 0, mes, ano);
+        } else {
             valores[0] = 0.0D;
+        }
 
         // VALORES DE DESPESAS
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, 0);
-        if (somador.getCount() > 0)
-            valores[1] = SomaContas(somador);
-        else
+        // PREENCHE OS VALORES DE DESPESAS
+        if (dbContas.quantasContasPorTipo(0, 0, mes, ano) > 0) {
+            valores[1] = dbContas.somaContas(0, 0, mes, ano);
+        } else {
             valores[1] = 0.0D;
+        }
 
         // VALORES DE APLICACOES
-        somador = dbContas.buscaContasTipo(0, mes, ano, null, 2);
-        if (somador.getCount() > 0)
-            valores[2] = SomaContas(somador);
-        else
+        if (dbContas.quantasContasPorTipo(2, 0, mes, ano) > 0) {
+            valores[2] = dbContas.somaContas(2, 0, mes, ano);
+        } else {
             valores[2] = 0.0D;
+        }
 
         // VALOR SALDO ATUAL
 
         // VALOR RECEITAS RECEBIDAS
-        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, 1, "paguei");
-        if (somador.getCount() > 0)
-            rec = SomaContas(somador);
-        else
+        if (dbContas.quantasContasPagasPorTipo(1, "paguei", 0, mes, ano) > 0) {
+            rec = dbContas.somaContasPagas(1, "paguei", 0, mes, ano);
+        } else {
             rec = 0.0D;
+        }
 
         // VALOR CONTAS PAGAS
-        somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, 0, "paguei");
-        if (somador.getCount() > 0)
-            desp = SomaContas(somador);
-        else
+        if (dbContas.quantasContasPagasPorTipo(0, "paguei", 0, mes, ano) > 0) {
+            desp = dbContas.somaContasPagas(0, "paguei", 0, mes, ano);
+        } else {
             desp = 0.0D;
+        }
 
         // VALOR DO SALDO DO MES ANTERIOR
-
         int mes_anterior = mes - 1; // DEFINE MES ANTERIOR
         int ano_anterior = ano;
         if (mes_anterior < 0) {
@@ -152,16 +138,14 @@ public class WidgetResumo extends AppWidgetProvider {
             ano_anterior = ano_anterior - 1;
         }
         double r = 0.0D; // RECEITA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 1);
-        if (somador.getCount() > 0)
-            r = SomaContas(somador);
+        if (dbContas.quantasContasPorTipo(1, 0, mes_anterior, ano_anterior) > 0) {
+            r = dbContas.somaContas(1, 0, mes_anterior, ano_anterior);
+        }
 
         double d = 0.0D; // DESPESA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 0);
-        if (somador.getCount() > 0)
-            d = SomaContas(somador);
-
-        somador.close(); // FECHA O CURSOR DO SOMADOR
+        if (dbContas.quantasContasPorTipo(0, 0, mes_anterior, ano_anterior) > 0) {
+            d = dbContas.somaContas(0, 0, mes_anterior, ano_anterior);
+        }
 
         double s = r - d; // SALDO MES ANTERIOR
         if (dbContas.quantasContasPorMes(mes_anterior, ano_anterior) > 0)
@@ -170,30 +154,25 @@ public class WidgetResumo extends AppWidgetProvider {
             mes_ant = 0.0D;
 
         // VALOR DO SALDO ATUAL
-
         if (somaSaldo) {
             valores[3] = rec - desp + mes_ant;
         } else {
             valores[3] = rec - desp;
         }
-
         dbContas.close();
-
-
     }
 
-    private double SomaContas(Cursor cursor) {
-        int i = cursor.getCount();
-        cursor.moveToLast();
-        double d = 0.0D;
-        for (int j = 0; ; j++) {
-            if (j >= i) {
-                cursor.close();
-                return d;
-            }
-            d += cursor.getDouble(9);
-            cursor.moveToPrevious();
-        }
+    private void ColocaDados(Context context) {
+        Locale current = context.getResources().getConfiguration().locale;
+        NumberFormat dinheiro = NumberFormat.getCurrencyInstance(current);
+
+        remoteViews.setTextViewText(R.id.tvValorSaldoAtual, dinheiro.format(valores[3]));
+        remoteViews.setTextViewText(R.id.tvValorReceitas, dinheiro.format(valores[0]));
+        remoteViews.setTextViewText(R.id.tvValorDespesas, dinheiro.format(valores[1]));
+        remoteViews.setTextViewText(R.id.tvValorAplicacoes, dinheiro.format(valores[2]));
+        if (valores[3] < 0)
+            remoteViews.setTextColor(R.id.tvValorSaldoAtual, Color.parseColor("#CC0000"));
+        else remoteViews.setTextColor(R.id.tvValorSaldoAtual, Color.parseColor("#2B2B2B"));
     }
 
     @Override
@@ -202,6 +181,7 @@ public class WidgetResumo extends AppWidgetProvider {
         AtualizaSaldo(context);
         remoteViews = new RemoteViews(context.getPackageName(),
                 R.layout.widget_resumo);
+        ColocaDados(context);
     }
 
 }
