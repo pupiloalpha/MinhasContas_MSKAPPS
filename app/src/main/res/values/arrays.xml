@@ -4,7 +4,7 @@
     <string-array name="TipoReceita">
         <item>Receita simples</item>
         <item>Banco</item>
-        <item>Carteria</item>
+        <item>Carteira</item>
     </string-array>
     <string-array name="TipoAplicacao">
         <item>Ações e fundos</item>

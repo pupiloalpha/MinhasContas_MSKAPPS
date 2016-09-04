@@ -179,7 +179,7 @@ public class EditarConta extends AppCompatActivity implements
             titulo.setBackgroundColor(Color.parseColor("#FFCC0000"));
             pagamento.setText(R.string.dica_pagamento);
             pagamento.setVisibility(View.VISIBLE);
-
+            categoria.setVisibility(View.VISIBLE);
         } else if (tipoConta == 1) {
             classesContas = new ArrayAdapter(this,
                     android.R.layout.simple_dropdown_item_1line, getResources()
@@ -192,7 +192,7 @@ public class EditarConta extends AppCompatActivity implements
             titulo.setBackgroundColor(Color.parseColor("#FF0099CC"));
             pagamento.setText(R.string.dica_recebe);
             pagamento.setVisibility(View.VISIBLE);
-
+            categoria.setVisibility(View.GONE);
         } else {
             classesContas = new ArrayAdapter(this,
                     android.R.layout.simple_dropdown_item_1line, getResources()
@@ -201,6 +201,7 @@ public class EditarConta extends AppCompatActivity implements
             aplic.setChecked(true);
             desp.setChecked(false);
             pagamento.setVisibility(View.GONE);
+            categoria.setVisibility(View.GONE);
             cor = new ColorDrawable(Color.parseColor("#FF669900"));
             getSupportActionBar().setBackgroundDrawable(cor);
             titulo.setBackgroundColor(Color.parseColor("#FF669900"));
