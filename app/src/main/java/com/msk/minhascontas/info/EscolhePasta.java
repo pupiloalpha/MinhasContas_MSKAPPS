@@ -2,10 +2,8 @@ package com.msk.minhascontas.info;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.widget.AppCompatImageView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.AppCompatImageView;
 
 import com.msk.minhascontas.R;
 
@@ -45,19 +45,15 @@ public class EscolhePasta extends ListActivity {
                 dir = new File(preferredStartDir);
             }
         } else {
-            if (Build.VERSION.SDK_INT >= 23) {
-                dir = new File("/");
-            } else {
-                dir = Environment.getExternalStorageDirectory().getParentFile().getParentFile();
-            }
+            dir = Environment.getExternalStorageDirectory();
         }
 
         setContentView(R.layout.lista_pastas);
         setTitle(dir.getAbsolutePath());
 
-        TextView sem = (TextView) findViewById(R.id.tvSemResultados);
+        TextView sem = findViewById(R.id.tvSemResultados);
 
-        Button btnChoose = (Button) findViewById(R.id.btnChoose);
+        Button btnChoose = findViewById(R.id.btnChoose);
         if (!tipo.equals("")) {
             btnChoose.setVisibility(View.GONE);
         } else {
@@ -86,9 +82,9 @@ public class EscolhePasta extends ListActivity {
                 LayoutInflater inflater = getLayoutInflater();
                 View rowView = inflater.inflate(R.layout.linha_pastas, null);
 
-                TextView tv = (TextView) rowView.findViewById(R.id.tvPasta);
-                TextView data = (TextView) rowView.findViewById(R.id.tvData);
-                AppCompatImageView iv = (AppCompatImageView) rowView.findViewById(R.id.ivFolder);
+                TextView tv = rowView.findViewById(R.id.tvPasta);
+                TextView data = rowView.findViewById(R.id.tvData);
+                AppCompatImageView iv = rowView.findViewById(R.id.ivFolder);
 
                 String str = pastas[position];
                 tv.setText(str);

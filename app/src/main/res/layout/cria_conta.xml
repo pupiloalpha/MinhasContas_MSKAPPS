@@ -7,7 +7,7 @@
     tools:context=".db.CriarConta"
     tools:ignore="RtlSymmetry,RtlHardcoded">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/aplBarra"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
 
         <include layout="@layout/barra_titulo" />
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
@@ -24,7 +24,7 @@
             android:paddingStart="10dp"
             android:theme="@style/TemaTexto">
 
-            <android.support.v7.widget.AppCompatAutoCompleteTextView
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
                 android:id="@+id/acNomeNovaConta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -33,9 +33,9 @@
                 android:imeOptions="actionDone"
                 android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
                 android:textColor="@color/branco" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -56,12 +56,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
-                    <android.support.v7.widget.AppCompatEditText
+                    <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/etValorNovaConta"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
                         android:inputType="numberDecimal"
                         android:paddingLeft="10.0dip"
                         tools:ignore="RtlHardcoded,RtlSymmetry" />
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -106,7 +106,7 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rRecNovaConta"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -115,7 +115,7 @@
                     android:textColor="@color/azul"
                     android:textSize="18.0dip" />
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rDespNovaConta"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -125,7 +125,7 @@
                     android:textColor="@color/vermelho"
                     android:textSize="18.0dip" />
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rAplicNovaConta"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -143,7 +143,7 @@
                 android:text="@string/dica_spinner"
                 android:textColor="@color/verde_escuro" />
 
-            <android.support.v7.widget.AppCompatSpinner
+            <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/spClasseConta"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -163,7 +163,7 @@
                     android:text="@string/titulo_categoria"
                     android:textColor="@color/verde_escuro" />
 
-                <android.support.v7.widget.AppCompatSpinner
+                <androidx.appcompat.widget.AppCompatSpinner
                     android:id="@+id/spCategoriaConta"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
@@ -176,25 +176,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <android.support.v7.widget.AppCompatCheckBox
+                <androidx.appcompat.widget.AppCompatCheckBox
                     android:id="@+id/cbPagamento"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:text="@string/dica_pagamento"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/preto" />
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <android.support.v7.widget.AppCompatCheckBox
+                <androidx.appcompat.widget.AppCompatCheckBox
                     android:id="@+id/cbValorParcelar"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:text="@string/dica_valor_total"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/preto" />
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
             </LinearLayout>
 
             <LinearLayout
@@ -217,7 +215,7 @@
                         android:text="@string/dica_repete"
                         android:textColor="@color/verde_escuro" />
 
-                    <android.support.v7.widget.AppCompatSpinner
+                    <androidx.appcompat.widget.AppCompatSpinner
                         android:id="@+id/spRepeticoes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -225,12 +223,12 @@
                         android:prompt="@string/dica_repete" />
                 </LinearLayout>
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
 
-                    <android.support.v7.widget.AppCompatEditText
+                    <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/etRepeticoes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -241,16 +239,16 @@
                         android:imeOptions="actionDone"
                         android:inputType="number"
                         android:maxLength="3" />
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout_juros"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1.0">
 
-                <android.support.v7.widget.AppCompatEditText
+                <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/etJurosNovaConta"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -259,15 +257,14 @@
                     android:hint="@string/dica_valor_juros"
                     android:imeOptions="actionDone"
                     android:inputType="numberDecimal" />
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/cbLembrete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/titulo_calendario"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/preto" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
         </LinearLayout>
     </ScrollView>
 

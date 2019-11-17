@@ -10,17 +10,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatAutoCompleteTextView;
-import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.AppCompatSpinner;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +21,18 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.textfield.TextInputLayout;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.info.AlertaCalendario;
 import com.msk.minhascontas.info.BarraProgresso;
@@ -86,28 +87,28 @@ public class CriarConta extends AppCompatActivity implements
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void iniciar() {
-        titulo = (AppBarLayout) findViewById(R.id.aplBarra);
-        valorConta = ((AppCompatEditText) findViewById(R.id.etValorNovaConta));
-        jurosConta = (AppCompatEditText) findViewById(R.id.etJurosNovaConta);
-        repeteConta = ((AppCompatEditText) findViewById(R.id.etRepeticoes));
-        tipo = ((RadioGroup) findViewById(R.id.rgTipoNovaConta));
-        categoria = (LinearLayout) findViewById(R.id.layout_categoria);
-        cb = (LinearLayout) findViewById(R.id.layout_pagamento);
-        parcelarConta = ((AppCompatCheckBox) findViewById(R.id.cbValorParcelar));
-        pagamento = ((AppCompatCheckBox) findViewById(R.id.cbPagamento));
-        lembrete = (AppCompatCheckBox) findViewById(R.id.cbLembrete);
-        dataConta = ((Button) findViewById(R.id.etData));
-        juros = (TextInputLayout) findViewById(R.id.layout_juros);
-        classificaConta = ((AppCompatSpinner) findViewById(R.id.spClasseConta));
-        categoriaConta = ((AppCompatSpinner) findViewById(R.id.spCategoriaConta));
+        titulo = findViewById(R.id.aplBarra);
+        valorConta = findViewById(R.id.etValorNovaConta);
+        jurosConta = findViewById(R.id.etJurosNovaConta);
+        repeteConta = findViewById(R.id.etRepeticoes);
+        tipo = findViewById(R.id.rgTipoNovaConta);
+        categoria = findViewById(R.id.layout_categoria);
+        cb = findViewById(R.id.layout_pagamento);
+        parcelarConta = findViewById(R.id.cbValorParcelar);
+        pagamento = findViewById(R.id.cbPagamento);
+        lembrete = findViewById(R.id.cbLembrete);
+        dataConta = findViewById(R.id.etData);
+        juros = findViewById(R.id.layout_juros);
+        classificaConta = findViewById(R.id.spClasseConta);
+        categoriaConta = findViewById(R.id.spCategoriaConta);
         categoriaConta.setSelection(7);
-        nomeConta = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeNovaConta));
+        nomeConta = findViewById(R.id.acNomeNovaConta);
         ArrayAdapter completa = new ArrayAdapter(this,
                 android.R.layout.simple_dropdown_item_1line, getResources()
                 .getStringArray(R.array.NomeConta));
         nomeConta.setAdapter(completa);
 
-        intervaloRepete = ((AppCompatSpinner) findViewById(R.id.spRepeticoes));
+        intervaloRepete = findViewById(R.id.spRepeticoes);
         intervaloRepete.setSelection(2);
         contaTipo = contaClasse = 0;
         contaCategoria = 7;
@@ -335,7 +336,7 @@ public class CriarConta extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             // CRIA LEMBRETE E ALERTA NO CALENDARIO
             AlertaCalendario
@@ -502,7 +503,7 @@ public class CriarConta extends AppCompatActivity implements
 
     private void usarActionBar() {
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);

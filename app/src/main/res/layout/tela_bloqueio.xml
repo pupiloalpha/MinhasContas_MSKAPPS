@@ -19,7 +19,7 @@
         android:textColor="@color/branco"
         android:textSize="30sp" />
 
-    <android.support.v7.widget.AppCompatEditText
+    <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/etSenha"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -38,7 +38,7 @@
         android:textColorHint="@color/colorPrimary"
         android:textSize="22sp" />
 
-    <android.support.v7.widget.AppCompatCheckBox
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/cbMostraSenha"
         android:layout_width="match_parent"
         android:layout_height="60dp"

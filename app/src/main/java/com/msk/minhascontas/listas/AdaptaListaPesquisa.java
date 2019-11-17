@@ -48,12 +48,12 @@ public class AdaptaListaPesquisa extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView nome = ((TextView) view.findViewById(R.id.tvNomeContaCriada));
-        TextView categoria = ((TextView) view.findViewById(R.id.tvNomeCategoria));
-        TextView data = ((TextView) view.findViewById(R.id.tvDataContaCriada));
-        TextView dia = ((TextView) view.findViewById(R.id.tvDiaContaCriada));
-        TextView valor = ((TextView) view.findViewById(R.id.tvValorContaCriada));
-        ImageView pagamento = ((ImageView) view.findViewById(R.id.ivPagamento));
+        TextView nome = view.findViewById(R.id.tvNomeContaCriada);
+        TextView categoria = view.findViewById(R.id.tvNomeCategoria);
+        TextView data = view.findViewById(R.id.tvDataContaCriada);
+        TextView dia = view.findViewById(R.id.tvDiaContaCriada);
+        TextView valor = view.findViewById(R.id.tvValorContaCriada);
+        ImageView pagamento = view.findViewById(R.id.ivPagamento);
 
         String nomeconta = cursor.getString(1);
         int tipo = cursor.getInt(2);

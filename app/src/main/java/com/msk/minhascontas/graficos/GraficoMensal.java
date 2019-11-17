@@ -4,12 +4,13 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
@@ -106,23 +107,23 @@ public class GraficoMensal extends Fragment {
 
     private void Iniciar() {
 
-        gcontas = (PieChartView) rootView.findViewById(R.id.grafico_contas);
-        gdespesas = (ColumnChartView) rootView.findViewById(R.id.grafico_despesas);
-        gcategortias = (ColumnChartView) rootView.findViewById(R.id.grafico_categorias);
-        greceitas = (PieChartView) rootView.findViewById(R.id.grafico_receitas);
-        gpagamentos = (PieChartView) rootView.findViewById(R.id.grafico_pagamentos);
-        gaplicacoes = (ColumnChartView) rootView.findViewById(R.id.grafico_aplicacoes);
-        gsaldo = (LineChartView) rootView.findViewById(R.id.grafico_saldo);
+        gcontas = rootView.findViewById(R.id.grafico_contas);
+        gdespesas = rootView.findViewById(R.id.grafico_despesas);
+        gcategortias = rootView.findViewById(R.id.grafico_categorias);
+        greceitas = rootView.findViewById(R.id.grafico_receitas);
+        gpagamentos = rootView.findViewById(R.id.grafico_pagamentos);
+        gaplicacoes = rootView.findViewById(R.id.grafico_aplicacoes);
+        gsaldo = rootView.findViewById(R.id.grafico_saldo);
 
-        grafcontas = (LinearLayout) rootView.findViewById(R.id.layout_grafico_contas);
-        grafdesp = (LinearLayout) rootView.findViewById(R.id.layout_grafico_despesas);
-        grafcat = (LinearLayout) rootView.findViewById(R.id.layout_grafico_categorias);
-        grafaplic = (LinearLayout) rootView.findViewById(R.id.layout_grafico_aplicacoes);
-        grafrec = (LinearLayout) rootView.findViewById(R.id.layout_grafico_receitas);
-        grafpag = (LinearLayout) rootView.findViewById(R.id.layout_grafico_pagamentos);
-        grafsaldo = (LinearLayout) rootView.findViewById(R.id.layout_grafico_saldo);
+        grafcontas = rootView.findViewById(R.id.layout_grafico_contas);
+        grafdesp = rootView.findViewById(R.id.layout_grafico_despesas);
+        grafcat = rootView.findViewById(R.id.layout_grafico_categorias);
+        grafaplic = rootView.findViewById(R.id.layout_grafico_aplicacoes);
+        grafrec = rootView.findViewById(R.id.layout_grafico_receitas);
+        grafpag = rootView.findViewById(R.id.layout_grafico_pagamentos);
+        grafsaldo = rootView.findViewById(R.id.layout_grafico_saldo);
 
-        semcontas = (TextView) rootView.findViewById(R.id.tvSemGrafico);
+        semcontas = rootView.findViewById(R.id.tvSemGrafico);
 
         values = new ArrayList<SliceValue>();
         roleta = new int[]{Color.parseColor("#33B5E5"),

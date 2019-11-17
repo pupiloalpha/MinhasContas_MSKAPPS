@@ -7,12 +7,13 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
@@ -106,45 +107,45 @@ public class ResumoTipoMensal extends Fragment implements View.OnClickListener {
 
     private void Iniciar() {
 
-        valorPago = ((TextView) rootView
-                .findViewById(R.id.tvValorDespPaga));
-        valorPagar = ((TextView) rootView
-                .findViewById(R.id.tvValorDespPagar));
-        valorDespFixa = ((TextView) rootView
-                .findViewById(R.id.tvValorDespFixa));
-        valorDespVar = ((TextView) rootView
-                .findViewById(R.id.tvValorDespVar));
-        valorPrestacoes = ((TextView) rootView
-                .findViewById(R.id.tvValorPrestacoes));
-        valorCartao = ((TextView) rootView
-                .findViewById(R.id.tvValorCartaoCredito));
-        valorReceber = ((TextView) rootView
-                .findViewById(R.id.tvValorReceber));
-        valorRecebido = ((TextView) rootView
-                .findViewById(R.id.tvValorRecebido));
-        valorFundos = ((TextView) rootView
-                .findViewById(R.id.tvValorFundos));
-        valorPoupanca = ((TextView) rootView
-                .findViewById(R.id.tvValorPoupancas));
-        valorPrevidencia = ((TextView) rootView
-                .findViewById(R.id.tvValorPrevidencias));
-        valorSaldoAtual = ((TextView) rootView
-                .findViewById(R.id.tvValorSaldoAtual));
-        valorSaldoAnterior = ((TextView) rootView
-                .findViewById(R.id.tvValorSaldoAnterior));
-        valorDesp = ((TextView) rootView
-                .findViewById(R.id.tvValorDespesas));
-        valorRec = ((TextView) rootView
-                .findViewById(R.id.tvValorReceitas));
-        valorAplic = ((TextView) rootView
-                .findViewById(R.id.tvValorAplicacoes));
-        valorSaldo = ((TextView) rootView
-                .findViewById(R.id.tvValorSaldo));
+        valorPago = rootView
+                .findViewById(R.id.tvValorDespPaga);
+        valorPagar = rootView
+                .findViewById(R.id.tvValorDespPagar);
+        valorDespFixa = rootView
+                .findViewById(R.id.tvValorDespFixa);
+        valorDespVar = rootView
+                .findViewById(R.id.tvValorDespVar);
+        valorPrestacoes = rootView
+                .findViewById(R.id.tvValorPrestacoes);
+        valorCartao = rootView
+                .findViewById(R.id.tvValorCartaoCredito);
+        valorReceber = rootView
+                .findViewById(R.id.tvValorReceber);
+        valorRecebido = rootView
+                .findViewById(R.id.tvValorRecebido);
+        valorFundos = rootView
+                .findViewById(R.id.tvValorFundos);
+        valorPoupanca = rootView
+                .findViewById(R.id.tvValorPoupancas);
+        valorPrevidencia = rootView
+                .findViewById(R.id.tvValorPrevidencias);
+        valorSaldoAtual = rootView
+                .findViewById(R.id.tvValorSaldoAtual);
+        valorSaldoAnterior = rootView
+                .findViewById(R.id.tvValorSaldoAnterior);
+        valorDesp = rootView
+                .findViewById(R.id.tvValorDespesas);
+        valorRec = rootView
+                .findViewById(R.id.tvValorReceitas);
+        valorAplic = rootView
+                .findViewById(R.id.tvValorAplicacoes);
+        valorSaldo = rootView
+                .findViewById(R.id.tvValorSaldo);
 
-        aplic = (LinearLayout) rootView.findViewById(R.id.l_aplicacoes);
-        desp = (LinearLayout) rootView.findViewById(R.id.l_despesas);
-        rec = (LinearLayout) rootView.findViewById(R.id.l_receitas);
-        sald = (LinearLayout) rootView.findViewById(R.id.l_saldo);
+        aplic = rootView.findViewById(R.id.l_aplicacoes);
+        desp = rootView.findViewById(R.id.l_despesas);
+        rec = rootView.findViewById(R.id.l_receitas);
+        sald = rootView.findViewById(R.id.l_saldo);
 
     }
 

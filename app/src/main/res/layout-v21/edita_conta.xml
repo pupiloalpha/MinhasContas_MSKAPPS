@@ -6,7 +6,7 @@
     tools:context=".db.EditarConta"
     tools:ignore="RtlSymmetry,RtlHardcoded">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/aplBarra"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
 
         <include layout="@layout/barra_titulo" />
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
@@ -23,7 +23,7 @@
             android:paddingStart="10dp"
             android:theme="@style/TemaTexto">
 
-            <android.support.v7.widget.AppCompatAutoCompleteTextView
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
                 android:id="@+id/acNomeContaModificada"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -32,9 +32,9 @@
                 android:imeOptions="actionDone"
                 android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
                 android:textColor="@color/branco" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -55,12 +55,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
-                    <android.support.v7.widget.AppCompatEditText
+                    <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/etValorNovo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -68,7 +68,7 @@
                         android:hint="@string/dica_valor"
                         android:imeOptions="actionDone"
                         android:inputType="numberDecimal" />
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
                     android:id="@+id/etDataConta"
@@ -95,7 +95,7 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rRecContaModificada"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -104,7 +104,7 @@
                     android:textColor="@color/azul"
                     android:textSize="18.0dip" />
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rDespContaModificada"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
                     android:textColor="@color/vermelho"
                     android:textSize="18.0dip" />
 
-                <android.support.v7.widget.AppCompatRadioButton
+                <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rAplicContaModificada"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -132,7 +132,7 @@
                 android:text="@string/dica_spinner"
                 android:textColor="@color/verde_escuro" />
 
-            <android.support.v7.widget.AppCompatSpinner
+            <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/spClasseConta"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -152,7 +152,7 @@
                     android:text="@string/titulo_categoria"
                     android:textColor="@color/verde_escuro" />
 
-                <android.support.v7.widget.AppCompatSpinner
+                <androidx.appcompat.widget.AppCompatSpinner
                     android:id="@+id/spCategoriaConta"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
@@ -160,13 +160,12 @@
                     android:prompt="@string/dica_spinner" />
             </LinearLayout>
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/cbPagamento"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:text="@string/dica_pagamento"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/preto" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -188,7 +187,7 @@
                         android:textColor="@color/verde_escuro"
                         tools:ignore="RtlHardcoded" />
 
-                    <android.support.v7.widget.AppCompatSpinner
+                    <androidx.appcompat.widget.AppCompatSpinner
                         android:id="@+id/spRepeticoes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -196,14 +195,14 @@
                         android:prompt="@string/dica_repete" />
                 </LinearLayout>
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="2.0dip"
                     android:layout_weight="1"
                     tools:ignore="RtlHardcoded">
 
-                    <android.support.v7.widget.AppCompatEditText
+                    <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/etPrestacoes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -214,7 +213,7 @@
                         android:imeOptions="actionDone"
                         android:inputType="number"
                         android:maxLength="3" />
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

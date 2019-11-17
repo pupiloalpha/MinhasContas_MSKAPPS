@@ -88,8 +88,7 @@
         </activity>
         <activity
             android:name=".info.EscolhePasta"
-            android:label="Escolher pasta"
-            android:theme="@android:style/Theme.Holo.Light.DarkActionBar" />
+            android:label="Escolher pasta" />
 
         <activity
             android:name=".info.Ajustes"

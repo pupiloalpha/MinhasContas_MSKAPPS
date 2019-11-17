@@ -10,19 +10,20 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.info.Ajustes;
@@ -67,7 +68,7 @@ public class PaginadorListas extends AppCompatActivity {
         Locale current = res.getConfiguration().locale;
         dinheiro = NumberFormat.getCurrencyInstance(current);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -95,7 +96,7 @@ public class PaginadorListas extends AppCompatActivity {
         mPaginas = new Paginas(getSupportFragmentManager());
 
         // Define o ViewPager e as telas do adaptador.
-        mViewPager = (ViewPager) findViewById(R.id.paginas);
+        mViewPager = findViewById(R.id.paginas);
         mViewPager.setAdapter(mPaginas);
         mViewPager.getAdapter().notifyDataSetChanged();
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -119,13 +120,13 @@ public class PaginadorListas extends AppCompatActivity {
         int normalColor = Color.parseColor("#90FFFFFF");
         int selectedColor = res.getColor(android.R.color.white);
 
-        tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        tabLayout = findViewById(R.id.tablayout);
         tabLayout.setTabTextColors(normalColor, selectedColor);
         tabLayout.setupWithViewPager(mViewPager);
 
         AtualizaActionBar();
 
-        addConta = (ImageButton) findViewById(R.id.ibfab);
+        addConta = findViewById(R.id.ibfab);
         addConta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

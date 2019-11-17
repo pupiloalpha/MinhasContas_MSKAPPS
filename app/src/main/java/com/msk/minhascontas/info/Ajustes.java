@@ -21,14 +21,15 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
@@ -66,15 +67,15 @@ public class Ajustes extends PreferenceActivity implements
         prefs = getPreferenceScreen();
 
         // ELEMENTOS DAS PREFERENCIAS QUE SERAO UTILIZADOS
-        exportar = (Preference) prefs.findPreference(res
+        exportar = prefs.findPreference(res
                 .getString(R.string.pref_key_exportar));
-        backup = (Preference) prefs.findPreference(res
+        backup = prefs.findPreference(res
                 .getString(R.string.pref_key_bkup));
-        restaura = (Preference) prefs.findPreference(res
+        restaura = prefs.findPreference(res
                 .getString(R.string.pref_key_restaura));
-        apagatudo = (Preference) prefs.findPreference(res
+        apagatudo = prefs.findPreference(res
                 .getString(R.string.pref_key_apagatudo));
-        versao = (Preference) prefs.findPreference(res
+        versao = prefs.findPreference(res
                 .getString(R.string.pref_key_versao));
         senha = (EditTextPreference) prefs.findPreference(res
                 .getString(R.string.pref_key_senha));
@@ -276,7 +277,7 @@ public class Ajustes extends PreferenceActivity implements
     public void setContentView(int layoutResID) {
         ViewGroup contentView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.ajustes, new LinearLayout(this), false);
-        toolbar = (Toolbar) contentView.findViewById(R.id.toolbar);
+        toolbar = contentView.findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_back_white);
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -284,7 +285,7 @@ public class Ajustes extends PreferenceActivity implements
                 finish();
             }
         });
-        ViewGroup contentWrapper = (ViewGroup) contentView
+        ViewGroup contentWrapper = contentView
                 .findViewById(R.id.conteudo_ajustes);
         LayoutInflater.from(this).inflate(layoutResID, contentWrapper, true);
         getWindow().setContentView(contentView);
@@ -334,7 +335,7 @@ public class Ajustes extends PreferenceActivity implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           String[] permissions, int[] grantResults) {
         // If request is cancelled, the result arrays are empty.
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             // permission was granted, yay! Do the

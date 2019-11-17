@@ -14,17 +14,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.Toolbar;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.Menu;
@@ -38,6 +27,18 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.info.Ajustes;
 import com.msk.minhascontas.resumos.ResumoCategoriaDiario;
@@ -92,7 +93,7 @@ public class MinhasContas extends AppCompatActivity {
 
         res = getResources();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // PEGA O ANO ATUAL PARA DEFINIR A PRIMEIRA TELA
@@ -123,7 +124,7 @@ public class MinhasContas extends AppCompatActivity {
         mPaginas = new Paginas(getSupportFragmentManager());
 
         // Define o ViewPager e as telas do adaptador.
-        mViewPager = (ViewPager) findViewById(R.id.paginas);
+        mViewPager = findViewById(R.id.paginas);
 
         mViewPager.setAdapter(mPaginas);
         mViewPager.getAdapter().notifyDataSetChanged();
@@ -132,11 +133,11 @@ public class MinhasContas extends AppCompatActivity {
         int normalColor = Color.parseColor("#90FFFFFF");
         int selectedColor = res.getColor(android.R.color.white);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        TabLayout tabLayout = findViewById(R.id.tablayout);
         tabLayout.setTabTextColors(normalColor, selectedColor);
         tabLayout.setupWithViewPager(mViewPager);
 
-        ImageButton addConta = (ImageButton) findViewById(R.id.ibfab);
+        ImageButton addConta = findViewById(R.id.ibfab);
         addConta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,9 +175,9 @@ public class MinhasContas extends AppCompatActivity {
         dialogo.getWindow().setLayout(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
         dialogo.setCanceledOnTouchOutside(false);
 
-        final AppCompatEditText edit = (AppCompatEditText) dialogo.findViewById(R.id.etSenha);
+        final AppCompatEditText edit = dialogo.findViewById(R.id.etSenha);
 
-        Button ok = (Button) dialogo.findViewById(R.id.bEntra);
+        Button ok = dialogo.findViewById(R.id.bEntra);
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,7 +191,7 @@ public class MinhasContas extends AppCompatActivity {
             }
         });
 
-        AppCompatCheckBox cb = (AppCompatCheckBox) dialogo.findViewById(R.id.cbMostraSenha);
+        AppCompatCheckBox cb = dialogo.findViewById(R.id.cbMostraSenha);
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -247,7 +248,7 @@ public class MinhasContas extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           String[] permissions, int[] grantResults) {
         // If request is cancelled, the result arrays are empty.
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             // permission was granted, yay! Do the

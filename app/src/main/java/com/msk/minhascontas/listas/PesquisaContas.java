@@ -11,10 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
-import android.support.v7.widget.AppCompatAutoCompleteTextView;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +21,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
+import androidx.appcompat.widget.Toolbar;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
@@ -383,10 +384,10 @@ public class PesquisaContas extends AppCompatActivity {
 
     private void iniciar() {
 
-        listaContas = ((ListView) findViewById(R.id.lvContasPesquisadas));
-        resultado = ((TextView) findViewById(R.id.tvSemResultados));
+        listaContas = findViewById(R.id.lvContasPesquisadas);
+        resultado = findViewById(R.id.tvSemResultados);
         listaContas.setEmptyView(resultado);
-        nomeContaBuscar = ((AppCompatAutoCompleteTextView) findViewById(R.id.acNomeContaBusca));
+        nomeContaBuscar = findViewById(R.id.acNomeContaBusca);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -479,7 +480,7 @@ public class PesquisaContas extends AppCompatActivity {
 
     @SuppressLint("NewApi")
     private void usarActionBar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);

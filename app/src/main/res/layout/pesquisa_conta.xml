@@ -7,13 +7,13 @@
     tools:context=".listas.PesquisaContas"
     tools:ignore="NestedWeights,RtlSymmetry,RtlHardcode">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/aplBarra"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true">
 
-        <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:mskapp="http://schemas.android.com/apk/res-auto"
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -23,7 +23,7 @@
             mskapp:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             mskapp:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-            <android.support.v7.widget.AppCompatAutoCompleteTextView
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
                 android:id="@+id/acNomeContaBusca"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -33,8 +33,8 @@
                 android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
                 android:textColor="@color/branco"
                 android:theme="@style/TemaTexto" />
-        </android.support.v7.widget.Toolbar>
-    </android.support.design.widget.AppBarLayout>
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

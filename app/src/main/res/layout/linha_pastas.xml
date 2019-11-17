@@ -8,7 +8,7 @@
     android:orientation="horizontal"
     tools:ignore="RtlSymmetry,UseCompoundDrawables">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivFolder"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -35,7 +35,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/dica_conta"
-            android:textColor="@color/preto"
             android:textSize="18dp"
             tools:ignore="InefficientWeight,SpUsage" />
 
@@ -44,7 +43,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/dica_conta"
-            android:textColor="@color/cinza"
             android:textSize="12dp"
             tools:ignore="RtlHardcoded,SpUsage" />
     </LinearLayout>

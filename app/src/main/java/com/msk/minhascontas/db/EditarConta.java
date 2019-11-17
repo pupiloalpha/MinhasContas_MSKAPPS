@@ -10,15 +10,6 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatAutoCompleteTextView;
-import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.AppCompatRadioButton;
-import android.support.v7.widget.AppCompatSpinner;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +22,16 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatRadioButton;
+import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.appbar.AppBarLayout;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.info.BarraProgresso;
 
@@ -101,26 +102,26 @@ public class EditarConta extends AppCompatActivity implements
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void Iniciar() {
-        titulo = (AppBarLayout) findViewById(R.id.aplBarra);
-        data = (Button) findViewById(R.id.etDataConta);
-        valor = (AppCompatEditText) findViewById(R.id.etValorNovo);
-        tipo = (RadioGroup) findViewById(R.id.rgTipoContaModificada);
-        rec = (AppCompatRadioButton) findViewById(R.id.rRecContaModificada);
-        desp = (AppCompatRadioButton) findViewById(R.id.rDespContaModificada);
-        aplic = (AppCompatRadioButton) findViewById(R.id.rAplicContaModificada);
-        prestacoes = (AppCompatEditText) findViewById(R.id.etPrestacoes);
-        classificaConta = (AppCompatSpinner) findViewById(R.id.spClasseConta);
-        contaCategoria = (AppCompatSpinner) findViewById(R.id.spCategoriaConta);
-        intervaloRepete = (AppCompatSpinner) findViewById(R.id.spRepeticoes);
-        categoria = (LinearLayout) findViewById(R.id.layout_categoria);
+        titulo = findViewById(R.id.aplBarra);
+        data = findViewById(R.id.etDataConta);
+        valor = findViewById(R.id.etValorNovo);
+        tipo = findViewById(R.id.rgTipoContaModificada);
+        rec = findViewById(R.id.rRecContaModificada);
+        desp = findViewById(R.id.rDespContaModificada);
+        aplic = findViewById(R.id.rAplicContaModificada);
+        prestacoes = findViewById(R.id.etPrestacoes);
+        classificaConta = findViewById(R.id.spClasseConta);
+        contaCategoria = findViewById(R.id.spCategoriaConta);
+        intervaloRepete = findViewById(R.id.spRepeticoes);
+        categoria = findViewById(R.id.layout_categoria);
 
         autocompleta = new ArrayAdapter(this,
                 android.R.layout.simple_dropdown_item_1line, getResources()
                 .getStringArray(R.array.NomeConta));
-        nome = (AppCompatAutoCompleteTextView) findViewById(R.id.acNomeContaModificada);
+        nome = findViewById(R.id.acNomeContaModificada);
         nome.setAdapter(autocompleta);
 
-        pagamento = (AppCompatCheckBox) findViewById(R.id.cbPagamento);
+        pagamento = findViewById(R.id.cbPagamento);
         pagamento.setVisibility(View.GONE);
     }
 
@@ -451,7 +452,7 @@ public class EditarConta extends AppCompatActivity implements
 
     private void usarActionBar() {
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);

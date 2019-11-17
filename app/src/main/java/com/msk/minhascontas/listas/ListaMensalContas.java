@@ -14,10 +14,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +25,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.fragment.app.Fragment;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
@@ -418,8 +419,8 @@ public class ListaMensalContas extends Fragment {
         dinheiro = NumberFormat.getCurrencyInstance(current);
         dbContasDoMes.open();
 
-        listaContas = ((ListView) rootView.findViewById(R.id.lvContasCriadas));
-        semContas = (TextView) rootView.findViewById(R.id.tvSemContas);
+        listaContas = rootView.findViewById(R.id.lvContasCriadas);
+        semContas = rootView.findViewById(R.id.tvSemContas);
 
         MontaLista();
 

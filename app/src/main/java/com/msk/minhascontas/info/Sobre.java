@@ -3,10 +3,11 @@ package com.msk.minhascontas.info;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.msk.minhascontas.R;
 
@@ -21,7 +22,7 @@ public class Sobre extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tela_sobre);
 
-        sobre = (TextView) findViewById(R.id.tvSobre);
+        sobre = findViewById(R.id.tvSobre);
 
         try {
             pinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
