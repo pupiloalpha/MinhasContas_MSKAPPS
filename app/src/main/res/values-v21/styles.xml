@@ -8,7 +8,6 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:dialogTheme">@style/TemaDialogo</item>
         <item name="android:alertDialogTheme">@style/TemaDialogo</item>
-        <item name="android:datePickerDialogTheme">@style/TemaDialogo</item>
     </style>
 
 </resources>
