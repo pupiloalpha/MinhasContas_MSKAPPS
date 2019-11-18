@@ -6,8 +6,6 @@
         <item name="colorPrimaryDark">#000000</item>
         <item name="colorAccent">@color/verde_escuro</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:dialogTheme">@style/TemaDialogo</item>
-        <item name="android:alertDialogTheme">@style/TemaDialogo</item>
     </style>
 
 </resources>
