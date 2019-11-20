@@ -207,7 +207,7 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
             valorSaldo.setTextColor(Color.parseColor("#CC0000"));
             valorBanco.setTextColor(Color.parseColor("#CC0000"));
         } else {
-            valorSaldo.setTextColor(Color.parseColor("#2B2B2B"));
+            //valorSaldo.setTextColor(Color.parseColor("#2B2B2B"));
             valorBanco.setTextColor(Color.parseColor("#669900"));
         }
     }

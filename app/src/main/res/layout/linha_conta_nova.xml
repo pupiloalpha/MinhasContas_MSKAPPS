@@ -10,8 +10,8 @@
         android:id="@+id/tvDataContaCriada"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="false"
+        android:layout_alignParentLeft="true"
         android:paddingLeft="5dp"
         android:paddingRight="2dp"
         android:text="0"
@@ -33,33 +33,34 @@
     <LinearLayout
         android:id="@+id/lvConta"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_height="match_parent"
         android:layout_below="@+id/tvDataContaCriada"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_gravity="center_vertical"
-        android:layout_toLeftOf="@+id/tvValorContaCriada"
         android:layout_toStartOf="@+id/tvValorContaCriada"
+        android:layout_toLeftOf="@+id/tvValorContaCriada"
         android:background="@null"
         android:gravity="center_vertical"
         android:orientation="vertical"
-        android:paddingLeft="5dp"
-        android:paddingStart="5dp">
+        android:paddingStart="5dp"
+        android:paddingLeft="5dp">
 
         <TextView
             android:id="@+id/tvNomeContaCriada"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="@string/dica_pesquisa"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearance"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/tvNomeCategoria"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:gravity="center_vertical"

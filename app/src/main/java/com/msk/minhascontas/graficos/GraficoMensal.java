@@ -271,11 +271,13 @@ public class GraficoMensal extends Fragment {
 
         data.setCenterText1(this.getString(R.string.resumo_saldo));
         data.setCenterText1FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 36));
+                .getDisplayMetrics().scaledDensity, 38));
+        data.setCenterText1Color(Color.parseColor("#696969"));
 
         data.setCenterText2(dinheiro.format(vsaldo));
         data.setCenterText2FontSize(ChartUtils.px2sp(getResources()
                 .getDisplayMetrics().scaledDensity, 42));
+        data.setCenterText2Color(Color.parseColor("#696969"));
 
         gcontas.setPieChartData(data);
     }
@@ -488,11 +490,13 @@ public class GraficoMensal extends Fragment {
 
         data.setCenterText1(this.getString(R.string.linha_despesa));
         data.setCenterText1FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 36));
+                .getDisplayMetrics().scaledDensity, 38));
+        data.setCenterText1Color(Color.parseColor("#696969"));
 
         data.setCenterText2(dinheiro.format(vdesp));
         data.setCenterText2FontSize(ChartUtils.px2sp(getResources()
                 .getDisplayMetrics().scaledDensity, 42));
+        data.setCenterText2Color(Color.parseColor("#696969"));
 
         gpagamentos.setPieChartData(data);
     }
@@ -526,11 +530,13 @@ public class GraficoMensal extends Fragment {
 
         data.setCenterText1(this.getString(R.string.linha_receita));
         data.setCenterText1FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 36));
+                .getDisplayMetrics().scaledDensity, 38));
+        data.setCenterText1Color(Color.parseColor("#696969"));
 
         data.setCenterText2(dinheiro.format(vrec));
         data.setCenterText2FontSize(ChartUtils.px2sp(getResources()
                 .getDisplayMetrics().scaledDensity, 42));
+        data.setCenterText2Color(Color.parseColor("#696969"));
 
         greceitas.setPieChartData(data);
     }
