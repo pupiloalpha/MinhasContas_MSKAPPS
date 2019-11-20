@@ -20,7 +20,6 @@
             android:gravity="left|center_vertical"
             android:text="@string/linha_saldo"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/preto"
             android:textStyle="bold"
             tools:ignore="RtlHardcoded" />
 
@@ -33,7 +32,6 @@
             android:gravity="right|center_vertical"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/preto"
             android:textStyle="bold"
             tools:ignore="RtlHardcoded" />
 

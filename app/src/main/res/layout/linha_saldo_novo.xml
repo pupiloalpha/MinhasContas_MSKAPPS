@@ -20,7 +20,6 @@
             android:gravity="left|center_vertical"
             android:text="@string/linha_saldo"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/preto"
             android:textStyle="bold"
             tools:ignore="RtlHardcoded" />
 
@@ -33,7 +32,6 @@
             android:gravity="right|center_vertical"
             android:text="@string/zero"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/preto"
             android:textStyle="bold"
             tools:ignore="RtlHardcoded" />
 
@@ -42,7 +40,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@color/preto"
+        android:background="@android:color/darker_gray"
         android:orientation="vertical">
 
     </LinearLayout>

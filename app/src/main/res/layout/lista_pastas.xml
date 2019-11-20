@@ -21,7 +21,6 @@
         android:layout_weight="1"
         android:gravity="center"
         android:text="@string/vazio"
-        android:textColor="@color/cinza"
         android:textSize="18sp"
         tools:ignore="HardcodedText" />
 

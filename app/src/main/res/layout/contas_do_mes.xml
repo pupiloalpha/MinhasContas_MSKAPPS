@@ -25,6 +25,5 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="@string/dica_vazio"
-        android:textColor="@color/preto"
         android:textSize="18sp" />
 </LinearLayout>
