@@ -24,8 +24,12 @@ import java.util.Vector;
 
 public final class DBContas {
 
+    // Nomes para criar o Bancos de Dados
+    private static final String BANCO_DE_DADOS = "minhas_contas";
+    private static final String TABELA_CONTAS = "contas";
+    
     // Comando SQL para criar o Banco de Dados com as colunas
-    private static final String CRIA_TABELA_CONTAS = "CREATE TABLE " + Colunas.TABELA_CONTAS + " ( "
+    private static final String CRIA_TABELA_CONTAS = "CREATE TABLE " + TABELA_CONTAS + " ( "
             + Colunas._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," // coluna 0
             + Colunas.COLUNA_NOME_CONTA + " TEXT NOT NULL,"                   // coluna 1
             + Colunas.COLUNA_TIPO_CONTA + " INTEGER, "                        // coluna 2
@@ -72,7 +76,7 @@ public final class DBContas {
         dadosConta.put(Colunas.COLUNA_NR_REPETICAO_CONTA, nRepete);
         dadosConta.put(Colunas.COLUNA_INTERVALO_CONTA, intervalo);
         dadosConta.put(Colunas.COLUNA_CODIGO_CONTA, codigo);
-        return db.insert(Colunas.TABELA_CONTAS, null, dadosConta);
+        return db.insert(TABELA_CONTAS, null, dadosConta);
     }
     private static DatabaseHelper sInstance;
     // ELEMENTOS QUE GERENCIAM O BANCO DE DADOS
@@ -125,7 +129,7 @@ public final class DBContas {
         dadosConta.put(Colunas.COLUNA_NR_REPETICAO_CONTA, nRepete);
         dadosConta.put(Colunas.COLUNA_INTERVALO_CONTA, intervalo);
         dadosConta.put(Colunas.COLUNA_CODIGO_CONTA, codigo);
-        return db.update(Colunas.TABELA_CONTAS, dadosConta, Colunas._ID + " = '"
+        return db.update(TABELA_CONTAS, dadosConta, Colunas._ID + " = '"
                 + idConta + "' ", null) > 0;
     }
 
@@ -137,7 +141,7 @@ public final class DBContas {
         nomeAntigo = nomeAntigo.replace("'", "''");
         nrRepete = nrRepete - 1;
         dadosConta.put(Colunas.COLUNA_NOME_CONTA, nomeNovo);
-        return db.update(Colunas.TABELA_CONTAS, dadosConta, Colunas.COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
+        return db.update(TABELA_CONTAS, dadosConta, Colunas.COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
                 + Colunas.COLUNA_CODIGO_CONTA + " = '" + codigo + "' AND " + Colunas.COLUNA_NR_REPETICAO_CONTA
                 + " > " + nrRepete + " ", null) > 0;
     }
@@ -150,7 +154,7 @@ public final class DBContas {
         dadosConta.put(Colunas.COLUNA_TIPO_CONTA, tipo);
         dadosConta.put(Colunas.COLUNA_CLASSE_CONTA, classeConta);
         dadosConta.put(Colunas.COLUNA_CATEGORIA_CONTA, categoria);
-        return db.update(Colunas.TABELA_CONTAS, dadosConta, Colunas.COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
+        return db.update(TABELA_CONTAS, dadosConta, Colunas.COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
                 + Colunas.COLUNA_CODIGO_CONTA + " = '" + codigo + "' AND " + Colunas.COLUNA_NR_REPETICAO_CONTA
                 + " > " + nrRepete + " ", null) > 0;
     }
@@ -162,7 +166,7 @@ public final class DBContas {
         nrRepete = nrRepete - 1;
         dadosConta.put(Colunas.COLUNA_VALOR_CONTA, valor);
         dadosConta.put(Colunas.COLUNA_PAGOU_CONTA, pagamento);
-        return db.update(Colunas.TABELA_CONTAS, dadosConta, Colunas.COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
+        return db.update(TABELA_CONTAS, dadosConta, Colunas.COLUNA_NOME_CONTA + " = '" + nomeAntigo + "' AND "
                 + Colunas.COLUNA_CODIGO_CONTA + " = '" + codigo + "' AND " + Colunas.COLUNA_NR_REPETICAO_CONTA
                 + " > " + nrRepete + " ", null) > 0;
     }
@@ -171,7 +175,7 @@ public final class DBContas {
             throws SQLException {
         ContentValues dadosConta = new ContentValues();
         dadosConta.put(Colunas.COLUNA_PAGOU_CONTA, pagamento);
-        return db.update(Colunas.TABELA_CONTAS, dadosConta, Colunas._ID + " = '"
+        return db.update(TABELA_CONTAS, dadosConta, Colunas._ID + " = '"
                 + idConta + "' ", null) > 0;
     }
 
@@ -180,7 +184,7 @@ public final class DBContas {
         ContentValues dataContas = new ContentValues();
         nome = nome.replace("'", "''");
         dataContas.put(Colunas.COLUNA_CODIGO_CONTA, codigo);
-        return db.update(Colunas.TABELA_CONTAS, dataContas, Colunas.COLUNA_NOME_CONTA + " = '"
+        return db.update(TABELA_CONTAS, dataContas, Colunas.COLUNA_NOME_CONTA + " = '"
                 + nome + "' AND " + Colunas.COLUNA_QT_REPETICOES_CONTA + " = '" + nr
                 + "' ", null) > 0;
     }
@@ -191,7 +195,7 @@ public final class DBContas {
             throws SQLException {
         ContentValues dadosConta = new ContentValues();
         dadosConta.put(Colunas.COLUNA_PAGOU_CONTA, "paguei");
-        return db.update(Colunas.TABELA_CONTAS, dadosConta, Colunas.COLUNA_DIA_DATA_CONTA
+        return db.update(TABELA_CONTAS, dadosConta, Colunas.COLUNA_DIA_DATA_CONTA
                         + " < '" + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '"
                         + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano
                         + "' OR " + Colunas.COLUNA_ANO_DATA_CONTA + " < '" + ano + "'",
@@ -200,7 +204,7 @@ public final class DBContas {
 
     public boolean confirmaPagamentos() throws SQLException {
         String[] str = {Colunas.COLUNA_PAGOU_CONTA};
-        Cursor c = db.query(Colunas.TABELA_CONTAS, str, Colunas.COLUNA_PAGOU_CONTA
+        Cursor c = db.query(TABELA_CONTAS, str, Colunas.COLUNA_PAGOU_CONTA
                 + " != 'paguei' ", null, null, null, null);
         int i = c.getCount();
         c.close();
@@ -208,14 +212,14 @@ public final class DBContas {
             ContentValues dadosConta = new ContentValues();
             String pg = "paguei";
             dadosConta.put(Colunas.COLUNA_PAGOU_CONTA, "falta");
-            return db.update(Colunas.TABELA_CONTAS, dadosConta, Colunas.COLUNA_PAGOU_CONTA
+            return db.update(TABELA_CONTAS, dadosConta, Colunas.COLUNA_PAGOU_CONTA
                     + " != '" + pg + "' ", null) > 0;
         } else return true;
     }
 
     public boolean ajustaRepeticoesContas() throws SQLException {
         String[] str = {Colunas.COLUNA_INTERVALO_CONTA};
-        Cursor c = db.query(Colunas.TABELA_CONTAS, str, Colunas.COLUNA_INTERVALO_CONTA
+        Cursor c = db.query(TABELA_CONTAS, str, Colunas.COLUNA_INTERVALO_CONTA
                 + " < '32' ", null, null, null, null);
         int i = c.getCount();
         c.close();
@@ -224,13 +228,13 @@ public final class DBContas {
             int intervalo = 300;
             int dia = 31;
             dadosConta.put(Colunas.COLUNA_INTERVALO_CONTA, intervalo);
-            return db.update(Colunas.TABELA_CONTAS, dadosConta, Colunas.COLUNA_INTERVALO_CONTA
+            return db.update(TABELA_CONTAS, dadosConta, Colunas.COLUNA_INTERVALO_CONTA
                     + " <= '" + dia + "' ", null) > 0;
         } else return true;
     }
 
     public boolean excluiConta(long idConta) {
-        return db.delete(Colunas.TABELA_CONTAS, Colunas._ID + " = '" + idConta
+        return db.delete(TABELA_CONTAS, Colunas._ID + " = '" + idConta
                 + "' ", null) > 0;
     }
 
@@ -238,7 +242,7 @@ public final class DBContas {
 
     public boolean excluiContaPorNome(String nome, String codigo) {
         nome = nome.replace("'", "''");
-        return db.delete(Colunas.TABELA_CONTAS, Colunas.COLUNA_NOME_CONTA + " = '" + nome
+        return db.delete(TABELA_CONTAS, Colunas.COLUNA_NOME_CONTA + " = '" + nome
                 + "' AND " + Colunas.COLUNA_CODIGO_CONTA + " = '" + codigo + "' ", null) > 0;
     }
 
@@ -246,17 +250,17 @@ public final class DBContas {
                                            int nr_repete) {
         nr_repete = nr_repete - 1;
         nome = nome.replace("'", "''");
-        return db.delete(Colunas.TABELA_CONTAS, Colunas.COLUNA_NOME_CONTA + " = '" + nome
+        return db.delete(TABELA_CONTAS, Colunas.COLUNA_NOME_CONTA + " = '" + nome
                 + "' AND " + Colunas.COLUNA_CODIGO_CONTA + " = '" + codigo + "' AND "
                 + Colunas.COLUNA_NR_REPETICAO_CONTA + " > '" + nr_repete + "' ", null) > 0;
     }
 
     public void excluiTodasAsContas() {
-        db.delete(Colunas.TABELA_CONTAS, null, null);
+        db.delete(TABELA_CONTAS, null, null);
     }
 
     public Cursor buscaUmaConta(long idConta) {
-        return db.query(Colunas.TABELA_CONTAS, null, Colunas._ID
+        return db.query(TABELA_CONTAS, null, Colunas._ID
                 + " = '" + idConta + "' ", null, null, null, null);
     }
 
@@ -264,12 +268,12 @@ public final class DBContas {
 
     public Cursor buscaContas(int dia, int mes, int ano, String ordem) {
         if (dia != 0)
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
                     + " = '" + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA
                     + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                     + ano + "' ", null, null, null, ordem);
         else
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
                     + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                     + ano + "' ", null, null, null, ordem);
     }
@@ -277,13 +281,13 @@ public final class DBContas {
     public Cursor buscaContasTipo(int dia, int mes, int ano, String ordem,
                                   int tipo) {
         if (dia != 0)
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + Colunas.COLUNA_TIPO_CONTA + " = '" + tipo + "' ",
                     null, null, null, ordem);
         else
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + Colunas.COLUNA_TIPO_CONTA + " = '" + tipo + "' ",
                     null, null, null, ordem);
@@ -292,14 +296,14 @@ public final class DBContas {
     public Cursor buscaContasTipoPagamento(int dia, int mes, int ano, String ordem,
                                            int tipo, String pagamento) {
         if (dia != 0)
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + Colunas.COLUNA_TIPO_CONTA + " = '" + tipo
                             + "' AND " + Colunas.COLUNA_PAGOU_CONTA + " = '" + pagamento + "' ",
                     null, null, null, ordem);
         else
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + Colunas.COLUNA_TIPO_CONTA + " = '" + tipo
                             + "' AND " + Colunas.COLUNA_PAGOU_CONTA + " = '" + pagamento + "' ",
@@ -309,14 +313,14 @@ public final class DBContas {
     public Cursor buscaContasClasse(int dia, int mes, int ano, String ordem,
                                     int tipo, int classe) {
         if (dia != 0)
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + Colunas.COLUNA_TIPO_CONTA + " = '" + tipo
                             + "' AND " + Colunas.COLUNA_CLASSE_CONTA + " = '" + classe + "' ",
                     null, null, null, ordem);
         else
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + Colunas.COLUNA_TIPO_CONTA + " = '" + tipo
                             + "' AND " + Colunas.COLUNA_CLASSE_CONTA + " = '" + classe + "' ",
@@ -325,14 +329,14 @@ public final class DBContas {
 
     public Cursor buscaContasCategoria(int dia, int mes, int ano, String ordem, int categoria) {
         if (dia != 0)
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_DIA_DATA_CONTA
                             + " = '" + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + Colunas.COLUNA_TIPO_CONTA + " = 0 AND "
                             + Colunas.COLUNA_CATEGORIA_CONTA + " = '" + categoria + "' ",
                     null, null, null, ordem);
         else
-            return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
+            return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_MES_DATA_CONTA
                             + " = '" + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '"
                             + ano + "' AND " + Colunas.COLUNA_TIPO_CONTA + " = 0 AND "
                             + Colunas.COLUNA_CATEGORIA_CONTA + " = '" + categoria + "' ",
@@ -341,14 +345,14 @@ public final class DBContas {
 
     public Cursor buscaContasPorNome(String nome) {
         nome = nome.replace("'", "''");
-        return db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_NOME_CONTA
+        return db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_NOME_CONTA
                 + " = '" + nome + "' ", null, null, null, Colunas.COLUNA_ANO_DATA_CONTA
                 + " ASC, " + Colunas.COLUNA_MES_DATA_CONTA + " ASC, " + Colunas.COLUNA_DIA_DATA_CONTA + " ASC");
     }
 
     public String mostraContasPorTipo(String nome, int tipo, int mes, int ano)
             throws SQLException {
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas,
                 Colunas.COLUNA_TIPO_CONTA + " = '" + tipo + "' AND "
                         + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                         + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ", null,
@@ -373,7 +377,7 @@ public final class DBContas {
     // ----------- MÉTODOS QUE MOSTRAM AS CONTAS DO BANCO DE DADOS
 
     public String mostraNomeConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_ID_CONTA
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_ID_CONTA
                 + " = '" + idConta + "' ", null, null, null, null);
         String str = " ";
         if (cursor != null && cursor.moveToFirst())
@@ -383,7 +387,7 @@ public final class DBContas {
     }
 
     public int[] mostraDMAConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas._ID
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas._ID
                 + " = '" + idConta + "' ", null, null, null, null);
         int[] arrayOfInt = null;
         if (cursor != null && cursor.moveToFirst()) {
@@ -400,7 +404,7 @@ public final class DBContas {
     }
 
     public double mostraValorConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas._ID
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas._ID
                 + " = '" + idConta + "' ", null, null, null, null);
         double d = 0.0D;
         if (cursor != null && cursor.moveToFirst())
@@ -410,7 +414,7 @@ public final class DBContas {
     }
 
     public String mostraPagamentoConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas._ID
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas._ID
                 + " = '" + idConta + "' ", null, null, null, null);
         String pg = "";
         if (cursor != null && cursor.moveToFirst())
@@ -420,7 +424,7 @@ public final class DBContas {
     }
 
     public int[] mostraRepeticaoConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas._ID
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas._ID
                 + " = '" + idConta + "' ", null, null, null, null);
         int[] arrayOfInt = null;
         if (cursor != null && cursor.moveToFirst()) {
@@ -440,7 +444,7 @@ public final class DBContas {
             throws SQLException {
         nome = nome.replace("'", "''");
         Cursor cursor = db
-                .query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_NOME_CONTA
+                .query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_NOME_CONTA
                         + " = '" + nome + "' AND " + Colunas.COLUNA_QT_REPETICOES_CONTA
                         + " = '" + qtRepete + "' AND " + Colunas.COLUNA_CODIGO_CONTA
                         + " = '" + codigo + "' ", null, null, null, null);
@@ -453,7 +457,7 @@ public final class DBContas {
     }
 
     public String mostraCodigoConta(long idConta) throws SQLException {
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas._ID
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas._ID
                 + " = '" + idConta + "' ", null, null, null, null);
         String dConta = "";
         if (cursor != null && cursor.moveToFirst()) {
@@ -464,7 +468,7 @@ public final class DBContas {
     }
 
     public Vector<String> mostraNomeContas() throws SQLException {
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, null, null,
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas, null, null,
                 null, null, Colunas.COLUNA_NOME_CONTA + " ASC ");
         Vector<String> v = new Vector<String>();
         String str = " ";
@@ -483,7 +487,7 @@ public final class DBContas {
 
     public int quantasContas() {
         Cursor cursor;
-        cursor = db.query(true, Colunas.TABELA_CONTAS, colunas_contas, null, null,
+        cursor = db.query(true, TABELA_CONTAS, colunas_contas, null, null,
                 null, null, null, null);
         int i = cursor.getCount();
         cursor.close();
@@ -496,13 +500,13 @@ public final class DBContas {
                                          int dia, int mes, int ano) {
         Cursor cursor;
         if (dia == 0)
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
+            cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
                     + " = '" + tipo + "' AND " + Colunas.COLUNA_PAGOU_CONTA + " = '"
                     + pagamento + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '"
                     + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano
                     + "' ", null, null, null, null);
         else
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
+            cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
                             + " = '" + tipo + "' AND " + Colunas.COLUNA_PAGOU_CONTA + " = '"
                             + pagamento + "' AND " + Colunas.COLUNA_DIA_DATA_CONTA + " < '"
                             + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes
@@ -516,21 +520,21 @@ public final class DBContas {
     public int quantasContasPorClasse(int classe, int dia, int mes, int ano) {
         Cursor cursor;
         if (dia == 0)
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
                     Colunas.COLUNA_CLASSE_CONTA + " = '" + classe + "' AND "
                             + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                             + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
                     null, null, null, null);
         else if (ano != 0) {
             dia = dia + 1;
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
                     Colunas.COLUNA_CLASSE_CONTA + " = '" + classe + "' AND "
                             + Colunas.COLUNA_DIA_DATA_CONTA + " < '" + dia + "' AND "
                             + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                             + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
                     null, null, null, null);
         } else {
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
                     Colunas.COLUNA_CLASSE_CONTA + " = '" + classe + "'", null, null,
                     null, null);
         }
@@ -540,7 +544,7 @@ public final class DBContas {
     }
 
     public int quantasContasPorMes(int mes, int ano) {
-        Cursor cursor = db.query(true, Colunas.TABELA_CONTAS, colunas_contas,
+        Cursor cursor = db.query(true, TABELA_CONTAS, colunas_contas,
                 Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                         + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ", null,
                 null, null, null, null);
@@ -552,13 +556,13 @@ public final class DBContas {
     public int quantasContasPorTipo(int tipo, int dia, int mes, int ano) {
         Cursor cursor;
         if (dia == 0)
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
+            cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
                     + " = '" + tipo + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '"
                     + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano
                     + "' ", null, null, null, null);
         else {
             dia = dia + 1;
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
+            cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
                             + " = '" + tipo + "' AND " + Colunas.COLUNA_DIA_DATA_CONTA + " < '"
                             + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes
                             + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
@@ -572,7 +576,7 @@ public final class DBContas {
     public int quantasContasPorNome(String nome) {
         nome = nome.replace("'", "''");
         Cursor cursor = db
-                .query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_NOME_CONTA
+                .query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_NOME_CONTA
                         + " = '" + nome + "'", null, null, null, null);
         int i = cursor.getCount();
         cursor.close();
@@ -582,7 +586,7 @@ public final class DBContas {
     public int quantasRepeticoesDaConta(String nome, String codigo) {
         nome = nome.replace("'", "''");
         Cursor cursor = db
-                .query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_NOME_CONTA
+                .query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_NOME_CONTA
                                 + " = '" + nome + "' AND "
                                 + Colunas.COLUNA_CODIGO_CONTA + " = '" + codigo + "' ",
                         null, null, null, null);
@@ -593,7 +597,7 @@ public final class DBContas {
 
     public int quantasContasPorNomeNoDia(String nome, int dia, int mes, int ano) {
         nome = nome.replace("'", "''");
-        Cursor cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+        Cursor cursor = db.query(TABELA_CONTAS, colunas_contas,
                 Colunas.COLUNA_NOME_CONTA + " = '" + nome + "' AND "
                         + Colunas.COLUNA_DIA_DATA_CONTA + " = '" + dia + "' AND "
                         + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
@@ -608,13 +612,13 @@ public final class DBContas {
             throws SQLException {
         Cursor cursor;
         if (dia == 0)
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
+            cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
                     + " = '" + tipo + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '"
                     + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano
                     + "' ", null, null, null, null);
         else {
             dia = dia + 1;
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
+            cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
                             + " = '" + tipo + "' AND " + Colunas.COLUNA_DIA_DATA_CONTA + " < '"
                             + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes
                             + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
@@ -639,14 +643,14 @@ public final class DBContas {
                                   int mes, int ano) throws SQLException {
         Cursor cursor;
         if (dia == 0)
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
+            cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
                     + " = '" + tipo + "' AND " + Colunas.COLUNA_PAGOU_CONTA + " = '"
                     + pagamento + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '"
                     + mes + "' AND " + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano
                     + "' ", null, null, null, null);
         else {
             dia = dia + 1;
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
+            cursor = db.query(TABELA_CONTAS, colunas_contas, Colunas.COLUNA_TIPO_CONTA
                             + " = '" + tipo + "' AND " + Colunas.COLUNA_PAGOU_CONTA + " = '"
                             + pagamento + "' AND " + Colunas.COLUNA_DIA_DATA_CONTA + " < '"
                             + dia + "' AND " + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes
@@ -671,14 +675,14 @@ public final class DBContas {
 
         Cursor cursor;
         if (dia == 0)
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
                     Colunas.COLUNA_CLASSE_CONTA + " = '" + classe + "' AND "
                             + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                             + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
                     null, null, null, null);
         else {
             dia = dia + 1;
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
                     Colunas.COLUNA_CLASSE_CONTA + " = '" + classe + "' AND "
                             + Colunas.COLUNA_DIA_DATA_CONTA + " < '" + dia + "' AND "
                             + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
@@ -703,14 +707,14 @@ public final class DBContas {
 
         Cursor cursor;
         if (dia == 0)
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
                     Colunas.COLUNA_CATEGORIA_CONTA + " = '" + categoria + "' AND "
                             + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
                             + Colunas.COLUNA_ANO_DATA_CONTA + " = '" + ano + "' ",
                     null, null, null, null);
         else {
             dia = dia + 1;
-            cursor = db.query(Colunas.TABELA_CONTAS, colunas_contas,
+            cursor = db.query(TABELA_CONTAS, colunas_contas,
                     Colunas.COLUNA_CATEGORIA_CONTA + " = '" + categoria + "' AND "
                             + Colunas.COLUNA_DIA_DATA_CONTA + " < '" + dia + "' AND "
                             + Colunas.COLUNA_MES_DATA_CONTA + " = '" + mes + "' AND "
@@ -741,9 +745,9 @@ public final class DBContas {
 
             if (sd.canWrite()) {
                 //String currentDBPath = "//data//com.msk.minhascontas//databases//minhas_contas";
-                String backupDBPath = Colunas.BANCO_DE_DADOS;
+                String backupDBPath = "minhas_contas.db";
 
-                File currentDB = contexto.getDatabasePath(Colunas.BANCO_DE_DADOS);
+                File currentDB = contexto.getDatabasePath(BANCO_DE_DADOS);
                 File backupDB = new File(sd, backupDBPath);
 
                 if (currentDB.exists()) {
@@ -778,7 +782,7 @@ public final class DBContas {
                 //String backupDBPath = BANCO_DE_DADOS;
                 //File currentDB = new File(data, currentDBPath);
                 //File backupDB = new File(sd, backupDBPath);
-                File currentDB = contexto.getDatabasePath(Colunas.BANCO_DE_DADOS);
+                File currentDB = contexto.getDatabasePath(BANCO_DE_DADOS);
 
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(sd)
@@ -810,7 +814,7 @@ public final class DBContas {
                         Colunas.COLUNA_NR_REPETICAO_CONTA, Colunas.COLUNA_INTERVALO_CONTA, Colunas.COLUNA_CODIGO_CONTA,
                         "auxiliar", "classifica"};
 
-                db.execSQL("DROP TABLE IF EXISTS " + Colunas.TABELA_CONTAS);
+                db.execSQL("DROP TABLE IF EXISTS " + TABELA_CONTAS);
                 db.execSQL(CRIA_TABELA_CONTAS);
 
                 ContentValues cv;
@@ -860,7 +864,7 @@ public final class DBContas {
                 db.update("tabela_temporaria", cv,
                         " auxiliar IS NULL OR classifica IS NULL ", null);
 
-                db.execSQL("INSERT INTO " + Colunas.TABELA_CONTAS
+                db.execSQL("INSERT INTO " + TABELA_CONTAS
                         + " SELECT " + Colunas._ID
                         + ", " + Colunas.COLUNA_NOME_CONTA
                         + ", " + Colunas.COLUNA_TIPO_CONTA
@@ -900,15 +904,12 @@ public final class DBContas {
         private static final String COLUNA_CLASSE_CONTA = "classe_conta";
         private static final String COLUNA_CATEGORIA_CONTA = "categoria_conta";
         private static final String COLUNA_VALOR_CONTA = "valor";
-        // Nomes para criar o Bancos de Dados
-        private static final String BANCO_DE_DADOS = "minhas_contas.db";
-        private static final String TABELA_CONTAS = "contas";
     }
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
         DatabaseHelper(Context context) {
-            super(context, Colunas.BANCO_DE_DADOS, null, VERSAO_BANCO_DE_DADOS);
+            super(context, BANCO_DE_DADOS, null, VERSAO_BANCO_DE_DADOS);
         }
 
         @Override
@@ -967,9 +968,9 @@ public final class DBContas {
                     + ", " + Colunas.COLUNA_INTERVALO_CONTA
                     + ", data"
                     + ", " + Colunas.COLUNA_TIPO_CONTA
-                    + ", classificacao FROM " + Colunas.TABELA_CONTAS);
+                    + ", classificacao FROM " + TABELA_CONTAS);
 
-            db.execSQL("DROP TABLE " + Colunas.TABELA_CONTAS);
+            db.execSQL("DROP TABLE " + TABELA_CONTAS);
 
             db.execSQL(CRIA_TABELA_CONTAS);
 
