@@ -6,5 +6,5 @@
     android:layout_height="wrap_content"
     android:background="?attr/colorPrimary"
     android:minHeight="?attr/actionBarSize"
-    mskapp:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    mskapp:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
     mskapp:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />

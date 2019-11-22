@@ -7,5 +7,5 @@
     android:background="?colorPrimary"
     mskapp:layout_collapseMode="pin"
     mskapp:layout_scrollFlags="scroll|enterAlways"
-    mskapp:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    mskapp:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
     mskapp:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
