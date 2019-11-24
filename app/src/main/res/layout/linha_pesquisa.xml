@@ -48,23 +48,24 @@
 
         <TextView
             android:id="@+id/tvNomeContaCriada"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="@string/dica_pesquisa"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearance"
+            android:textSize="18dp" />
 
         <TextView
             android:id="@+id/tvNomeCategoria"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="@string/dica_pesquisa"
-            android:textColor="@color/cinza" />
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
     </LinearLayout>
 
