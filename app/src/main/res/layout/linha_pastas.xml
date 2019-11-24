@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:text="@string/dica_conta"
             android:textAppearance="?android:attr/textAppearance"
-            android:textSize="18dp"
+            android:textSize="18sp"
             tools:ignore="InefficientWeight,SpUsage" />
 
         <TextView
@@ -45,7 +45,6 @@
             android:layout_height="wrap_content"
             android:text="@string/dica_conta"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textSize="12dp"
             tools:ignore="RtlHardcoded,SpUsage" />
     </LinearLayout>
 </RelativeLayout>
