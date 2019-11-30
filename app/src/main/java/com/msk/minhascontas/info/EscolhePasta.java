@@ -91,7 +91,8 @@ public class EscolhePasta extends ListActivity {
 
                 if (!files.get(position).isDirectory()) {
                     iv.setImageResource(R.drawable.ic_archive);
-                    iv.setColorFilter(getResources().getColor(R.color.verde_escuro));
+                    if (files.get(position).getAbsolutePath().endsWith(tipo))
+                        iv.setColorFilter(getResources().getColor(R.color.verde_escuro));
 
                     Date lastModified = new Date(files.get(position).lastModified());
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -178,8 +179,8 @@ public class EscolhePasta extends ListActivity {
             for (File file : file_list) {
                 if (file.isDirectory())
                     continue;
-                if (!file.getAbsolutePath().endsWith(tipo))
-                    continue;
+                //if (!file.getAbsolutePath().endsWith(tipo) || !file.getAbsolutePath().endsWith("minhas_contas"))
+                //    continue;
                 if (file.isHidden())
                     continue;
                 if (!file.canRead())
