@@ -127,7 +127,7 @@ public class AdaptaListaMensal extends CursorAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = super.getView(position, convertView, parent);
         if (selecoes.get(position) != null)
-            view.setBackgroundColor(Color.parseColor("#FFC5E1A5"));
+            view.setBackgroundColor(Color.parseColor("#70999999"));
         else
             view.setBackgroundColor(Color.TRANSPARENT);
         return view;

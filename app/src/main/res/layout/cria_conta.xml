@@ -113,7 +113,7 @@
                     android:layout_weight="1.0"
                     android:text="@string/dica_receita"
                     android:textColor="@color/azul"
-                    android:textSize="18.0dip" />
+                    android:textSize="18.0sp" />
 
                 <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rDespNovaConta"
@@ -123,7 +123,7 @@
                     android:checked="true"
                     android:text="@string/dica_despesa"
                     android:textColor="@color/vermelho"
-                    android:textSize="18.0dip" />
+                    android:textSize="18.0sp" />
 
                 <androidx.appcompat.widget.AppCompatRadioButton
                     android:id="@+id/rAplicNovaConta"
