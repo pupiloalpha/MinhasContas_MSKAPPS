@@ -1,5 +1,55 @@
 package com.msk.minhascontas.db
 
+/*
+RoomContasRepository.kt
+
+O que é
+- Wrapper/Repository Kotlin que expõe uma API de alto nível para operações
+  sobre "contas", servindo como adaptador entre o código legado (DBContas.java)
+  e a nova implementação baseada em Room.
+- Fornece muitos métodos com nomes e semântica similares aos do DBContas
+  para facilitar migração gradual do app.
+
+Principais métodos (mapeamento)
+- geraConta(...): Long
+  - Cria e insere uma conta no DB via ContaDao.insert
+- alteraDadosConta(conta: Conta): Int
+  - Atualiza um registro via update
+- alteraNomeContas / alteraTipoContas / alteraValorContas
+  - Atualizações em lote sobre séries (delegam para queries de DAO que atualizam todas as linhas com nr_repeticao > X)
+- alteraPagamentoConta(id, pagamento)
+- atualizaDataContas(nome, codigo, nr)
+- atualizaPagamentoContas(dia, mes, ano)
+- confirmaPagamentos(), ajustaRepeticoesContas()
+- excluiConta, excluiContaPorNome, excluiSerieContaPorNome, excluiTodasAsContas
+- buscaUmaConta(id), buscaContas(dia, mes, ano), buscaContasTipo(...)
+- somaContas, somaContasPagas, somaContasPorClasse, somaContasPorCategoria
+- quantasContas, quantasContasPorMes, quantasContasPorTipo, etc.
+- métodos auxiliares: mostraNomeConta, mostraValorConta, mostraPagamentoConta, mostraRepeticaoConta, mostraPrimeiraRepeticaoConta, mostraCodigoConta, mostraNomeContas
+
+Uso e exemplos
+- Obter instância singleton:
+    val repo = RoomContasRepository.getInstance(context)
+- Inserir nova conta:
+    val id = repo.geraConta("Luz", 0, 2, "7", 10, 5, 2025, 100.0, "falta", 12, 1, 30, "code")
+- Busca por mês/ano:
+    val lista = repo.buscaContas(0, 5, 2025)
+
+Observações importantes
+- As operações expostas são síncronas (executam DAO que também é síncrono). Não chame
+  esses métodos diretamente da UI thread em produção. Utilize coroutines (Dispatcher.IO)
+  ou um Executor.
+- Recomenda-se gradualmente transformar métodos para versões suspend (suspending functions)
+  ou retornar LiveData/Flow quando for necessário observar alterações.
+- A camada Repository facilita migração incremental: substitua chamadas do DBContas.java
+  pelo repository gradualmente, testando cada tela/fluxo.
+
+Extensibilidade
+- Se você precisa de operações transacionais (várias updates/inserts atômicos),
+  anote métodos com @Transaction no DAO ou use runInTransaction do RoomDatabase.
+- Para queries dinâmicas (built-on-the-fly), considere SupportSQLiteQuery e @RawQuery.
+*/
+
 import android.content.Context
 
 /**
