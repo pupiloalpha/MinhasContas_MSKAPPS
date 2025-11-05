@@ -1,5 +1,70 @@
 package com.msk.minhascontas.db
 
+/*
+ContaDao.kt
+
+O que é
+- Interface DAO (Data Access Object) para Room que encapsula as operações
+  SQL sobre a tabela "contas".
+- Contém consultas @Query, operações @Insert/@Update/@Delete e updates/deletes
+  customizados usados pela camada de repositório RoomContasRepository.
+
+Principais métodos e comportamento
+- getAll(): List<Conta>
+  - Retorna todas as contas ordenadas por nome.
+- getById(id): Conta?
+  - Retorna uma conta pelo _id.
+- insert(conta): Long
+  - Insere uma Conta e retorna o id gerado.
+- update(conta): Int
+  - Atualiza uma Conta (retorna número de linhas afetadas).
+- delete(conta): Int
+  - Remove a Conta.
+
+Consultas de busca (ampla cobertura)
+- getByDayMonthYear(dia, mes, ano), getByMonthYear(mes, ano)
+- getByDayMonthYearTipo(...), getByMonthYearTipo(...)
+- getByDayMonthYearTipoPagamento(...), getByMonthYearTipoPagamento(...)
+- getByDayMonthYearClasse(...), getByMonthYearClasse(...)
+- getByDayMonthYearCategoria(...), getByMonthYearCategoria(...)
+- getByNome(nome): ordena por ano, mês, dia (como no código antigo)
+- getDistinctNomes(): List<String> para obter a lista de nomes distintos
+
+Somatórios / Agregações
+- somaContasPorTipoMesAno(tipo, mes, ano) -> Double?
+- somaContasPagas(tipo, pagamento, mes, ano) -> Double?
+- somaContasPorClasseMesAno(classe, mes, ano) -> Double?
+- somaContasPorCategoriaMesAno(categoria, mes, ano) -> Double?
+
+Updates em lote / helpers
+- updatePagamentoById(id, pagamento)
+- atualizaDataContas(nome, codigo, qt)
+- atualizaPagamentoContasDiaMesAno(dia, mes, ano)
+- atualizaPagamentoContasEarlierYears(ano)
+- confirmaPagamentosSetFalta()
+- ajustaRepeticoesContasSet(novoIntervalo, limite)
+- updateNomeForSeries(...), updateTipoForSeries(...), updateValorForSeries(...)
+
+Contagens e deletes
+- countAll(), countByNome(nome), countByMesAno(mes, ano), etc.
+- deleteById(id), deleteByNomeAndCodigo(nome, codigo), deleteSeriesByNomeAndCodigoAfter(...), deleteAll()
+
+Como usar
+- Obtenha o DAO a partir do AppDatabase:
+    val dao = AppDatabase.getInstance(context).contaDao()
+- Exemplos:
+    val todas = dao.getAll()
+    val id = dao.insert(conta)
+    dao.updatePagamentoById(12L, "paguei")
+    val soma = dao.somaContasPorTipoMesAno(0, 5, 2025) ?: 0.0
+
+Boas práticas e observações
+- Muitas consultas retornam tipos que podem ser null (por exemplo, sum retorna Double?). Trate null como 0.0 quando necessário.
+- Estes métodos são síncronos: executar em background (executor/coroutine) em produção para evitar bloquear UI.
+- Se precisar de queries dinâmicas mais complexas, considere usar @RawQuery ou construir queries com SupportSQLiteQuery.
+- Qualquer alteração nos nomes/assinaturas das colunas deve ser acompanhada por migração no Migrations.kt.
+*/
+
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
