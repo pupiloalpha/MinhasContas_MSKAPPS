@@ -1,5 +1,58 @@
 package com.msk.minhascontas.db
 
+/*
+BackupHelper.kt
+
+O que é
+- Utilitário Kotlin para exportar e importar o arquivo SQLite do app usando
+  o Storage Access Framework (SAF). Projetado para ser compatível com Scoped Storage
+  em Android 10+ sem necessidade de permissões de armazenamento legadas.
+
+Principais funções
+- getDatabaseFile(context): File
+  - Retorna o File que aponta para o banco do app (context.getDatabasePath(DB_NAME)).
+  - Observação: DB_NAME aqui é "minhas_contas" — tenha certeza que corresponde
+    ao nome que a aplicação efetivamente usa (ajuste se o arquivo tiver extensão).
+- createExportIntent(suggestedFileName): Intent
+  - Cria um Intent ACTION_CREATE_DOCUMENT para que o usuário selecione local/arquivo de destino.
+- createImportIntent(): Intent
+  - Cria um Intent ACTION_OPEN_DOCUMENT para o usuário escolher um backup a ser importado.
+- exportToUri(context, destUri): Boolean
+  - Copia os bytes do arquivo de DB para o Uri (destino selecionado pelo usuário).
+  - Retorna true em sucesso. Lança IOException em falhas I/O.
+- importFromUri(context, srcUri): Boolean
+  - Copia os bytes de srcUri (arquivo selecionado) para um arquivo temporário na cache
+    e então substitui (rename/copy fallback) o arquivo do DB do app. Retorna true em sucesso.
+  - ATENÇÃO: quem chama deve fechar qualquer conexão aberta ao DB (Room/SQLiteOpenHelper)
+    antes de invocar importFromUri, para evitar conflitos de lock.
+- createFileInTree(context, parentTreeUri, filename): Uri?
+  - Cria um arquivo dentro de uma árvore aberta pelo usuário (ACTION_OPEN_DOCUMENT_TREE).
+
+Como usar (Fluxo recomendado)
+1. Exportação:
+   - Chamar createExportIntent("minhas_contas_backup.db") e lançar com Activity Result API.
+   - No onActivityResult/ActivityResult callback, obter uri e:
+       AppDatabase.getInstance(context).close() // garantir DB fechado
+       BackupHelper.exportToUri(context, uri)
+       // reopen DB se necessário
+
+2. Importação:
+   - Chamar createImportIntent() e obter uri selecionado no callback.
+   - Fechar DB (AppDatabase.getInstance(context).close()), então:
+       BackupHelper.importFromUri(context, uri)
+   - Reabrir DB (AppDatabase.getInstance(context)).
+
+Boas práticas e observações
+- Não tente abrir/escrever diretamente em /sdcard ou usar Environment.getExternalStorageDirectory()
+  em dispositivos modernos. Use SAF como implementado aqui.
+- Para permitir acesso persistente a um URI retornado (por exemplo, salvar backups recorrentes):
+    context.contentResolver.takePersistableUriPermission(uri, flags)
+- Para garantir reabertura correta do Room após importação, adicione no AppDatabase um método
+  para fechar e resetar o singleton (por exemplo closeAndReset()).
+- Teste o fluxo em dispositivos com Android 6, 10, 11+ para validar diferenças de comportamento.
+- Importante: sempre mantenha um backup antes de substituir o banco em produção.
+*/
+
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
