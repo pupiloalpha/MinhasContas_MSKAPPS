@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.msk.minhascontas.R;
 
 public class Sobre extends AppCompatActivity {
@@ -22,6 +23,11 @@ public class Sobre extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tela_sobre);
 
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         sobre = findViewById(R.id.tvSobre);
 
         try {
@@ -33,9 +39,6 @@ public class Sobre extends AppCompatActivity {
 
         sobre.setText(getResources().getString(R.string.sobre, versao));
         Linkify.addLinks(sobre, Linkify.ALL);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
 
     }
 

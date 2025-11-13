@@ -1,17 +1,12 @@
 package com.msk.minhascontas.listas;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.view.LayoutInflater;
@@ -21,18 +16,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
+import com.msk.minhascontas.db.Conta; // Added import for Conta
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -40,15 +38,14 @@ import java.util.Calendar;
 import java.util.Locale;
 
 @SuppressLint("InflateParams")
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+@RequiresApi(android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class ListaMensalContas extends Fragment {
 
     public static ActionMode mActionMode = null;
-    public ArrayList<Long> contas = new ArrayList<Long>();
+    public ArrayList<Long> contas = new ArrayList<>();
     private DBContas dbContasDoMes;
-    private Calendar c = Calendar.getInstance();
+    private final Calendar c = Calendar.getInstance();
     // BARRA NO TOPO DO APLICATIVO
-    private Bundle dados_mes = new Bundle();
     private Resources res;
     private SharedPreferences buscaPreferencias = null;
     private NumberFormat dinheiro;
@@ -66,24 +63,21 @@ public class ListaMensalContas extends Fragment {
     private boolean alteraContas = false;
     private boolean primeiraConta = false;
     private double valorConta = 0.0D;
-    private OnSharedPreferenceChangeListener preferencias = new OnSharedPreferenceChangeListener() {
-
-        public void onSharedPreferenceChanged(
-                SharedPreferences sharedPreferences, String key) {
-            if (key.equals("ordem")) {
-                dbContasDoMes.open();
-                MontaLista();
-            }
+    private final SharedPreferences.OnSharedPreferenceChangeListener preferencias = (sharedPreferences, key) -> {
+        if ("ordem".equals(key)) {
+            MontaLista();
         }
     };
 
-    private ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
+    private final ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.menu_altera_lista, menu);
             mode.setTitle(nomeConta);
-            PaginadorListas.addConta.setVisibility(View.GONE);
+            if (PaginadorListas.addConta != null) {
+                PaginadorListas.addConta.setVisibility(View.GONE);
+            }
             return true;
         }
 
@@ -94,111 +88,97 @@ public class ListaMensalContas extends Fragment {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            int itemId = item.getItemId();
+            if (itemId == R.id.botao_editar) {
+                if (idConta != 0) {
+                    Bundle localBundle = new Bundle();
+                    localBundle.putLong("id", idConta);
+                    Intent localIntent = new Intent(
+                            "com.msk.minhascontas.EDITACONTA");
+                    localIntent.putExtras(localBundle);
+                    startActivity(localIntent);
+                }
+                mode.finish();
+            } else if (itemId == R.id.botao_pagar) {
+                if (idConta != 0) {
+                    try (Cursor cursor = dbContasDoMes.getContaById(idConta)) {
+                        if (cursor.moveToFirst()) {
+                            long currentId = getColumnLong(cursor, DBContas.Colunas._ID);
+                            String currentNome = getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA);
+                            int currentTipo = getColumnInt(cursor, DBContas.Colunas.COLUNA_TIPO_CONTA);
+                            int currentClasse = getColumnInt(cursor, DBContas.Colunas.COLUNA_CLASSE_CONTA);
+                            int currentCategoria = getColumnInt(cursor, DBContas.Colunas.COLUNA_CATEGORIA_CONTA);
+                            int currentDia = getColumnInt(cursor, DBContas.Colunas.COLUNA_DIA_DATA_CONTA);
+                            int currentMes = getColumnInt(cursor, DBContas.Colunas.COLUNA_MES_DATA_CONTA);
+                            int currentAno = getColumnInt(cursor, DBContas.Colunas.COLUNA_ANO_DATA_CONTA);
+                            double currentValor = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_CONTA);
+                            String currentPagamento = getColumnString(cursor, DBContas.Colunas.COLUNA_PAGOU_CONTA);
+                            int currentQtRepeticoes = getColumnInt(cursor, DBContas.Colunas.COLUNA_QT_REPETICOES_CONTA);
+                            int currentNrRepeticao = getColumnInt(cursor, DBContas.Colunas.COLUNA_NR_REPETICAO_CONTA);
+                            int currentIntervalo = getColumnInt(cursor, DBContas.Colunas.COLUNA_INTERVALO_CONTA);
+                            String currentCodigo = getColumnString(cursor, DBContas.Colunas.COLUNA_CODIGO_CONTA);
+                            double currentValorJuros = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_JUROS);
 
-            switch (item.getItemId()) {
-                case R.id.botao_editar:
-                    if (idConta != 0) {
-                        Bundle localBundle = new Bundle();
-                        localBundle.putLong("id", idConta);
-                        Intent localIntent = new Intent(
-                                "com.msk.minhascontas.EDITACONTA");
-                        localIntent.putExtras(localBundle);
-                        startActivity(localIntent);
-                    }
-                    mode.finish();
-                    break;
-                case R.id.botao_pagar:
-                    if (idConta != 0) {
-                        dbContasDoMes.open();
-                        String pg = dbContasDoMes
-                                .mostraPagamentoConta(idConta);
-                        if (pg.equals("paguei")) {
-                            dbContasDoMes.alteraPagamentoConta(
-                                    idConta, "falta");
-                        } else {
-                            dbContasDoMes.alteraPagamentoConta(
-                                    idConta, "paguei");
-                        }
-                        dbContasDoMes.close();
-                    }
-                    mode.finish();
-                    break;
-                case R.id.botao_excluir:
-                    if (idConta != 0) {
-                        dbContasDoMes.open();
-                        String nomeContaExcluir = dbContasDoMes
-                                .mostraNomeConta(idConta);
-                        int qtRepeteConta = dbContasDoMes
-                                .quantasContasPorNome(nomeContaExcluir);
-                        String dataAntiga = dbContasDoMes
-                                .mostraCodigoConta(idConta);
-                        long ii = dbContasDoMes
-                                .mostraPrimeiraRepeticaoConta(
-                                        nomeContaExcluir,
-                                        qtRepeteConta, dataAntiga);
-                        dataAntiga = dbContasDoMes.mostraCodigoConta(ii);
-                        dbContasDoMes.atualizaDataContas(
-                                nomeContaExcluir, dataAntiga,
-                                qtRepeteConta);
+                            Conta contaToUpdate = new Conta(currentId, currentNome, currentTipo, currentClasse, currentCategoria,
+                                    currentDia, currentMes, currentAno, currentValor, currentPagamento,
+                                    currentQtRepeticoes, currentNrRepeticao, currentIntervalo, currentCodigo, currentValorJuros);
 
-                        if (qtRepeteConta == 1) {
-                            // Exclui a unica conta
-                            dbContasDoMes.excluiConta(idConta);
-                            Toast.makeText(
-                                    getActivity(),
-                                    getResources()
-                                            .getString(
-                                                    R.string.dica_conta_excluida,
-                                                    nomeContaExcluir),
-                                    Toast.LENGTH_SHORT).show();
-                            idConta = 0;
-                        } else {
-                            // Exclui uma ou mais repeticoes da
-                            // conta
-                            Dialogo();
+                            if (DBContas.PAGAMENTO_PAGO.equals(currentPagamento)) {
+                                contaToUpdate.setPagamento(DBContas.PAGAMENTO_FALTA);
+                            } else {
+                                contaToUpdate.setPagamento(DBContas.PAGAMENTO_PAGO);
+                            }
+                            dbContasDoMes.updateConta(contaToUpdate);
                         }
-                        dbContasDoMes.close();
                     }
-                    mode.finish();
-                    break;
-                case R.id.botao_lembrete:
-                    if (idConta != 0) {
-                        dbContasDoMes.open();
-                        int[] dmaConta = dbContasDoMes
-                                .mostraDMAConta(idConta);
-                        int dia = dmaConta[0];
-                        mes = dmaConta[1];
-                        ano = dmaConta[2];
-                        double valorConta = dbContasDoMes
-                                .mostraValorConta(idConta);
-                        String nomeContaCalendario = res.getString(
-                                R.string.dica_evento, dbContasDoMes
-                                        .mostraNomeConta(idConta));
-                        dbContasDoMes.close();
-                        c.set(ano, mes, dia);
-                        Intent evento = new Intent(
-                                Intent.ACTION_EDIT);
-                        evento.setType("vnd.android.cursor.item/event");
-                        evento.putExtra(Events.TITLE,
-                                nomeContaCalendario);
-                        evento.putExtra(Events.DESCRIPTION, res
-                                .getString(
-                                        R.string.dica_calendario,
-                                        dinheiro.format(valorConta)));
-                        evento.putExtra(
-                                CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-                                c.getTimeInMillis());
-                        evento.putExtra(
-                                CalendarContract.EXTRA_EVENT_END_TIME,
-                                c.getTimeInMillis());
-                        evento.putExtra(Events.ACCESS_LEVEL,
-                                Events.ACCESS_PRIVATE);
-                        evento.putExtra(Events.AVAILABILITY,
-                                Events.AVAILABILITY_BUSY);
-                        startActivity(evento);
+                }
+                mode.finish();
+            } else if (itemId == R.id.botao_excluir) {
+                if (idConta != 0) {
+                    try (Cursor cursor = dbContasDoMes.getContaById(idConta)) {
+                        if (cursor.moveToFirst()) {
+                            String codigoConta = getColumnString(cursor, DBContas.Colunas.COLUNA_CODIGO_CONTA);
+                            int nrRepete = getColumnInt(cursor, DBContas.Colunas.COLUNA_NR_REPETICAO_CONTA);
+                            dbContasDoMes.deleteContasRecorrentes(codigoConta, nrRepete, DBContas.TipoExclusao.APENAS_ESTA);
+                        }
                     }
-                    mode.finish();
-                    break;
+                }
+                mode.finish();
+            } else if (itemId == R.id.botao_lembrete) {
+                if (idConta != 0) {
+                    try (Cursor cursor = dbContasDoMes.getContaById(idConta)) {
+                        if (cursor.moveToFirst()) {
+                            int dia = getColumnInt(cursor, DBContas.Colunas.COLUNA_DIA_DATA_CONTA);
+                            mes = getColumnInt(cursor, DBContas.Colunas.COLUNA_MES_DATA_CONTA);
+                            ano = getColumnInt(cursor, DBContas.Colunas.COLUNA_ANO_DATA_CONTA);
+                            double valorConta = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_CONTA);
+                            String nomeContaCalendario = res.getString(
+                                    R.string.dica_evento, getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA));
+                            c.set(ano, mes, dia);
+                            Intent evento = new Intent(
+                                    Intent.ACTION_EDIT);
+                            evento.setType("vnd.android.cursor.item/event");
+                            evento.putExtra(Events.TITLE,
+                                    nomeContaCalendario);
+                            evento.putExtra(Events.DESCRIPTION, res
+                                    .getString(
+                                            R.string.dica_calendario,
+                                            dinheiro.format(valorConta)));
+                            evento.putExtra(
+                                    CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                                    c.getTimeInMillis());
+                            evento.putExtra(
+                                    CalendarContract.EXTRA_EVENT_END_TIME,
+                                    c.getTimeInMillis());
+                            evento.putExtra(Events.ACCESS_LEVEL,
+                                    Events.ACCESS_PRIVATE);
+                            evento.putExtra(Events.AVAILABILITY,
+                                    Events.AVAILABILITY_BUSY);
+                            startActivity(evento);
+                        }
+                    }
+                }
+                mode.finish();
             }
             MontaLista();
             return true;
@@ -207,39 +187,42 @@ public class ListaMensalContas extends Fragment {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
-            buscaContas.marcaConta(conta, false);
-            PaginadorListas.addConta.setVisibility(View.VISIBLE);
-            ((PaginadorListas) getActivity()).AtualizaActionBar();
+            if (buscaContas != null && conta < buscaContas.getCount()) {
+                buscaContas.marcaConta(conta, false);
+            }
+            if (PaginadorListas.addConta != null) {
+                PaginadorListas.addConta.setVisibility(View.GONE);
+            }
+            if (getActivity() instanceof PaginadorListas) {
+                ((PaginadorListas) getActivity()).AtualizaActionBar();
+            }
         }
     };
-    private OnItemClickListener toqueSimples = new OnItemClickListener() {
+    private final AdapterView.OnItemClickListener toqueSimples = (arg0, v, posicao, arg3) -> {
 
-        @SuppressLint("NewApi")
-        @Override
-        public void onItemClick(AdapterView<?> arg0, View v, int posicao,
-                                long arg3) {
-
-            dbContasDoMes.open();
-            contasParaLista.moveToPosition(posicao);
+        if (contasParaLista != null && contasParaLista.moveToPosition(posicao)) {
             idConta = contasParaLista.getLong(0);
             nomeConta = contasParaLista.getString(1);
             double vConta = contasParaLista.getDouble(8);
-            dbContasDoMes.close();
 
             if (!alteraContas) {
                 if (mActionMode == null) {
                     buscaContas.limpaSelecao();
-                    contas = new ArrayList<Long>();
+                    contas = new ArrayList<>();
                     buscaContas.marcaConta(posicao, true);
                     AppCompatActivity act = (AppCompatActivity) getActivity();
-                    mActionMode = act.startSupportActionMode(alteraUmaConta);
+                    if (act != null) {
+                        mActionMode = act.startSupportActionMode(alteraUmaConta);
+                    }
                     conta = posicao;
                 } else {
                     buscaContas.marcaConta(conta, false);
                     buscaContas.marcaConta(posicao, true);
                     if (posicao != conta) {
                         AppCompatActivity act = (AppCompatActivity) getActivity();
-                        mActionMode = act.startSupportActionMode(alteraUmaConta);
+                        if (act != null) {
+                            mActionMode = act.startSupportActionMode(alteraUmaConta);
+                        }
                         conta = posicao;
                     } else {
                         mActionMode.finish();
@@ -247,7 +230,7 @@ public class ListaMensalContas extends Fragment {
                     }
                 }
             } else {
-                if (contas.size() != 0) {
+                if (!contas.isEmpty()) {
                     if (contas.contains(idConta)) {
                         if (!primeiraConta) {
                             contas.remove(idConta);
@@ -263,12 +246,12 @@ public class ListaMensalContas extends Fragment {
                         valorConta = valorConta + vConta;
                     }
 
-                    if (contas.size() == 0) {
+                    if (contas.isEmpty()) {
                         mActionMode.finish();
                         MontaLista();
                     }
 
-                    if (contas.size() != 0) {
+                    if (!contas.isEmpty()) {
                         mActionMode.setTitle(res.getQuantityString(R.plurals.selecao,
                                 contas.size(), contas.size()));
                         if (tipo != -1)
@@ -278,13 +261,15 @@ public class ListaMensalContas extends Fragment {
             }
         }
     };
-    private ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
+    private final ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.menu_altera_contas, menu);
-            PaginadorListas.addConta.setVisibility(View.GONE);
+            if (PaginadorListas.addConta != null) {
+                PaginadorListas.addConta.setVisibility(View.GONE);
+            }
             return true;
         }
 
@@ -295,36 +280,51 @@ public class ListaMensalContas extends Fragment {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            int itemId = item.getItemId();
+            if (itemId == R.id.botao_pagar) {
+                if (!contas.isEmpty()) {
+                    for (int i = 0; i < contas.size(); i++) {
+                        long id = contas.get(i);
+                        try (Cursor cursor = dbContasDoMes.getContaById(id)) {
+                            if (cursor.moveToFirst()) {
+                                long currentId = getColumnLong(cursor, DBContas.Colunas._ID);
+                                String currentNome = getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA);
+                                int currentTipo = getColumnInt(cursor, DBContas.Colunas.COLUNA_TIPO_CONTA);
+                                int currentClasse = getColumnInt(cursor, DBContas.Colunas.COLUNA_CLASSE_CONTA);
+                                int currentCategoria = getColumnInt(cursor, DBContas.Colunas.COLUNA_CATEGORIA_CONTA);
+                                int currentDia = getColumnInt(cursor, DBContas.Colunas.COLUNA_DIA_DATA_CONTA);
+                                int currentMes = getColumnInt(cursor, DBContas.Colunas.COLUNA_MES_DATA_CONTA);
+                                int currentAno = getColumnInt(cursor, DBContas.Colunas.COLUNA_ANO_DATA_CONTA);
+                                double currentValor = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_CONTA);
+                                String currentPagamento = getColumnString(cursor, DBContas.Colunas.COLUNA_PAGOU_CONTA);
+                                int currentQtRepeticoes = getColumnInt(cursor, DBContas.Colunas.COLUNA_QT_REPETICOES_CONTA);
+                                int currentNrRepeticao = getColumnInt(cursor, DBContas.Colunas.COLUNA_NR_REPETICAO_CONTA);
+                                int currentIntervalo = getColumnInt(cursor, DBContas.Colunas.COLUNA_INTERVALO_CONTA);
+                                String currentCodigo = getColumnString(cursor, DBContas.Colunas.COLUNA_CODIGO_CONTA);
+                                double currentValorJuros = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_JUROS);
 
-            switch (item.getItemId()) {
-                case R.id.botao_pagar:
-                    if (contas.size() != 0) {
-                        dbContasDoMes.open();
-                        for (int i = 0; i < contas.size(); i++) {
-                            String pg = dbContasDoMes
-                                    .mostraPagamentoConta(contas.get(i));
-                            if (pg.equals("paguei")) {
-                                dbContasDoMes.alteraPagamentoConta(
-                                        contas.get(i), "falta");
-                            } else {
-                                dbContasDoMes.alteraPagamentoConta(
-                                        contas.get(i), "paguei");
+                                Conta contaToUpdate = new Conta(currentId, currentNome, currentTipo, currentClasse, currentCategoria,
+                                        currentDia, currentMes, currentAno, currentValor, currentPagamento,
+                                        currentQtRepeticoes, currentNrRepeticao, currentIntervalo, currentCodigo, currentValorJuros);
+
+                                if (DBContas.PAGAMENTO_PAGO.equals(currentPagamento)) {
+                                    contaToUpdate.setPagamento(DBContas.PAGAMENTO_FALTA);
+                                } else {
+                                    contaToUpdate.setPagamento(DBContas.PAGAMENTO_PAGO);
+                                }
+                                dbContasDoMes.updateConta(contaToUpdate);
                             }
                         }
-                        dbContasDoMes.close();
                     }
-                    mode.finish();
-                    break;
-                case R.id.botao_excluir:
-                    if (contas.size() != 0) {
-                        dbContasDoMes.open();
-                        for (int i = 0; i < contas.size(); i++) {
-                            dbContasDoMes.excluiConta(contas.get(i));
-                        }
-                        dbContasDoMes.close();
+                }
+                mode.finish();
+            } else if (itemId == R.id.botao_excluir) {
+                if (!contas.isEmpty()) {
+                    for (int i = 0; i < contas.size(); i++) {
+                        dbContasDoMes.deleteContaById(contas.get(i));
                     }
-                    mode.finish();
-                    break;
+                }
+                mode.finish();
             }
             MontaLista();
             return true;
@@ -333,44 +333,46 @@ public class ListaMensalContas extends Fragment {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
-            buscaContas.limpaSelecao();
-            contas = new ArrayList<Long>();
+            if (buscaContas != null) {
+                buscaContas.limpaSelecao();
+            }
+            contas = new ArrayList<>();
             alteraContas = false;
             valorConta = 0.0D;
-            PaginadorListas.addConta.setVisibility(View.VISIBLE);
-            ((PaginadorListas) getActivity()).AtualizaActionBar();
+            if (PaginadorListas.addConta != null) {
+                PaginadorListas.addConta.setVisibility(View.VISIBLE);
+            }
+            if (getActivity() instanceof PaginadorListas) {
+                ((PaginadorListas) getActivity()).AtualizaActionBar();
+            }
         }
     };
-    private AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int posicao, long id) {
+    private final AdapterView.OnItemLongClickListener toqueLongo = (parent, view, posicao, id) -> {
 
-            // Limpa a barra de titulo
-            if (mActionMode != null)
-                mActionMode.finish();
+        if (mActionMode != null)
+            mActionMode.finish();
 
-            // Limpa a selecao de contas
+        if (buscaContas != null) {
             buscaContas.limpaSelecao();
-            contas = new ArrayList<Long>();
-            primeiraConta = true;
-            alteraContas = true;
+        }
+        contas = new ArrayList<>();
+        primeiraConta = true;
+        alteraContas = true;
 
-            // Busca informacoes da conta no DB
-            dbContasDoMes.open();
-            contasParaLista.moveToPosition(posicao);
+        if (contasParaLista != null && contasParaLista.moveToPosition(posicao)) {
             idConta = contasParaLista.getLong(0);
             nomeConta = contasParaLista.getString(1);
-            dbContasDoMes.close();
-
-            // Seleciona conta
             contas.add(idConta);
-            buscaContas.marcaConta(posicao, true);
+            if (buscaContas != null) {
+                buscaContas.marcaConta(posicao, true);
+            }
 
-            // Mostra selecao na barra de titulo
             AppCompatActivity act = (AppCompatActivity) getActivity();
-            mActionMode = act.startSupportActionMode(alteraVariasContas);
-            return false;
+            if (act != null) {
+                mActionMode = act.startSupportActionMode(alteraVariasContas);
+            }
         }
+        return false;
     };
 
     public static ListaMensalContas newInstance(int mes, int ano, int tipo, int filtro) {
@@ -385,83 +387,70 @@ public class ListaMensalContas extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        dbContasDoMes = new DBContas(activity);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        dbContasDoMes = DBContas.getInstance(context);
         buscaPreferencias = PreferenceManager
-                .getDefaultSharedPreferences(activity);
+                .getDefaultSharedPreferences(context);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // COLOCA OS MESES NA TELA
         View rootView = inflater.inflate(R.layout.contas_do_mes, container, false);
-        ordemListaDeContas = buscaPreferencias.getString("ordem", "conta ASC");
+        ordemListaDeContas = buscaPreferencias.getString("ordem", "nome ASC");
         buscaPreferencias
                 .registerOnSharedPreferenceChangeListener(preferencias);
 
-        // Recupera o mes e o ano da lista anterior
         Bundle bundle = getArguments();
-        ano = bundle.getInt("ano");
-        mes = bundle.getInt("mes");
-        tipo = bundle.getInt("tipo");
-        filtro = bundle.getInt("filtro");
+        if (bundle != null) {
+            ano = bundle.getInt("ano");
+            mes = bundle.getInt("mes");
+            tipo = bundle.getInt("tipo");
+            filtro = bundle.getInt("filtro");
+        }
 
-        res = getActivity().getResources();
-        Locale current = res.getConfiguration().locale;
+        res = requireActivity().getResources();
+        Locale current = res.getConfiguration().getLocales().get(0);
         dinheiro = NumberFormat.getCurrencyInstance(current);
-        dbContasDoMes.open();
 
         listaContas = rootView.findViewById(R.id.lvContasCriadas);
         semContas = rootView.findViewById(R.id.tvSemContas);
 
         MontaLista();
 
-        // Metodos de click em cada um dos itens da tela
         listaContas.setOnItemClickListener(toqueSimples);
         listaContas.setOnItemLongClickListener(toqueLongo);
         return rootView;
     }
 
-    @SuppressLint("InflateParams")
     private void MontaLista() {
+        String ordem = buscaPreferencias.getString("ordem", ordemListaDeContas);
 
-        dbContasDoMes.open();
-        if (tipo == -1) {
-            contasParaLista = dbContasDoMes.buscaContas(0, mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas));
-        } else {
-            contasParaLista = dbContasDoMes.buscaContasTipo(0, mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    tipo);
+        if (contasParaLista != null) {
+            contasParaLista.close();
         }
 
-        if (filtro >= 0) {
-            contasParaLista = dbContasDoMes.buscaContasClasse(0, mes, ano,
-                    buscaPreferencias.getString("ordem", ordemListaDeContas),
-                    tipo, filtro);
+        DBContas.ContaFilter filter = new DBContas.ContaFilter()
+                .setMes(mes)
+                .setAno(ano);
 
-            if (filtro == 4) {
-                contasParaLista = dbContasDoMes.buscaContasTipoPagamento(0, mes, ano,
-                        buscaPreferencias.getString("ordem", ordemListaDeContas),
-                        tipo, "falta");
-            } else if (filtro == 5) {
-                contasParaLista = dbContasDoMes.buscaContasTipoPagamento(0, mes, ano,
-                        buscaPreferencias.getString("ordem", ordemListaDeContas),
-                        tipo, "paguei");
+        if (tipo != -1) {
+            filter.setTipo(tipo);
+            if (filtro >= 0) {
+                if (filtro == 4) { // Payment status "falta"
+                    filter.setPagamento(DBContas.PAGAMENTO_FALTA);
+                } else if (filtro == 5) { // Payment status "paguei"
+                    filter.setPagamento(DBContas.PAGAMENTO_PAGO);
+                } else { // Filter by class
+                    filter.setClasse(filtro);
+                }
             }
         }
+        contasParaLista = dbContasDoMes.getContasByFilter(filter, ordem); // Replaced all buscaContas methods
 
-        int n = contasParaLista.getCount();
-        dbContasDoMes.close();
-        if (n >= 0) {
+        if (contasParaLista.getCount() >= 0) {
             int posicao = listaContas.getFirstVisiblePosition();
             buscaContas = new AdaptaListaMensal(getActivity(), contasParaLista);
             listaContas.setAdapter(buscaContas);
@@ -469,63 +458,84 @@ public class ListaMensalContas extends Fragment {
             listaContas.setSelection(posicao);
         }
 
-        contas = new ArrayList<Long>();
+        contas = new ArrayList<>();
         primeiraConta = false;
         alteraContas = false;
-        buscaContas.limpaSelecao();
+        if (buscaContas != null) {
+            buscaContas.limpaSelecao();
+        }
     }
 
+    @SuppressWarnings("unused")
     private void Dialogo() {
-        AlertDialog.Builder dialogoBuilder = new AlertDialog.Builder(getActivity());
-        // set title
+        AlertDialog.Builder dialogoBuilder = new AlertDialog.Builder(requireActivity());
         dialogoBuilder.setTitle(getString(R.string.dica_menu_exclusao));
-        // set dialog message
         dialogoBuilder.setItems(R.array.TipoAjusteConta,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dbContasDoMes.open();
-                        String nomeContaExcluir = dbContasDoMes
-                                .mostraNomeConta(idConta);
-                        String dmaContaExcluir = dbContasDoMes
-                                .mostraCodigoConta(idConta);
-                        switch (id) {
-                            case 0:
-                                dbContasDoMes.excluiConta(idConta);
-                                break;
-                            case 1:
-                                int[] repete = dbContasDoMes
-                                        .mostraRepeticaoConta(idConta);
-                                int nr = repete[1];
-                                dbContasDoMes.excluiSerieContaPorNome(
-                                        nomeContaExcluir, dmaContaExcluir, nr);
-                                break;
-                            case 2:
-                                dbContasDoMes.excluiContaPorNome(nomeContaExcluir,
-                                        dmaContaExcluir);
-                                break;
+                (dialog, id) -> {
+                    try (Cursor cursor = dbContasDoMes.getContaById(idConta)) {
+                        if (cursor.moveToFirst()) {
+                            String nomeContaExcluir = getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA);
+                            String codigoConta = getColumnString(cursor, DBContas.Colunas.COLUNA_CODIGO_CONTA);
+                            if (id == 0) { // Delete only this account
+                                dbContasDoMes.deleteContaById(idConta);
+                            } else if (id == 1) { // Delete this and future recurring accounts
+                                int nr = getColumnInt(cursor, DBContas.Colunas.COLUNA_NR_REPETICAO_CONTA);
+                                dbContasDoMes.deleteContasRecorrentes(codigoConta, nr, DBContas.TipoExclusao.ESTA_E_FUTURAS);
+                            } else if (id == 2) { // Delete all recurring accounts with the same code
+                                dbContasDoMes.deleteContasRecorrentes(codigoConta, 1, DBContas.TipoExclusao.TODAS);
+                            }
+                            Toast.makeText(
+                                    getActivity(),
+                                    getResources().getString(
+                                            R.string.dica_conta_excluida,
+                                            nomeContaExcluir), Toast.LENGTH_SHORT)
+                                    .show();
                         }
-                        Toast.makeText(
-                                getActivity(),
-                                getResources().getString(
-                                        R.string.dica_conta_excluida,
-                                        nomeContaExcluir), Toast.LENGTH_SHORT)
-                                .show();
-                        buscaContas.notifyDataSetChanged();
-                        dbContasDoMes.close();
-                        MontaLista();
-                        idConta = 0;
-                        nomeConta = " ";
                     }
+
+                    if (buscaContas != null) {
+                        buscaContas.notifyDataSetChanged();
+                    }
+                    MontaLista();
+                    idConta = 0;
+                    nomeConta = " ";
                 });
-        // create alert dialog
         AlertDialog alertDialog = dialogoBuilder.create();
-        // show it
         alertDialog.show();
     }
 
     @Override
     public void onResume() {
-        MontaLista();
         super.onResume();
+        MontaLista();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (contasParaLista != null) {
+            contasParaLista.close();
+        }
+    }
+
+    // Helper methods to safely retrieve data from Cursor
+    private int getColumnInt(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return (columnIndex >= 0) ? cursor.getInt(columnIndex) : 0;
+    }
+
+    private String getColumnString(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return (columnIndex >= 0) ? cursor.getString(columnIndex) : null;
+    }
+
+    private double getColumnDouble(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return (columnIndex >= 0) ? cursor.getDouble(columnIndex) : 0.0D;
+    }
+
+    private long getColumnLong(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return (columnIndex >= 0) ? cursor.getLong(columnIndex) : 0L;
     }
 }

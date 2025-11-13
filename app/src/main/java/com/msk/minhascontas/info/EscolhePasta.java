@@ -60,7 +60,7 @@ public class EscolhePasta extends ListActivity {
             String name = dir.getName();
             if (name.length() == 0)
                 name = "/";
-            btnChoose.setText(getResources().getString(R.string.salvar) + " ' " + name + " '");
+            btnChoose.setText(getResources().getString(R.string.salvar) + " ' " + name + " ' ");
             btnChoose.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     returnDir(dir.getAbsolutePath());
@@ -184,6 +184,8 @@ public class EscolhePasta extends ListActivity {
                 if (file.isHidden())
                     continue;
                 if (!file.canRead())
+                    continue;
+                if (!file.getName().endsWith(tipo)) // <--- MODIFIED LINE
                     continue;
                 xls.add(file);
             }

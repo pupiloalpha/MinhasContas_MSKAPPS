@@ -3,43 +3,43 @@ package com.msk.minhascontas.info;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.AsyncTask;
-
+import android.util.Log;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.db.ExportarExcel;
-
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+@SuppressWarnings({"deprecation", "WeakerAccess"})
 public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
-    private ProgressDialog progressDialog = null;
-    private String title = null, message = null;
-    private Context context = null;
-    private DBContas dbMinhasContas;
-    private ExportarExcel excel = new ExportarExcel();
-    private int quantidade = 0, tempoEspera = 0;
-    private Resources res = null;
-    private NumberFormat dinheiro;
-    private int erro, categorias, ajusteReceita;
-    private String[] linhas;
-    private String despesa, receita, aplicacao, pastaBackUp;
-    private String[] despesas, receitas, aplicacoes;
+    private ProgressDialog progressDialog;
+    private final String title;
+    private final String message;
+    private final Context context;
+    private final DBContas dbMinhasContas;
+    private final ExportarExcel excel = new ExportarExcel();
+    private final int quantidade;
+    private final int tempoEspera;
+    private final String pastaBackUp;
+    private final Resources res;
+    private final NumberFormat dinheiro;
 
     public BarraProgresso(Context context, String title, String message,
                           int qt, int tempo, String pasta) {
-        this.context = context;
+        this.context = context.getApplicationContext(); // Use application context to avoid leaks
         this.title = title;
         this.message = message;
-        quantidade = qt;
-        tempoEspera = tempo;
-        pastaBackUp = pasta;
-        res = context.getResources();
-        Locale current = res.getConfiguration().locale;
-        dinheiro = NumberFormat.getCurrencyInstance(current);
-        dbMinhasContas = new DBContas(context);
+        this.quantidade = qt;
+        this.tempoEspera = tempo;
+        this.pastaBackUp = pasta;
+        this.res = context.getResources();
+        Locale current = res.getConfiguration().getLocales().get(0);
+        this.dinheiro = NumberFormat.getCurrencyInstance(current);
+        this.dbMinhasContas = DBContas.getInstance(context);
     }
 
     @Override
@@ -56,10 +56,8 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected Void doInBackground(Void... arg0) {
-        if (!pastaBackUp.equals("mskapp")) {
-            dbMinhasContas.open();
+        if (!"mskapp".equals(pastaBackUp)) {
             CriaArquivoExcel();
-            dbMinhasContas.close();
         } else {
             try {
                 for (int progress = 1; progress <= quantidade; progress++) {
@@ -70,7 +68,8 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
                     publishProgress(progress);
                 }
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
         return null;
@@ -79,10 +78,13 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onPostExecute(Void result) {
         try {
-            this.progressDialog.dismiss();
+            if (this.progressDialog != null && this.progressDialog.isShowing()) {
+                this.progressDialog.dismiss();
+            }
+        } catch (final Exception e) {
+            Log.e("BarraProgresso", "Error dismissing progress dialog", e);
+        } finally {
             this.progressDialog = null;
-        } catch (Exception e) {
-            // nothing
         }
     }
 
@@ -92,11 +94,8 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
     }
 
     private void CriaArquivoExcel() {
-
-        // COLOCA VALORES DE DADOS NOS VETORES
         int ano = Calendar.getInstance().get(Calendar.YEAR);
-        String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov,
-                dez;
+        String[] jan, fev, mar, abr, mai, jun, jul, ago, set, out, nov, dez;
 
         jan = SaldoMensal(0, ano);
         publishProgress(10);
@@ -119,150 +118,128 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
         String[] colunas = res.getStringArray(R.array.MesesDoAno);
         publishProgress(90);
-        NomeLinhas(); // DEFINE O NOME DAS LINHAS DA TABELA
+        String[] linhas = NomeLinhas(); // NomeLinhas now returns String[]
 
-        erro = excel.CriaExcel(res.getString(R.string.planilha, String.format(
-                res.getConfiguration().locale, "%d", ano)), jan, fev,
+        excel.CriaExcel(res.getString(R.string.planilha, String.format(
+                        res.getConfiguration().getLocales().get(0), "%d", ano)), jan, fev,
                 mar, abr, mai, jun, jul, ago, set, out, nov, dez, colunas,
                 linhas, pastaBackUp);
         publishProgress(100);
     }
 
+    // Removed unused getCursorCount method
+
+    private double getSumFromCursor(Cursor cursor, String columnName) {
+        double total = 0;
+        // Use try-with-resources for automatic cursor closing
+        try (cursor) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex(columnName);
+                if (columnIndex != -1) {
+                    do {
+                        total += cursor.getDouble(columnIndex);
+                    } while (cursor.moveToNext());
+                }
+            }
+        } catch (Exception e) {
+            Log.e("BarraProgresso", "Error getting sum from cursor", e);
+        }
+        return total;
+    }
+
+    private double somaContas(int tipo, int mes, int ano) {
+        // Removed unused 'dia' parameter as it was always 0
+        return getSumFromCursor(dbMinhasContas.buscaContasTipo(0, mes, ano, null, tipo), "valor");
+    }
+
+    private double somaContasPorClasse(int classe, int tipo, int mes, int ano) {
+        return getSumFromCursor(dbMinhasContas.buscaContasClasse(0, mes, ano, null, tipo, classe), "valor");
+    }
+
+    private double somaContasPagas(int tipo, String pagamento, int mes, int ano) {
+        // Removed unused 'dia' parameter as it was always 0
+        return getSumFromCursor(dbMinhasContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, pagamento), "valor");
+    }
+
     private String[] SaldoMensal(int mes, int ano) {
+        String[] despesas = res.getStringArray(R.array.TipoDespesa);
+        String[] receitas = res.getStringArray(R.array.TipoReceita);
+        String[] aplicacoes = res.getStringArray(R.array.TipoAplicacao);
 
-        // DEFINE OS NOMES DA LINHAS DA TABELA
-        despesas = res.getStringArray(R.array.TipoDespesa);
-        receitas = res.getStringArray(R.array.TipoReceita);
-        aplicacoes = res.getStringArray(R.array.TipoAplicacao);
-
-        // AJUSTE QUANDO EXISTE APENAS UMA RECEITA
-        if (receitas.length > 1)
-            ajusteReceita = receitas.length;
-        else
-            ajusteReceita = 0;
-
-        categorias = despesas.length + ajusteReceita
-                + aplicacoes.length + 7;
+        int ajusteReceita = (receitas.length > 1) ? receitas.length : 0;
+        int categorias = despesas.length + ajusteReceita + aplicacoes.length + 7;
 
         String[] valores = new String[categorias];
         double dvalor0, dvalor1;
 
-        // PREENCHE OS VALORES DE DESPESAS
-        if (dbMinhasContas.quantasContasPorTipo(0, 0, mes, ano) > 0) {
-            valores[0] = dinheiro.format(dbMinhasContas.somaContas(0, 0, mes, ano));
-            dvalor0 = dbMinhasContas.somaContas(0, 0, mes, ano);
-        } else {
-            valores[0] = dinheiro.format(0.0D);
-            dvalor0 = 0.0D;
-        }
+        // DESPESAS
+        dvalor0 = somaContas(0, mes, ano);
+        valores[0] = dinheiro.format(dvalor0);
         for (int i = 0; i < despesas.length; i++) {
-            if (dbMinhasContas.quantasContasPorClasse(i, 0, mes, ano) > 0)
-                valores[i + 1] = dinheiro.format(dbMinhasContas.somaContasPorClasse(
-                        i, 0, mes, ano));
-            else
-                valores[i + 1] = dinheiro.format(0.0D);
+            valores[i + 1] = dinheiro.format(somaContasPorClasse(i, 0, mes, ano));
         }
-        // VALORES DE RECEITAS
-        if (dbMinhasContas.quantasContasPorTipo(1, 0, mes, ano) > 0) {
-            valores[despesas.length + 1] = dinheiro.format(dbMinhasContas.somaContas(
-                    1, 0, mes, ano));
-            dvalor1 = dbMinhasContas.somaContas(1, 0, mes, ano);
-        } else {
-            valores[despesas.length + 1] = dinheiro.format(0.0D);
-            dvalor1 = 0.0D;
-        }
-        if (receitas.length > 1)
+
+        // RECEITAS
+        dvalor1 = somaContas(1, mes, ano);
+        valores[despesas.length + 1] = dinheiro.format(dvalor1);
+        if (receitas.length > 1) {
             for (int j = 0; j < receitas.length; j++) {
-                if (dbMinhasContas.quantasContasPorClasse(
-                        j, 0, mes, ano) > 0)
-                    valores[j + despesas.length + 2] = dinheiro.format(
-                            dbMinhasContas.somaContasPorClasse(j, 0, mes, ano));
-                else
-                    valores[j + despesas.length + 2] = dinheiro.format(0.0D);
+                valores[j + despesas.length + 2] = dinheiro.format(somaContasPorClasse(j, 1, mes, ano));
             }
-        // VALORES DE APLICACOES
-        if (dbMinhasContas.quantasContasPorTipo(2, 0, mes, ano) > 0)
-            valores[despesas.length + ajusteReceita + 2] = dinheiro.format(
-                    dbMinhasContas.somaContas(2, 0, mes, ano));
-        else
-            valores[despesas.length + ajusteReceita + 2] = dinheiro.format(0.0D);
-        for (int k = 0; k < aplicacoes.length; k++) {
-            if (dbMinhasContas.quantasContasPorClasse(k, 0, mes, ano) > 0)
-                valores[k + despesas.length + ajusteReceita + 3] = dinheiro.format(
-                        dbMinhasContas.somaContasPorClasse(k, 0, mes, ano));
-            else
-                valores[k + despesas.length + ajusteReceita + 3] = dinheiro.format(0.0D);
-
         }
 
-        // VALOR DO SALDO MENSAL
+        // APLICACOES
+        valores[despesas.length + ajusteReceita + 2] = dinheiro.format(somaContas(2, mes, ano));
+        for (int k = 0; k < aplicacoes.length; k++) {
+            valores[k + despesas.length + ajusteReceita + 3] = dinheiro.format(somaContasPorClasse(k, 2, mes, ano));
+        }
+
+        // SALDO MENSAL
         valores[categorias - 4] = dinheiro.format(dvalor1 - dvalor0);
 
-        // VALOR CONTAS PAGAS
-        if (dbMinhasContas.quantasContasPagasPorTipo(0, "paguei", 0, mes, ano) > 0) {
-            valores[categorias - 3] = dinheiro.format(dbMinhasContas.somaContasPagas(
-                    0, "paguei", 0, mes, ano));
-            dvalor1 = dbMinhasContas.somaContasPagas(0, "paguei", 0, mes, ano);
-        } else {
-            valores[categorias - 3] = dinheiro.format(0.0D);
-            dvalor1 = 0.0D;
-        }
+        // CONTAS PAGAS
+        double pagas = somaContasPagas(0, DBContas.PAGAMENTO_PAGO, mes, ano);
+        valores[categorias - 3] = dinheiro.format(pagas);
 
-        // VALOR CONTAS A PAGAR
-        if (dbMinhasContas.quantasContasPagasPorTipo(0, "falta", 0, mes, ano) > 0)
-            valores[categorias - 2] = dinheiro.format(dbMinhasContas.somaContasPagas(
-                    0, "falta", 0, mes, ano));
-        else
-            valores[categorias - 2] = dinheiro.format(0.0D);
+        // CONTAS A PAGAR
+        valores[categorias - 2] = dinheiro.format(somaContasPagas(0, DBContas.PAGAMENTO_FALTA, mes, ano));
 
-        // VALOR DO SALDO ATUAL
-        valores[categorias - 1] = dinheiro.format(dvalor0 - dvalor1);
+        // SALDO ATUAL
+        valores[categorias - 1] = dinheiro.format(dvalor0 - pagas);
 
         return valores;
     }
 
-    private void NomeLinhas() {
-        // DEFINE OS NOMES DA LINHAS DA TABELA
-        despesa = res.getString(R.string.linha_despesa);
-        receita = res.getString(R.string.linha_receita);
-        aplicacao = res.getString(R.string.linha_aplicacoes);
+    private String[] NomeLinhas() { // Changed return type to String[]
+        String despesa = res.getString(R.string.linha_despesa);
+        String receita = res.getString(R.string.linha_receita);
+        String aplicacao = res.getString(R.string.linha_aplicacoes);
 
-        // AJUSTE QUANDO EXISTE APENAS UMA RECEITA
-        if (receitas.length > 1)
-            ajusteReceita = receitas.length;
-        else
-            ajusteReceita = 0;
+        String[] despesas = res.getStringArray(R.array.TipoDespesa);
+        String[] receitas = res.getStringArray(R.array.TipoReceita);
+        String[] aplicacoes = res.getStringArray(R.array.TipoAplicacao);
 
-        categorias = despesas.length + ajusteReceita
-                + aplicacoes.length + 7;
-        linhas = new String[categorias];
+        int ajusteReceita = (receitas.length > 1) ? receitas.length : 0;
 
-        // PREENCHE AS LINHAS DA TABELA
+        int categorias = despesas.length + ajusteReceita + aplicacoes.length + 7;
+        String[] linhas = new String[categorias];
+
         linhas[0] = despesa;
-        for (int i = 0; i < despesas.length; i++) {
-            linhas[i + 1] = despesas[i];
-        }
-        // VALORES DE RECEITAS
+        System.arraycopy(despesas, 0, linhas, 1, despesas.length);
+
         linhas[despesas.length + 1] = receita;
-        if (receitas.length > 1)
-            for (int j = 0; j < receitas.length; j++) {
-                linhas[j + despesas.length + 2] = receitas[j];
-            }
-        // VALORES DE APLICACOES
-        linhas[despesas.length + ajusteReceita + 2] = aplicacao;
-        for (int k = 0; k < aplicacoes.length; k++) {
-            linhas[k + despesas.length + ajusteReceita + 3] = aplicacoes[k];
+        if (receitas.length > 1) {
+            System.arraycopy(receitas, 0, linhas, despesas.length + 2, receitas.length);
         }
 
-        // VALOR DO SALDO MENSAL
+        linhas[despesas.length + ajusteReceita + 2] = aplicacao;
+        System.arraycopy(aplicacoes, 0, linhas, despesas.length + ajusteReceita + 3, aplicacoes.length);
+
         linhas[categorias - 4] = res.getString(R.string.linha_saldo);
-
-        // VALOR CONTAS PAGAS E A PAGAR
         linhas[categorias - 3] = res.getString(R.string.resumo_pagas);
-
         linhas[categorias - 2] = res.getString(R.string.resumo_faltam);
-
-        // VALOR DO SALDO ATUAL
         linhas[categorias - 1] = res.getString(R.string.resumo_saldo);
+
+        return linhas;
     }
 }

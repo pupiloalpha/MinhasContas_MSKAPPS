@@ -1,6 +1,6 @@
 package com.msk.minhascontas.resumos;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -13,10 +13,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
+import com.msk.minhascontas.db.DBContas.ContaFilter;
+import com.msk.minhascontas.db.DBContas.Colunas;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -28,7 +31,7 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
     public static final String DIA_PAGINA = "dia_pagina";
 
     // BARRA NO TOPO DO APLICATIVO
-    private Bundle dados_mes = new Bundle();
+    private final Bundle dados_mes = new Bundle();
 
     // CLASSE DO BANCO DE DADOS
     private DBContas dbContas;
@@ -69,17 +72,11 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        dbContas = new DBContas(activity);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        dbContas = DBContas.getInstance(context);
         buscaPreferencias = PreferenceManager
-                .getDefaultSharedPreferences(activity);
+                .getDefaultSharedPreferences(context);
     }
 
     @Override
@@ -90,9 +87,11 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
         rootView = inflater.inflate(R.layout.resumo_por_tipo, container, false);
         Bundle args = getArguments();
 
-        dia = args.getInt(DIA_PAGINA);
-        mes = args.getInt(MES_PAGINA);
-        ano = args.getInt(ANO_PAGINA);
+        if (args != null) {
+            dia = args.getInt(DIA_PAGINA);
+            mes = args.getInt(MES_PAGINA);
+            ano = args.getInt(ANO_PAGINA);
+        }
 
         // DEFINE OS ELEMENTOS QUE SERAO EXIBIDOS
         Iniciar();
@@ -155,15 +154,13 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
     }
 
     private void InsereValores() {
-
-        Locale current = getResources().getConfiguration().locale;
+        Locale current = Locale.getDefault();
         NumberFormat dinheiro = NumberFormat.getCurrencyInstance(current);
-
-        // INSERE OS VALORES EM CADA ITEtM
 
         valorPago.setText(dinheiro.format(valoresDesp[0]));
         valorPagar.setText(dinheiro.format(valoresDesp[1]));
         valorCartao.setText(dinheiro.format(valoresDesp[2]));
+
         valorDespFixa.setText(dinheiro.format(valoresDesp[3]));
         valorDespVar.setText(dinheiro.format(valoresDesp[4]));
         valorPrestacoes.setText(dinheiro.format(valoresDesp[5]));
@@ -204,82 +201,42 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
 
         // DEFINE OS NOMES DA LINHAS DA TABELA
 
-        dbContas.open();
-
         valores = new double[4];
         valoresDesp = new double[6];
         valoresRec = new double[2];
         valoresSaldo = new double[2];
         valoresAplicados = new double[3];
 
-        Cursor somador = null;
-
         // PREENCHE AS LINHAS DA TABELA
 
         // VALORES DE RECEITAS
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 1);
-        if (somador.getCount() > 0)
-            valores[0] = SomaContas(somador);
-        else
-            valores[0] = 0.0D;
+        valores[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1));
 
         // VALOR RECEITAS RECEBIDAS
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 1, "paguei");
-        if (somador.getCount() > 0)
-            valoresRec[0] = SomaContas(somador);
-        else
-            valoresRec[0] = 0.0D;
+        valoresRec[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1).setPagamento(DBContas.PAGAMENTO_PAGO));
 
         // VALOR RECEITAS A RECEBAR
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 1, "falta");
-        if (somador.getCount() > 0)
-            valoresRec[1] = SomaContas(somador);
-        else
-            valoresRec[1] = 0.0D;
+        valoresRec[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1).setPagamento(DBContas.PAGAMENTO_FALTA));
 
         // VALORES DE DESPESAS
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 0);
-        if (somador.getCount() > 0)
-            valores[1] = SomaContas(somador);
-        else
-            valores[1] = 0.0D;
+        valores[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0));
 
         // VALOR CONTAS PAGAS
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 0, "paguei");
-        if (somador.getCount() > 0)
-            valoresDesp[0] = SomaContas(somador);
-        else
-            valoresDesp[0] = 0.0D;
+        valoresDesp[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setPagamento(DBContas.PAGAMENTO_PAGO));
 
         // VALOR CONTAS A PAGAR
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 0, "falta");
-        if (somador.getCount() > 0)
-            valoresDesp[1] = SomaContas(somador);
-        else
-            valoresDesp[1] = 0.0D;
+        valoresDesp[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setPagamento(DBContas.PAGAMENTO_FALTA));
 
         // VALORES DAS CATEGORIAS DE DESPESAS
         for (int i = 0; i < 4; i++) {
-            somador = dbContas.buscaContasClasse(dia, mes, ano, null, 0, i);
-            if (somador.getCount() > 0)
-                valoresDesp[i + 2] = SomaContas(somador);
-            else
-                valoresDesp[i + 2] = 0.0D;
+            valoresDesp[i + 2] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setClasse(i));
         }
 
         // VALORES DE APLICACOES
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 2);
-        if (somador.getCount() > 0)
-            valores[2] = SomaContas(somador);
-        else
-            valores[2] = 0.0D;
+        valores[2] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(2));
 
         for (int j = 0; j < 3; j++) {
-            somador = dbContas.buscaContasClasse(dia, mes, ano, null, 2, j);
-            if (somador.getCount() > 0)
-                valoresAplicados[j] = SomaContas(somador);
-            else
-                valoresAplicados[j] = 0.0D;
+            valoresAplicados[j] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(2).setClasse(j));
         }
 
         // VALOR DO SALDO MENSAL
@@ -297,23 +254,17 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
             mes_anterior = 11;
             ano_anterior = ano_anterior - 1;
         }
-        double r = 0.0D; // RECEITA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 1);
-        if (somador.getCount() > 0)
-            r = SomaContas(somador);
+        double r = getSumForFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior).setTipo(1)); // RECEITA MES ANTERIOR
 
-        double d = 0.0D; // DESPESA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 0);
-        if (somador.getCount() > 0)
-            d = SomaContas(somador);
-
-        somador.close(); // FECHA O CURSOR DO SOMADOR
+        double d = getSumForFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior).setTipo(0)); // DESPESA MES ANTERIOR
 
         double s = r - d; // SALDO MES ANTERIOR
-        if (dbContas.buscaContas(0, mes_anterior, ano_anterior, null).getCount() > 0)
-            valoresSaldo[1] = s;
-        else
-            valoresSaldo[1] = 0.0D;
+        try (Cursor contasCursor = dbContas.getContasByFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior), null)) {
+            if (contasCursor != null && contasCursor.getCount() > 0)
+                valoresSaldo[1] = s;
+            else
+                valoresSaldo[1] = 0.0D;
+        }
 
         // VALOR DO SALDO ATUAL
         boolean somaSaldo = buscaPreferencias.getBoolean("saldo", false);
@@ -323,21 +274,18 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
         } else {
             valores[3] = valoresRec[0] - valoresDesp[0];
         }
-        dbContas.close();
     }
 
-    private double SomaContas(Cursor cursor) {
-        int i = cursor.getCount();
-        cursor.moveToLast();
-        double d = 0.0D;
-        for (int j = 0; ; j++) {
-            if (j >= i) {
-                cursor.close();
-                return d;
+    private double getSumForFilter(DBContas.ContaFilter filter) {
+        double sum = 0.0D;
+        try (Cursor cursor = dbContas.getContasByFilter(filter, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    sum += cursor.getDouble(cursor.getColumnIndexOrThrow(DBContas.Colunas.COLUNA_VALOR_CONTA));
+                } while (cursor.moveToNext());
             }
-            d += cursor.getDouble(8);
-            cursor.moveToPrevious();
         }
+        return sum;
     }
 
     @Override
@@ -346,20 +294,16 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
         dados_mes.putInt("mes", mes);
         dados_mes.putInt("ano", ano);
         dados_mes.putInt("nr", 12);
+        int viewId = v.getId();
 
-        switch (v.getId()) {
-            case R.id.l_saldo:
-                dados_mes.putInt("tipo", -1);
-                break;
-            case R.id.l_aplicacoes:
-                dados_mes.putInt("tipo", 2);
-                break;
-            case R.id.l_despesas:
-                dados_mes.putInt("tipo", 0);
-                break;
-            case R.id.l_receitas:
-                dados_mes.putInt("tipo", 1);
-                break;
+        if (viewId == R.id.l_saldo) {
+            dados_mes.putInt("tipo", -1);
+        } else if (viewId == R.id.l_aplicacoes) {
+            dados_mes.putInt("tipo", 2);
+        } else if (viewId == R.id.l_despesas) {
+            dados_mes.putInt("tipo", 0);
+        } else if (viewId == R.id.l_receitas) {
+            dados_mes.putInt("tipo", 1);
         }
 
         Intent mostra_resumo = new Intent("com.msk.minhascontas.CONTASDOMES");

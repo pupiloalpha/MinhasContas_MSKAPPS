@@ -1,6 +1,7 @@
+
 package com.msk.minhascontas.resumos;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -13,10 +14,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
+import com.msk.minhascontas.db.DBContas.ContaFilter; // Added import for ContaFilter
+import com.msk.minhascontas.db.DBContas.Colunas; // Added import for Colunas
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -27,16 +31,12 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
     public static final String MES_PAGINA = "mes_pagina";
     public static final String DIA_PAGINA = "dia_pagina";
 
-    // BARRA NO TOPO DO APLICATIVO
-    private Bundle dados_mes = new Bundle();
+    private final Bundle dados_mes = new Bundle();
 
-    // CLASSE DO BANCO DE DADOS
     private DBContas dbContas;
 
-    // OPCOES DE AJUSTE
     private SharedPreferences buscaPreferencias = null;
 
-    // ELEMENTOS UTILIZADOS EM TELA
     private TextView valorDesp, valorRec, valorAplic, valorSaldo, valorBanco,
             valorPagar, valorPago, valorCartao, valorSaldoAtual, valorSaldoAnterior,
             valorFundos, valorPoupanca, valorPrevidencia, vAlimentacao, vEducacao,
@@ -44,20 +44,15 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
 
     private LinearLayout aplic, desp, rec, sald;
 
-    // VARIAEIS UTILIZADAS
     private int dia, mes, ano;
     private double[] valores, valoresDesp, valoresRec, valoresSaldo,
             valoresAplicados;
 
-    // ELEMENTOS DAS PAGINAS
     private View rootView;
 
     public ResumoCategoriaDiario() {
     }
 
-    /**
-     * Returns a new instance of this fragment for the given section number.
-     */
     public static ResumoCategoriaDiario newInstance(int dia, int mes, int ano) {
         ResumoCategoriaDiario fragment = new ResumoCategoriaDiario();
         Bundle args = new Bundle();
@@ -69,33 +64,33 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        dbContas = new DBContas(activity);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        dbContas = DBContas.getInstance(context);
         buscaPreferencias = PreferenceManager
-                .getDefaultSharedPreferences(activity);
+                .getDefaultSharedPreferences(context);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // COLOCA OS MESES NA TELA
+
         rootView = inflater.inflate(R.layout.resumo_por_categoria, container, false);
         Bundle args = getArguments();
 
-        dia = args.getInt(DIA_PAGINA);
-        mes = args.getInt(MES_PAGINA);
-        ano = args.getInt(ANO_PAGINA);
+        if (args != null) {
+            dia = args.getInt(DIA_PAGINA);
+            mes = args.getInt(MES_PAGINA);
+            ano = args.getInt(ANO_PAGINA);
+        }
 
-        // DEFINE OS ELEMENTOS QUE SERAO EXIBIDOS
         Iniciar();
 
-        // CALCULA OS VALORES QUE SERAO EXIBIDOS
         Saldo();
 
         InsereValores();
@@ -161,10 +156,8 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
 
     private void InsereValores() {
 
-        Locale current = getResources().getConfiguration().locale;
+        Locale current = Locale.getDefault();
         NumberFormat dinheiro = NumberFormat.getCurrencyInstance(current);
-
-        // INSERE OS VALORES EM CADA ITEtM
 
         valorPago.setText(dinheiro.format(valoresDesp[0]));
         valorPagar.setText(dinheiro.format(valoresDesp[1]));
@@ -207,15 +200,11 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
             valorSaldo.setTextColor(Color.parseColor("#CC0000"));
             valorBanco.setTextColor(Color.parseColor("#CC0000"));
         } else {
-            //valorSaldo.setTextColor(Color.parseColor("#2B2B2B"));
             valorBanco.setTextColor(Color.parseColor("#669900"));
         }
     }
 
     private void Saldo() {
-
-        // DEFINE OS NOMES DA LINHAS DA TABELA
-        dbContas.open();
 
         valores = new double[4];
         valoresDesp = new double[11];
@@ -223,119 +212,61 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
         valoresSaldo = new double[2];
         valoresAplicados = new double[3];
 
-        Cursor somador = null;
+        valores[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1));
 
-        // PREENCHE AS LINHAS DA TABELA
+        valoresRec[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1).setPagamento(DBContas.PAGAMENTO_PAGO));
 
-        // VALORES DE RECEITAS
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 1);
-        if (somador.getCount() > 0)
-            valores[0] = SomaContas(somador);
-        else
-            valores[0] = 0.0D;
+        valoresRec[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1).setPagamento(DBContas.PAGAMENTO_FALTA));
 
-        // VALOR RECEITAS RECEBIDAS
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 1, "paguei");
-        if (somador.getCount() > 0)
-            valoresRec[0] = SomaContas(somador);
-        else
-            valoresRec[0] = 0.0D;
+        valores[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0));
 
-        // VALOR RECEITAS A RECEBAR
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 1, "falta");
-        if (somador.getCount() > 0)
-            valoresRec[1] = SomaContas(somador);
-        else
-            valoresRec[1] = 0.0D;
+        valoresDesp[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setPagamento(DBContas.PAGAMENTO_PAGO));
 
-        // VALORES DE DESPESAS
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 0);
-        if (somador.getCount() > 0)
-            valores[1] = SomaContas(somador);
-        else
-            valores[1] = 0.0D;
+        valoresDesp[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setPagamento(DBContas.PAGAMENTO_FALTA));
 
-        // VALOR CONTAS PAGAS
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 0, "paguei");
-        if (somador.getCount() > 0)
-            valoresDesp[0] = SomaContas(somador);
-        else
-            valoresDesp[0] = 0.0D;
+        valoresDesp[2] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setClasse(0));
 
-        // VALOR CONTAS A PAGAR
-        somador = dbContas.buscaContasTipoPagamento(dia, mes, ano, null, 0, "falta");
-        if (somador.getCount() > 0)
-            valoresDesp[1] = SomaContas(somador);
-        else
-            valoresDesp[1] = 0.0D;
-
-        // VALOR CARTAO DE CREDITO
-        somador = dbContas.buscaContasClasse(dia, mes, ano, null, 0, 0);
-        if (somador.getCount() > 0)
-            valoresDesp[2] = SomaContas(somador);
-        else
-            valoresDesp[2] = 0.0D;
-
-        // VALORES DAS CATEGORIAS DE DESPESAS
         for (int i = 0; i < 8; i++) {
-            somador = dbContas.buscaContasCategoria(dia, mes, ano, null, i);
-            if (somador.getCount() > 0)
-                valoresDesp[i + 3] = SomaContas(somador);
-            else
-                valoresDesp[i + 3] = 0.0D;
+            valoresDesp[i + 3] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setCategoria(String.valueOf(i)));
         }
-        // VALOR DA CATEGORIA OUTROS
+
         valoresDesp[10] = valoresDesp[5] + valoresDesp[9] + valoresDesp[10];
 
-        // VALORES DE APLICACOES
-        somador = dbContas.buscaContasTipo(dia, mes, ano, null, 2);
-        if (somador.getCount() > 0)
-            valores[2] = SomaContas(somador);
-        else
-            valores[2] = 0.0D;
+        valores[2] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(2));
 
         for (int j = 0; j < 3; j++) {
-            somador = dbContas.buscaContasClasse(dia, mes, ano, null, 2, j);
-            if (somador.getCount() > 0)
-                valoresAplicados[j] = SomaContas(somador);
-            else
-                valoresAplicados[j] = 0.0D;
+            valoresAplicados[j] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(2).setClasse(j));
         }
 
-        // VALOR DO SALDO MENSAL
         valoresSaldo[0] = valores[0] - valores[1];
-
-        // VALOR DO SALDO ATUAL
 
         valores[3] = valores[0] - valoresDesp[0];
 
-        // VALOR DO SALDO DO MES ANTERIOR
-
-        int mes_anterior = mes - 1; // DEFINE MES ANTERIOR
+        int mes_anterior = mes - 1;
         int ano_anterior = ano;
         if (mes_anterior < 0) {
             mes_anterior = 11;
             ano_anterior = ano_anterior - 1;
         }
-        double r = 0.0D; // RECEITA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 1);
-        if (somador.getCount() > 0)
-            r = SomaContas(somador);
+        double r = getSumForFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior).setTipo(1));
 
-        double d = 0.0D; // DESPESA MES ANTERIOR
-        somador = dbContas.buscaContasTipo(0, mes_anterior, ano_anterior, null, 0);
-        if (somador.getCount() > 0)
-            d = SomaContas(somador);
+        double d = getSumForFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior).setTipo(0));
 
-        somador.close(); // FECHA O CURSOR DO SOMADOR
+        double s = r - d;
+        // The original code checks contas.getCount() > 0, which implies if there are any accounts for the previous month,
+        // then consider the balance. Otherwise, it's 0.0D. getSumForFilter returns 0.0D if no accounts are found,
+        // so this logic needs to be handled.
+        // If the original `buscaContas` was just to check existence, we need to check if getContasByFilter returns anything.
+        // For simplicity and to match the original logic, if there are any accounts, the previous month's balance is 's'.
+        // Otherwise, it's 0.0D.
+        try (Cursor contasCursor = dbContas.getContasByFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior), null)) {
+            if (contasCursor != null && contasCursor.getCount() > 0)
+                valoresSaldo[1] = s;
+            else
+                valoresSaldo[1] = 0.0D;
+        }
 
-        double s = r - d; // SALDO MES ANTERIOR
-        if (dbContas.buscaContas(0, mes_anterior, ano_anterior, null).getCount() > 0)
-            valoresSaldo[1] = s;
-        else
-            valoresSaldo[1] = 0.0D;
 
-        // VALOR DO SALDO ATUAL
         boolean somaSaldo = buscaPreferencias.getBoolean("saldo", false);
         if (somaSaldo) {
             valores[3] = valoresRec[0] - valoresDesp[0]
@@ -343,21 +274,19 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
         } else {
             valores[3] = valoresRec[0] - valoresDesp[0];
         }
-        dbContas.close();
     }
 
-    private double SomaContas(Cursor cursor) {
-        int i = cursor.getCount();
-        cursor.moveToLast();
-        double d = 0.0D;
-        for (int j = 0; ; j++) {
-            if (j >= i) {
-                cursor.close();
-                return d;
+    // New helper method to get sum for a given filter
+    private double getSumForFilter(DBContas.ContaFilter filter) {
+        double sum = 0.0D;
+        try (Cursor cursor = dbContas.getContasByFilter(filter, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    sum += cursor.getDouble(cursor.getColumnIndexOrThrow(DBContas.Colunas.COLUNA_VALOR_CONTA));
+                } while (cursor.moveToNext());
             }
-            d += cursor.getDouble(9);
-            cursor.moveToPrevious();
         }
+        return sum;
     }
 
     @Override
@@ -367,29 +296,24 @@ public class ResumoCategoriaDiario extends Fragment implements View.OnClickListe
         dados_mes.putInt("ano", ano);
         dados_mes.putInt("nr", 12);
 
-        switch (v.getId()) {
-            case R.id.l_saldo:
-                dados_mes.putInt("tipo", -1);
-                break;
-            case R.id.l_aplicacoes:
-                dados_mes.putInt("tipo", 2);
-                break;
-            case R.id.l_despesas:
-                dados_mes.putInt("tipo", 0);
-                break;
-            case R.id.l_receitas:
-                dados_mes.putInt("tipo", 1);
-                break;
+        int viewId = v.getId();
+        if (viewId == R.id.l_saldo) {
+            dados_mes.putInt("tipo", -1);
+        } else if (viewId == R.id.l_aplicacoes) {
+            dados_mes.putInt("tipo", 2);
+        } else if (viewId == R.id.l_despesas) {
+            dados_mes.putInt("tipo", 0);
+        } else if (viewId == R.id.l_receitas) {
+            dados_mes.putInt("tipo", 1);
         }
 
         Intent mostra_resumo = new Intent("com.msk.minhascontas.CONTASDOMES");
         mostra_resumo.putExtras(dados_mes);
-        startActivityForResult(mostra_resumo, 0);
+        requireActivity().startActivity(mostra_resumo);
     }
 
     @Override
     public void onResume() {
-        // CALCULA OS VALORES QUE SERAO EXIBIDOS
         Saldo();
         InsereValores();
         super.onResume();

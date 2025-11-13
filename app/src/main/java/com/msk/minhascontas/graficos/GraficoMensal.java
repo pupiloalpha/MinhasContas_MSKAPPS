@@ -1,6 +1,6 @@
 package com.msk.minhascontas.graficos;
 
-import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,40 +10,43 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
+import com.msk.minhascontas.db.DBContas.ContaFilter;
+import com.msk.minhascontas.db.DBContas.Colunas;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.Column;
-import lecho.lib.hellocharts.model.ColumnChartData;
-import lecho.lib.hellocharts.model.Line;
-import lecho.lib.hellocharts.model.LineChartData;
-import lecho.lib.hellocharts.model.PieChartData;
-import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.model.SliceValue;
-import lecho.lib.hellocharts.model.SubcolumnValue;
-import lecho.lib.hellocharts.util.ChartUtils;
-import lecho.lib.hellocharts.view.ColumnChartView;
-import lecho.lib.hellocharts.view.LineChartView;
-import lecho.lib.hellocharts.view.PieChartView;
+import static com.msk.minhascontas.db.DBContas.PAGAMENTO_FALTA;
+import static com.msk.minhascontas.db.DBContas.PAGAMENTO_PAGO;
 
 public class GraficoMensal extends Fragment {
 
     // GRAFICOS E DADOS
-    private List<SliceValue> values;
-    private SliceValue arcValue;
-    private PieChartView gcontas, greceitas, gpagamentos;
-    private PieChartData data;
-    private LineChartView gsaldo;
-    private ColumnChartView gdespesas, gcategortias, gaplicacoes;
-    private ColumnChartData dados;
+    private PieChart gcontas, greceitas, gpagamentos;
+    private LineChart gsaldo;
+    private BarChart gdespesas, gcategortias, gaplicacoes;
 
     // ELEMENTOS DA TELA
     private View rootView;
@@ -52,7 +55,6 @@ public class GraficoMensal extends Fragment {
 
     // VARIAVEIS
     private DBContas dbContasFeitas;
-    private String[] MESES;
     private int ano, mes, contas;
     private double vaplic, vdesp, vrec,
             vsaldo, vdesppg, vdespnpg, vrecarec, vrecrec;
@@ -72,15 +74,9 @@ public class GraficoMensal extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        dbContasFeitas = new DBContas(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        dbContasFeitas = DBContas.getInstance(context);
     }
 
     @Override
@@ -96,7 +92,7 @@ public class GraficoMensal extends Fragment {
         mes = localBundle.getInt("mes");
 
         Iniciar();
-        Locale current = getResources().getConfiguration().locale;
+        Locale current = getResources().getConfiguration().getLocales().get(0);
         dinheiro = NumberFormat.getCurrencyInstance(current);
         Saldo();
         AtualizaGrafico();
@@ -125,7 +121,6 @@ public class GraficoMensal extends Fragment {
 
         semcontas = rootView.findViewById(R.id.tvSemGrafico);
 
-        values = new ArrayList<SliceValue>();
         roleta = new int[]{Color.parseColor("#33B5E5"),
                 Color.parseColor("#AA66CC"), Color.parseColor("#99CC00"),
                 Color.parseColor("#FFBB33"), Color.parseColor("#FF4444"),
@@ -135,10 +130,12 @@ public class GraficoMensal extends Fragment {
     }
 
     private void Saldo() {
-        dbContasFeitas.open();
-        Cursor somador = null;
+        ContaFilter baseFilter = new ContaFilter().setMes(mes).setAno(ano);
 
-        contas = dbContasFeitas.quantasContasPorMes(mes, ano);
+        try (Cursor cursor = dbContasFeitas.getContasByFilter(baseFilter, null)) {
+            contas = cursor.getCount();
+        }
+
         if (contas != 0)
             semcontas.setVisibility(View.GONE);
         else
@@ -147,22 +144,25 @@ public class GraficoMensal extends Fragment {
         // DADOS DAS DESPESAS
         vdesp = 0.0D;
         // Valores de despesas
-        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 0);
-        if (somador.getCount() > 0)
-            vdesp = SomaContas(somador);
+        try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(0), null)) {
+            if (somador.getCount() > 0)
+                vdesp = SomaContas(somador);
+        }
 
         // DADOS DAS RECEITAS
         vrec = 0.0D;
         // Valores de receitas
-        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 1);
-        if (somador.getCount() > 0)
-            vrec = SomaContas(somador);
+        try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(1), null)) {
+            if (somador.getCount() > 0)
+                vrec = SomaContas(somador);
+        }
 
         // DADOS DAS APLICACOES
         vaplic = 0.0D;
-        somador = dbContasFeitas.buscaContasTipo(0, mes, ano, null, 2);
-        if (somador.getCount() > 0)
-            vaplic = SomaContas(somador);
+        try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(2), null)) {
+            if (somador.getCount() > 0)
+                vaplic = SomaContas(somador);
+        }
 
         vsaldo = (vrec - vdesp);
 
@@ -170,39 +170,44 @@ public class GraficoMensal extends Fragment {
         vdespnpg = 0.0D;
 
         // Valores de despesas pagas
-        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, 0, "paguei");
-        if (somador.getCount() > 0)
-            vdesppg = SomaContas(somador);
+        try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(0).setPagamento(PAGAMENTO_PAGO), null)) {
+            if (somador.getCount() > 0)
+                vdesppg = SomaContas(somador);
+        }
 
-        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, 0, "falta");
-        if (somador.getCount() > 0)
-            vdespnpg = SomaContas(somador);
+        try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(0).setPagamento(PAGAMENTO_FALTA), null)) {
+            if (somador.getCount() > 0)
+                vdespnpg = SomaContas(somador);
+        }
 
         vrecrec = 0.0D;
         vrecarec = 0.0D;
         // Valores de receitas recebidas
-        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, 1, "paguei");
-        if (somador.getCount() > 0)
-            vrecrec = SomaContas(somador);
+        try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(1).setPagamento(PAGAMENTO_PAGO), null)) {
+            if (somador.getCount() > 0)
+                vrecrec = SomaContas(somador);
+        }
 
-        somador = dbContasFeitas.buscaContasTipoPagamento(0, mes, ano, null, 1, "falta");
-        if (somador.getCount() > 0)
-            vrecarec = SomaContas(somador);
-
-        somador.close();
-        dbContasFeitas.close();
+        try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(1).setPagamento(PAGAMENTO_FALTA), null)) {
+            if (somador.getCount() > 0)
+                vrecarec = SomaContas(somador);
+        }
     }
 
     private double SomaContas(Cursor cursor) {
         int i = cursor.getCount();
         cursor.moveToLast();
         double d = 0.0D;
+        int valorColumnIndex = cursor.getColumnIndex(Colunas.COLUNA_VALOR_CONTA);
+        if (valorColumnIndex == -1) { // Handle case where column might not be found
+            return d;
+        }
+
         for (int j = 0; ; j++) {
             if (j >= i) {
-                cursor.close();
                 return d;
             }
-            d += cursor.getDouble(8);
+            d += cursor.getDouble(valorColumnIndex);
             cursor.moveToPrevious();
         }
     }
@@ -254,38 +259,33 @@ public class GraficoMensal extends Fragment {
         cores = new int[]{Color.parseColor("#FF4444"),
                 Color.parseColor("#33B5E5"), Color.parseColor("#99CC00")};
 
-        values = new ArrayList<SliceValue>();
+        List<PieEntry> entries = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            arcValue = new SliceValue(valores[i], cores[i]);
-            arcValue.setLabel(dinheiro.format(valores[i]));
-            arcValue.setSliceSpacing(5);
-            values.add(arcValue);
+            entries.add(new PieEntry(valores[i], series[i]));
         }
 
-        data = new PieChartData(values);
+        PieDataSet set = new PieDataSet(entries, "");
+        set.setColors(cores);
+        set.setValueTextSize(12f);
+        set.setValueTextColor(Color.WHITE);
 
-        data.setHasLabels(true);
-        data.setHasLabelsOnlyForSelected(false);
-        data.setHasLabelsOutside(false);
-        data.setHasCenterCircle(true);
+        PieData data = new PieData(set);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return dinheiro.format(value);
+            }
+        });
 
-        data.setCenterText1(this.getString(R.string.resumo_saldo));
-        data.setCenterText1FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 38));
-        data.setCenterText1Color(Color.parseColor("#696969"));
-
-        data.setCenterText2(dinheiro.format(vsaldo));
-        data.setCenterText2FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 42));
-        data.setCenterText2Color(Color.parseColor("#696969"));
-
-        gcontas.setPieChartData(data);
+        gcontas.setData(data);
+        gcontas.setCenterText(this.getString(R.string.resumo_saldo) + "\n" + dinheiro.format(vsaldo));
+        gcontas.setCenterTextSize(18f);
+        gcontas.setCenterTextColor(Color.parseColor("#696969"));
+        gcontas.invalidate();
     }
 
     private void GraficoAplicacoes() {
 
-        dbContasFeitas.open();
-        Cursor somador = null;
         String[] aplicacoes = getResources().getStringArray(R.array.TipoAplicacao);
 
         valores = new float[aplicacoes.length];
@@ -306,47 +306,44 @@ public class GraficoMensal extends Fragment {
                 cores[i] = roleta[i];
             }
 
-            somador = dbContasFeitas.buscaContasClasse(0, mes, ano, null, 2, i);
-            if (somador.getCount() > 0)
-                valores[i] = (float) SomaContas(somador);
-            else
-                valores[i] = (float) 0.0D;
-        }
-
-        somador.close();
-        dbContasFeitas.close();
-
-        List<Column> columns = new ArrayList<Column>();
-        List<SubcolumnValue> valorColuna;
-
-        for (int i = 0; i < aplicacoes.length; ++i) {
-            valorColuna = new ArrayList<SubcolumnValue>();
-            SubcolumnValue sc;
-            for (int j = 0; j < 1; ++j) {
-                sc = new SubcolumnValue(valores[i], cores[i]);
-                sc.setLabel(dinheiro.format(valores[i]));
-                valorColuna.add(sc);
+            try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(2).setClasse(i), null)) {
+                if (somador.getCount() > 0)
+                    valores[i] = (float) SomaContas(somador);
+                else
+                    valores[i] = (float) 0.0D;
             }
-            Column column = new Column(valorColuna);
-            column.setHasLabels(true);
-            columns.add(column);
         }
 
-        dados = new ColumnChartData(columns);
+        List<BarEntry> entries = new ArrayList<>();
+        for (int i = 0; i < aplicacoes.length; ++i) {
+            entries.add(new BarEntry(i, valores[i]));
+        }
 
-        Axis axisY = new Axis().setHasLines(true);
-        axisY.setName(getResources().getString(R.string.dica_valor)).setMaxLabelChars(6);
-        axisY.setTextColor(getResources().getColor(R.color.cinza));
-        axisY.setAutoGenerated(true);
-        dados.setAxisYLeft(axisY);
+        BarDataSet set = new BarDataSet(entries, "");
+        set.setColors(cores);
+        set.setValueTextSize(12f);
+        set.setValueTextColor(Color.BLACK);
 
-        gaplicacoes.setColumnChartData(dados);
+        BarData data = new BarData(set);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return dinheiro.format(value);
+            }
+        });
+
+        gaplicacoes.setData(data);
+        gaplicacoes.getXAxis().setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getAxisLabel(float value, AxisBase axis) {
+                return series[(int) value];
+            }
+        });
+        gaplicacoes.invalidate();
     }
 
     private void GraficoDespesas() {
 
-        dbContasFeitas.open();
-        Cursor somador = null;
         String[] despesas = getResources().getStringArray(R.array.TipoDespesa);
 
         valores = new float[despesas.length];
@@ -366,47 +363,44 @@ public class GraficoMensal extends Fragment {
             } else {
                 cores[i] = roleta[i];
             }
-            somador = dbContasFeitas.buscaContasClasse(0, mes, ano, null, 0, i);
-            if (somador.getCount() > 0)
-                valores[i] = (float) SomaContas(somador);
-            else
-                valores[i] = (float) 0.0D;
-        }
-
-        somador.close();
-        dbContasFeitas.close();
-
-        List<Column> columns = new ArrayList<Column>();
-        List<SubcolumnValue> valorColuna;
-
-        for (int i = 0; i < despesas.length; ++i) {
-            valorColuna = new ArrayList<SubcolumnValue>();
-            SubcolumnValue sc;
-            for (int j = 0; j < 1; ++j) {
-                sc = new SubcolumnValue(valores[i], cores[i]);
-                sc.setLabel(dinheiro.format(valores[i]));
-                valorColuna.add(sc);
+            try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(0).setClasse(i), null)) {
+                if (somador.getCount() > 0)
+                    valores[i] = (float) SomaContas(somador);
+                else
+                    valores[i] = (float) 0.0D;
             }
-            Column column = new Column(valorColuna);
-            column.setHasLabels(true);
-            columns.add(column);
         }
 
-        dados = new ColumnChartData(columns);
+        List<BarEntry> entries = new ArrayList<>();
+        for (int i = 0; i < despesas.length; ++i) {
+            entries.add(new BarEntry(i, valores[i]));
+        }
 
-        Axis axisY = new Axis().setHasLines(true);
-        axisY.setName(getResources().getString(R.string.dica_valor)).setMaxLabelChars(4);
-        axisY.setTextColor(getResources().getColor(R.color.cinza));
-        axisY.setAutoGenerated(true);
-        dados.setAxisYLeft(axisY);
+        BarDataSet set = new BarDataSet(entries, "");
+        set.setColors(cores);
+        set.setValueTextSize(12f);
+        set.setValueTextColor(Color.BLACK);
 
-        gdespesas.setColumnChartData(dados);
+        BarData data = new BarData(set);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return dinheiro.format(value);
+            }
+        });
+
+        gdespesas.setData(data);
+        gdespesas.getXAxis().setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getAxisLabel(float value, AxisBase axis) {
+                return series[(int) value];
+            }
+        });
+        gdespesas.invalidate();
     }
 
     private void GraficoCategorias() {
 
-        dbContasFeitas.open();
-        Cursor somador = null;
         String[] categorias = getResources().getStringArray(R.array.CategoriaConta);
 
         valores = new float[categorias.length];
@@ -425,41 +419,40 @@ public class GraficoMensal extends Fragment {
             } else {
                 cores[i] = roleta[i];
             }
-            somador = dbContasFeitas.buscaContasCategoria(0, mes, ano, null, i);
-            if (somador.getCount() > 0)
-                valores[i] = (float) SomaContas(somador);
-            else
-                valores[i] = (float) 0.0D;
-        }
-
-        somador.close();
-        dbContasFeitas.close();
-
-        List<Column> columns = new ArrayList<Column>();
-        List<SubcolumnValue> valorColuna;
-
-        for (int i = 0; i < categorias.length; ++i) {
-            valorColuna = new ArrayList<SubcolumnValue>();
-            SubcolumnValue sc;
-            for (int j = 0; j < 1; ++j) {
-                sc = new SubcolumnValue(valores[i], cores[i]);
-                sc.setLabel(dinheiro.format(valores[i]));
-                valorColuna.add(sc);
+            try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setCategoria(categorias[i]), null)) {
+                if (somador.getCount() > 0)
+                    valores[i] = (float) SomaContas(somador);
+                else
+                    valores[i] = (float) 0.0D;
             }
-            Column column = new Column(valorColuna);
-            column.setHasLabels(true);
-            columns.add(column);
         }
 
-        dados = new ColumnChartData(columns);
+        List<BarEntry> entries = new ArrayList<>();
+        for (int i = 0; i < categorias.length; ++i) {
+            entries.add(new BarEntry(i, valores[i]));
+        }
 
-        Axis axisY = new Axis().setHasLines(true);
-        axisY.setName(getResources().getString(R.string.dica_valor)).setMaxLabelChars(4);
-        axisY.setTextColor(getResources().getColor(R.color.cinza));
-        axisY.setAutoGenerated(true);
-        dados.setAxisYLeft(axisY);
+        BarDataSet set = new BarDataSet(entries, "");
+        set.setColors(cores);
+        set.setValueTextSize(12f);
+        set.setValueTextColor(Color.BLACK);
 
-        gcategortias.setColumnChartData(dados);
+        BarData data = new BarData(set);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return dinheiro.format(value);
+            }
+        });
+
+        gcategortias.setData(data);
+        gcategortias.getXAxis().setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getAxisLabel(float value, AxisBase axis) {
+                return series[(int) value];
+            }
+        });
+        gcategortias.invalidate();
     }
 
     private void GraficoPagamentos() {
@@ -469,36 +462,29 @@ public class GraficoMensal extends Fragment {
         cores = new int[]{Color.parseColor("#FF4444"),
                 Color.parseColor("#FFBB33")};
 
-        values = new ArrayList<SliceValue>();
+        List<PieEntry> entries = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            entries.add(new PieEntry(valores[i], series[i]));
+        }
 
-        arcValue = new SliceValue(valores[0], cores[0]);
-        arcValue.setLabel(dinheiro.format(valores[0]));
-        arcValue.setSliceSpacing(5);
-        values.add(arcValue);
+        PieDataSet set = new PieDataSet(entries, "");
+        set.setColors(cores);
+        set.setValueTextSize(12f);
+        set.setValueTextColor(Color.WHITE);
 
-        arcValue = new SliceValue(valores[1], cores[1]);
-        arcValue.setLabel(dinheiro.format(valores[1]));
-        arcValue.setSliceSpacing(5);
-        values.add(arcValue);
+        PieData data = new PieData(set);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return dinheiro.format(value);
+            }
+        });
 
-        data = new PieChartData(values);
-
-        data.setHasLabels(true);
-        data.setHasLabelsOnlyForSelected(false);
-        data.setHasLabelsOutside(false);
-        data.setHasCenterCircle(true);
-
-        data.setCenterText1(this.getString(R.string.linha_despesa));
-        data.setCenterText1FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 38));
-        data.setCenterText1Color(Color.parseColor("#696969"));
-
-        data.setCenterText2(dinheiro.format(vdesp));
-        data.setCenterText2FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 42));
-        data.setCenterText2Color(Color.parseColor("#696969"));
-
-        gpagamentos.setPieChartData(data);
+        gpagamentos.setData(data);
+        gpagamentos.setCenterText(this.getString(R.string.linha_despesa) + "\n" + dinheiro.format(vdesp));
+        gpagamentos.setCenterTextSize(18f);
+        gpagamentos.setCenterTextColor(Color.parseColor("#696969"));
+        gpagamentos.invalidate();
     }
 
     private void GraficoReceitas() {
@@ -506,117 +492,107 @@ public class GraficoMensal extends Fragment {
         valores = new float[]{(float) vrecrec, (float) vrecarec};
         series = new String[]{getResources().getString(R.string.resumo_recebidas),
                 getResources().getString(R.string.resumo_areceber)};
-        cores = new int[]{getResources().getColor(R.color.azul),
-                getResources().getColor(R.color.roxo)};
+        cores = new int[]{ContextCompat.getColor(requireContext(), R.color.azul),
+                ContextCompat.getColor(requireContext(), R.color.roxo)};
 
-        values = new ArrayList<SliceValue>();
+        List<PieEntry> entries = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            entries.add(new PieEntry(valores[i], series[i]));
+        }
 
-        arcValue = new SliceValue(valores[0], cores[0]);
-        arcValue.setLabel(dinheiro.format(valores[0]));
-        arcValue.setSliceSpacing(5);
-        values.add(arcValue);
+        PieDataSet set = new PieDataSet(entries, "");
+        set.setColors(cores);
+        set.setValueTextSize(12f);
+        set.setValueTextColor(Color.WHITE);
 
-        arcValue = new SliceValue(valores[1], cores[1]);
-        arcValue.setLabel(dinheiro.format(valores[1]));
-        arcValue.setSliceSpacing(5);
-        values.add(arcValue);
+        PieData data = new PieData(set);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return dinheiro.format(value);
+            }
+        });
 
-        data = new PieChartData(values);
-
-        data.setHasLabels(true);
-        data.setHasLabelsOnlyForSelected(false);
-        data.setHasLabelsOutside(false);
-        data.setHasCenterCircle(true);
-
-        data.setCenterText1(this.getString(R.string.linha_receita));
-        data.setCenterText1FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 38));
-        data.setCenterText1Color(Color.parseColor("#696969"));
-
-        data.setCenterText2(dinheiro.format(vrec));
-        data.setCenterText2FontSize(ChartUtils.px2sp(getResources()
-                .getDisplayMetrics().scaledDensity, 42));
-        data.setCenterText2Color(Color.parseColor("#696969"));
-
-        greceitas.setPieChartData(data);
+        greceitas.setData(data);
+        greceitas.setCenterText(this.getString(R.string.linha_receita) + "\n" + dinheiro.format(vrec));
+        greceitas.setCenterTextSize(18f);
+        greceitas.setCenterTextColor(Color.parseColor("#696969"));
+        greceitas.invalidate();
     }
 
     private void GraficoSaldo() {
 
-        List<PointValue> valuesPos = new ArrayList<PointValue>();
-        List<PointValue> valuesNeg = new ArrayList<PointValue>();
-        List<PointValue> values = new ArrayList<PointValue>();
+        List<Entry> valuesPos = new ArrayList<>();
+        List<Entry> valuesNeg = new ArrayList<>();
+        List<Entry> values = new ArrayList<>();
 
-        dbContasFeitas.open();
-        Cursor somaReceitas = dbContasFeitas.buscaContasTipo(0, mes, ano, "dia_data ASC", 1);
-        Cursor somaDespesas = dbContasFeitas.buscaContasTipo(0, mes, ano, "dia_data ASC", 0);
+        try (Cursor somaReceitas = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(1), Colunas.COLUNA_DIA_DATA_CONTA + " ASC");
+             Cursor somaDespesas = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setTipo(0), Colunas.COLUNA_DIA_DATA_CONTA + " ASC")) {
 
-        // GERADOR DE DADOS PARA O GRAFICO DE SALDO
-        if (somaDespesas.getCount() > 0 || somaReceitas.getCount() > 0) {
-            vsaldo = 0.0D;
-            for (int i = 1; i < 32; i++) {
-                vrec = 0.0D;
-                somaReceitas.moveToFirst();
-                while (!somaReceitas.isAfterLast()) {
-                    if (somaReceitas.getInt(5) < i + 1)
-                        vrec = vrec + somaReceitas.getDouble(8);
-                    somaReceitas.moveToNext();
-                }
-                vdesp = 0.0D;
-                somaDespesas.moveToFirst();
-                while (!somaDespesas.isAfterLast()) {
-                    if (somaDespesas.getInt(5) < i + 1)
-                        vdesp = vdesp + somaDespesas.getDouble(8);
-                    somaDespesas.moveToNext();
-                }
-                vsaldo = (vrec - vdesp);
-                values.add(new PointValue(i, (float) vsaldo));
+            int diaColumnIndexReceitas = somaReceitas.getColumnIndex(Colunas.COLUNA_DIA_DATA_CONTA);
+            int valorColumnIndexReceitas = somaReceitas.getColumnIndex(Colunas.COLUNA_VALOR_CONTA);
+            int diaColumnIndexDespesas = somaDespesas.getColumnIndex(Colunas.COLUNA_DIA_DATA_CONTA);
+            int valorColumnIndexDespesas = somaDespesas.getColumnIndex(Colunas.COLUNA_VALOR_CONTA);
 
-                if (vsaldo < 0.0D) {
-                    valuesNeg.add(new PointValue(i, (float) vsaldo));
-                } else {
-                    valuesPos.add(new PointValue(i, (float) vsaldo));
+            // GERADOR DE DADOS PARA O GRAFICO DE SALDO
+            if ((somaDespesas.getCount() > 0 && diaColumnIndexDespesas != -1 && valorColumnIndexDespesas != -1) ||
+                (somaReceitas.getCount() > 0 && diaColumnIndexReceitas != -1 && valorColumnIndexReceitas != -1)) {
+                vsaldo = 0.0D;
+                for (int i = 1; i < 32; i++) {
+                    vrec = 0.0D;
+                    somaReceitas.moveToFirst();
+                    while (!somaReceitas.isAfterLast()) {
+                        if (diaColumnIndexReceitas != -1 && somaReceitas.getInt(diaColumnIndexReceitas) < i + 1)
+                            vrec = vrec + somaReceitas.getDouble(valorColumnIndexReceitas);
+                        somaReceitas.moveToNext();
+                    }
+                    vdesp = 0.0D;
+                    somaDespesas.moveToFirst();
+                    while (!somaDespesas.isAfterLast()) {
+                        if (diaColumnIndexDespesas != -1 && somaDespesas.getInt(diaColumnIndexDespesas) < i + 1)
+                            vdesp = vdesp + somaDespesas.getDouble(valorColumnIndexDespesas);
+                        somaDespesas.moveToNext();
+                    }
+                    vsaldo = (vrec - vdesp);
+                    values.add(new Entry(i, (float) vsaldo));
+
+                    if (vsaldo < 0.0D) {
+                        valuesNeg.add(new Entry(i, (float) vsaldo));
+                    } else {
+                        valuesPos.add(new Entry(i, (float) vsaldo));
+                    }
                 }
             }
         }
 
-        somaReceitas.close();
-        somaDespesas.close();
-        dbContasFeitas.close();
-
         //Linhas do grafico
-        List<Line> lines = new ArrayList<Line>();
-        Line line = new Line(values).setColor(getResources().getColor(R.color.cinza_claro)).setCubic(true);
-        line.setHasPoints(false);
-        line.setFilled(true);
-        line.setStrokeWidth(2);
-        lines.add(line);
+        LineDataSet set1 = new LineDataSet(values, "");
+        set1.setColor(ContextCompat.getColor(requireContext(), R.color.cinza_claro));
+        set1.setDrawCircles(false);
+        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set1.setDrawFilled(true);
+        set1.setFillColor(ContextCompat.getColor(requireContext(), R.color.cinza_claro));
 
-        line = new Line(valuesPos).setColor(getResources().getColor(R.color.verde)).setCubic(true);
-        line.setHasLines(false);
-        line.setHasPoints(true);
-        lines.add(line);
+        LineDataSet set2 = new LineDataSet(valuesPos, "");
+        set2.setColor(ContextCompat.getColor(requireContext(), R.color.verde));
+        set2.setDrawCircles(true);
+        set2.setCircleColor(ContextCompat.getColor(requireContext(), R.color.verde));
 
-        line = new Line(valuesNeg).setColor(getResources().getColor(R.color.vermelho_claro)).setCubic(true);
-        line.setHasLines(false);
-        line.setHasPoints(true);
-        lines.add(line);
+        LineDataSet set3 = new LineDataSet(valuesNeg, "");
+        set3.setColor(ContextCompat.getColor(requireContext(), R.color.vermelho_claro));
+        set3.setDrawCircles(true);
+        set3.setCircleColor(ContextCompat.getColor(requireContext(), R.color.vermelho_claro));
 
-        LineChartData data = new LineChartData();
-        data.setLines(lines);
-        Axis axis = new Axis().setHasLines(true);
-        axis.setName(getResources().getString(R.string.dica_valor)).setMaxLabelChars(5);
-        axis.setTextColor(getResources().getColor(R.color.cinza));
-        axis.setAutoGenerated(true);
-        data.setAxisYLeft(axis);
+        LineData data = new LineData(set1, set2, set3);
+        data.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return dinheiro.format(value);
+            }
+        });
 
-        axis = new Axis().setHasLines(false);
-        axis.setName(getResources().getString(R.string.dica_vencimento));
-        axis.setTextColor(getResources().getColor(R.color.cinza));
-        axis.setAutoGenerated(true);
-        data.setAxisXBottom(axis);
-
-        gsaldo.setLineChartData(data);
+        gsaldo.setData(data);
+        gsaldo.invalidate();
     }
 
     @Override

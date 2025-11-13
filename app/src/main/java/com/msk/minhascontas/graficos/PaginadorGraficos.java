@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,12 +13,14 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.info.Ajustes;
@@ -34,10 +35,10 @@ public class PaginadorGraficos extends AppCompatActivity {
     private static final int CRIA_CONTA = 333;
     private static int[] mesConta, anoConta;
     // CLASSE DO BANCO DE DADOS
-    private DBContas dbContas = new DBContas(this);
+    private DBContas dbContas;
     // ELEMENTOS DA TELA
     private Paginas mPaginas;
-    private ViewPager mViewPager;
+    private ViewPager2 mViewPager;
     private Resources res;
     // VARIAVEIS DO APLICATIVO
     private String[] Meses;
@@ -56,41 +57,46 @@ public class PaginadorGraficos extends AppCompatActivity {
         setContentView(R.layout.pagina_graficos);
 
         res = getResources();
+        dbContas = DBContas.getInstance(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
 
         // AJUSTES DO BANCO DE DADOS
-        dbContas.open();
         dbContas.confirmaPagamentos();
         dbContas.ajustaRepeticoesContas();
 
         // PAGINA CONTENDO MESES
         Bundle localBundle = getIntent().getExtras();
-        nrPagina = localBundle.getInt("nr");
-        paginas = 120;
-        ListaMesesAnos();
+        int nrPaginaOffsetFromMinhasContas = 0; // Default para 0 (mês atual)
+        if (localBundle != null) {
+            // O 'nr' é o offset da MinhasContas.java (0 para o mês atual)
+            nrPaginaOffsetFromMinhasContas = localBundle.getInt("nr", 0);
+        }
+
+        paginas = 120; // PaginadorGraficos gerencia 120 páginas
+        ListaMesesAnos(); // Popula mesConta e anoConta
 
         Meses = getResources().getStringArray(R.array.MesResumido);
 
         // Cria o adaptador que chama o fragmento para cada tela
-        mPaginas = new Paginas(getSupportFragmentManager());
+        mPaginas = new Paginas(this);
 
         // Define o ViewPager e as telas do adaptador.
         mViewPager = findViewById(R.id.paginas);
         mViewPager.setAdapter(mPaginas);
-        mViewPager.getAdapter().notifyDataSetChanged();
 
         // Define a barra de titulo e as tabs
-        int normalColor = Color.parseColor("#90FFFFFF");
-        int selectedColor = res.getColor(android.R.color.white);
-
         TabLayout tabLayout = findViewById(R.id.tablayout);
-        tabLayout.setTabTextColors(normalColor, selectedColor);
-        tabLayout.setupWithViewPager(mViewPager);
+
+        new TabLayoutMediator(tabLayout, mViewPager,
+                (tab, position) -> tab.setText(mPaginas.getPageTitle(position))
+        ).attach();
 
         ImageButton addConta = findViewById(R.id.ibfab);
         addConta.setOnClickListener(new View.OnClickListener() {
@@ -103,7 +109,19 @@ public class PaginadorGraficos extends AppCompatActivity {
         });
 
         // DEFINE O MES QUE APARECERA NA TELA QUANDO ABRIR
-        mViewPager.setCurrentItem(nrPagina);
+        // Calcula a página correta para PaginadorGraficos baseado no offset de MinhasContas
+        // O índice 60 corresponde ao mês/ano atual na lista de 120 meses de PaginadorGraficos
+        int currentMonthIndexInPaginadorGraficos = 60;
+        int targetPage = currentMonthIndexInPaginadorGraficos + nrPaginaOffsetFromMinhasContas;
+
+        // Garante que a targetPage esteja dentro dos limites do adaptador de PaginadorGraficos
+        if (targetPage < 0) {
+            targetPage = 0;
+        } else if (targetPage >= paginas) { // 'paginas' é 120
+            targetPage = paginas - 1;
+        }
+        mViewPager.setCurrentItem(targetPage);
+        this.nrPagina = targetPage; // Atualiza a variável nrPagina da classe PaginadorGraficos
     }
 
     private void ListaMesesAnos() {
@@ -127,11 +145,9 @@ public class PaginadorGraficos extends AppCompatActivity {
     }
 
     private void AtualizaGrafico() {
-        nrPagina = mViewPager.getCurrentItem();
-        Fragment current = mPaginas.getFragment(nrPagina);
-        if (current != null) {
-            current.onResume();
-        }
+        // A atualização é feita automaticamente pelo adapter.
+        // O método getFragment não existe no FragmentStateAdapter.
+        // nrPagina = mViewPager.getCurrentItem(); // Não é necessário, já é atualizado no onCreate
     }
 
     @Override
@@ -144,21 +160,16 @@ public class PaginadorGraficos extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            case android.R.id.home:
-                finish();
-                break;
-            case R.id.menu_ajustes:
-                startActivityForResult(new Intent(this, Ajustes.class), CONFIGURACOES);
-                break;
-            case R.id.menu_sobre:
-                startActivity(new Intent("com.msk.minhascontas.SOBRE"));
-                break;
-            case R.id.botao_pesquisar:
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.BUSCACONTA"), BUSCA_CONTA);
-                break;
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            finish();
+        } else if (itemId == R.id.menu_ajustes) {
+            startActivityForResult(new Intent(this, Ajustes.class), CONFIGURACOES);
+        } else if (itemId == R.id.menu_sobre) {
+            startActivity(new Intent("com.msk.minhascontas.SOBRE"));
+        } else if (itemId == R.id.botao_pesquisar) {
+            startActivityForResult(
+                    new Intent("com.msk.minhascontas.BUSCACONTA"), BUSCA_CONTA);
         }
 
         return super.onOptionsItemSelected(item);
@@ -173,42 +184,27 @@ public class PaginadorGraficos extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        dbContas.close();
-        super.onPause();
-    }
-
-    @Override
     protected void onResume() {
-        dbContas.open();
-        AtualizaGrafico();
         super.onResume();
+        AtualizaGrafico();
     }
 
-    /**
-     * CLASSE QUE GERENCIA OS FRAGMENTOS
-     */
-    public class Paginas extends FragmentStatePagerAdapter {
+    public class Paginas extends FragmentStateAdapter {
 
-        HashMap<Integer, String> tags = new HashMap<Integer, String>();
-
-        public Paginas(FragmentManager fm) {
-            super(fm);
+        public Paginas(AppCompatActivity activity) {
+            super(activity);
         }
 
         @Override
-        public Fragment getItem(int i) {
-            // DEFINE PAGINA NA TELA
+        public Fragment createFragment(int i) {
             return GraficoMensal.newInstance(mesConta[i], anoConta[i]);
         }
 
         @Override
-        public int getCount() {
-            // QUANTIDADE DE PAGINAS QUE SERAO MOSTRADAS
+        public int getItemCount() {
             return paginas;
         }
 
-        @Override
         public CharSequence getPageTitle(int i) {
 
             String[] MesCompleto = res.getStringArray(R.array.MesesDoAno);
@@ -221,24 +217,6 @@ public class PaginadorGraficos extends AppCompatActivity {
             }
 
             return title;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            Object obj = super.instantiateItem(container, position);
-            if (obj instanceof Fragment) {
-                Fragment f = (Fragment) obj;
-                String tag = f.getTag();
-                tags.put(position, tag);
-            }
-            return obj;
-        }
-
-        public Fragment getFragment(int position) {
-            String tag = tags.get(position);
-            if (tag == null)
-                return null;
-            return getSupportFragmentManager().findFragmentByTag(tag);
         }
     }
 }

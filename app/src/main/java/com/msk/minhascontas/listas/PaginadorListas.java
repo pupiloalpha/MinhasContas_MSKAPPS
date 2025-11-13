@@ -2,7 +2,6 @@ package com.msk.minhascontas.listas;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -12,18 +11,22 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.lifecycle.Lifecycle;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.info.Ajustes;
@@ -32,25 +35,27 @@ import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 
 public class PaginadorListas extends AppCompatActivity {
 
-    private static final int BUSCA_CONTA = 111;
-    private static final int CONFIGURACOES = 222;
-    private static final int CRIA_CONTA = 333;
+    private static final int START_PAGE = 200;
     public static ImageButton addConta;
-    private static int[] mesConta, anoConta;
-    // CLASSE DO BANCO DE DADOS
-    private DBContas dbContas = new DBContas(this);
-    // ELEMENTOS DA TELA
-    private Paginas mPaginas;
-    private ViewPager mViewPager;
-    private TabLayout tabLayout;
+    private DBContas dbContas;
+    private ViewPager2 mViewPager;
     private Resources res;
     private NumberFormat dinheiro;
-    // VARIAVEIS DO APLICATIVO
     private String[] Meses, classes;
-    private int mes, ano, tipo, filtro, paginas, nrPagina;
+    private int mes, ano, tipo, filtro, nrPagina;
+
+    private final ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    int currentPage = mViewPager.getCurrentItem();
+                    Objects.requireNonNull(mViewPager.getAdapter()).notifyItemChanged(currentPage);
+                }
+            });
 
     private static boolean isTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
@@ -62,254 +67,198 @@ public class PaginadorListas extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Bundle localBundle = getIntent().getExtras();
+        int nrPaginaOffsetFromMinhasContas = 0; // Default offset to 0 (current month)
+        int tipoFromMinhasContas = 0; // Default type
+        if (localBundle != null) {
+            nrPaginaOffsetFromMinhasContas = localBundle.getInt("nr", 0);
+            tipoFromMinhasContas = localBundle.getInt("tipo", 0);
+        }
+        this.tipo = tipoFromMinhasContas; // Assign to class member
+
         setContentView(R.layout.pagina_lista_mensal);
 
         res = getResources();
-        Locale current = res.getConfiguration().locale;
+        Locale current = res.getConfiguration().getLocales().get(0);
         dinheiro = NumberFormat.getCurrencyInstance(current);
+
+        dbContas = DBContas.getInstance(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        int toolbarColor = 0;
+        if (tipo == 1) {
+            toolbarColor = ContextCompat.getColor(this, R.color.receita_color);
+        } else if (tipo == 0) {
+            toolbarColor = ContextCompat.getColor(this, R.color.despesa_color);
+        } else if (tipo == 2) {
+            toolbarColor = ContextCompat.getColor(this, R.color.aplicacao_color);
+        }
 
-        // AJUSTES DO BANCO DE DADOS
-        dbContas.open();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(toolbarColor));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
+
         dbContas.confirmaPagamentos();
         dbContas.ajustaRepeticoesContas();
 
-        // PEGA O ANO ATUAL PARA DEFINIR A PRIMEIRA TELA
-        Bundle localBundle = getIntent().getExtras();
-        nrPagina = localBundle.getInt("nr");
-        tipo = localBundle.getInt("tipo");
         if (tipo == -1) filtro = -2;
         else filtro = -1;
 
-        // PAGINA CONTENDO MESES
-        paginas = 120;
-        ListaMesesAnos();
-
         Meses = getResources().getStringArray(R.array.MesResumido);
 
-        // Cria o adaptador que chama o fragmento para cada tela
-        mPaginas = new Paginas(getSupportFragmentManager());
+        Paginas mPaginas = new Paginas(getSupportFragmentManager(), getLifecycle());
 
-        // Define o ViewPager e as telas do adaptador.
         mViewPager = findViewById(R.id.paginas);
         mViewPager.setAdapter(mPaginas);
-        mViewPager.getAdapter().notifyDataSetChanged();
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
+        mViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                nrPagina = position;
-                AtualizaActionBar();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
+                super.onPageSelected(position);
+                updateCurrentDate(position);
                 if (ListaMensalContas.mActionMode != null) ListaMensalContas.mActionMode.finish();
             }
         });
 
-        // Define a barra de titulo e as tabs
-        int normalColor = Color.parseColor("#90FFFFFF");
-        int selectedColor = res.getColor(android.R.color.white);
+        TabLayout tabLayout = findViewById(R.id.tablayout);
 
-        tabLayout = findViewById(R.id.tablayout);
-        tabLayout.setTabTextColors(normalColor, selectedColor);
-        tabLayout.setupWithViewPager(mViewPager);
-
-        AtualizaActionBar();
+        new TabLayoutMediator(tabLayout, mViewPager,
+                (tab, position) -> tab.setText(mPaginas.getPageTitle(position))
+        ).attach();
 
         addConta = findViewById(R.id.ibfab);
-        addConta.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setResult(RESULT_OK, null);
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.NOVACONTA"), CRIA_CONTA);
-            }
+        addConta.setOnClickListener(v -> {
+            setResult(RESULT_OK, null);
+            Intent intent = new Intent("com.msk.minhascontas.NOVACONTA");
+            someActivityResultLauncher.launch(intent);
         });
 
-        // DEFINE O MES QUE APARECERA NA TELA QUANDO ABRIR
-        mViewPager.setCurrentItem(nrPagina);
+        // Corretamente calcula a página alvo para PaginadorListas
+        // PaginadorListas também usa START_PAGE como seu ponto central, então a página absoluta
+        // deve ser START_PAGE + o offset recebido de MinhasContas.
+        int targetPage = START_PAGE + nrPaginaOffsetFromMinhasContas;
+
+        mViewPager.setCurrentItem(targetPage, false); // Define o ViewPager para a página absoluta calculada
+        this.nrPagina = targetPage; // Atualiza o membro da classe nrPagina
+        updateCurrentDate(this.nrPagina); // Chama updateCurrentDate com a página absoluta correta
     }
 
-    private void ListaMesesAnos() {
-
-        // DEFINE OS MESES E ANOS QUE APARECERAM NA TELA
-        mesConta = new int[paginas];
-        anoConta = new int[paginas];
-        Calendar c = Calendar.getInstance();
-        int u = c.get(Calendar.MONTH);
-        int n = c.get(Calendar.YEAR) - 5;
-        for (int i = 0; i < mesConta.length; i++) {
-
-            if (u > 11) {
-                u = 0;
-                n = n + 1;
-            }
-            mesConta[i] = u;
-            anoConta[i] = n;
-            u++;
-        }
+    private void updateCurrentDate(int position) {
+        Calendar currentCalendar = Calendar.getInstance();
+        currentCalendar.add(Calendar.MONTH, position - START_PAGE);
+        mes = currentCalendar.get(Calendar.MONTH);
+        ano = currentCalendar.get(Calendar.YEAR);
+        nrPagina = position;
+        AtualizaActionBar();
     }
+
 
     private void FiltroContas() {
         AlertDialog.Builder dialogoBuilder = new AlertDialog.Builder(this);
 
-        // set title
         dialogoBuilder.setTitle(getString(R.string.titulo_filtro));
 
         if (tipo == 0) {
-
             classes = res.getStringArray(R.array.FiltroDespesa);
-            // set dialog message
             dialogoBuilder.setItems(classes,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // DEFINE CONTEUDO LISTA COM FILTRO
-                            if (id < 6) {
-                                filtro = id;
-                            } else {
-                                filtro = -1;
-                            }
-                            nrPagina = mViewPager.getCurrentItem();
-                            mPaginas = new Paginas(getSupportFragmentManager());
-                            mViewPager.setAdapter(mPaginas);
-                            mViewPager.setCurrentItem(nrPagina);
-                            MontaLista();
+                    (dialog, id) -> {
+                        if (id < 6) {
+                            filtro = id;
+                        } else {
+                            filtro = -1;
                         }
+                        int currentPage = mViewPager.getCurrentItem();
+                        Objects.requireNonNull(mViewPager.getAdapter()).notifyItemChanged(currentPage);
+                        AtualizaActionBar();
                     });
         }
 
         if (tipo == 2) {
-
             classes = res.getStringArray(R.array.FiltroAplicacao);
-            // set dialog message
             dialogoBuilder.setItems(classes,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // DEFINE CONTEUDO LISTA COM FILTRO
-                            if (id < 3) {
-                                filtro = id;
-                            } else {
-                                filtro = -1;
-                            }
-                            nrPagina = mViewPager.getCurrentItem();
-                            mPaginas = new Paginas(getSupportFragmentManager());
-                            mViewPager.setAdapter(mPaginas);
-                            mViewPager.setCurrentItem(nrPagina);
-                            AtualizaActionBar();
-                            MontaLista();
+                    (dialog, id) -> {
+                        if (id < 3) {
+                            filtro = id;
                         }
+                        else {
+                            filtro = -1;
+                        }
+                        int currentPage = mViewPager.getCurrentItem();
+                        Objects.requireNonNull(mViewPager.getAdapter()).notifyItemChanged(currentPage);
+                        AtualizaActionBar();
                     });
         }
-
-        // create alert dialog
         AlertDialog alertDialog = dialogoBuilder.create();
-        // show it
         alertDialog.show();
     }
 
     private void MontaLista() {
-        nrPagina = mViewPager.getCurrentItem();
-        Fragment current = mPaginas.getFragment(nrPagina);
-        if (current != null) {
-            current.onResume();
-        }
+        int currentPage = mViewPager.getCurrentItem();
+        Objects.requireNonNull(mViewPager.getAdapter()).notifyItemChanged(currentPage);
         AtualizaActionBar();
     }
 
     public void AtualizaActionBar() {
 
-        mes = mesConta[nrPagina];
-        ano = anoConta[nrPagina];
-        dbContas.open();
-        ColorDrawable cor;
-        Cursor somador;
-        double valores;
+        double valores = 0.0D;
+
+        if (getSupportActionBar() == null) return;
 
         if (tipo == 1) {
-            cor = new ColorDrawable(Color.parseColor("#FF0099CC"));
-            getSupportActionBar().setBackgroundDrawable(cor);
-            tabLayout.setBackgroundColor(Color.parseColor("#FF0099CC"));
-            tabLayout.setTabTextColors(Color.parseColor("#90FFFFFF"), res.getColor(R.color.branco));
             getSupportActionBar().setTitle(res.getString(R.string.linha_receita));
         } else if (tipo == 0) {
-            cor = new ColorDrawable(Color.parseColor("#FFCC0000"));
-            getSupportActionBar().setBackgroundDrawable(cor);
-            tabLayout.setBackgroundColor(Color.parseColor("#FFCC0000"));
-            tabLayout.setTabTextColors(Color.parseColor("#90FFFFFF"), res.getColor(R.color.branco));
             classes = res.getStringArray(R.array.TipoDespesa);
             getSupportActionBar().setTitle(res.getString(R.string.linha_despesa));
         } else if (tipo == 2) {
-            cor = new ColorDrawable(Color.parseColor("#FF669900"));
-            getSupportActionBar().setBackgroundDrawable(cor);
-            tabLayout.setBackgroundColor(Color.parseColor("#FF669900"));
-            tabLayout.setTabTextColors(Color.parseColor("#90FFFFFF"), res.getColor(R.color.branco));
             classes = res.getStringArray(R.array.TipoAplicacao);
             getSupportActionBar().setTitle(res.getString(R.string.linha_aplicacoes));
         }
 
         if (filtro >= 0) {
-            // DEFINE TITULO LISTA COM FILTRO
+            String title = "";
             if (filtro == 4) {
-                somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "falta");
-                if (somador.getCount() > 0)
+                try (Cursor somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "falta")) {
                     valores = SomaContas(somador);
-                else
-                    valores = 0.0D;
-                getSupportActionBar().setTitle(res.getString(R.string.resumo_faltam));
+                }
+                title = res.getString(R.string.resumo_faltam);
             } else if (filtro == 5) {
-                somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "paguei");
-                if (somador.getCount() > 0)
+                try (Cursor somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "paguei")) {
                     valores = SomaContas(somador);
-                else
-                    valores = 0.0D;
-                getSupportActionBar().setTitle(res.getString(R.string.resumo_pagas));
+                }
+                title = res.getString(R.string.resumo_pagas);
             } else {
-                somador = dbContas.buscaContasClasse(0, mes, ano, null, tipo, filtro);
-                if (somador.getCount() > 0)
+                try (Cursor somador = dbContas.buscaContasClasse(0, mes, ano, null, tipo, filtro)) {
                     valores = SomaContas(somador);
-                else
-                    valores = 0.0D;
-                getSupportActionBar().setTitle(classes[filtro]);
+                }
+                if (classes != null && filtro < classes.length) {
+                    title = classes[filtro];
+                }
             }
+            getSupportActionBar().setTitle(title);
             getSupportActionBar().setSubtitle(dinheiro.format(valores));
         } else if (filtro == -1) {
-            // DEFINE TITULO LISTA SEM FILTRO
-            somador = dbContas.buscaContasTipo(0, mes, ano, null, tipo);
-            if (somador.getCount() > 0)
+            try (Cursor somador = dbContas.buscaContasTipo(0, mes, ano, null, tipo)) {
                 valores = SomaContas(somador);
-            else
-                valores = 0.0D;
+            }
             getSupportActionBar().setSubtitle(dinheiro.format(valores));
         }
     }
 
     private double SomaContas(Cursor cursor) {
-        int i = cursor.getCount();
-        cursor.moveToLast();
-        double d = 0.0D;
-        for (int j = 0; ; j++) {
-            if (j >= i) {
-                cursor.close();
-                return d;
-            }
-            d += cursor.getDouble(8);
-            cursor.moveToPrevious();
+        double total = 0.0D;
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                total += cursor.getDouble(8);
+            } while (cursor.moveToNext());
         }
+        return total;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         if (tipo == 1 || tipo == -1) {
             getMenuInflater().inflate(R.menu.barra_botoes_lista, menu);
         } else {
@@ -320,109 +269,66 @@ public class PaginadorListas extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-
-            case android.R.id.home:
-                setResult(RESULT_OK, null);
-                dbContas.close();
-                finish();
-                break;
-            case R.id.menu_ajustes:
-                setResult(RESULT_OK, null);
-                startActivityForResult(new Intent(this, Ajustes.class), CONFIGURACOES);
-                break;
-            case R.id.menu_sobre:
-                setResult(RESULT_OK, null);
-                startActivity(new Intent("com.msk.minhascontas.SOBRE"));
-                break;
-            case R.id.botao_pesquisar:
-                setResult(RESULT_OK, null);
-                startActivityForResult(
-                        new Intent("com.msk.minhascontas.BUSCACONTA"), BUSCA_CONTA);
-                break;
-            case R.id.botao_filtrar:
-                FiltroContas();
-                break;
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            setResult(RESULT_OK, null);
+            finish();
+        } else if (itemId == R.id.menu_ajustes) {
+            Intent intent = new Intent(this, Ajustes.class);
+            someActivityResultLauncher.launch(intent);
+        } else if (itemId == R.id.menu_sobre) {
+            startActivity(new Intent("com.msk.minhascontas.SOBRE"));
+        } else if (itemId == R.id.botao_pesquisar) {
+            Intent intent = new Intent("com.msk.minhascontas.BUSCACONTA");
+            someActivityResultLauncher.launch(intent);
+        } else if (itemId == R.id.botao_filtrar) {
+            FiltroContas();
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            MontaLista();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        dbContas.close();
-        super.onPause();
-    }
-
-    @Override
     protected void onResume() {
-        dbContas.open();
-        MontaLista();
         super.onResume();
+        MontaLista();
     }
 
-    /**
-     * CLASSE QUE GERENCIA OS FRAGMENTOS
-     */
-    public class Paginas extends FragmentStatePagerAdapter {
+    public class Paginas extends FragmentStateAdapter {
 
-        HashMap<Integer, String> tags = new HashMap<Integer, String>();
+        private final HashMap<Integer, Fragment> mFragmentos = new HashMap<>();
 
-        public Paginas(FragmentManager fm) {
-            super(fm);
+        public Paginas(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+            super(fragmentManager, lifecycle);
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, position - START_PAGE);
+            Fragment fragment = ListaMensalContas.newInstance(cal.get(Calendar.MONTH), cal.get(Calendar.YEAR), tipo, filtro);
+            mFragmentos.put(position, fragment);
+            return fragment;
         }
 
         @Override
-        public Fragment getItem(int i) {
-            // DEFINE PAGINA NA TELA
-            return ListaMensalContas.newInstance(mesConta[i], anoConta[i], tipo, filtro);
+        public int getItemCount() {
+            return START_PAGE * 2;
         }
 
-        @Override
-        public int getCount() {
-            // QUANTIDADE DE PAGINAS QUE SERAO MOSTRADAS
-            return paginas;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int i) {
-
+        public CharSequence getPageTitle(int position) {
             String[] MesCompleto = res.getStringArray(R.array.MesesDoAno);
-            String title;
-
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, position - START_PAGE);
             if (isTablet(getApplicationContext())) {
-                title = "  " + MesCompleto[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
+                return "  " + MesCompleto[cal.get(Calendar.MONTH)] + "/" + String.valueOf(cal.get(Calendar.YEAR)).substring(2) + "  ";
             } else {
-                title = "  " + Meses[mesConta[i]] + "/" + (anoConta[i]) % 100 + "  ";
+                return "  " + Meses[cal.get(Calendar.MONTH)] + "/" + String.valueOf(cal.get(Calendar.YEAR)).substring(2) + "  ";
             }
-
-            return title;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            Object obj = super.instantiateItem(container, position);
-            if (obj instanceof Fragment) {
-                Fragment f = (Fragment) obj;
-                String tag = f.getTag();
-                tags.put(position, tag);
-            }
-            return obj;
         }
 
         public Fragment getFragment(int position) {
-            String tag = tags.get(position);
-            if (tag == null)
-                return null;
-            return getSupportFragmentManager().findFragmentByTag(tag);
+            return mFragmentos.get(position);
         }
     }
 }

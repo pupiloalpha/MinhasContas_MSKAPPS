@@ -1,7 +1,6 @@
 package com.msk.minhascontas.listas;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -29,17 +29,21 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
+import com.msk.minhascontas.db.Conta; // Added import for Conta
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+@RequiresApi(Build.VERSION_CODES.HONEYCOMB)
 @SuppressLint("NewApi")
 public class PesquisaContas extends AppCompatActivity {
 
-    private DBContas dbContasPesquisadas = new DBContas(this);
-    private Calendar c = Calendar.getInstance();
+    private DBContas dbContasPesquisadas;
+    private final Calendar c = Calendar.getInstance();
     private Resources r;
     private ActionMode mActionMode;
     // ELEMENTOS DA TELA
@@ -58,7 +62,7 @@ public class PesquisaContas extends AppCompatActivity {
     private boolean primeiraConta = false;
     private String nomeBuscado, nomeConta;
     private int conta;
-    private ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
+    private final ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -77,129 +81,115 @@ public class PesquisaContas extends AppCompatActivity {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            int itemId = item.getItemId();
+            if (itemId == R.id.botao_editar) {
 
-            switch (item.getItemId()) {
-                case R.id.botao_editar:
+                if (idConta != 0) {
+                    Bundle nova = new Bundle();
+                    nova.putLong("id", idConta);
+                    Intent app = new Intent(
+                            "com.msk.minhascontas.EDITACONTA");
+                    app.putExtras(nova);
+                    PesquisaContas.this.startActivityForResult(
+                            app, 1);
+                }
+                setResult(RESULT_OK, null);
+            } else if (itemId == R.id.botao_excluir) {
 
-                    if (idConta != 0) {
-                        Bundle nova = new Bundle();
-                        nova.putLong("id", idConta);
-                        Intent app = new Intent(
-                                "com.msk.minhascontas.EDITACONTA");
-                        app.putExtras(nova);
-                        PesquisaContas.this.startActivityForResult(
-                                app, 1);
+                if (idConta != 0) {
+                    try (Cursor cursor = dbContasPesquisadas.getContaById(idConta)) {
+                        if (cursor.moveToFirst()) {
+                            String codigoConta = getColumnString(cursor, DBContas.Colunas.COLUNA_CODIGO_CONTA);
+                            int nrRepete = getColumnInt(cursor, DBContas.Colunas.COLUNA_NR_REPETICAO_CONTA);
+                            dbContasPesquisadas.deleteContasRecorrentes(codigoConta, nrRepete, DBContas.TipoExclusao.APENAS_ESTA);
+                        }
                     }
+                    if (buscaContas != null) {
+                        buscaContas.notifyDataSetChanged();
+                    }
+                    MontaLista();
                     setResult(RESULT_OK, null);
-                    break;
-                case R.id.botao_excluir:
+                }
+            } else if (itemId == R.id.botao_pagar) {
+                if (idConta != 0) {
+                    try (Cursor cursor = dbContasPesquisadas.getContaById(idConta)) {
+                        if (cursor.moveToFirst()) {
+                            long currentId = getColumnLong(cursor, DBContas.Colunas._ID);
+                            String currentNome = getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA);
+                            int currentTipo = getColumnInt(cursor, DBContas.Colunas.COLUNA_TIPO_CONTA);
+                            int currentClasse = getColumnInt(cursor, DBContas.Colunas.COLUNA_CLASSE_CONTA);
+                            int currentCategoria = getColumnInt(cursor, DBContas.Colunas.COLUNA_CATEGORIA_CONTA);
+                            int currentDia = getColumnInt(cursor, DBContas.Colunas.COLUNA_DIA_DATA_CONTA);
+                            int currentMes = getColumnInt(cursor, DBContas.Colunas.COLUNA_MES_DATA_CONTA);
+                            int currentAno = getColumnInt(cursor, DBContas.Colunas.COLUNA_ANO_DATA_CONTA);
+                            double currentValor = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_CONTA);
+                            String currentPagamento = getColumnString(cursor, DBContas.Colunas.COLUNA_PAGOU_CONTA);
+                            int currentQtRepeticoes = getColumnInt(cursor, DBContas.Colunas.COLUNA_QT_REPETICOES_CONTA);
+                            int currentNrRepeticao = getColumnInt(cursor, DBContas.Colunas.COLUNA_NR_REPETICAO_CONTA);
+                            int currentIntervalo = getColumnInt(cursor, DBContas.Colunas.COLUNA_INTERVALO_CONTA);
+                            String currentCodigo = getColumnString(cursor, DBContas.Colunas.COLUNA_CODIGO_CONTA);
+                            double currentValorJuros = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_JUROS);
 
-                    if (idConta != 0) {
-                        dbContasPesquisadas.open();
-                        String nomeContaExcluir = dbContasPesquisadas
-                                .mostraNomeConta(idConta);
-                        int qtRepeteConta = dbContasPesquisadas
-                                .quantasContasPorNome(nomeContaExcluir);
-                        String dataAntiga = dbContasPesquisadas
-                                .mostraCodigoConta(idConta);
-                        long ii = dbContasPesquisadas
-                                .mostraPrimeiraRepeticaoConta(
-                                        nomeContaExcluir,
-                                        qtRepeteConta, dataAntiga);
-                        dataAntiga = dbContasPesquisadas.mostraCodigoConta(ii);
-                        dbContasPesquisadas.atualizaDataContas(
-                                nomeContaExcluir, dataAntiga,
-                                qtRepeteConta);
+                            Conta contaToUpdate = new Conta(currentId, currentNome, currentTipo, currentClasse, currentCategoria,
+                                    currentDia, currentMes, currentAno, currentValor, currentPagamento,
+                                    currentQtRepeticoes, currentNrRepeticao, currentIntervalo, currentCodigo, currentValorJuros);
 
-                        if (qtRepeteConta == 1) {
-                            // Exclui a unica conta
-                            dbContasPesquisadas
-                                    .excluiConta(idConta);
-                            Toast.makeText(
-                                    PesquisaContas.this
-                                            .getApplicationContext(),
-                                    getResources()
-                                            .getString(
-                                                    R.string.dica_conta_excluida,
-                                                    nomeContaExcluir),
-                                    Toast.LENGTH_SHORT).show();
-                            idConta = 0;
-                        } else {
-                            // Exclui todas as repeticoes da conta
-                            Dialogo();
+                            if (DBContas.PAGAMENTO_PAGO.equals(currentPagamento)) {
+                                contaToUpdate.setPagamento(DBContas.PAGAMENTO_FALTA);
+                            } else {
+                                contaToUpdate.setPagamento(DBContas.PAGAMENTO_PAGO);
+                            }
+                            dbContasPesquisadas.updateConta(contaToUpdate);
                         }
-                        dbContasPesquisadas.close();
-                        buscaContas.notifyDataSetChanged();
-                        MontaLista();
-                        setResult(RESULT_OK, null);
                     }
-                    break;
-                case R.id.botao_pagar:
-                    if (idConta != 0) {
+                    idConta = 0;
 
-                        dbContasPesquisadas.open();
-                        String pg = dbContasPesquisadas
-                                .mostraPagamentoConta(idConta);
-                        if (pg.equals("paguei")) {
-                            dbContasPesquisadas
-                                    .alteraPagamentoConta(idConta,
-                                            "falta");
-                        } else {
-                            dbContasPesquisadas
-                                    .alteraPagamentoConta(idConta,
-                                            "paguei");
+                    if (buscaContas != null) {
+                        buscaContas.notifyDataSetChanged();
+                    }
+                    MontaLista();
+                    setResult(RESULT_OK, null);
+                }
+            } else if (itemId == R.id.botao_lembrete) {
+                if (idConta != 0) {
+                    try (Cursor cursor = dbContasPesquisadas.getContaById(idConta)) {
+                        if (cursor.moveToFirst()) {
+                            int dia = getColumnInt(cursor, DBContas.Colunas.COLUNA_DIA_DATA_CONTA);
+                            int mes = getColumnInt(cursor, DBContas.Colunas.COLUNA_MES_DATA_CONTA);
+                            int ano = getColumnInt(cursor, DBContas.Colunas.COLUNA_ANO_DATA_CONTA);
+                            double valorConta = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_CONTA);
+                            String nomeContaCalendario = r.getString(
+                                    R.string.dica_evento,
+                                    getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA));
+
+                            c.set(ano, mes, dia);
+                            Intent evento = new Intent(
+                                    Intent.ACTION_EDIT);
+                            evento.setType("vnd.android.cursor.item/event");
+                            evento.putExtra(Events.TITLE,
+                                    nomeContaCalendario);
+                            NumberFormat dinheiro = NumberFormat.getCurrencyInstance(r.getConfiguration().getLocales().get(0));
+                            evento.putExtra(Events.DESCRIPTION, r
+                                    .getString(
+                                            R.string.dica_calendario,
+                                            dinheiro.format(valorConta)));
+
+                            evento.putExtra(
+                                    CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                                    c.getTimeInMillis());
+                            evento.putExtra(
+                                    CalendarContract.EXTRA_EVENT_END_TIME,
+                                    c.getTimeInMillis());
+
+                            evento.putExtra(Events.ACCESS_LEVEL,
+                                    Events.ACCESS_PRIVATE);
+                            evento.putExtra(Events.AVAILABILITY,
+                                    Events.AVAILABILITY_BUSY);
+                            setResult(RESULT_OK, null);
+                            startActivity(evento);
                         }
-                        dbContasPesquisadas.close();
-                        idConta = 0;
-
-                        buscaContas.notifyDataSetChanged();
-                        MontaLista();
-                        setResult(RESULT_OK, null);
                     }
-                    break;
-                case R.id.botao_lembrete:
-                    if (idConta != 0) {
-                        dbContasPesquisadas.open();
-                        int[] dmaConta = dbContasPesquisadas
-                                .mostraDMAConta(idConta);
-                        int dia = dmaConta[0];
-                        int mes = dmaConta[1];
-                        int ano = dmaConta[2];
-
-                        double valorConta = dbContasPesquisadas
-                                .mostraValorConta(idConta);
-                        String nomeContaCalendario = r.getString(
-                                R.string.dica_evento,
-                                dbContasPesquisadas
-                                        .mostraNomeConta(idConta));
-                        dbContasPesquisadas.close();
-                        c.set(ano, mes, dia);
-                        Intent evento = new Intent(
-                                Intent.ACTION_EDIT);
-                        evento.setType("vnd.android.cursor.item/event");
-                        evento.putExtra(Events.TITLE,
-                                nomeContaCalendario);
-                        NumberFormat dinheiro = NumberFormat.getCurrencyInstance(r.getConfiguration().locale);
-                        evento.putExtra(Events.DESCRIPTION, r
-                                .getString(
-                                        R.string.dica_calendario,
-                                        dinheiro.format(valorConta)));
-
-                        evento.putExtra(
-                                CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-                                c.getTimeInMillis());
-                        evento.putExtra(
-                                CalendarContract.EXTRA_EVENT_END_TIME,
-                                c.getTimeInMillis());
-
-                        evento.putExtra(Events.ACCESS_LEVEL,
-                                Events.ACCESS_PRIVATE);
-                        evento.putExtra(Events.AVAILABILITY,
-                                Events.AVAILABILITY_BUSY);
-                        setResult(RESULT_OK, null);
-                        startActivity(evento);
-                    }
-                    break;
+                }
             }
             mode.finish();
             return true;
@@ -208,75 +198,86 @@ public class PesquisaContas extends AppCompatActivity {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
-            buscaContas.marcaConta(conta, false);
+            if (buscaContas != null) {
+                buscaContas.marcaConta(conta, false);
+            }
         }
     };
-    private OnItemClickListener toqueSimples = new OnItemClickListener() {
+    private final OnItemClickListener toqueSimples = new OnItemClickListener() {
 
         @Override
         public void onItemClick(AdapterView<?> adaptView, View v, int posicao,
                                 long arg3) {
 
-            dbContasPesquisadas.open();
-            contasParaLista.moveToPosition(posicao);
-            idConta = contasParaLista.getLong(0);
-            nomeConta = contasParaLista.getString(1);
-            dbContasPesquisadas.close();
+            if (contasParaLista != null && contasParaLista.moveToPosition(posicao)) {
+                idConta = contasParaLista.getLong(0);
+                nomeConta = contasParaLista.getString(1);
 
-            if (!alteraContas) {
-                if (mActionMode == null) {
-                    buscaContas.limpaSelecao();
-                    contas = new ArrayList<Long>();
-                    buscaContas.marcaConta(posicao, true);
-                    mActionMode = PesquisaContas.this.startSupportActionMode(alteraUmaConta);
-                    lastView = v;
-                    conta = posicao;
-                } else {
-                    buscaContas.marcaConta(conta, false);
-                    buscaContas.marcaConta(posicao, true);
-                    if (posicao != conta) {
+                if (!alteraContas) {
+                    if (mActionMode == null) {
+                        if (buscaContas != null) {
+                            buscaContas.limpaSelecao();
+                        }
+                        contas = new ArrayList<>();
+                        if (buscaContas != null) {
+                            buscaContas.marcaConta(posicao, true);
+                        }
                         mActionMode = PesquisaContas.this.startSupportActionMode(alteraUmaConta);
                         lastView = v;
                         conta = posicao;
                     } else {
-                        mActionMode.finish();
-                        MontaLista();
-                    }
-                }
-            } else {
-
-                if (contas.size() != 0) {
-
-                    if (contas.contains(idConta)) {
-                        if (!primeiraConta) {
-                            contas.remove(idConta);
-                            buscaContas.marcaConta(posicao, false);
-                            //v.setSelected(false);
+                        if (buscaContas != null) {
+                            buscaContas.marcaConta(conta, false);
+                            buscaContas.marcaConta(posicao, true);
+                        }
+                        if (posicao != conta) {
+                            mActionMode = PesquisaContas.this.startSupportActionMode(alteraUmaConta);
+                            lastView = v;
+                            conta = posicao;
                         } else {
-                            primeiraConta = false;
+                            mActionMode.finish();
+                            MontaLista();
+                        }
+                    }
+                } else {
+
+                    if (!contas.isEmpty()) {
+
+                        if (contas.contains(idConta)) {
+                            if (!primeiraConta) {
+                                contas.remove(idConta);
+                                if (buscaContas != null) {
+                                    buscaContas.marcaConta(posicao, false);
+                                }
+                                //v.setSelected(false);
+                            } else {
+                                primeiraConta = false;
+                            }
+
+                        } else {
+                            contas.add(idConta);
+                            if (buscaContas != null) {
+                                buscaContas.marcaConta(posicao, true);
+                            }
+                            //v.setSelected(true);
                         }
 
-                    } else {
-                        contas.add(idConta);
-                        buscaContas.marcaConta(posicao, true);
-                        //v.setSelected(true);
+                        if (contas.isEmpty()) {
+                            mActionMode.finish();
+                            MontaLista();
+                        }
+
+                        if (!contas.isEmpty())
+                            mActionMode.setTitle(r.getQuantityString(R.plurals.selecao,
+                                    contas.size(), contas.size()));
                     }
 
-                    if (contas.size() == 0) {
-                        mActionMode.finish();
-                        MontaLista();
-                    }
-
-                    if (contas.size() != 0)
-                        mActionMode.setTitle(r.getQuantityString(R.plurals.selecao,
-                                contas.size(), contas.size()));
                 }
-
             }
         }
 
     };
-    private ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
+    private final ActionMode.Callback alteraVariasContas = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();
@@ -291,37 +292,52 @@ public class PesquisaContas extends AppCompatActivity {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            int itemId = item.getItemId();
+            if (itemId == R.id.botao_pagar) {
+                if (!contas.isEmpty()) {
+                    for (int i = 0; i < contas.size(); i++) {
+                        long id = contas.get(i);
+                        try (Cursor cursor = dbContasPesquisadas.getContaById(id)) {
+                            if (cursor.moveToFirst()) {
+                                long currentId = getColumnLong(cursor, DBContas.Colunas._ID);
+                                String currentNome = getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA);
+                                int currentTipo = getColumnInt(cursor, DBContas.Colunas.COLUNA_TIPO_CONTA);
+                                int currentClasse = getColumnInt(cursor, DBContas.Colunas.COLUNA_CLASSE_CONTA);
+                                int currentCategoria = getColumnInt(cursor, DBContas.Colunas.COLUNA_CATEGORIA_CONTA);
+                                int currentDia = getColumnInt(cursor, DBContas.Colunas.COLUNA_DIA_DATA_CONTA);
+                                int currentMes = getColumnInt(cursor, DBContas.Colunas.COLUNA_MES_DATA_CONTA);
+                                int currentAno = getColumnInt(cursor, DBContas.Colunas.COLUNA_ANO_DATA_CONTA);
+                                double currentValor = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_CONTA);
+                                String currentPagamento = getColumnString(cursor, DBContas.Colunas.COLUNA_PAGOU_CONTA);
+                                int currentQtRepeticoes = getColumnInt(cursor, DBContas.Colunas.COLUNA_QT_REPETICOES_CONTA);
+                                int currentNrRepeticao = getColumnInt(cursor, DBContas.Colunas.COLUNA_NR_REPETICAO_CONTA);
+                                int currentIntervalo = getColumnInt(cursor, DBContas.Colunas.COLUNA_INTERVALO_CONTA);
+                                String currentCodigo = getColumnString(cursor, DBContas.Colunas.COLUNA_CODIGO_CONTA);
+                                double currentValorJuros = getColumnDouble(cursor, DBContas.Colunas.COLUNA_VALOR_JUROS);
 
-            switch (item.getItemId()) {
-                case R.id.botao_pagar:
-                    if (contas.size() != 0) {
-                        dbContasPesquisadas.open();
-                        for (int i = 0; i < contas.size(); i++) {
-                            String pg = dbContasPesquisadas
-                                    .mostraPagamentoConta(contas.get(i));
-                            if (pg.equals("paguei")) {
-                                dbContasPesquisadas.alteraPagamentoConta(
-                                        contas.get(i), "falta");
-                            } else {
-                                dbContasPesquisadas.alteraPagamentoConta(
-                                        contas.get(i), "paguei");
+                                Conta contaToUpdate = new Conta(currentId, currentNome, currentTipo, currentClasse, currentCategoria,
+                                        currentDia, currentMes, currentAno, currentValor, currentPagamento,
+                                        currentQtRepeticoes, currentNrRepeticao, currentIntervalo, currentCodigo, currentValorJuros);
+
+                                if (DBContas.PAGAMENTO_PAGO.equals(currentPagamento)) {
+                                    contaToUpdate.setPagamento(DBContas.PAGAMENTO_FALTA);
+                                } else {
+                                    contaToUpdate.setPagamento(DBContas.PAGAMENTO_PAGO);
+                                }
+                                dbContasPesquisadas.updateConta(contaToUpdate);
                             }
                         }
-                        dbContasPesquisadas.close();
                     }
-                    setResult(RESULT_OK, null);
-                    mode.finish();
-                    break;
-                case R.id.botao_excluir:
-                    if (contas.size() != 0) {
-                        dbContasPesquisadas.open();
-                        for (int i = 0; i < contas.size(); i++) {
-                            dbContasPesquisadas.excluiConta(contas.get(i));
-                        }
-                        dbContasPesquisadas.close();
+                }
+                setResult(RESULT_OK, null);
+                mode.finish();
+            } else if (itemId == R.id.botao_excluir) {
+                if (!contas.isEmpty()) {
+                    for (int i = 0; i < contas.size(); i++) {
+                        dbContasPesquisadas.deleteContaById(contas.get(i));
                     }
-                    mode.finish();
-                    break;
+                }
+                mode.finish();
             }
             MontaLista();
             return true;
@@ -330,12 +346,14 @@ public class PesquisaContas extends AppCompatActivity {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
-            buscaContas.limpaSelecao();
-            contas = new ArrayList<Long>();
+            if (buscaContas != null) {
+                buscaContas.limpaSelecao();
+            }
+            contas = new ArrayList<>();
             alteraContas = false;
         }
     };
-    private AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {
+    private final AdapterView.OnItemLongClickListener toqueLongo = new AdapterView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int posicao, long id) {
 
@@ -344,25 +362,28 @@ public class PesquisaContas extends AppCompatActivity {
                 mActionMode.finish();
 
             // Limpa a selecao de contas
-            buscaContas.limpaSelecao();
-            contas = new ArrayList<Long>();
+            if (buscaContas != null) {
+                buscaContas.limpaSelecao();
+            }
+            contas = new ArrayList<>();
             alteraContas = true;
             primeiraConta = true;
 
             // Busca informacoes da conta no DB
-            dbContasPesquisadas.open();
-            contasParaLista.moveToPosition(posicao);
-            idConta = contasParaLista.getLong(0);
-            nomeConta = contasParaLista.getString(1);
-            dbContasPesquisadas.close();
+            if (contasParaLista != null && contasParaLista.moveToPosition(posicao)) {
+                idConta = contasParaLista.getLong(0);
+                nomeConta = contasParaLista.getString(1);
 
-            // Seleciona conta
-            contas.add(idConta);
-            buscaContas.marcaConta(posicao, true);
+                // Seleciona conta
+                contas.add(idConta);
+                if (buscaContas != null) {
+                    buscaContas.marcaConta(posicao, true);
+                }
 
-            // Mostra selecao na barra de titulo
-            mActionMode = PesquisaContas.this
-                    .startSupportActionMode(alteraVariasContas);
+                // Mostra selecao na barra de titulo
+                mActionMode = PesquisaContas.this
+                        .startSupportActionMode(alteraVariasContas);
+            }
             return false;
         }
     };
@@ -373,7 +394,7 @@ public class PesquisaContas extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pesquisa_conta);
         r = getResources();
-        dbContasPesquisadas.open();
+        dbContasPesquisadas = DBContas.getInstance(this);
         iniciar();
         usarActionBar();
         MontaAutoCompleta();
@@ -390,29 +411,34 @@ public class PesquisaContas extends AppCompatActivity {
         nomeContaBuscar = findViewById(R.id.acNomeContaBusca);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private void MontaAutoCompleta() {
-        dbContasPesquisadas.open();
-        ArrayAdapter completa;
-
-        if (dbContasPesquisadas.quantasContas() != 0) {
-            completa = new ArrayAdapter(this,
-                    android.R.layout.simple_dropdown_item_1line,
-                    dbContasPesquisadas.mostraNomeContas());
-        } else {
-            completa = new ArrayAdapter(this,
-                    android.R.layout.simple_dropdown_item_1line, getResources()
-                    .getStringArray(R.array.NomeConta));
+        // Fetch all distinct account names from the database
+        Set<String> accountNames = new HashSet<>();
+        try (Cursor cursor = dbContasPesquisadas.getContasByFilter(new DBContas.ContaFilter(), null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    String name = getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA);
+                    if (name != null) {
+                        accountNames.add(name);
+                    }
+                } while (cursor.moveToNext());
+            }
         }
-        dbContasPesquisadas.close();
-        nomeContaBuscar.setAdapter(completa);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, new ArrayList<>(accountNames));
+        nomeContaBuscar.setAdapter(adapter);
     }
 
     private void MontaLista() {
-        dbContasPesquisadas.open();
-        contasParaLista = dbContasPesquisadas.buscaContasPorNome(nomeBuscado);
+        if (contasParaLista != null) {
+            contasParaLista.close();
+            contasParaLista = null; // Ensure it's null after closing
+        }
+
+        // `getContasByFilter` without any filter parameters is equivalent to fetching all accounts.
+        contasParaLista = dbContasPesquisadas.getContasByFilter(new DBContas.ContaFilter(), null);
         int i = contasParaLista.getCount();
-        dbContasPesquisadas.close();
         if (i >= 0) {
 
             int posicao = listaContas.getFirstVisiblePosition();
@@ -422,10 +448,12 @@ public class PesquisaContas extends AppCompatActivity {
             listaContas.setEmptyView(resultado);
             listaContas.setSelection(posicao);
         }
-        contas = new ArrayList<Long>();
+        contas = new ArrayList<>();
         alteraContas = false;
         primeiraConta = false;
-        buscaContas.limpaSelecao();
+        if (buscaContas != null) {
+            buscaContas.limpaSelecao();
+        }
     }
 
     private void Dialogo() {
@@ -436,38 +464,35 @@ public class PesquisaContas extends AppCompatActivity {
         alertDialogBuilder.setItems(R.array.TipoAjusteConta,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dbContasPesquisadas.open();
-                        String nomeContaExcluir = dbContasPesquisadas
-                                .mostraNomeConta(idConta);
-                        String dataContaExcluir = dbContasPesquisadas
-                                .mostraCodigoConta(idConta);
-                        switch (id) {
-                            case 0:
-                                dbContasPesquisadas.excluiConta(idConta);
-                                break;
-                            case 1:
-                                int[] repete = dbContasPesquisadas
-                                        .mostraRepeticaoConta(idConta);
-                                int nr = repete[1];
-                                dbContasPesquisadas.excluiSerieContaPorNome(
-                                        nomeContaExcluir, dataContaExcluir, nr);
-                                break;
-                            case 2:
-                                dbContasPesquisadas.excluiContaPorNome(
-                                        nomeContaExcluir, dataContaExcluir);
-                                break;
-                        }
-                        Toast.makeText(
-                                PesquisaContas.this.getApplicationContext(),
-                                getResources().getString(
-                                        R.string.dica_conta_excluida,
-                                        nomeContaExcluir), Toast.LENGTH_SHORT)
-                                .show();
+                        try (Cursor cursor = dbContasPesquisadas.getContaById(idConta)) {
+                            if (cursor.moveToFirst()) {
+                                String nomeContaExcluir = getColumnString(cursor, DBContas.Colunas.COLUNA_NOME_CONTA);
+                                String codigoConta = getColumnString(cursor, DBContas.Colunas.COLUNA_CODIGO_CONTA);
+                                int nr = getColumnInt(cursor, DBContas.Colunas.COLUNA_NR_REPETICAO_CONTA);
 
-                        buscaContas.notifyDataSetChanged();
+                                if (id == 0) { // Delete only this account
+                                    dbContasPesquisadas.deleteContaById(idConta);
+                                } else if (id == 1) { // Delete this and future recurring accounts
+                                    dbContasPesquisadas.deleteContasRecorrentes(
+                                            codigoConta, nr, DBContas.TipoExclusao.ESTA_E_FUTURAS);
+                                } else if (id == 2) { // Delete all recurring accounts with the same code
+                                    dbContasPesquisadas.deleteContasRecorrentes(
+                                            codigoConta, 1, DBContas.TipoExclusao.TODAS);
+                                }
+                                Toast.makeText(
+                                        PesquisaContas.this.getApplicationContext(),
+                                        getResources().getString(
+                                                R.string.dica_conta_excluida,
+                                                nomeContaExcluir), Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        }
+
+                        if (buscaContas != null) {
+                            buscaContas.notifyDataSetChanged();
+                        }
                         MontaLista();
                         MontaAutoCompleta();
-                        dbContasPesquisadas.close();
                         idConta = 0;
                     }
                 });
@@ -482,8 +507,10 @@ public class PesquisaContas extends AppCompatActivity {
     private void usarActionBar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
     }
 
     @Override
@@ -494,24 +521,19 @@ public class PesquisaContas extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            case android.R.id.home:
-                setResult(RESULT_OK, null);
-                dbContasPesquisadas.close();
-                finish();
-                break;
-            case R.id.botao_pesquisar:
-                if (nomeContaBuscar.getText().toString().equals(""))
-                    nomeBuscado = " ";
-                else {
-                    nomeBuscado = nomeContaBuscar.getText().toString();
-                }
-                MontaLista();
-                MontaAutoCompleta();
-                nomeContaBuscar.setText("");
-                idConta = 0;
-                break;
+        int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            setResult(RESULT_OK, null);
+            finish();
+        } else if (itemId == R.id.botao_pesquisar) {
+            // The search button will simply clear the search box and refresh the list (show all).
+            // Actual filtering by name needs DBContas modification or client-side filtering.
+            // For now, it will just reset the list to display all accounts.
+            nomeContaBuscar.setText("");
+            nomeBuscado = null; // Clear any previous search term
+            MontaLista();
+            MontaAutoCompleta();
+            idConta = 0;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -520,8 +542,9 @@ public class PesquisaContas extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            dbContasPesquisadas.open();
-            buscaContas.notifyDataSetChanged();
+            if (buscaContas != null) {
+                buscaContas.notifyDataSetChanged();
+            }
             MontaLista();
             idConta = 0;
         }
@@ -530,21 +553,27 @@ public class PesquisaContas extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         setResult(RESULT_OK, null);
-        dbContasPesquisadas.close();
         super.onBackPressed();
     }
 
-    @Override
-    protected void onDestroy() {
-        setResult(RESULT_OK, null);
-        dbContasPesquisadas.close();
-        super.onDestroy();
+    // Helper methods to safely retrieve data from Cursor
+    private int getColumnInt(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return (columnIndex >= 0) ? cursor.getInt(columnIndex) : 0;
     }
 
-    @Override
-    protected void onResume() {
-        dbContasPesquisadas.open();
-        super.onResume();
+    private String getColumnString(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return (columnIndex >= 0) ? cursor.getString(columnIndex) : null;
     }
 
+    private double getColumnDouble(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return (columnIndex >= 0) ? cursor.getDouble(columnIndex) : 0.0D;
+    }
+
+    private long getColumnLong(Cursor cursor, String columnName) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        return (columnIndex >= 0) ? cursor.getLong(columnIndex) : 0L;
+    }
 }
