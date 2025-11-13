@@ -205,5 +205,7 @@
     <string name="pref_descricao_categoria">Mostrar categorías en resumen</string>
     <string name="pref_descricao_sem_categoria">Mostrar tipos de gastos en el resumen</string>
     <string name="pref_titulo_categoria">Categorías de gastos</string>
+    <string name="titulo_permissao_negada">Permiso denegado</string>
+    <string name="permissao_negada">Permiso denegado</string>
 
 </resources>

@@ -72,8 +72,7 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical|start"
                 android:text="@string/linha_receita"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorPrimary" />
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
                 android:layout_width="0dp"
@@ -81,8 +80,7 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="@string/linha_despesa"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorPrimary" />
+                android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <TextView
                 android:layout_width="0dp"
@@ -92,8 +90,7 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical|end"
                 android:text="@string/linha_aplicacoes"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorPrimary" />
+                android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
 
         <LinearLayout

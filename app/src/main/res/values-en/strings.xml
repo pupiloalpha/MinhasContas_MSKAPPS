@@ -205,5 +205,7 @@
     <string name="pref_descricao_categoria">Show categories in the summary accounts</string>
     <string name="pref_descricao_sem_categoria">Show types of expenses in the summary</string>
     <string name="pref_titulo_categoria">Categories of expenses</string>
+    <string name="titulo_permissao_negada">Permission denied</string>
+    <string name="permissao_negada">Permission denied</string>
 
 </resources>

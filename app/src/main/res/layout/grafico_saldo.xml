@@ -13,7 +13,7 @@
         android:text="@string/resumo_saldo"
         android:textSize="18sp" />
 
-    <lecho.lib.hellocharts.view.LineChartView
+    <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/grafico_saldo"
         android:layout_width="match_parent"
         android:layout_height="300dp"

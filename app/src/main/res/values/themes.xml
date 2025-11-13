@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="Theme.MinhasContas" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Main Colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="android:colorBackground">@color/surface</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSecondary">@color/cinza</item>
+
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/surface</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+
+        <!-- Toolbar -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+
+        <!-- Tabs -->
+        <item name="tabStyle">@style/Widget.App.Tabs</item>
+    </style>
+
+    <!-- Toolbar Widget Style -->
+    <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <!-- O background agora é definido pela cor primária do tema -->
+        <item name="android:background">?attr/colorPrimary</item>
+        <!-- Cores de texto e ícones baseadas em colorOnPrimary -->
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
+        <item name="navigationIconTint">?attr/colorOnPrimary</item>
+        <!-- ThemeOverlay é usado para definir atributos como a cor dos ícones de navegação -->
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Toolbar</item>
+    </style>
+
+    <!-- ThemeOverlay para Toolbar - Define a cor dos ícones -->
+    <style name="ThemeOverlay.App.Toolbar" parent="">
+        <!-- colorControlNormal é usado para a cor dos ícones -->
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorControlNormal">?attr/colorOnPrimary</item>
+    </style>
+
+    <!-- Tabs Widget Style -->
+    <style name="Widget.App.Tabs" parent="Widget.MaterialComponents.TabLayout">
+        <item name="android:background">@color/surface</item>
+        <item name="tabIndicatorColor">@color/tab_indicator</item>
+        <item name="tabSelectedTextColor">@color/tab_text_selected</item>
+        <item name="tabTextColor">@color/tab_text_unselected</item>
+    </style>
+
+    <!-- Dialog Themes -->
+    <style name="TemaDialogo" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="colorAccent">@color/primary</item>
+    </style>
+
+    <!-- Tema das telas do aplicativo -->
+    <style name="TemaTexto" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorAccent">@color/branco</item>
+        <item name="colorControlNormal">@color/branco</item>
+        <item name="colorControlActivated">@color/branco</item>
+        <item name="android:textColorPrimary">@color/branco</item>
+        <item name="android:textColorHint">@color/branco</item>
+        <item name="android:textColorSecondary">@color/branco</item>
+    </style>
+
+    <!-- SplashScreen theme -->
+    <style name="SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:statusBarColor">@android:color/white</item>
+    </style>
+
+</resources>

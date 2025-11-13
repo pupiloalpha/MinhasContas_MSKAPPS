@@ -1,229 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mskapp="http://schemas.android.com/apk/res-auto"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".db.EditarConta"
-    tools:ignore="RtlSymmetry,RtlHardcoded">
+    android:fitsSystemWindows="true"
+    tools:context=".db.EditarConta">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/aplBarra"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingEnd="10dp"
-        android:paddingRight="10dp">
+    <include layout="@layout/barra_titulo" />
 
-        <include layout="@layout/barra_titulo" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingStart="10dp"
-            android:theme="@style/TemaTexto">
-
-            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                android:id="@+id/acNomeContaModificada"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/dica_conta"
-                android:imeOptions="actionDone"
-                android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
-                android:textColor="@color/branco" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/aplBarra">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="5dp">
+            android:padding="16dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/dica_conta">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/acNomeContaModificada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="textCapSentences|textAutoCorrect|textAutoComplete" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/dica_valor">
 
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etValorNovo"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:hint="@string/dica_valor"
                         android:imeOptions="actionDone"
                         android:inputType="numberDecimal" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center_vertical"
-                    android:contentDescription="@string/icone"
-                    android:tint="@color/cinza"
-                    mskapp:srcCompat="@drawable/ic_date_grey" />
-
                 <Button
                     android:id="@+id/etDataConta"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@color/lista_cor_fundo"
-                    android:ems="10"
-                    android:gravity="left|center_vertical"
-                    android:inputType="date"
-                    android:paddingLeft="5dp"
-                    android:text="@string/data"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/verde_escuro"
-                    android:textStyle="bold"
-                    tools:ignore="RtlHardcoded,RtlSymmetry,TextViewEdits" />
+                    android:text="@string/data" />
 
             </LinearLayout>
 
             <RadioGroup
                 android:id="@+id/rgTipoContaModificada"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
-                <androidx.appcompat.widget.AppCompatRadioButton
+                <com.google.android.material.radiobutton.MaterialRadioButton
                     android:id="@+id/rRecContaModificada"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
-                    android:text="@string/dica_receita"
-                    android:textColor="@color/azul"
-                    android:textSize="18.0sp" />
+                    android:layout_weight="1"
+                    android:text="@string/dica_receita" />
 
-                <androidx.appcompat.widget.AppCompatRadioButton
+                <com.google.android.material.radiobutton.MaterialRadioButton
                     android:id="@+id/rDespContaModificada"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.0"
+                    android:layout_weight="1"
                     android:checked="true"
-                    android:text="@string/dica_despesa"
-                    android:textColor="@color/vermelho"
-                    android:textSize="18.0sp" />
+                    android:text="@string/dica_despesa" />
 
-                <androidx.appcompat.widget.AppCompatRadioButton
+                <com.google.android.material.radiobutton.MaterialRadioButton
                     android:id="@+id/rAplicContaModificada"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.2"
-                    android:text="@string/dica_aplicacao"
-                    android:textColor="@color/verde_escuro"
-                    android:textSize="18.0sp" />
+                    android:text="@string/dica_aplicacao" />
             </RadioGroup>
 
-            <TextView
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:text="@string/dica_spinner"
-                android:textColor="@color/verde_escuro" />
+                android:layout_marginTop="16dp"
+                android:hint="@string/dica_spinner">
 
-            <androidx.appcompat.widget.AppCompatSpinner
-                android:id="@+id/spClasseConta"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:prompt="@string/dica_spinner" />
+                <AutoCompleteTextView
+                    android:id="@+id/spClasseConta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:id="@+id/layout_categoria"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:orientation="vertical">
 
-                <TextView
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/titulo_categoria"
-                    android:textColor="@color/verde_escuro" />
+                    android:hint="@string/titulo_categoria">
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/spCategoriaConta"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:entries="@array/CategoriaConta"
-                    android:prompt="@string/dica_spinner" />
+                    <AutoCompleteTextView
+                        android:id="@+id/spCategoriaConta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/CategoriaConta"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/cbPagamento"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:text="@string/dica_pagamento"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/dica_pagamento" />
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:baselineAligned="false">
 
-                <LinearLayout
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:orientation="vertical">
+                    android:hint="@string/dica_repete">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/dica_repete"
-                        android:textColor="@color/verde_escuro" />
-
-                    <androidx.appcompat.widget.AppCompatSpinner
+                    <AutoCompleteTextView
                         android:id="@+id/spRepeticoes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:entries="@array/repete_conta"
-                        android:prompt="@string/dica_repete" />
-                </LinearLayout>
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="2.0dip"
+                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    tools:ignore="RtlHardcoded">
+                    android:hint="@string/dica_numero">
 
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPrestacoes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
                         android:digits="1234567890"
-                        android:ems="10"
-                        android:hint="@string/dica_numero"
                         android:imeOptions="actionDone"
                         android:inputType="number"
                         android:maxLength="3" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

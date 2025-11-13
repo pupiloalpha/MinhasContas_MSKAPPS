@@ -207,5 +207,7 @@
     <string name="pref_descricao_categoria">Afficher les catégories en résumé</string>
     <string name="pref_descricao_sem_categoria">Afficher les types de dépenses dans le résumé</string>
     <string name="pref_titulo_categoria">Catégories de dépenses</string>
+    <string name="titulo_permissao_negada">Permission refusée</string>
+    <string name="permissao_negada">Permission refusée</string>
 
 </resources>

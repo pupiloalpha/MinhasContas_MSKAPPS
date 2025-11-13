@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    tools:context=".info.Ajustes">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/aplBarra"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <include layout="@layout/barra_titulo" />
-    </com.google.android.material.appbar.AppBarLayout>
+    <include layout="@layout/barra_titulo" />
 
     <FrameLayout
         android:id="@+id/conteudo_ajustes"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/aplBarra" />
+        android:layout_height="match_parent" />
 
-</RelativeLayout>
+</LinearLayout>

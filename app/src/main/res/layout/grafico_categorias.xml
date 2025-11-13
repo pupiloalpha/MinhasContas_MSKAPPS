@@ -14,7 +14,7 @@
         android:text="@string/pref_titulo_categoria"
         android:textSize="18sp" />
 
-    <lecho.lib.hellocharts.view.ColumnChartView
+    <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/grafico_categorias"
         android:layout_width="match_parent"
         android:layout_height="300dp"

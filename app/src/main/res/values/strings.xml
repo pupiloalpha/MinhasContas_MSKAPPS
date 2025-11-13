@@ -109,6 +109,7 @@
     <string name="dica_barra_exporta">Exportando para Excel …</string>
     <string name="dica_barra_recupera">Recuperando as contas …</string>
     <string name="dica_barra_exclui">Excluindo as contas …</string>
+    <string name="titulo_permissao_negada">Permissão negada</string>
 
     <!-- Strings Do Dialogo de Resumo do Saldo mensal -->
 
@@ -226,5 +227,6 @@
     <string name="dica_aplicacao">Aplicação</string>
     <string name="dica_despesas">Todas as despesas</string>
     <string name="dica_aplicacoes">Todas as aplicações</string>
+    <string name="permissao_negada">Permissão negada</string>
 
 </resources>

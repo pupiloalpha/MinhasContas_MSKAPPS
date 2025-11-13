@@ -14,11 +14,11 @@
         android:text="@string/dica_grafico_contas"
         android:textSize="18sp" />
 
-    <lecho.lib.hellocharts.view.PieChartView
+    <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/grafico_contas"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:layout_margin="5dp"></lecho.lib.hellocharts.view.PieChartView>
+        android:layout_margin="5dp"></com.github.mikephil.charting.charts.PieChart>
 
     <LinearLayout
         android:layout_width="match_parent"

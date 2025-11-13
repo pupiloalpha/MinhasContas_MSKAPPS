@@ -14,7 +14,7 @@
         android:text="@string/dica_grafico_despesas"
         android:textSize="18sp" />
 
-    <lecho.lib.hellocharts.view.ColumnChartView
+    <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/grafico_despesas"
         android:layout_width="match_parent"
         android:layout_height="300dp"

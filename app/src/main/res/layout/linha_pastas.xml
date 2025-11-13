@@ -17,7 +17,7 @@
         android:layout_centerVertical="true"
         android:layout_margin="10dp"
         android:contentDescription="@string/icone"
-        android:tint="@color/cinza_claro"
+        android:tint="?attr/colorOnSurface"
         mskapp:srcCompat="@drawable/ic_folder"
         tools:ignore="MissingPrefix" />
 
@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:text="@string/dica_conta"
             android:textAppearance="?android:attr/textAppearance"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="18sp"
             tools:ignore="InefficientWeight,SpUsage" />
 
@@ -45,6 +46,7 @@
             android:layout_height="wrap_content"
             android:text="@string/dica_conta"
             android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?attr/colorOnSurface"
             tools:ignore="RtlHardcoded,SpUsage" />
     </LinearLayout>
 </RelativeLayout>

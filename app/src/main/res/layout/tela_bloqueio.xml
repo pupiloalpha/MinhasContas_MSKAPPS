@@ -35,7 +35,6 @@
         android:imeOptions="actionDone"
         android:inputType="textPassword"
         android:textColor="@color/vermelho"
-        android:textColorHint="@color/colorPrimary"
         android:textSize="22sp" />
 
     <androidx.appcompat.widget.AppCompatCheckBox

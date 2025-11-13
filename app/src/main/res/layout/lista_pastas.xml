@@ -22,15 +22,16 @@
         android:gravity="center"
         android:text="@string/vazio"
         android:textSize="18sp"
+        android:textColor="?attr/colorOnSurface"
         tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/btnChoose"
+        style="?attr/materialButtonOutlinedStyle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/widget_fundo"
         android:text="Selecionar"
-        android:textColor="@color/branco"
+        android:textColor="?attr/colorOnPrimary"
         android:textStyle="bold"
         tools:ignore="HardcodedText" />
 

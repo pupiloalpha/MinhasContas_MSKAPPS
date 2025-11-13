@@ -5,7 +5,7 @@
         android:key="@string/pref_categoria_geral_key"
         android:title="@string/pref_titulo_geral">
         <ListPreference
-            android:defaultValue="conta ASC"
+            android:defaultValue="nome ASC"
             android:dialogTitle="@string/pref_titulo_ordem"
             android:entries="@array/ordem_contas"
             android:entryValues="@array/ordem_contas_valores"
