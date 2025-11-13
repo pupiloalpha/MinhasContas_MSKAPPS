@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.msk.minhascontas">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -12,16 +13,17 @@
         android:allowBackup="true"
         android:backupAgent=".info.BackupAgent"
         android:configChanges="orientation"
-        android:fullBackupContent="@xml/backup"
-        android:fullBackupOnly="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:restoreAnyVersion="true"
         android:supportsRtl="true"
-        android:theme="@style/TemaTabs"
+        android:theme="@style/Theme.MinhasContas"
         android:uiOptions="splitActionBarWhenNarrow">
         <activity
             android:name=".info.SplashScreen"
+            android:exported="true"
             android:theme="@style/SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,10 +31,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MinhasContas" />
+        <activity
+            android:name=".MinhasContas"
+            android:exported="false" />
         <activity
             android:name=".db.CriarConta"
-            android:label="@string/titulo_criar">
+            android:exported="true"
+            android:label="@string/titulo_criar"
+            android:theme="@style/Theme.MinhasContas">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.NOVACONTA" />
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -42,7 +48,9 @@
         </activity>
         <activity
             android:name=".db.EditarConta"
-            android:label="@string/titulo_editar">
+            android:exported="true"
+            android:label="@string/titulo_editar"
+            android:theme="@style/Theme.MinhasContas">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.EDITACONTA" />
 
@@ -51,6 +59,7 @@
         </activity>
         <activity
             android:name=".graficos.PaginadorGraficos"
+            android:exported="true"
             android:label="@string/titulo_grafico">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.graficos.MEUSGRAFICOS" />
@@ -60,6 +69,7 @@
         </activity>
         <activity
             android:name=".listas.PaginadorListas"
+            android:exported="true"
             android:label="@string/titulo_resumo">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.CONTASDOMES" />
@@ -69,6 +79,7 @@
         </activity>
         <activity
             android:name=".listas.PesquisaContas"
+            android:exported="true"
             android:label="@string/titulo_pesquisar">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.BUSCACONTA" />
@@ -78,8 +89,9 @@
         </activity>
         <activity
             android:name=".info.Sobre"
+            android:exported="true"
             android:label="@string/menu_sobre"
-            android:theme="@style/TemaNovo">
+            android:theme="@style/Theme.MinhasContas">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.SOBRE" />
 
@@ -88,12 +100,14 @@
         </activity>
         <activity
             android:name=".info.EscolhePasta"
+            android:exported="false"
             android:label="Escolher pasta" />
 
         <activity
             android:name=".info.Ajustes"
+            android:exported="false"
             android:label="@string/menu_ajustes"
-            android:theme="@style/TemaAjuda">
+            android:theme="@style/Theme.MinhasContas">
             <intent-filter>
                 <action android:name="com.msk.minhascontas.AJUSTES" />
 
@@ -104,27 +118,6 @@
         <meta-data
             android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAIpHF2O26UlB5OMWy7l025hyqZ73sZvLmiH3HErQ" />
-
-        <receiver
-            android:name=".info.WidgetResumo"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/new_widget_info" />
-        </receiver>
-        <receiver android:name=".info.WidgetBarra">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_barra_info" />
-        </receiver>
     </application>
 
 </manifest>
