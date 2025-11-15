@@ -35,8 +35,8 @@
             android:title="@string/pref_titulo_saldo" />
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="@string/pref_categoria_acesso_key"
-        android:title="@string/pref_titulo_categoria_acesso">
+        android:key="@string/pref_categoria_seguranca_key"
+        android:title="@string/titulo_acesso">
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="@string/pref_key_acesso"
@@ -48,6 +48,22 @@
             android:key="@string/pref_key_senha"
             android:summary="@string/pref_descricao_senha"
             android:title="@string/pref_titulo_senha" />
+        <ListPreference
+            android:key="pergunta_seguranca_id"
+            android:title="@string/titulo_pergunta_secreta"
+            android:summary="%s"
+            android:entries="@array/perguntas_seguranca"
+            android:entryValues="@array/perguntas_seguranca_valores"
+            android:defaultValue="0"
+            android:dialogTitle="@string/titulo_pergunta_secreta" />
+
+        <EditTextPreference
+            android:key="resposta_secreta"
+            android:title="@string/dica_resposta_secreta_ajustes"
+            android:summary="@string/dica_resposta_secreta_ajustes_summary"
+            android:dialogTitle="@string/titulo_pergunta_secreta"
+            android:inputType="text" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/pref_categoria_bkup_restaura_key"

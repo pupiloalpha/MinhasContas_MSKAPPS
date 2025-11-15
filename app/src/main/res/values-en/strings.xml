@@ -17,6 +17,7 @@
     <string name="acesso">Access denied</string>
     <string name="senha">Access password</string>
     <string name="dica_senha">Show password</string>
+    <string name="esqueci_senha">I forgot my password</string>
     <string name="titulo_senha">Access denied</string>
     <string name="senha_errada">Wrong password.</string>
     <string name="titulo_despesa_saque">Create expense</string>
@@ -28,9 +29,28 @@
     <string name="criar">Create</string>
     <string name="entrar">ENTRER</string>
     <string name="sem_nome">No Name</string>
-    <string name="sobre">Application My Bills was created to ease your financial control.\n\nDeveloped by Paulo E S Mesquita with support Vilar, Flavia Borges. Based on tutorials from the internet and other applications of its kind.\nVersion:%1$s.\nContact: mskapps.brazil@gmail.com</string>
+    <string name="sobre">Application My Bills was created to ease your financial control.\n
+        \nBased on tutorials from the internet and other applications of its kind.
+        \nDeveloped by Paulo E S Mesquita with support Vilar, Flavia Borges.
+        \n\nVersion:%1$s.\n\nContact: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Application created to facilitate your financial control.</string>
     <string name="tela_inicial">Do not show again</string>
+    <string name="titulo_acesso">Security and Access</string>
+    <string name="titulo_pergunta_secreta">Secret Question</string>
+    <string name="dica_resposta_secreta_ajustes">Enter your secret answer</string>
+    <string name="alerta_seguranca_nao_configurada">Set up a Secret Question in Security Options to use password recovery.</string>
+    <string name="recuperacao_senha">Password Recovery</string>
+    <string name="dica_resposta_secreta">Enter the answer to the security question</string>
+    <string name="redefinir_senha">Reset Password</string>
+    <string name="nova_senha">New Password</string>
+    <string name="confirmar">Confirm</string>
+    <string name="senha_redefinida_sucesso">Password successfully reset! Log in with your new password.</string>
+    <string name="erro_recuperacao_nao_configurada">The recovery mechanism has not been configured. Contact support.</string>
+    <string name="erro_resposta_incorreta">Incorrect answer. Please try again.</string>
+    <string name="erro_senha_vazia">The new password cannot be empty.</string>
+    <string name="pref_categoria_seguranca_key">seguranca_key</string>
+    <string name="dica_resposta_secreta_ajustes_summary">Tap to set your secret recovery answer</string>
+    <string name="resposta_definida">Secret Answer Defined</string>
 
     <!-- Strings do Menu do Aplicativo -->
 

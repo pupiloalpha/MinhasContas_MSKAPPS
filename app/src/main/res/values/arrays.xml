@@ -188,4 +188,20 @@
         <item>Anualmente</item>
     </string-array>
 
+    <string-array name="perguntas_seguranca">
+        <item>Qual o nome do seu primeiro animal de estimação?</item>
+        <item>Qual o nome da cidade onde você nasceu?</item>
+        <item>Qual o nome da sua escola primária?</item>
+        <item>Qual o sobrenome da sua mãe?</item>
+        <item>Qual sua cor favorita?</item>
+    </string-array>
+
+    <string-array name="perguntas_seguranca_valores">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
 </resources>

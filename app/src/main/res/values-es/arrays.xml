@@ -177,4 +177,12 @@
         <item>Anualmente</item>
     </string-array>
 
+    <string-array name="perguntas_seguranca">
+        <item>¿Cuál es el nombre de su primera mascota?</item>
+        <item>¿Cuál es el nombre de la ciudad donde nació?</item>
+        <item>¿Cuál es el nombre de su escuela primaria?</item>
+        <item>¿Cuál es el apellido de soltera de su madre?</item>
+        <item>¿Cuál es su color favorito?</item>
+    </string-array>
+
 </resources>

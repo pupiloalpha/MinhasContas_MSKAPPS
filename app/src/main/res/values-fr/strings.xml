@@ -17,6 +17,7 @@
     <string name="acesso">Mot de passe d\'accès verrouillé</string>
     <string name="senha">Mot de passe d\'accès</string>
     <string name="dica_senha">Montrer le Mot de passe</string>
+    <string name="esqueci_senha">J\'ai oublié mon mot de passe.</string>
     <string name="titulo_senha">Accès refusé</string>
     <string name="senha_errada">Mot de passe incorrects.</string>
     <string name="titulo_despesa_saque">Créez frais</string>
@@ -28,9 +29,29 @@
     <string name="criar">Créer</string>
     <string name="entrar">ENTRER</string>
     <string name="sem_nome">Sans Nom</string>
-    <string name="sobre">Application Mes Comptes créée pour faciliter votre contrôle financier.\nDéveloppé par Paulo E S Mesquita avec le soutien Flavia Vilar Borges. Basé sur les tutoriels à partir d\'Internet et d\'autres applications de ce type.\nVersion:%1$s\nContact: mskapps.brazil@gmail.com</string>
+    <string name="sobre">Application Mes Comptes créée pour faciliter votre contrôle financier.\n
+        \nBasé sur les tutoriels à partir d\'Internet et d\'autres applications de ce type.
+        \nDéveloppé par Paulo E S Mesquita avec le soutien Flavia Vilar Borges.
+        \n\nVersion:%1$s\n\nContact: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Application créée pour faciliter votre contrôle financier.</string>
     <string name="tela_inicial">Ne pas montrer de nouveau</string>
+
+    <string name="titulo_acesso">Sécurité et Accès</string>
+    <string name="titulo_pergunta_secreta">Question Secrète</string>
+    <string name="dica_resposta_secreta_ajustes">Entrez votre réponse secrète</string>
+    <string name="alerta_seguranca_nao_configurada">Configurez une Question Secrète dans les Options de Sécurité pour utiliser la récupération de mot de passe.</string>
+    <string name="recuperacao_senha">Récupération de Mot de Passe</string>
+    <string name="dica_resposta_secreta">Entrez la réponse à la question de sécurité</string>
+    <string name="redefinir_senha">Réinitialiser le Mot de Passe</string>
+    <string name="nova_senha">Nouveau Mot de Passe</string>
+    <string name="confirmar">Confirmer</string>
+    <string name="senha_redefinida_sucesso">Mot de passe réinitialisé avec succès ! Connectez-vous avec votre nouveau mot de passe.</string>
+    <string name="erro_recuperacao_nao_configurada">Le mécanisme de récupération n\'a pas été configuré. Contactez le support.</string>
+    <string name="erro_resposta_incorreta">Réponse incorrecte. Veuillez réessayer.</string>
+    <string name="erro_senha_vazia">Le nouveau mot de passe ne peut pas être vide.</string>
+    <string name="pref_categoria_seguranca_key">seguranca_key</string>
+    <string name="dica_resposta_secreta_ajustes_summary">Appuyez pour définir votre réponse secrète de récupération</string>
+    <string name="resposta_definida">Réponse Secrète Définie</string>
 
     <!-- Strings do Menu do Aplicativo -->
 

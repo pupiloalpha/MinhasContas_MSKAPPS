@@ -17,6 +17,7 @@
     <string name="acesso">Acesso bloqueado por senha</string>
     <string name="senha">Senha de acesso</string>
     <string name="dica_senha">Mostrar senha</string>
+    <string name="esqueci_senha">Esqueci minha senha</string>
     <string name="titulo_senha">Acesso negado</string>
     <string name="senha_errada">Senha incorreta.</string>
     <string name="titulo_despesa_saque">Criar despesa</string>
@@ -29,9 +30,28 @@
     <string name="entrar">ENTRAR</string>
     <string name="ok" translatable="false">OK</string>
     <string name="sem_nome">Sem Nome</string>
-    <string name="sobre">O aplicativo Minhas Contas foi criado para facilitar o seu controle financeiro.\n\nDesenvolvido por Paulo E S Mesquita com apoio de Flávia Vilar Borges.\nBaseado em tutoriais da internet e outros aplicativos do gênero.\nVersão: %1$s\n\nContato: mskapps.brazil@gmail.com</string>
+    <string name="sobre">O aplicativo Minhas Contas foi criado para facilitar o seu controle financeiro.\n
+        \nBaseado em tutoriais da internet e outros aplicativos do gênero.
+        \nDesenvolvido por Paulo E S Mesquita com apoio de Flávia Vilar Borges.
+        \n\nVersão: %1$s\n\nContato: mskapps.brazil@gmail.com</string>
     <string name="dica_inicio">Aplicativo criado para facilitar o seu controle financeiro.</string>
     <string name="tela_inicial">Não mostrar novamente</string>
+    <string name="titulo_acesso">Segurança e Acesso</string>
+    <string name="titulo_pergunta_secreta">Pergunta Secreta</string>
+    <string name="dica_resposta_secreta_ajustes">Digite sua resposta secreta</string>
+    <string name="alerta_seguranca_nao_configurada">Configure uma Pergunta Secreta nas Opções de Segurança para usar a recuperação de senha.</string>
+    <string name="recuperacao_senha">Recuperação de Senha</string>
+    <string name="dica_resposta_secreta">Digite a resposta para a pergunta de segurança</string>
+    <string name="redefinir_senha">Redefinir Senha</string>
+    <string name="nova_senha">Nova Senha</string>
+    <string name="confirmar">Confirmar</string>
+    <string name="senha_redefinida_sucesso">Senha redefinida com sucesso! Acesse com sua nova senha.</string>
+    <string name="erro_recuperacao_nao_configurada">O mecanismo de recuperação não foi configurado. Contate o suporte.</string>
+    <string name="erro_resposta_incorreta">Resposta incorreta. Tente novamente.</string>
+    <string name="erro_senha_vazia">A nova senha não pode ser vazia.</string>
+    <string name="pref_categoria_seguranca_key">seguranca_key</string>
+    <string name="dica_resposta_secreta_ajustes_summary">Toque para definir sua resposta secreta de recuperação</string>
+    <string name="resposta_definida">Resposta Secreta Definida</string>
 
     <!-- Strings do Menu do Aplicativo -->
 

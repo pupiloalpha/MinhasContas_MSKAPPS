@@ -178,4 +178,12 @@
         <item>Annually</item>
     </string-array>
 
+    <string-array name="perguntas_seguranca">
+        <item>What is the name of your first pet?</item>
+        <item>What is the name of the city where you were born?</item>
+        <item>What is the name of your primary school?</item>
+        <item>What is your mother\'s maiden name?</item>
+        <item>What is your favorite color?</item>
+    </string-array>
+
 </resources>

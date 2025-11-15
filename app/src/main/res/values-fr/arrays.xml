@@ -178,4 +178,12 @@
         <item>Annuellemente</item>
     </string-array>
 
+    <string-array name="perguntas_seguranca">
+        <item>Quel est le nom de votre premier animal de compagnie?</item>
+        <item>Quel est le nom de la ville où vous êtes né?</item>
+        <item>Quel est le nom de votre école primaire?</item>
+        <item>Quel est le nom de jeune fille de votre mère?</item>
+        <item>Quelle est votre couleur préférée?</item>
+    </string-array>
+
 </resources>
