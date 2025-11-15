@@ -425,6 +425,11 @@ public class ListaMensalContas extends Fragment {
         return rootView;
     }
 
+    public void updateFilter(int newFiltro) {
+        this.filtro = newFiltro;
+        MontaLista();
+    }
+
     private void MontaLista() {
         String ordem = buscaPreferencias.getString("ordem", ordemListaDeContas);
 
@@ -452,7 +457,7 @@ public class ListaMensalContas extends Fragment {
 
         if (contasParaLista.getCount() >= 0) {
             int posicao = listaContas.getFirstVisiblePosition();
-            buscaContas = new AdaptaListaMensal(getActivity(), contasParaLista);
+            buscaContas = new AdaptaListaMensal(requireContext(), contasParaLista);
             listaContas.setAdapter(buscaContas);
             listaContas.setEmptyView(semContas);
             listaContas.setSelection(posicao);

@@ -420,9 +420,14 @@ public class EditarConta extends AppCompatActivity implements
         }
 
         String prestacoesStr = etPrestacoes.getText().toString().trim();
+        String intervaloText = intervaloRepete.getText().toString().trim();
         if (!prestacoesStr.isEmpty()) {
             try {
                 qtPrest = Integer.parseInt(prestacoesStr);
+                if (!intervaloText.isEmpty()) {
+                    // Chama o helper que mapeia o texto atual para o valor numérico
+                    intervalo = getIntervaloFromText(intervaloText);
+                }
             } catch (NumberFormatException e) {
                 qtPrest = 1; // If invalid, treat as a single installment
                 Toast.makeText(this, "Invalid value for installments. Setting to 1.", Toast.LENGTH_SHORT).show();
@@ -440,37 +445,18 @@ public class EditarConta extends AppCompatActivity implements
         }
     }
 
-    // This method is no longer strictly necessary with the refactoring using updateContasRecorrentes
-    // and deleteContasRecorrentes followed by insertContasRecorrentes. Its logic has been moved
-    // and adapted into onOptionsItemSelected. The method can be removed or left as a placeholder.
-    private void ModificaContas() {
-        // The logic for modifying recurring accounts has been moved to the onOptionsItemSelected method.
-        // This method can be safely removed if no other part of the code explicitly calls it.
-        /* Example of how the logic would be adapted:
-        TipoAtualizacao tipoAtualizacao;
-        TipoExclusao tipoExclusao;
-
-        if (nr == 1) { // Todas as repetições
-            tipoAtualizacao = TipoAtualizacao.TODAS;
-            tipoExclusao = TipoExclusao.TODAS;
-        } else { // Esta e futuras repetições
-            tipoAtualizacao = TipoAtualizacao.ESTA_E_FUTURAS;
-            tipoExclusao = TipoExclusao.ESTA_E_FUTURAS;
+    private int getIntervaloFromText(String text) {
+        // Esta função deve ser robusta, verificando as strings do R.array.repete_conta
+        if (text.equalsIgnoreCase(getResources().getStringArray(R.array.repete_conta)[0])) { // Diariamente
+            return 101;
+        } else if (text.equalsIgnoreCase(getResources().getStringArray(R.array.repete_conta)[1])) { // Semanalmente
+            return 107;
+        } else if (text.equalsIgnoreCase(getResources().getStringArray(R.array.repete_conta)[2])) { // Mensalmente
+            return 300;
+        } else if (text.equalsIgnoreCase(getResources().getStringArray(R.array.repete_conta)[3])) { // Anualmente
+            return 3650;
         }
-
-        // Excluir a série existente a partir do ponto de partida
-        dbContaParaEditar.deleteContasRecorrentes(conta.getCodigo(), nr, tipoExclusao);
-
-        // Inserir a nova série com base nos detalhes da conta atualizada
-        conta.setnRepete(1); // Resetar para 1 para a primeira inserção na nova série
-        dbContaParaEditar.insertContasRecorrentes(conta, qtPrest, intervalo);
-
-        if (qtPrest > 1) {
-            new BarraProgresso(this, getResources().getString(
-                    R.string.dica_titulo_barra), getResources().getString(
-                    R.string.dica_barra_altera), qtPrest, 0, "mskapp").execute();
-        }
-        */
+        return 300; // Retorna 300 (Mensal) como padrão de falha
     }
 
     private void usarActionBar() {
@@ -532,13 +518,6 @@ public class EditarConta extends AppCompatActivity implements
         }
         setResult(RESULT_OK, null);
         super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        setResult(RESULT_OK, null);
-        finish();
-        super.onBackPressed();
     }
 
     // DatePicker Fragment

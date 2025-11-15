@@ -10,10 +10,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -60,7 +62,8 @@ public class PesquisaContas extends AppCompatActivity {
     private ArrayList<Long> contas = new ArrayList<Long>();
     private boolean alteraContas = false;
     private boolean primeiraConta = false;
-    private String nomeBuscado, nomeConta;
+    private String nomeBuscado; // Removed nomeConta from here
+    private String nomeConta; // Re-declared nomeConta to avoid confusion with the selected item name
     private int conta;
     private final ActionMode.Callback alteraUmaConta = new ActionMode.Callback() {
 
@@ -107,7 +110,7 @@ public class PesquisaContas extends AppCompatActivity {
                     if (buscaContas != null) {
                         buscaContas.notifyDataSetChanged();
                     }
-                    MontaLista();
+                    MontaLista(nomeContaBuscar.getText().toString()); // Pass current search term
                     setResult(RESULT_OK, null);
                 }
             } else if (itemId == R.id.botao_pagar) {
@@ -147,7 +150,7 @@ public class PesquisaContas extends AppCompatActivity {
                     if (buscaContas != null) {
                         buscaContas.notifyDataSetChanged();
                     }
-                    MontaLista();
+                    MontaLista(nomeContaBuscar.getText().toString()); // Pass current search term
                     setResult(RESULT_OK, null);
                 }
             } else if (itemId == R.id.botao_lembrete) {
@@ -236,7 +239,7 @@ public class PesquisaContas extends AppCompatActivity {
                             conta = posicao;
                         } else {
                             mActionMode.finish();
-                            MontaLista();
+                            MontaLista(nomeContaBuscar.getText().toString()); // Pass current search term
                         }
                     }
                 } else {
@@ -264,7 +267,7 @@ public class PesquisaContas extends AppCompatActivity {
 
                         if (contas.isEmpty()) {
                             mActionMode.finish();
-                            MontaLista();
+                            MontaLista(nomeContaBuscar.getText().toString()); // Pass current search term
                         }
 
                         if (!contas.isEmpty())
@@ -339,7 +342,7 @@ public class PesquisaContas extends AppCompatActivity {
                 }
                 mode.finish();
             }
-            MontaLista();
+            MontaLista(nomeContaBuscar.getText().toString()); // Pass current search term
             return true;
         }
 
@@ -401,6 +404,29 @@ public class PesquisaContas extends AppCompatActivity {
         lastView = null;
         listaContas.setOnItemClickListener(toqueSimples);
         listaContas.setOnItemLongClickListener(toqueLongo);
+
+        // Initial list load, no filter applied
+        MontaLista(null);
+
+        // Add listener for autocomplete item click
+        nomeContaBuscar.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                MontaLista(nomeContaBuscar.getText().toString());
+            }
+        });
+
+        // Add listener for keyboard "Done" action
+        nomeContaBuscar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
+                    MontaLista(nomeContaBuscar.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     private void iniciar() {
@@ -430,14 +456,18 @@ public class PesquisaContas extends AppCompatActivity {
         nomeContaBuscar.setAdapter(adapter);
     }
 
-    private void MontaLista() {
+    private void MontaLista(String filterName) {
         if (contasParaLista != null) {
             contasParaLista.close();
             contasParaLista = null; // Ensure it's null after closing
         }
 
-        // `getContasByFilter` without any filter parameters is equivalent to fetching all accounts.
-        contasParaLista = dbContasPesquisadas.getContasByFilter(new DBContas.ContaFilter(), null);
+        DBContas.ContaFilter filter = new DBContas.ContaFilter();
+        if (filterName != null && !filterName.trim().isEmpty()) {
+            filter.setNomeConta(filterName);
+        }
+
+        contasParaLista = dbContasPesquisadas.getContasByFilter(filter, null);
         int i = contasParaLista.getCount();
         if (i >= 0) {
 
@@ -491,7 +521,7 @@ public class PesquisaContas extends AppCompatActivity {
                         if (buscaContas != null) {
                             buscaContas.notifyDataSetChanged();
                         }
-                        MontaLista();
+                        MontaLista(nomeContaBuscar.getText().toString()); // Pass current search term
                         MontaAutoCompleta();
                         idConta = 0;
                     }
@@ -526,13 +556,10 @@ public class PesquisaContas extends AppCompatActivity {
             setResult(RESULT_OK, null);
             finish();
         } else if (itemId == R.id.botao_pesquisar) {
-            // The search button will simply clear the search box and refresh the list (show all).
-            // Actual filtering by name needs DBContas modification or client-side filtering.
-            // For now, it will just reset the list to display all accounts.
-            nomeContaBuscar.setText("");
-            nomeBuscado = null; // Clear any previous search term
-            MontaLista();
-            MontaAutoCompleta();
+            // Now the search button will filter the list based on the text in nomeContaBuscar
+            MontaLista(nomeContaBuscar.getText().toString());
+            // We don't clear the text here, as the user might want to refine the search.
+            // If the user wants to see all accounts, they can clear the text and press search again.
             idConta = 0;
         }
         return super.onOptionsItemSelected(item);
@@ -542,10 +569,13 @@ public class PesquisaContas extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
+            if (mActionMode != null) {
+                mActionMode.finish(); // Dismiss any active action mode
+            }
             if (buscaContas != null) {
                 buscaContas.notifyDataSetChanged();
             }
-            MontaLista();
+            MontaLista(nomeContaBuscar.getText().toString()); // Refresh list with current filter
             idConta = 0;
         }
     }

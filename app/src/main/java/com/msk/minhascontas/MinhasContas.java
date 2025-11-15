@@ -1,6 +1,7 @@
 package com.msk.minhascontas;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.backup.BackupManager;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -52,6 +54,7 @@ import java.util.Objects;
 public class MinhasContas extends AppCompatActivity {
 
     private static final int START_PAGE = 200;
+    private static final String CURRENT_VIEW_PAGER_POSITION_KEY = "current_view_pager_position";
 
     private DBContas dbContas;
 
@@ -116,8 +119,21 @@ public class MinhasContas extends AppCompatActivity {
             someActivityResultLauncher.launch(intent);
         });
 
-        mViewPager.setCurrentItem(START_PAGE, false);
-        updateCurrentDate(START_PAGE);
+        // Restore ViewPager2 position if available
+        if (savedInstanceState != null) {
+            int savedPosition = savedInstanceState.getInt(CURRENT_VIEW_PAGER_POSITION_KEY, START_PAGE);
+            mViewPager.setCurrentItem(savedPosition, false);
+            updateCurrentDate(savedPosition);
+        } else {
+            mViewPager.setCurrentItem(START_PAGE, false);
+            updateCurrentDate(START_PAGE);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(CURRENT_VIEW_PAGER_POSITION_KEY, mViewPager.getCurrentItem());
     }
 
     private void updateCurrentDate(int position) {
@@ -175,6 +191,10 @@ public class MinhasContas extends AppCompatActivity {
             }
         });
 
+        // NOVO: Adiciona listener ao TextView de recuperação de senha
+        TextView tvEsqueciSenha = dialogo.findViewById(R.id.tvEsqueciSenha);
+        tvEsqueciSenha.setOnClickListener(v -> mostrarDialogoRecuperacaoSenha(dialogo)); // Chama a nova função
+
         AppCompatCheckBox cb = dialogo.findViewById(R.id.cbMostraSenha);
         cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!isChecked) {
@@ -185,6 +205,76 @@ public class MinhasContas extends AppCompatActivity {
         });
         dialogo.show();
         dialogo.setOnCancelListener(dialog -> finish());
+    }
+
+    // NOVO MÉTODO PARA GERENCIAR O FLUXO DE RECUPERAÇÃO
+    private void mostrarDialogoRecuperacaoSenha(Dialog dialogoBloqueio) {
+        SharedPreferences buscaPreferencias = PreferenceManager.getDefaultSharedPreferences(this);
+        // Recupera a pergunta e a resposta do SharedPreferences
+        String perguntaId = buscaPreferencias.getString("pergunta_seguranca_id", null);
+        String respostaSalva = buscaPreferencias.getString("resposta_secreta", null);
+
+        if (perguntaId == null || respostaSalva == null || respostaSalva.isEmpty()) {
+            Toast.makeText(this, getString(R.string.erro_recuperacao_nao_configurada), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // 1. Mostrar a Pergunta de Segurança
+        String[] perguntas = getResources().getStringArray(R.array.perguntas_seguranca); // Array de perguntas no strings.xml
+        String pergunta = perguntas[Integer.parseInt(perguntaId)]; // Assumindo que perguntaId é o índice do array
+
+        final AppCompatEditText inputResposta = new AppCompatEditText(this);
+        inputResposta.setHint(R.string.dica_resposta_secreta);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.recuperacao_senha)
+                .setMessage(pergunta)
+                .setView(inputResposta)
+                .setPositiveButton(R.string.confirmar, (dialogRec, which) -> {
+                    String respostaDigitada = inputResposta.getText() != null ? inputResposta.getText().toString().trim() : "";
+
+                    // 2. Verificar a Resposta
+                    if (respostaDigitada.equalsIgnoreCase(respostaSalva)) {
+                        // 3. Resposta correta: Iniciar redefinição de senha
+                        mostrarDialogoNovaSenha(dialogoBloqueio);
+                    } else {
+                        Toast.makeText(this, getString(R.string.senha_errada), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(R.string.cancelar, null)
+                .show();
+    }
+
+    // NOVO MÉTODO PARA REDEFINIR A SENHA
+    private void mostrarDialogoNovaSenha(Dialog dialogoBloqueio) {
+        // Implemente um AlertDialog com dois campos de texto para Nova Senha e Confirmação
+        // Exemplo simplificado:
+        final AppCompatEditText inputNovaSenha = new AppCompatEditText(this);
+        inputNovaSenha.setHint(R.string.nova_senha);
+        inputNovaSenha.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.redefinir_senha)
+                .setView(inputNovaSenha)
+                .setPositiveButton(R.string.salvar, (dialogNovaSenha, which) -> {
+                    String novaSenha = inputNovaSenha.getText() != null ? inputNovaSenha.getText().toString() : "";
+
+                    if (!novaSenha.isEmpty()) {
+                        // Salvar a nova senha em SharedPreferences
+                        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                                .putString("senha", novaSenha)
+                                .apply();
+
+                        Toast.makeText(this, getString(R.string.senha_redefinida_sucesso), Toast.LENGTH_LONG).show();
+
+                        // Fechar o diálogo de bloqueio inicial, permitindo o acesso
+                        dialogoBloqueio.dismiss();
+                    } else {
+                        Toast.makeText(this, getString(R.string.erro_senha_vazia), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(R.string.cancelar, null)
+                .show();
     }
 
     private void AjustesBD() {
@@ -206,7 +296,8 @@ public class MinhasContas extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
-        } else {
+        }
+        else {
             AjustesBD();
         }
     }
@@ -240,8 +331,7 @@ public class MinhasContas extends AppCompatActivity {
         } else if (itemId == R.id.menu_sobre) {
             startActivity(new Intent("com.msk.minhascontas.SOBRE"));
         } else if (itemId == R.id.botao_pesquisar) {
-            Intent intent = new Intent("com.msk.minhascontas.BUSCACONTA");
-            someActivityResultLauncher.launch(intent);
+            startActivity(new Intent("com.msk.minhascontas.BUSCACONTA"));
         } else if (itemId == R.id.botao_enviar) {
 
             StringBuilder texto = new StringBuilder(getString(R.string.app_name) + " "
@@ -333,7 +423,8 @@ public class MinhasContas extends AppCompatActivity {
                 cal.add(Calendar.MONTH, offset);
 
                 return Meses[cal.get(Calendar.MONTH)] + "/" + String.valueOf(cal.get(Calendar.YEAR)).substring(2);
-            } else {
+            }
+            else {
                 cal.add(Calendar.DAY_OF_YEAR, offset);
                 return cal.get(Calendar.DAY_OF_MONTH) + "/" + Meses[cal.get(Calendar.MONTH)];
             }

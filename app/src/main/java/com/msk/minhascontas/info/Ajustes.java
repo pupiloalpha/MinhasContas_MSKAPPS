@@ -21,6 +21,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar; // Import missing Toolbar class
 import androidx.core.content.ContextCompat;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -154,8 +155,50 @@ public class Ajustes extends AppCompatActivity {
             if (backupPref != null && !pastaBackUp.isEmpty()) {
                 backupPref.setSummary(pastaBackUp);
             }
+
+            // 1. Encontra a preferência da Resposta Secreta
+            EditTextPreference respostaSecretaPref = findPreference("resposta_secreta");
+
+            if (respostaSecretaPref != null) {
+
+                // === PARTE A: Implementação de Ocultação de Resposta (Listener) ===
+                // Anexa um listener que é chamado quando o valor vai ser SALVO.
+                respostaSecretaPref.setOnPreferenceChangeListener((preference, newValue) -> {
+
+                    String novoValor = newValue.toString();
+
+                    // Define o resumo (summary) com a string segura
+                    String resumo = novoValor.isEmpty() ?
+                            getString(R.string.dica_resposta_secreta_ajustes_summary) :
+                            getString(R.string.resposta_definida); // <-- String segura
+
+                    preference.setSummary(resumo);
+
+                    // Retorna true para permitir que o valor seja salvo no SharedPreferences
+                    return true;
+                });
+
+                // === PARTE B: Configuração Inicial do Summary ===
+                // Garante que o resumo esteja correto ao carregar a tela, se a resposta JÁ estiver salva.
+
+                // Obtém o valor atual salvo (antes da edição)
+                String respostaSalva = respostaSecretaPref.getText();
+
+                if (respostaSalva != null && !respostaSalva.isEmpty()) {
+                    // Se houver resposta salva, define o resumo para a string segura
+                    respostaSecretaPref.setSummary(getString(R.string.resposta_definida));
+                }
+
+                // === PARTE C: Opcional, mas recomendado para segurança ===
+                // Define o InputType para ocultar o texto enquanto o usuário digita
+                respostaSecretaPref.setOnBindEditTextListener(editText ->
+                        editText.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
+                                android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                );
+            }
+
         }
-        
+
         private void findAndSetClickListener(String key) {
             Preference preference = findPreference(key);
             if (preference != null) {
@@ -239,7 +282,7 @@ public class Ajustes extends AppCompatActivity {
                 if (isBackup) {
                     folderPickerLauncher.launch(intent);
                 } else {
-                    intent.putExtra("tipo", ".db"); // <--- ADD THIS LINE
+                    intent.putExtra("tipo", ".db"); // <--- ADDED THIS LINE
                     filePickerLauncher.launch(intent);
                 }
             }

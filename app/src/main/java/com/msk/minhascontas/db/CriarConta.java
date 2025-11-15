@@ -41,6 +41,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.UUID; // Importado para gerar códigos únicos
+import android.util.Log; // Adicionado para depuração
 
 public class CriarConta extends AppCompatActivity implements
         RadioGroup.OnCheckedChangeListener, View.OnClickListener,
@@ -142,16 +143,24 @@ public class CriarConta extends AppCompatActivity implements
         ArrayAdapter<String> intervalosAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, getResources().getStringArray(R.array.repete_conta));
 
         // Configura o adapter para a classificação da conta com base no tipo
+        String[] dadosIniciais;
         if (contaTipo == 1) { // Receita
-            classesContasAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, getResources().getStringArray(R.array.TipoReceita));
-            contaClasse = 0; // Receita sempre tem classe 0 (ou verificar seu array)
+            dadosIniciais = getResources().getStringArray(R.array.TipoReceita);
+            contaClasse = 0;
         } else if (contaTipo == 2) { // Aplicação
-            classesContasAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, getResources().getStringArray(R.array.TipoAplicacao));
-            contaClasse = 0; // Aplicação pode ter classe 0 (ou verificar seu array)
-        } else { // Despesa
-            classesContasAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, getResources().getStringArray(R.array.TipoDespesa));
-            contaClasse = 0; // Despesa, classe inicial
+            dadosIniciais = getResources().getStringArray(R.array.TipoAplicacao);
+            contaClasse = 0;
+        } else { // Despesa (Padrão)
+            dadosIniciais = getResources().getStringArray(R.array.TipoDespesa);
+            contaClasse = 0;
         }
+
+        // Cria o adapter usando uma ArrayList (mutable)
+        classesContasAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                new java.util.ArrayList<>(java.util.Arrays.asList(dadosIniciais)) // <-- CORREÇÃO AQUI
+        );
 
         classificaConta.setAdapter(classesContasAdapter);
         // Define a seleção inicial da classe da conta
@@ -166,25 +175,7 @@ public class CriarConta extends AppCompatActivity implements
         }
 
         intervaloRepete.setAdapter(intervalosAdapter);
-        // Define a seleção inicial do intervalo de repetição
-        if (!intervalosAdapter.isEmpty() && intervaloCorrespondePosicao(intervalo, intervalosAdapter) != -1) {
-            intervaloRepete.setText(intervalosAdapter.getItem(intervaloCorrespondePosicao(intervalo, intervalosAdapter)), false);
-        } else {
-            // Se o intervalo não corresponder a nenhum item, define o padrão (Mensal = 300)
-            intervaloRepete.setText(intervalosAdapter.getItem(2), false); // Mensal é geralmente o índice 2
-            intervalo = 300;
-        }
     }
-
-    // Helper para encontrar o índice correto do intervalo no adapter
-    private int intervaloCorrespondePosicao(int intervalo, ArrayAdapter<String> adapter) {
-        if (intervalo == 101 && adapter.getPosition("Diariamente") != -1) return adapter.getPosition("Diariamente");
-        if (intervalo == 107 && adapter.getPosition("Semanalmente") != -1) return adapter.getPosition("Semanalmente");
-        if (intervalo == 300 && adapter.getPosition("Mensalmente") != -1) return adapter.getPosition("Mensalmente");
-        if (intervalo == 3650 && adapter.getPosition("Anualmente") != -1) return adapter.getPosition("Anualmente");
-        return -1; // Não encontrado
-    }
-
 
     private void definirListeners() {
         tipo.setOnCheckedChangeListener(this);
@@ -227,33 +218,35 @@ public class CriarConta extends AppCompatActivity implements
     private void atualizarClasseEJanelaJuros() {
         // Atualiza a classe da conta com base no tipo selecionado
         int indiceClasseInicial = 0;
+        // O adapter agora é mutável devido à correção no configurarAdaptadoresSpinner()
         ArrayAdapter<String> classesAdapter = (ArrayAdapter<String>) classificaConta.getAdapter();
+
         if (classesAdapter != null) {
+            // Obter os novos dados de forma separada
+            String[] novosDados;
+
             if (contaTipo == 0) { // Despesa
-                classesAdapter.setNotifyOnChange(true); // Notifica para reexibir se necessário
-                classesAdapter.clear();
-                classesAdapter.addAll(getResources().getStringArray(R.array.TipoDespesa));
-                classesAdapter.notifyDataSetChanged();
-                indiceClasseInicial = 0; // Classe inicial para despesa
+                novosDados = getResources().getStringArray(R.array.TipoDespesa);
                 layoutJuros.setVisibility(View.VISIBLE); // Juros é relevante para despesas
-                if (parcelarConta.isChecked() || contaClasse == 0 || contaClasse == 3) { // Lógica simplificada para exibir juros dependendo da classe
-                    // Adapte esta lógica conforme sua necessidade
-                }
+                indiceClasseInicial = 0;
             } else if (contaTipo == 1) { // Receita
-                classesAdapter.setNotifyOnChange(true);
-                classesAdapter.clear();
-                classesAdapter.addAll(getResources().getStringArray(R.array.TipoReceita));
-                classesAdapter.notifyDataSetChanged();
-                indiceClasseInicial = 0; // Classe inicial para receita
+                novosDados = getResources().getStringArray(R.array.TipoReceita);
                 layoutJuros.setVisibility(View.GONE);
+                indiceClasseInicial = 0;
             } else { // Aplicação
-                classesAdapter.setNotifyOnChange(true);
-                classesAdapter.clear();
-                classesAdapter.addAll(getResources().getStringArray(R.array.TipoAplicacao));
-                classesAdapter.notifyDataSetChanged();
-                indiceClasseInicial = 0; // Classe inicial para aplicação
+                novosDados = getResources().getStringArray(R.array.TipoAplicacao);
                 layoutJuros.setVisibility(View.VISIBLE); // Juros pode ser relevante para aplicações
+                indiceClasseInicial = 0;
             }
+
+            // Aplicar as modificações AGORA É SEGURO
+            classesAdapter.clear(); // Não causará mais a exceção
+            classesAdapter.addAll(novosDados);
+            classesAdapter.notifyDataSetChanged();
+
+            // A lógica de `if (parcelarConta.isChecked() || contaClasse == 0 || contaClasse == 3)` foi mantida
+            // fora do bloco principal, pois ela não altera o adapter, apenas o estado de outros Views.
+
             // Atualiza a seleção da classe da conta
             if (!classesAdapter.isEmpty() && indiceClasseInicial < classesAdapter.getCount()) {
                 classificaConta.setText(classesAdapter.getItem(indiceClasseInicial), false);
@@ -309,19 +302,34 @@ public class CriarConta extends AppCompatActivity implements
         }
 
         String repeteStr = repeteConta.getText().toString().trim();
+        String intervaloText = intervaloRepete.getText().toString().trim();
         if (!repeteStr.isEmpty()) {
             try {
                 qtRepete = Integer.parseInt(repeteStr);
+                if (!intervaloText.isEmpty()) {
+                    // Chama o helper que mapeia o texto atual para o valor numérico
+                    intervalo = getIntervaloFromText(intervaloText);
+                }
             } catch (NumberFormatException e) {
                 qtRepete = 1; // Se inválido, conta como uma única parcela
             }
         } else {
             qtRepete = 1; // Se vazio, conta como uma única parcela
         }
+    }
 
-        // O intervalo e a categoria já são definidos nos listeners dos Spinners
-        // contaCategoria é definida em onItemClick para categoriaConta
-        // intervalo é definido em onItemClick para intervaloRepete
+    private int getIntervaloFromText(String text) {
+        // Esta função deve ser robusta, verificando as strings do R.array.repete_conta
+        if (text.equalsIgnoreCase(getResources().getStringArray(R.array.repete_conta)[0])) { // Diariamente
+            return 101;
+        } else if (text.equalsIgnoreCase(getResources().getStringArray(R.array.repete_conta)[1])) { // Semanalmente
+            return 107;
+        } else if (text.equalsIgnoreCase(getResources().getStringArray(R.array.repete_conta)[2])) { // Mensalmente
+            return 300;
+        } else if (text.equalsIgnoreCase(getResources().getStringArray(R.array.repete_conta)[3])) { // Anualmente
+            return 3650;
+        }
+        return 300; // Retorna 300 (Mensal) como padrão de falha
     }
 
     // Método para armazena os dados da conta no banco de dados

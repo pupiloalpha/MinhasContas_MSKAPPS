@@ -336,7 +336,11 @@ public class GraficoMensal extends Fragment {
         gaplicacoes.getXAxis().setValueFormatter(new ValueFormatter() {
             @Override
             public String getAxisLabel(float value, AxisBase axis) {
-                return series[(int) value];
+                int index = (int) value;
+                if (index >= 0 && index < series.length) {
+                    return series[index];
+                }
+                return ""; // Return empty string or a default if out of bounds
             }
         });
         gaplicacoes.invalidate();
@@ -393,7 +397,11 @@ public class GraficoMensal extends Fragment {
         gdespesas.getXAxis().setValueFormatter(new ValueFormatter() {
             @Override
             public String getAxisLabel(float value, AxisBase axis) {
-                return series[(int) value];
+                int index = (int) value;
+                if (index >= 0 && index < series.length) {
+                    return series[index];
+                }
+                return "";
             }
         });
         gdespesas.invalidate();
@@ -449,7 +457,11 @@ public class GraficoMensal extends Fragment {
         gcategortias.getXAxis().setValueFormatter(new ValueFormatter() {
             @Override
             public String getAxisLabel(float value, AxisBase axis) {
-                return series[(int) value];
+                int index = (int) value;
+                if (index >= 0 && index < series.length) {
+                    return series[index];
+                }
+                return ""; // Return empty string or a default if out of bounds
             }
         });
         gcategortias.invalidate();

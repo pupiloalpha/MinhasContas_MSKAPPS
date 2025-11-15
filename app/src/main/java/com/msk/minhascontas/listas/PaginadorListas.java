@@ -171,7 +171,10 @@ public class PaginadorListas extends AppCompatActivity {
                             filtro = -1;
                         }
                         int currentPage = mViewPager.getCurrentItem();
-                        Objects.requireNonNull(mViewPager.getAdapter()).notifyItemChanged(currentPage);
+                        Fragment fragment = ((Paginas) Objects.requireNonNull(mViewPager.getAdapter())).getFragment(currentPage);
+                        if (fragment instanceof ListaMensalContas) {
+                            ((ListaMensalContas) fragment).updateFilter(filtro);
+                        }
                         AtualizaActionBar();
                     });
         }
@@ -187,7 +190,10 @@ public class PaginadorListas extends AppCompatActivity {
                             filtro = -1;
                         }
                         int currentPage = mViewPager.getCurrentItem();
-                        Objects.requireNonNull(mViewPager.getAdapter()).notifyItemChanged(currentPage);
+                        Fragment fragment = ((Paginas) Objects.requireNonNull(mViewPager.getAdapter())).getFragment(currentPage);
+                        if (fragment instanceof ListaMensalContas) {
+                            ((ListaMensalContas) fragment).updateFilter(filtro);
+                        }
                         AtualizaActionBar();
                     });
         }
@@ -197,7 +203,10 @@ public class PaginadorListas extends AppCompatActivity {
 
     private void MontaLista() {
         int currentPage = mViewPager.getCurrentItem();
-        Objects.requireNonNull(mViewPager.getAdapter()).notifyItemChanged(currentPage);
+        Fragment fragment = ((Paginas) Objects.requireNonNull(mViewPager.getAdapter())).getFragment(currentPage);
+        if (fragment instanceof ListaMensalContas) {
+            ((ListaMensalContas) fragment).updateFilter(filtro);
+        }
         AtualizaActionBar();
     }
 

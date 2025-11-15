@@ -10,6 +10,7 @@ import android.provider.BaseColumns;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
+import android.util.Log; // Adicionado para depuração
 
 public final class DBContas {
 
@@ -131,6 +132,8 @@ public final class DBContas {
         Calendar data = Calendar.getInstance();
         data.set(conta.getAno(), conta.getMes(), conta.getDia());
 
+        Log.d("DBContas", "Inserting recurring account for '" + conta.getNome() + "' with interval: " + intervalo + ", qtRepeticoes: " + qtRepeticoes); // Log para depuração
+
         double valorContaBase = conta.getValor(); // Valor base inicial da conta
         double taxaJuros = conta.getValorJuros(); // Taxa de juros (ex: 0.05 para 5%)
 
@@ -212,9 +215,15 @@ public final class DBContas {
         if (filter.getNrRepeticao() != null) {
             appendSelection(selectionBuilder, selectionArgsList, Colunas.COLUNA_NR_REPETICAO_CONTA, String.valueOf(filter.getNrRepeticao()));
         }
+        if (filter.getNomeConta() != null && !filter.getNomeConta().trim().isEmpty()) {
+            if (selectionArgsList.size() > 0) {
+                selectionBuilder.append(" AND ");
+            }
+            selectionBuilder.append(Colunas.COLUNA_NOME_CONTA).append(" LIKE ?");
+            selectionArgsList.add("%" + filter.getNomeConta() + "%");
+        }
 
         String selection = selectionBuilder.toString();
-        // No need to trim " AND " here
 
         return db.query(TABELA_CONTAS, null, selection, selectionArgsList.toArray(new String[0]), null, null, ordem);
     }
@@ -435,6 +444,7 @@ public final class DBContas {
         private String pagamento;
         private String codigoConta;
         private Integer nrRepeticao;
+        private String nomeConta;
 
         // Getters
         public Integer getDia() {
@@ -471,6 +481,10 @@ public final class DBContas {
 
         public Integer getNrRepeticao() {
             return nrRepeticao;
+        }
+
+        public String getNomeConta() {
+            return nomeConta;
         }
 
         // Setters
@@ -516,6 +530,11 @@ public final class DBContas {
 
         public ContaFilter setNrRepeticao(Integer nrRepeticao) {
             this.nrRepeticao = nrRepeticao;
+            return this;
+        }
+
+        public ContaFilter setNomeConta(String nomeConta) {
+            this.nomeConta = nomeConta;
             return this;
         }
     }

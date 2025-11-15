@@ -30,7 +30,7 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
     public BarraProgresso(Context context, String title, String message,
                           int qt, int tempo, String pasta) {
-        this.context = context.getApplicationContext(); // Use application context to avoid leaks
+        this.context = context; // Use the Activity context directly
         this.title = title;
         this.message = message;
         this.quantidade = qt;
