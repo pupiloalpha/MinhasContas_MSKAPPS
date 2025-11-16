@@ -50,6 +50,7 @@ public class EditarConta extends AppCompatActivity implements
         View.OnClickListener, RadioGroup.OnCheckedChangeListener,
         AdapterView.OnItemClickListener {
 
+    private BarraProgresso mProgressTask;
     private static Button data;
     private static int dia, mes, ano;
     private DBContas dbContaParaEditar;
@@ -384,9 +385,10 @@ public class EditarConta extends AppCompatActivity implements
 
                 // Progress bar for regeneration
                 if (qtPrest > 1) {
-                    new BarraProgresso(this, getResources().getString(
+                    mProgressTask = new BarraProgresso(this, getResources().getString(
                             R.string.dica_titulo_barra), getResources().getString(
-                            R.string.dica_barra_altera), qtPrest, 0, "mskapp").execute();
+                            R.string.dica_barra_altera), qtPrest, 0, "mskapp");
+                    mProgressTask.execute();// Parâmetros do BarraProgresso precisam ser verificados.execute();
                 }
             }
 
@@ -517,6 +519,10 @@ public class EditarConta extends AppCompatActivity implements
                             novoNomeConta), Toast.LENGTH_SHORT).show();
         }
         setResult(RESULT_OK, null);
+        // Cancela a AsyncTask se ela estiver em execução
+        if (mProgressTask != null && mProgressTask.getStatus() == BarraProgresso.Status.RUNNING) {
+            mProgressTask.cancel(true);
+        }
         super.onDestroy();
     }
 

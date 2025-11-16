@@ -225,7 +225,20 @@ public final class DBContas {
 
         String selection = selectionBuilder.toString();
 
-        return db.query(TABELA_CONTAS, null, selection, selectionArgsList.toArray(new String[0]), null, null, ordem);
+        String[] columns = null;
+
+        try {
+            // Linha 228 (aproximada, agora dentro do try)
+            return db.query(TABELA_CONTAS, columns, selection, selectionArgsList.toArray(new String[0]), null, null, ordem);
+        } catch (android.database.SQLException e) {
+            // 1. Loga o erro exato
+            Log.e("DBContas", "SQLiteException em getContasByFilter: " + e.getMessage(), e);
+
+            // 2. Retorna um Cursor vazio para evitar o crash
+            // Esta consulta retorna 0 linhas, mas sem travar o aplicativo.
+            // É vital para que o ResumoTipoMensal continue a execução com um resultado zero/vazio.
+            return db.rawQuery("SELECT * FROM " + TABELA_CONTAS + " WHERE 1=0", null);
+        }
     }
 
     // Modified appendSelection to correctly handle the condition and argument list
@@ -240,25 +253,36 @@ public final class DBContas {
     /**
      * Verifica se existem contas com pagamento pendente.
      *
-     * @return true se não houver contas pendentes, false caso contrário.
+     * @return true se não houver contas pendentes ou se ocorrer um erro na consulta, false caso contrário.
      */
     public boolean confirmaPagamentos() {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
         String[] str = {Colunas.COLUNA_PAGOU_CONTA};
-        try (Cursor c = db.query(TABELA_CONTAS, str, Colunas.COLUNA_PAGOU_CONTA + " != ? ", new String[]{PAGAMENTO_PAGO}, null, null, null)) {
-            if (c.getCount() > 0) {
-                SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
-                ContentValues dadosConta = new ContentValues();
-                dadosConta.put(Colunas.COLUNA_PAGOU_CONTA, PAGAMENTO_FALTA);
-                return writableDb.update(TABELA_CONTAS, dadosConta, Colunas.COLUNA_PAGOU_CONTA + " != ? ", new String[]{PAGAMENTO_PAGO}) > 0;
-            } else {
-                return true;
+
+        // Adicionado tratamento de exceção para prevenir o crash na inicialização
+        try {
+            // Linha 248 (onde o erro ocorreu, agora dentro do bloco try)
+            try (Cursor c = db.query(TABELA_CONTAS, str, Colunas.COLUNA_PAGOU_CONTA + " != ? ", new String[]{PAGAMENTO_PAGO}, null, null, null)) {
+                if (c.getCount() > 0) {
+                    SQLiteDatabase writableDb = mDbHelper.getWritableDatabase();
+                    ContentValues dadosConta = new ContentValues();
+                    dadosConta.put(Colunas.COLUNA_PAGOU_CONTA, PAGAMENTO_FALTA);
+                    return writableDb.update(TABELA_CONTAS, dadosConta, Colunas.COLUNA_PAGOU_CONTA + " != ? ", new String[]{PAGAMENTO_PAGO}) > 0;
+                } else {
+                    return true;
+                }
             }
+        } catch (android.database.SQLException e) {
+            // Loga o erro exato que causou o crash (ex: "no such table: contas")
+            Log.e("DBContas", "SQLiteException em confirmaPagamentos: " + e.getMessage(), e);
+
+            // Retorno de fallback: Se a tabela não puder ser acessada, assumimos que
+            // a operação falhou, mas permitimos que o app inicie.
+            // Retornar 'true' aqui significa "não há contas pendentes para atualizar",
+            // o que impede o travamento.
+            return true;
         }
     }
-
-    // --- UPDATE ---
-
     /**
      * Atualiza os dados de uma conta específica pelo seu ID.
      *

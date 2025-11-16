@@ -178,6 +178,23 @@ public class PaginadorListas extends AppCompatActivity {
                         AtualizaActionBar();
                     });
         }
+        if (tipo == 1) {
+            classes = res.getStringArray(R.array.FiltroReceita);
+            dialogoBuilder.setItems(classes,
+                    (dialog, id) -> {
+                        if (id < 5) {
+                            filtro = id;
+                        } else {
+                            filtro = -1;
+                        }
+                        int currentPage = mViewPager.getCurrentItem();
+                        Fragment fragment = ((Paginas) Objects.requireNonNull(mViewPager.getAdapter())).getFragment(currentPage);
+                        if (fragment instanceof ListaMensalContas) {
+                            ((ListaMensalContas) fragment).updateFilter(filtro);
+                        }
+                        AtualizaActionBar();
+                    });
+        }
 
         if (tipo == 2) {
             classes = res.getStringArray(R.array.FiltroAplicacao);
@@ -213,40 +230,47 @@ public class PaginadorListas extends AppCompatActivity {
     public void AtualizaActionBar() {
 
         double valores = 0.0D;
+        classes = null;
 
         if (getSupportActionBar() == null) return;
 
         if (tipo == 1) {
             getSupportActionBar().setTitle(res.getString(R.string.linha_receita));
+            classes = res.getStringArray(R.array.FiltroReceita);
         } else if (tipo == 0) {
-            classes = res.getStringArray(R.array.TipoDespesa);
+            classes = res.getStringArray(R.array.FiltroDespesa);
             getSupportActionBar().setTitle(res.getString(R.string.linha_despesa));
         } else if (tipo == 2) {
-            classes = res.getStringArray(R.array.TipoAplicacao);
+            classes = res.getStringArray(R.array.FiltroAplicacao);
             getSupportActionBar().setTitle(res.getString(R.string.linha_aplicacoes));
         }
 
         if (filtro >= 0) {
-            String title = "";
-            if (filtro == 4) {
+
+            if (tipo == 0 && filtro == 4) {
                 try (Cursor somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "falta")) {
                     valores = SomaContas(somador);
                 }
-                title = res.getString(R.string.resumo_faltam);
-            } else if (filtro == 5) {
+            } else if (tipo == 0 && filtro == 5) {
                 try (Cursor somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "paguei")) {
                     valores = SomaContas(somador);
                 }
-                title = res.getString(R.string.resumo_pagas);
+            } else if (tipo == 1 && filtro == 3) {
+                try (Cursor somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "falta")) {
+                    valores = SomaContas(somador);
+                }
+            } else if (tipo == 1 && filtro == 4) {
+                try (Cursor somador = dbContas.buscaContasTipoPagamento(0, mes, ano, null, tipo, "paguei")) {
+                    valores = SomaContas(somador);
+                }
             } else {
                 try (Cursor somador = dbContas.buscaContasClasse(0, mes, ano, null, tipo, filtro)) {
                     valores = SomaContas(somador);
                 }
-                if (classes != null && filtro < classes.length) {
-                    title = classes[filtro];
-                }
             }
-            getSupportActionBar().setTitle(title);
+            if (classes != null && filtro < classes.length) {
+                getSupportActionBar().setTitle(classes[filtro]);
+            }
             getSupportActionBar().setSubtitle(dinheiro.format(valores));
         } else if (filtro == -1) {
             try (Cursor somador = dbContas.buscaContasTipo(0, mes, ano, null, tipo)) {
@@ -268,7 +292,7 @@ public class PaginadorListas extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (tipo == 1 || tipo == -1) {
+        if (tipo == -1) {
             getMenuInflater().inflate(R.menu.barra_botoes_lista, menu);
         } else {
             getMenuInflater().inflate(R.menu.barra_botoes_filtra_lista, menu);

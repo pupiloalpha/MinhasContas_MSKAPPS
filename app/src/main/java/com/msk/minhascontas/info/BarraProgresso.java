@@ -6,6 +6,8 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
+import java.lang.ref.WeakReference;
+import android.app.Activity;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.db.ExportarExcel;
@@ -17,9 +19,9 @@ import java.util.Locale;
 public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
     private ProgressDialog progressDialog;
+    private final WeakReference<Context> contextRef;
     private final String title;
     private final String message;
-    private final Context context;
     private final DBContas dbMinhasContas;
     private final ExportarExcel excel = new ExportarExcel();
     private final int quantidade;
@@ -30,7 +32,7 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
     public BarraProgresso(Context context, String title, String message,
                           int qt, int tempo, String pasta) {
-        this.context = context; // Use the Activity context directly
+        this.contextRef = new WeakReference<>(context); // Armazena a referência fraca
         this.title = title;
         this.message = message;
         this.quantidade = qt;
@@ -44,14 +46,32 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected void onPreExecute() {
-        this.progressDialog = new ProgressDialog(context);
-        this.progressDialog.setIndeterminate(false);
-        this.progressDialog.setCancelable(false);
-        this.progressDialog.setTitle(this.title);
-        this.progressDialog.setMessage(this.message);
-        this.progressDialog.setMax(this.quantidade);
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        this.progressDialog.show();
+        Context context = contextRef.get();
+
+        // 1. Checagem de segurança (mantida do passo anterior)
+        if (context == null || (context instanceof Activity && ((Activity) context).isFinishing())) {
+            return; // Aborta a exibição se a Activity estiver indisponível ou finalizando
+        }
+
+        try {
+            // 2. Inicialização do diálogo
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.setTitle(title);
+            progressDialog.setMessage(message);
+            progressDialog.setMax(quantidade);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setProgress(0);
+            // 3. Tenta mostrar o diálogo. A linha 64 é esta:
+            progressDialog.show();
+        } catch (Exception e) {
+            // 4. Último recurso: Captura qualquer exceção (incluindo o WindowLeaked/BadTokenException)
+            // que possa ocorrer devido a uma condição de corrida.
+            // Isso previne o crash.
+            Log.e("BarraProgresso", "Falha ao exibir ProgressDialog: " + e.getMessage());
+        }
+
     }
 
     @Override
@@ -77,14 +97,27 @@ public class BarraProgresso extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected void onPostExecute(Void result) {
-        try {
-            if (this.progressDialog != null && this.progressDialog.isShowing()) {
-                this.progressDialog.dismiss();
+        // 1. Verifica se a tarefa foi cancelada (se mProgressTask.cancel(true) foi chamado em onDestroy)
+        if (isCancelled()) {
+            return;
+        }
+
+        // 2. Tenta obter a referência forte para o Context/Activity
+        Context context = contextRef.get();
+
+        // 3. Verifica se o Context é nulo OU se a Activity associada está finalizando
+        if (context == null || (context instanceof Activity && ((Activity) context).isFinishing())) {
+            return; // Aborta a operação se a Activity não estiver mais disponível
+        }
+
+        // 4. Se o contexto está OK, tenta fechar o diálogo
+        if (progressDialog != null && progressDialog.isShowing()) {
+            try {
+                progressDialog.dismiss();
+            } catch (Exception e) {
+                // Captura o erro para evitar crash, caso o WindowManager já tenha removido a view
+                Log.e("BarraProgresso", "Falha ao fechar o diálogo: " + e.getMessage());
             }
-        } catch (final Exception e) {
-            Log.e("BarraProgresso", "Error dismissing progress dialog", e);
-        } finally {
-            this.progressDialog = null;
         }
     }
 

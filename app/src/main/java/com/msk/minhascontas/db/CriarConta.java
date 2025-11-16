@@ -47,6 +47,7 @@ public class CriarConta extends AppCompatActivity implements
         RadioGroup.OnCheckedChangeListener, View.OnClickListener,
         AdapterView.OnItemClickListener {
 
+    private BarraProgresso mProgressTask;
     private static final int LER_AGENDA = 444;
     // ELEMENTOS DA TELA
     private static Button dataConta;
@@ -487,9 +488,10 @@ public class CriarConta extends AppCompatActivity implements
             if (nr == 1) {
                 if (qtRepete > 1) {
                     // Exibe uma barra de progresso se a conta tiver repetições
-                    new BarraProgresso(this, getResources().getString(
+                    mProgressTask = new BarraProgresso(this, getResources().getString(
                             R.string.dica_titulo_barra), getResources().getString(
-                            R.string.dica_barra_progresso), qtRepete, 0, "mskapp").execute(); // Parâmetros do BarraProgresso precisam ser verificados
+                            R.string.dica_barra_progresso), qtRepete, 0, "mskapp");
+                    mProgressTask.execute();// Parâmetros do BarraProgresso precisam ser verificados
                 }
 
                 // Processa o lembrete ou finaliza a activity
@@ -522,6 +524,10 @@ public class CriarConta extends AppCompatActivity implements
     // Finaliza a activity e mostra um Toast de confirmação
     @Override
     protected void onDestroy() {
+        // Cancela a AsyncTask se ela estiver em execução
+        if (mProgressTask != null && mProgressTask.getStatus() == BarraProgresso.Status.RUNNING) {
+            mProgressTask.cancel(true);
+        }
         if (nr == 1) { // Se a conta foi salva com sucesso
             Toast.makeText(
                     getApplicationContext(),
