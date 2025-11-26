@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -17,7 +18,6 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -31,7 +31,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.db.DBContas.ContaFilter;
-import com.msk.minhascontas.db.DBContas.Colunas;
+import com.msk.minhascontas.db.ContasContract.Colunas;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class GraficoMensal extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         dbContasFeitas = DBContas.getInstance(context);
     }
@@ -88,8 +88,11 @@ public class GraficoMensal extends Fragment {
 
         // Recupera o mes e o ano da lista anterior
         Bundle localBundle = getArguments();
-        ano = localBundle.getInt("ano");
-        mes = localBundle.getInt("mes");
+        if (localBundle != null) {
+            ano = localBundle.getInt("ano");
+            mes = localBundle.getInt("mes");
+        }
+
 
         Iniciar();
         Locale current = getResources().getConfiguration().getLocales().get(0);
@@ -427,7 +430,7 @@ public class GraficoMensal extends Fragment {
             } else {
                 cores[i] = roleta[i];
             }
-            try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setCategoria(categorias[i]), null)) {
+            try (Cursor somador = dbContasFeitas.getContasByFilter(new ContaFilter().setMes(mes).setAno(ano).setCategoria(i), null)) {
                 if (somador.getCount() > 0)
                     valores[i] = (float) SomaContas(somador);
                 else

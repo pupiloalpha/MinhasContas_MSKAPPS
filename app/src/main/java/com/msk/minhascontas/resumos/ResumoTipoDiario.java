@@ -1,166 +1,224 @@
 package com.msk.minhascontas.resumos;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.util.Log;
+import java.util.Calendar;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.db.DBContas;
 import com.msk.minhascontas.db.DBContas.ContaFilter;
-import com.msk.minhascontas.db.DBContas.Colunas;
+import static com.msk.minhascontas.db.ContasContract.*;
 
 import java.text.NumberFormat;
-import java.util.Locale;
 
-public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
+// Estende a classe base
+public class ResumoTipoDiario extends BaseResumoFragment {
 
-    public static final String ANO_PAGINA = "ano_pagina";
-    public static final String MES_PAGINA = "mes_pagina";
+    private static final String TAG = "ResumoTipoDiario";
+
     public static final String DIA_PAGINA = "dia_pagina";
 
-    // BARRA NO TOPO DO APLICATIVO
-    private final Bundle dados_mes = new Bundle();
-
-    // CLASSE DO BANCO DE DADOS
-    private DBContas dbContas;
-
-    // OPCOES DE AJUSTE
-    private SharedPreferences buscaPreferencias = null;
-
-    // ELEMENTOS UTILIZADOS EM TELA
+    // Campos de View (TextViews)
     private TextView valorDesp, valorRec, valorAplic, valorSaldo,
             valorPagar, valorPago, valorCartao, valorSaldoAtual, valorSaldoAnterior,
-            valorFundos, valorPoupanca, valorPrevidencia, valorDespFixa, valorDespVar,
-            valorPrestacoes, valorReceber, valorRecebido;
-
-    private LinearLayout aplic, desp, rec, sald;
-
-    // VARIAEIS UTILIZADAS
-    private int dia, mes, ano;
-    private double[] valores, valoresDesp, valoresRec, valoresSaldo,
-            valoresAplicados;
-
-    // ELEMENTOS DAS PAGINAS
-    private View rootView;
+            valorDespFixa, valorDespVar, valorPrestacoes,
+            valorFundos, valorPoupanca, valorPrevidencia,
+            valorReceber, valorRecebido;
 
     public ResumoTipoDiario() {
     }
 
-    /**
-     * Returns a new instance of this fragment for the given section number.
-     */
     public static ResumoTipoDiario newInstance(int dia, int mes, int ano) {
         ResumoTipoDiario fragment = new ResumoTipoDiario();
         Bundle args = new Bundle();
-        args.putInt(ANO_PAGINA, ano);
-        args.putInt(MES_PAGINA, mes);
-        args.putInt(DIA_PAGINA, dia);
+        args.putInt("ano", ano);
+        args.putInt("mes", mes);
+        args.putInt(DIA_PAGINA, dia); // Usando a constante
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        dbContas = DBContas.getInstance(context);
-        buscaPreferencias = PreferenceManager
-                .getDefaultSharedPreferences(context);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        // Inicializa dia, mes e ano a partir dos argumentos
+        Bundle args = getArguments();
+        if (args != null) {
+            dia = args.getInt(DIA_PAGINA, 0);
+            mes = args.getInt("mes", 0);
+            ano = args.getInt("ano", 0);
+        }
+
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onDadosAtualizados() {
+        // Implementação vazia, mantida como no original
+    }
 
-        // COLOCA OS MESES NA TELA
-        rootView = inflater.inflate(R.layout.resumo_por_tipo, container, false);
-        Bundle args = getArguments();
+    @Override
+    protected int getLayoutResId() {
+        // Assumindo que o layout é o mesmo do mensal, mas filtrado por dia
+        return R.layout.resumo_por_tipo;
+    }
 
-        if (args != null) {
-            dia = args.getInt(DIA_PAGINA);
-            mes = args.getInt(MES_PAGINA);
-            ano = args.getInt(ANO_PAGINA);
+    @Override
+    protected void initializeArrays() {
+        valores = new double[4];
+        valoresDesp = new double[6];
+        valoresRec = new double[2];
+        valoresSaldo = new double[2];
+        valoresAplicados = new double[3];
+    }
+
+    @Override
+    protected void iniciarViews(View view) {
+        // Inicializa as TextViews
+        valorPago = view.findViewById(R.id.valor_desp_paga);
+        valorPagar = view.findViewById(R.id.valor_desp_pagar);
+        valorDespFixa = view.findViewById(R.id.valor_desp_fixa);
+        valorDespVar = view.findViewById(R.id.valor_desp_var);
+        valorPrestacoes = view.findViewById(R.id.valor_prestacoes);
+        valorCartao = view.findViewById(R.id.valor_cartao_credito);
+        valorReceber = view.findViewById(R.id.valor_receber);
+        valorRecebido = view.findViewById(R.id.valor_recebido);
+        valorFundos = view.findViewById(R.id.valor_fundos);
+        valorPoupanca = view.findViewById(R.id.valor_poupancas);
+        valorPrevidencia = view.findViewById(R.id.valor_previdencias);
+        valorSaldoAtual = view.findViewById(R.id.valor_saldo_atual);
+        valorSaldoAnterior = view.findViewById(R.id.valor_saldo_anterior);
+        valorDesp = view.findViewById(R.id.valor_despesas);
+        valorRec = view.findViewById(R.id.valor_receitas);
+        valorAplic = view.findViewById(R.id.valor_aplicacoes);
+        valorSaldo = view.findViewById(R.id.valor_saldo);
+
+        // Initialize MaterialCardView fields from BaseResumoFragment
+        layoutAplicacoes = view.findViewById(R.id.resumo_aplicacoes);
+        layoutDespesas = view.findViewById(R.id.resumo_despesas);
+        layoutReceitas = view.findViewById(R.id.resumo_receitas);
+        layoutSaldo = view.findViewById(R.id.resumo_saldo);
+    }
+
+    @Override
+    protected ContaFilter getContaFilter() {
+        // Filtro Diário: garante que o cálculo inclua o dia
+        return new ContaFilter().setDia(dia).setMes(mes).setAno(ano);
+    }
+
+    /**
+     * MÉTODO REFATORADO: Simplificada a lógica de Saldo Anterior usando getSumForFilter().
+     */
+    @Override
+    protected void saldo() {
+
+        // VALORES DE RECEITAS (Total) - TIPO_RECEITA
+        valores[0] = getSumForFilter(new ContaFilter()
+                .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_RECEITA));
+
+        // VALOR RECEITAS RECEBIDAS (TIPO_RECEITA, Pago)
+        valoresRec[0] = getSumForFilter(new ContaFilter()
+                .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_RECEITA)
+                .setPagamento(DBContas.PAGAMENTO_PAGO));
+
+        // VALOR RECEITAS A RECEBER (TIPO_RECEITA, Falta)
+        valoresRec[1] = getSumForFilter(new ContaFilter()
+                .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_RECEITA)
+                .setPagamento(DBContas.PAGAMENTO_FALTA));
+
+        // VALORES DE DESPESAS (Total) - TIPO_DESPESA
+        valores[1] = getSumForFilter(new ContaFilter()
+                .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_DESPESA));
+
+        // VALOR CONTAS PAGAS (TIPO_DESPESA, Pago)
+        valoresDesp[0] = getSumForFilter(new ContaFilter()
+                .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_DESPESA)
+                .setPagamento(DBContas.PAGAMENTO_PAGO));
+
+        // VALOR CONTAS A PAGAR (TIPO_DESPESA, Falta)
+        valoresDesp[1] = getSumForFilter(new ContaFilter()
+                .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_DESPESA)
+                .setPagamento(DBContas.PAGAMENTO_FALTA));
+
+        // VALORES DAS CLASSES DE DESPESAS (0 a 3)
+        for (int i = 0; i < 4; i++) {
+            valoresDesp[i + 2] = getSumForFilter(new ContaFilter()
+                    .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_DESPESA).setClasse(i));
         }
 
-        // DEFINE OS ELEMENTOS QUE SERAO EXIBIDOS
-        Iniciar();
+        // VALORES DE APLICACOES (Total) - TIPO_APLICACAO
+        valores[2] = getSumForFilter(new ContaFilter()
+                .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_APLICACAO));
 
-        // CALCULA OS VALORES QUE SERAO EXIBIDOS
-        Saldo();
+        // VALORES DAS CLASSES DE APLICACOES (0 a 2)
+        for (int j = 0; j < 3; j++) {
+            valoresAplicados[j] = getSumForFilter(new ContaFilter()
+                    .setDia(dia).setMes(mes).setAno(ano).setTipo(TIPO_APLICACAO).setClasse(j));
+        }
 
-        InsereValores();
+        // VALOR DO SALDO DIÁRIO (Receitas Totais - Despesas Totais do DIA)
+        valoresSaldo[0] = valores[0] - valores[1];
 
-        aplic.setOnClickListener(this);
-        desp.setOnClickListener(this);
-        rec.setOnClickListener(this);
-        sald.setOnClickListener(this);
+        // --- Lógica de Saldo Anterior Diário (Usando Calendar) ---
+        Calendar cal = Calendar.getInstance();
+        // O mês é 1-based (Janeiro=1). Calendar.MONTH é 0-based.
+        cal.set(ano, mes - 1, dia); // Define a data para o dia/mês/ano atual.
+        cal.add(Calendar.DAY_OF_MONTH, -1); // Volta um dia.
 
-        return rootView;
+        int dia_anterior = cal.get(Calendar.DAY_OF_MONTH);
+        int mes_anterior = cal.get(Calendar.MONTH) + 1; // Converte de volta para 1-based.
+        int ano_anterior = cal.get(Calendar.YEAR);
+        // -----------------------------------------------------------------
+
+        // 1. Calcula Receitas Totais do dia anterior
+        double r = getSumForFilter(new ContaFilter().setDia(dia_anterior).setMes(mes_anterior).setAno(ano_anterior).setTipo(TIPO_RECEITA));
+
+        // 2. Calcula Despesas Totais do dia anterior
+        double d = getSumForFilter(new ContaFilter().setDia(dia_anterior).setMes(mes_anterior).setAno(ano_anterior).setTipo(TIPO_DESPESA));
+
+        // 3. O saldo anterior é a diferença. (Apenas o saldo do dia anterior)
+        valoresSaldo[1] = r - d;
+
+        // VALOR DO SALDO ATUAL/DO DIA (Receitas Recebidas - Contas Pagas)
+        valores[3] = valoresRec[0] - valoresDesp[0];
+
+        // Soma Saldo Anterior (Opção de Preferências)
+        boolean somaSaldo = buscaPreferencias.getBoolean("saldo", false);
+        if (somaSaldo) {
+            // Se a preferência estiver ativa, o Saldo Total passa a ser Saldo Atual + Saldo do Dia Anterior
+            valores[3] = valoresRec[0] - valoresDesp[0] + valoresSaldo[1];
+        }
     }
 
-    private void Iniciar() {
+    /**
+     * PONTO CRÍTICO: Inserção de valores na UI com proteção de ciclo de vida.
+     */
+    @Override
+    protected void insereValores() {
+        Context context = getContext();
+        if (context == null || !isAdded()) {
+            Log.w(TAG, "insereValores abortado: Fragment não anexado.");
+            return;
+        }
 
-        valorPago = rootView
-                .findViewById(R.id.tvValorDespPaga);
-        valorPagar = rootView
-                .findViewById(R.id.tvValorDespPagar);
-        valorDespFixa = rootView
-                .findViewById(R.id.tvValorDespFixa);
-        valorDespVar = rootView
-                .findViewById(R.id.tvValorDespVar);
-        valorPrestacoes = rootView
-                .findViewById(R.id.tvValorPrestacoes);
-        valorCartao = rootView
-                .findViewById(R.id.tvValorCartaoCredito);
-        valorReceber = rootView
-                .findViewById(R.id.tvValorReceber);
-        valorRecebido = rootView
-                .findViewById(R.id.tvValorRecebido);
-        valorFundos = rootView
-                .findViewById(R.id.tvValorFundos);
-        valorPoupanca = rootView
-                .findViewById(R.id.tvValorPoupancas);
-        valorPrevidencia = rootView
-                .findViewById(R.id.tvValorPrevidencias);
-        valorSaldoAtual = rootView
-                .findViewById(R.id.tvValorSaldoAtual);
-        valorSaldoAnterior = rootView
-                .findViewById(R.id.tvValorSaldoAnterior);
-        valorDesp = rootView
-                .findViewById(R.id.tvValorDespesas);
-        valorRec = rootView
-                .findViewById(R.id.tvValorReceitas);
-        valorAplic = rootView
-                .findViewById(R.id.tvValorAplicacoes);
-        valorSaldo = rootView
-                .findViewById(R.id.tvValorSaldo);
-
-        aplic = rootView.findViewById(R.id.l_aplicacoes);
-        desp = rootView.findViewById(R.id.l_despesas);
-        rec = rootView.findViewById(R.id.l_receitas);
-        sald = rootView.findViewById(R.id.l_saldo);
-
-    }
-
-    private void InsereValores() {
-        Locale current = Locale.getDefault();
-        NumberFormat dinheiro = NumberFormat.getCurrencyInstance(current);
+        NumberFormat dinheiro = getCurrencyFormat();
 
         valorPago.setText(dinheiro.format(valoresDesp[0]));
         valorPagar.setText(dinheiro.format(valoresDesp[1]));
-        valorCartao.setText(dinheiro.format(valoresDesp[2]));
 
+        valorCartao.setText(dinheiro.format(valoresDesp[2]));
         valorDespFixa.setText(dinheiro.format(valoresDesp[3]));
         valorDespVar.setText(dinheiro.format(valoresDesp[4]));
         valorPrestacoes.setText(dinheiro.format(valoresDesp[5]));
@@ -173,150 +231,22 @@ public class ResumoTipoDiario extends Fragment implements View.OnClickListener {
         valorPrevidencia.setText(dinheiro.format(valoresAplicados[2]));
 
         valorSaldoAtual.setText(dinheiro.format(valoresSaldo[0]));
-        valorSaldoAnterior.setText(dinheiro.format(valoresSaldo[1]));
+        if (valoresSaldo[0] < 0) {
+            valorSaldoAtual.setTextColor(Color.RED);
+        } else {
+            valorSaldoAtual.setTextColor(Color.BLACK);
+        }
 
-        valorRec.setText(dinheiro.format(valores[0]));
+        valorSaldoAnterior.setText(dinheiro.format(valoresSaldo[1]));
         valorDesp.setText(dinheiro.format(valores[1]));
+        valorRec.setText(dinheiro.format(valores[0]));
         valorAplic.setText(dinheiro.format(valores[2]));
         valorSaldo.setText(dinheiro.format(valores[3]));
 
-        if (valoresSaldo[0] < 0.0D) {
-            valorSaldoAtual.setTextColor(Color.parseColor("#CC0000"));
+        if (valores[3] < 0) {
+            valorSaldo.setTextColor(Color.RED);
         } else {
-            valorSaldoAtual.setTextColor(Color.parseColor("#669900"));
-        }
-        if (valoresSaldo[1] < 0.0D) {
-            valorSaldoAnterior.setTextColor(Color.parseColor("#CC0000"));
-        } else {
-            valorSaldoAnterior.setTextColor(Color.parseColor("#669900"));
-        }
-        if (valores[3] < 0.0D) {
-            valorSaldo.setTextColor(Color.parseColor("#CC0000"));
-        } else {
-            //valorSaldo.setTextColor(Color.parseColor("#2B2B2B"));
+            valorSaldo.setTextColor(Color.BLACK);
         }
     }
-
-    private void Saldo() {
-
-        // DEFINE OS NOMES DA LINHAS DA TABELA
-
-        valores = new double[4];
-        valoresDesp = new double[6];
-        valoresRec = new double[2];
-        valoresSaldo = new double[2];
-        valoresAplicados = new double[3];
-
-        // PREENCHE AS LINHAS DA TABELA
-
-        // VALORES DE RECEITAS
-        valores[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1));
-
-        // VALOR RECEITAS RECEBIDAS
-        valoresRec[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1).setPagamento(DBContas.PAGAMENTO_PAGO));
-
-        // VALOR RECEITAS A RECEBAR
-        valoresRec[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(1).setPagamento(DBContas.PAGAMENTO_FALTA));
-
-        // VALORES DE DESPESAS
-        valores[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0));
-
-        // VALOR CONTAS PAGAS
-        valoresDesp[0] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setPagamento(DBContas.PAGAMENTO_PAGO));
-
-        // VALOR CONTAS A PAGAR
-        valoresDesp[1] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setPagamento(DBContas.PAGAMENTO_FALTA));
-
-        // VALORES DAS CATEGORIAS DE DESPESAS
-        for (int i = 0; i < 4; i++) {
-            valoresDesp[i + 2] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(0).setClasse(i));
-        }
-
-        // VALORES DE APLICACOES
-        valores[2] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(2));
-
-        for (int j = 0; j < 3; j++) {
-            valoresAplicados[j] = getSumForFilter(new ContaFilter().setDia(dia).setMes(mes).setAno(ano).setTipo(2).setClasse(j));
-        }
-
-        // VALOR DO SALDO MENSAL
-        valoresSaldo[0] = valores[0] - valores[1];
-
-        // VALOR DO SALDO ATUAL
-
-        valores[3] = valores[0] - valoresDesp[0];
-
-        // VALOR DO SALDO DO MES ANTERIOR
-
-        int mes_anterior = mes - 1; // DEFINE MES ANTERIOR
-        int ano_anterior = ano;
-        if (mes_anterior < 0) {
-            mes_anterior = 11;
-            ano_anterior = ano_anterior - 1;
-        }
-        double r = getSumForFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior).setTipo(1)); // RECEITA MES ANTERIOR
-
-        double d = getSumForFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior).setTipo(0)); // DESPESA MES ANTERIOR
-
-        double s = r - d; // SALDO MES ANTERIOR
-        try (Cursor contasCursor = dbContas.getContasByFilter(new ContaFilter().setMes(mes_anterior).setAno(ano_anterior), null)) {
-            if (contasCursor != null && contasCursor.getCount() > 0)
-                valoresSaldo[1] = s;
-            else
-                valoresSaldo[1] = 0.0D;
-        }
-
-        // VALOR DO SALDO ATUAL
-        boolean somaSaldo = buscaPreferencias.getBoolean("saldo", false);
-        if (somaSaldo) {
-            valores[3] = valoresRec[0] - valoresDesp[0]
-                    + valoresSaldo[1];
-        } else {
-            valores[3] = valoresRec[0] - valoresDesp[0];
-        }
-    }
-
-    private double getSumForFilter(DBContas.ContaFilter filter) {
-        double sum = 0.0D;
-        try (Cursor cursor = dbContas.getContasByFilter(filter, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    sum += cursor.getDouble(cursor.getColumnIndexOrThrow(DBContas.Colunas.COLUNA_VALOR_CONTA));
-                } while (cursor.moveToNext());
-            }
-        }
-        return sum;
-    }
-
-    @Override
-    public void onClick(View v) {
-
-        dados_mes.putInt("mes", mes);
-        dados_mes.putInt("ano", ano);
-        dados_mes.putInt("nr", 12);
-        int viewId = v.getId();
-
-        if (viewId == R.id.l_saldo) {
-            dados_mes.putInt("tipo", -1);
-        } else if (viewId == R.id.l_aplicacoes) {
-            dados_mes.putInt("tipo", 2);
-        } else if (viewId == R.id.l_despesas) {
-            dados_mes.putInt("tipo", 0);
-        } else if (viewId == R.id.l_receitas) {
-            dados_mes.putInt("tipo", 1);
-        }
-
-        Intent mostra_resumo = new Intent("com.msk.minhascontas.CONTASDOMES");
-        mostra_resumo.putExtras(dados_mes);
-        startActivityForResult(mostra_resumo, 0);
-    }
-
-    @Override
-    public void onResume() {
-        // CALCULA OS VALORES QUE SERAO EXIBIDOS
-        Saldo();
-        InsereValores();
-        super.onResume();
-    }
-
 }
