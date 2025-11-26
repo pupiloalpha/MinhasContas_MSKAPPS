@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mskapp="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    mskapp:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        mskapp:columnCount="3"
+        tools:ignore="RtlHardcoded">
+
+        <include layout="@layout/grafico_saldo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            mskapp:layout_columnWeight="1"
+            mskapp:layout_columnSpan="1"
+            mskapp:layout_rowWeight="1"
+            mskapp:layout_gravity="fill" />
+
+        <include layout="@layout/grafico_receitas"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            mskapp:layout_columnWeight="1"
+            mskapp:layout_columnSpan="1"
+            mskapp:layout_rowWeight="1"
+            mskapp:layout_gravity="fill" />
+
+        <include layout="@layout/grafico_pagamentos"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            mskapp:layout_columnWeight="1"
+            mskapp:layout_columnSpan="1"
+            mskapp:layout_rowWeight="1"
+            mskapp:layout_gravity="fill" />
+
+        <include layout="@layout/grafico_despesas"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            mskapp:layout_columnWeight="1"
+            mskapp:layout_columnSpan="1"
+            mskapp:layout_rowWeight="1"
+            mskapp:layout_gravity="fill" />
+
+        <include layout="@layout/grafico_categorias"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            mskapp:layout_columnWeight="1"
+            mskapp:layout_columnSpan="1"
+            mskapp:layout_rowWeight="1"
+            mskapp:layout_gravity="fill" />
+
+        <include layout="@layout/grafico_aplicacoes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            mskapp:layout_columnWeight="1"
+            mskapp:layout_columnSpan="1"
+            mskapp:layout_rowWeight="1"
+            mskapp:layout_gravity="fill" />
+
+        <include layout="@layout/grafico_contas"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            mskapp:layout_columnWeight="3"
+            mskapp:layout_columnSpan="3"
+            mskapp:layout_rowWeight="1"
+            mskapp:layout_gravity="fill_horizontal" />
+
+        <TextView
+            android:id="@+id/tvSemGrafico"
+            android:layout_width="0dp"
+            android:layout_height="300dp"
+            android:gravity="center"
+            android:text="@string/dica_vazio"
+            android:textSize="18sp"
+            mskapp:layout_columnSpan="3"
+            mskapp:layout_columnWeight="3"
+            mskapp:layout_gravity="fill_horizontal" />
+
+    </androidx.gridlayout.widget.GridLayout>
+</androidx.core.widget.NestedScrollView>

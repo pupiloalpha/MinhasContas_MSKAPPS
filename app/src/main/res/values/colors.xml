@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Main App Theme Colors -->
-    <color name="primary">#388E3C</color> <!-- Green for Toolbar -->
-    <color name="primary_dark">#2E7D32</color> <!-- Darker Green for StatusBar in older APIs -->
-    <color name="primary_text">#FFFFFF</color> <!-- White for text for StatusBar in older APIs -->
-    <color name="on_primary">#FFFFFF</color> <!-- White for text and icons on primary color -->
-    <color name="surface">#FFFFFF</color> <!-- White for surfaces like StatusBar and TabBar background -->
-    <color name="on_surface">#000000</color> <!-- Black for text on surfaces -->
+    <color name="primary">#388E3C</color>
+    <color name="primary_dark">#2E7D32</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="secondary">#696969</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#000000</color>
+    <color name="tab_indicator">#43A047</color>
+    <color name="tab_text_selected">#388E3C</color>
+    <color name="tab_text_unselected">#757575</color>
+    <color name="receita_color">#2196F3</color>
+    <color name="despesa_color">#F44336</color>
+    <color name="aplicacao_color">#4CAF50</color>
+    <color name="card_receita_color">#E3F2FD</color>
+    <color name="card_despesa_color">#FFEBEE</color>
+    <color name="card_aplicacao_color">#E8F5E9</color>
+    <color name="card_saldo_color">#EEEEEE</color>
+    <color name="linha_selecionada">#50757575</color>
 
-    <!-- Tab Colors -->
-    <color name="tab_indicator">#43A047</color> <!-- Green for Tab indicator -->
-    <color name="tab_text_selected">#388E3C</color> <!-- Green for selected Tab text -->
-    <color name="tab_text_unselected">#757575</color> <!-- Gray for unselected Tab text -->
-
-    <!-- Specific Colors for Revenue and Expense -->
-    <color name="receita_color">#2196F3</color> <!-- Blue -->
-    <color name="despesa_color">#F44336</color> <!-- Red -->
-    <color name="aplicacao_color">#4CAF50</color> <!-- Green -->
-
-    <!-- Cores do código original -->
+    <!-- Old App Theme Colors -->
     <color name="amarelo">#ffffbb33</color>
     <color name="azul">#ff0099cc</color>
     <color name="branco">#ffffff</color>
@@ -29,12 +30,10 @@
     <color name="laranja">#ffff8800</color>
     <color name="preto">#ff2b2b2b</color>
     <color name="roxo">#ffaa66cc</color>
-    <color name="verde_escuro">#ff669900</color>
-    <color name="verde">#ff99cc00</color>
-    <color name="verde_claro">#ffc5e1a5</color>
+    <color name="verde">#ff669900</color>
     <color name="vermelho">#ffcc0000</color>
+    <color name="verde_escuro">#ff669900</color>
+    <color name="verde_claro">#ffc5e1a5</color>
     <color name="vermelho_claro">#ffff4444</color>
     <color name="marrom">#ff9e9d24</color>
-
-
 </resources>

@@ -2,45 +2,47 @@
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:mskapp="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     mskapp:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:ignore="RtlHardcoded">
+    tools:ignore="RtlHardcoded, IncludeLayoutParam">
 
-    <LinearLayout
+    <androidx.gridlayout.widget.GridLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="10dp"
+        app:columnCount="2" >
 
         <include
             android:id="@+id/resumo_receitas"
             layout="@layout/linha_receitas"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp" />
+            android:layout_margin="8dp"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal" />
 
         <include
             android:id="@+id/resumo_despesas"
             layout="@layout/linha_despesas"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp" />
+            android:layout_margin="8dp"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal" />
 
         <include
             android:id="@+id/resumo_aplicacoes"
             layout="@layout/linha_aplicacoes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp" />
+            android:layout_margin="8dp"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal" />
 
         <include
             android:id="@+id/resumo_saldo"
             layout="@layout/linha_saldo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_margin="8dp"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill_horizontal" />
 
-    </LinearLayout>
+    </androidx.gridlayout.widget.GridLayout>
 
 </androidx.core.widget.NestedScrollView>

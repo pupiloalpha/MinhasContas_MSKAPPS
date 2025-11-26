@@ -2,61 +2,68 @@
 <resources>
 
     <string-array name="TipoReceita">
-        <item>Simple recipe</item>
+        <item>Simple Revenue</item>
         <item>Bank</item>
         <item>Wallet</item>
     </string-array>
     <string-array name="TipoAplicacao">
-        <item>Shares and funds</item>
+        <item>Stocks and Funds</item>
         <item>Savings</item>
-        <item>Private pension</item>
+        <item>Private Pension</item>
     </string-array>
     <string-array name="TipoDespesa">
-        <item>Credit card</item>
-        <item>Expense fixed</item>
-        <item>Expense variable</item>
+        <item>Credit Card</item>
+        <item>Fixed Expense</item>
+        <item>Variable Expense</item>
         <item>Installment</item>
     </string-array>
     <string-array name="FiltroAplicacao">
-        <item>Shares and funds</item>
+        <item>Stocks and Funds</item>
         <item>Savings</item>
-        <item>Private pension</item>
-        <item>All applications</item>
+        <item>Private Pension</item>
+        <item>All Applications</item>
     </string-array>
     <string-array name="FiltroDespesa">
-        <item>Credit card</item>
-        <item>Expense fixed</item>
-        <item>Expense variable</item>
+        <item>Credit Card</item>
+        <item>Fixed Expense</item>
+        <item>Variable Expense</item>
         <item>Installment</item>
-        <item>Expenses payable</item>
-        <item>Expenses paid</item>
-        <item>All expenses</item>
+        <item>Expenses to Pay</item>
+        <item>Paid Expenses</item>
+        <item>All Expenses</item>
+    </string-array>
+    <string-array name="FiltroReceita">
+        <item>Simple Revenue</item>
+        <item>Bank</item>
+        <item>Wallet</item>
+        <item>Revenues to Receive</item>
+        <item>Received Revenues</item>
+        <item>All Revenues</item>
     </string-array>
     <string-array name="GraficoContas">
         <item>Expenses</item>
-        <item>Incomes</item>
+        <item>Revenues</item>
         <item>Applications</item>
     </string-array>
     <string-array name="GraficoDespesas">
-        <item>Credit card</item>
-        <item>Fixed expenses</item>
-        <item>Variable expenses</item>
+        <item>Credit Card</item>
+        <item>Fixed Expenses</item>
+        <item>Variable Expenses</item>
         <item>Installments</item>
-            
     </string-array>
     <string-array name="GraficoPagamentos">
-        <item>Expenses payable</item>
-        <item>Expenses paid</item>
+        <item>Expenses to Pay</item>
+        <item>Paid Expenses</item>
     </string-array>
     <string-array name="GraficoAplicacoes">
-        <item>Shares and funds</item>
+        <item>Stocks and Funds</item>
         <item>Savings</item>
-        <item>Private pension</item>
+        <item>Private Pension</item>
     </string-array>
     <string-array name="TipoAjusteConta">
-        <item>This repetition bill</item>
-        <item>The next repetitions bill</item>
-        <item>All repeats bill</item>
+        <item>This account repetition</item>
+        <item>The next account repetitions</item>
+        <item>All account repetitions</item>
     </string-array>
     <string-array name="MesesDoAno">
         <item>JANUARY</item>
@@ -77,98 +84,107 @@
         <item>Feb</item>
         <item>Mar</item>
         <item>Apr</item>
-        <item>Mai</item>
+        <item>May</item>
         <item>Jun</item>
         <item>Jul</item>
         <item>Aug</item>
-        <item>Set</item>
-        <item>Out</item>
+        <item>Sep</item>
+        <item>Oct</item>
         <item>Nov</item>
         <item>Dec</item>
     </string-array>
     <string-array name="Semana">
-        <item>sun</item>
-        <item>mon</item>
-        <item>tue</item>
-        <item>wed</item>
-        <item>thu</item>
-        <item>fri</item>
-        <item>sat</item>
+        <item>Sun</item>
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
     </string-array>
-
     <string-array name="NomeConta">
-        <item>Academy</item>
+        <item>Gym</item>
         <item>Lunch</item>
         <item>Food</item>
-        <item>Rental</item>
+        <item>Rent</item>
         <item>Apartment</item>
         <item>Application</item>
         <item>Car</item>
         <item>Card</item>
-        <item>Phones</item>
-        <item>Light</item>
+        <item>Cell Phone</item>
+        <item>Utility Company CEMIG</item>
         <item>Fuel</item>
-        <item>Condo</item>
+        <item>Condominium</item>
         <item>Repair</item>
-        <item>Water</item>
+        <item>Utility Company COPASA</item>
         <item>Club</item>
         <item>Course</item>
         <item>Dentist</item>
         <item>Loan</item>
         <item>Parking</item>
-        <item>School</item>
+        <item>College</item>
         <item>Pharmacy</item>
-        <item>Fair</item>
+        <item>Market</item>
         <item>Gasoline</item>
-        <item>Gas cooking</item>
+        <item>Cooking Gas</item>
         <item>Internet</item>
         <item>Dinner</item>
-        <item>Journal</item>
+        <item>Newspaper</item>
         <item>Snack</item>
-        <item>Tuition</item>
-        <item>Medical</item>
-        <item>Moto</item>
+        <item>Monthly Fee</item>
+        <item>Doctor</item>
+        <item>Motorcycle</item>
         <item>Workshop</item>
-        <item>bus</item>
+        <item>Bus</item>
         <item>Bakery</item>
-        <item>Ride</item>
+        <item>Outing</item>
         <item>Health Plan</item>
         <item>Savings</item>
-        <item>Provision</item>
-        <item>Security</item>
+        <item>Installment</item>
+        <item>Pension</item>
         <item>Meal</item>
         <item>Magazine</item>
-        <item>Review</item>
-        <item>Clothing</item>
+        <item>Revision</item>
+        <item>Clothes</item>
         <item>Salary</item>
         <item>Insurance</item>
         <item>Supermarket</item>
-        <item>Phone</item>
-        <item>TV subscription</item>
-        <item>Clothing</item>
-        <item>Travel</item>
+        <item>Telephone</item>
+        <item>Subscription TV</item>
+        <item>Apparel</item>
+        <item>Trip</item>
     </string-array>
 
     <string-array name="CategoriaConta">
         <item>Food</item>
         <item>Education</item>
         <item>Leisure</item>
-        <item>Home</item>
+        <item>Housing</item>
         <item>Health</item>
-        <item>Transportation</item>
-        <item>Clothing</item>
+        <item>Transport</item>
+        <item>Apparel</item>
         <item>Others</item>
     </string-array>
 
     <string-array name="ordem_contas">
-        <item>Bill name (A-Z)</item>
-        <item>Bill name (Z-A)</item>
-        <item>Bill date\n(Recent-Post)</item>
-        <item>Bill date\n(Post-Recent)</item>
-        <item>Bill type\n(Income-Expenses)</item>
-        <item>Bill type\n(Express-Income)</item>
-        <item>Bill value\n(High-Low)</item>
-        <item>Bill value\n(Low-High)</item>
+        <item>By account name (A-Z)</item>
+        <item>By account name (Z-A)</item>
+        <item>By account date\n(Recent-Later)</item>
+        <item>By account date\n(Later-Recent)</item>
+        <item>By account type\n(Revenues-Expenses)</item>
+        <item>By account type\n(Expenses-Revenues)</item>
+        <item>By account value\n(Highest-Lowest)</item>
+        <item>By account value\n(Lowest-Highest)</item>
+    </string-array>
+    <string-array name="ordem_contas_valores" translatable="false">
+        <item>nome ASC</item>
+        <item>nome DESC</item>
+        <item>dia_data ASC</item>
+        <item>dia_data DESC</item>
+        <item>tipo DESC, classe DESC</item>
+        <item>tipo ASC, classe ASC</item>
+        <item>valor DESC</item>
+        <item>valor ASC</item>
     </string-array>
 
     <string-array name="repete_conta">
@@ -182,8 +198,16 @@
         <item>What is the name of your first pet?</item>
         <item>What is the name of the city where you were born?</item>
         <item>What is the name of your primary school?</item>
-        <item>What is your mother\'s maiden name?</item>
+        <item>What is your mother&apos;s last name?</item>
         <item>What is your favorite color?</item>
+    </string-array>
+
+    <string-array name="perguntas_seguranca_valores">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
     </string-array>
 
 </resources>

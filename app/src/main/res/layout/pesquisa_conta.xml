@@ -1,56 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mskapp="http://schemas.android.com/apk/res-auto"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".listas.PesquisaContas"
-    tools:ignore="NestedWeights,RtlSymmetry,RtlHardcode">
+    tools:ignore="RtlSymmetry,RtlHardcode">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/aplBarra"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true">
-
-        <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="wrap_content">
+        <com.google.android.material.appbar.MaterialToolbar
             xmlns:mskapp="http://schemas.android.com/apk/res-auto"
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
+            mskapp:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
             mskapp:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                android:id="@+id/acNomeContaBusca"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:ems="10"
-                android:hint="@string/dica_pesquisa_conta"
-                android:imeOptions="actionDone"
-                android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
-                android:textColor="@color/branco"
-                android:theme="@style/TemaTexto" />
-        </androidx.appcompat.widget.Toolbar>
+        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+            android:id="@+id/acNomeContaBusca"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ems="10"
+            android:hint="@string/dica_pesquisa_conta"
+            android:imeOptions="actionDone"
+            android:inputType="textCapSentences|textAutoCorrect|textAutoComplete"
+            android:theme="@style/TemaTexto" />
+    </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/aplBarra"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lvContasPesquisadas"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:choiceMode="singleChoice"
-            android:scrollingCache="false" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical"
+            />
 
         <TextView
             android:id="@+id/tvSemResultados"
@@ -58,8 +55,8 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/dica_pesquisa"
-            android:textColor="@color/preto"
-            android:textSize="18sp" />
+            android:textColor="?attr/colorOnSurface"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
     </LinearLayout>
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <plurals name="selecao">
-        <item quantity="zero">None bill selected</item>
-        <item quantity="one">One bill selected</item>
-        <item quantity="other">%d bills selected</item>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <plurals name="selecao" tools:ignore="UnusedQuantity">
+        <item quantity="zero">No account selected</item>
+        <item quantity="one">One account selected</item>
+        <item quantity="other">%d accounts selected</item>
+    </plurals>
+
+    <plurals name="confirmar_exclusao_multipla_mensagem">
+        <item quantity="one">Do you really want to delete the selected account?</item>
+        <item quantity="other">Do you really want to delete the %d selected accounts?</item>
+    </plurals>
+
+    <plurals name="dica_contas_excluidas">
+        <item quantity="one">One account was deleted!</item>
+        <item quantity="other">%d accounts were deleted!</item>
     </plurals>
 </resources>

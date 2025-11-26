@@ -1,106 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/l_saldo"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/fundo_cartao"
-    android:orientation="vertical">
+    app:cardElevation="2dp"
+    app:cardCornerRadius="12dp"
+    app:contentPadding="0dp"
+    app:cardBackgroundColor="@color/card_saldo_color"
+    tools:ignore="RtlHardcoded">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <TextView
+            android:id="@+id/tv_titulo_saldo_principal"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1.4"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:gravity="left|center_vertical"
             android:text="@string/linha_saldo"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:textStyle="bold"
-            tools:ignore="RtlHardcoded" />
+            app:layout_constraintEnd_toStartOf="@+id/valor_saldo"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintHorizontal_weight="1.4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tvValorSaldo"
+            android:id="@+id/valor_saldo"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1.2"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:gravity="right|center_vertical"
             android:text="@string/zero"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             android:textStyle="bold"
-            tools:ignore="RtlHardcoded" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1.3"
+            app:layout_constraintStart_toEndOf="@+id/tv_titulo_saldo_principal"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@android:color/darker_gray"
-        android:orientation="vertical">
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        <View
+            android:id="@+id/separador_principal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/on_surface"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_saldo_principal" />
 
         <TextView
+            android:id="@+id/tv_titulo_saldo_atual"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:gravity="left|center_vertical"
             android:text="@string/resumo_saldo"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            tools:ignore="RtlHardcoded" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toStartOf="@+id/tv_titulo_saldo_anterior"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/separador_principal" />
 
         <TextView
+            android:id="@+id/tv_titulo_saldo_anterior"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:gravity="right|center_vertical"
             android:text="@string/resumo_mes_anterior"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            tools:ignore="RtlHardcoded" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/tv_titulo_saldo_atual"
+            app:layout_constraintTop_toTopOf="@+id/tv_titulo_saldo_atual" />
 
         <TextView
-            android:id="@+id/tvValorSaldoAtual"
+            android:id="@+id/valor_saldo_atual"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:gravity="left|center_vertical"
             android:text="@string/zero"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/verde_escuro"
-            tools:ignore="RtlHardcoded" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/aplicacao_color"
+            app:layout_constraintEnd_toStartOf="@+id/valor_saldo_anterior"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_saldo_atual" />
 
         <TextView
-            android:id="@+id/tvValorSaldoAnterior"
+            android:id="@+id/valor_saldo_anterior"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:gravity="right|center_vertical"
             android:text="@string/zero"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/verde_escuro"
-            tools:ignore="RtlHardcoded" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/aplicacao_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/valor_saldo_atual"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_saldo_anterior" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </LinearLayout>
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

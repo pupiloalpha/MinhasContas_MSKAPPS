@@ -32,6 +32,14 @@
         <item>Despesas pagas</item>
         <item>Todas as despesas</item>
     </string-array>
+    <string-array name="FiltroReceita">
+        <item>Receita simples</item>
+        <item>Banco</item>
+        <item>Carteira</item>
+        <item>Receitas a receber</item>
+        <item>Receitas recebidas</item>
+        <item>Todas as receitas</item>
+    </string-array>
     <string-array name="GraficoContas">
         <item>Despesas</item>
         <item>Receitas</item>

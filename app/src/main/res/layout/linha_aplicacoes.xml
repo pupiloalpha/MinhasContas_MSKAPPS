@@ -1,120 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/l_aplicacoes"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/fundo_cartao"
-    android:orientation="vertical">
+    app:cardElevation="2dp"
+    app:cardCornerRadius="12dp"
+    app:contentPadding="0dp"
+    app:cardBackgroundColor="@color/card_aplicacao_color"
+    tools:ignore="RtlHardcoded">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <TextView
+            android:id="@+id/tv_titulo_aplicacoes_principal"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1.4"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:gravity="left|center_vertical"
             android:text="@string/linha_aplicacoes"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/verde_escuro"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="@color/aplicacao_color"
             android:textStyle="bold"
-            tools:ignore="RtlHardcoded" />
+            app:layout_constraintEnd_toStartOf="@+id/valor_aplicacoes"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintHorizontal_weight="1.4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tvValorAplicacoes"
+            android:id="@+id/valor_aplicacoes"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1.2"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:gravity="right|center_vertical"
             android:text="@string/zero"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/verde_escuro"
+            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+            android:textColor="@color/aplicacao_color"
             android:textStyle="bold"
-            tools:ignore="RtlHardcoded" />
-    </LinearLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1.3"
+            app:layout_constraintStart_toEndOf="@+id/tv_titulo_aplicacoes_principal"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/verde_escuro" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        <View
+            android:id="@+id/separador_principal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/aplicacao_color"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_aplicacoes_principal" />
 
         <TextView
+            android:id="@+id/tv_titulo_fundos"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:gravity="left|center_vertical"
             android:text="@string/linha_fundos"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            tools:ignore="RtlHardcoded" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toStartOf="@+id/tv_titulo_poupancas"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/separador_principal" />
 
         <TextView
+            android:id="@+id/tv_titulo_poupancas"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:gravity="center|center_vertical"
             android:text="@string/linha_poupanca"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toStartOf="@+id/tv_titulo_previdencias"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/tv_titulo_fundos"
+            app:layout_constraintTop_toTopOf="@+id/tv_titulo_fundos" />
 
         <TextView
+            android:id="@+id/tv_titulo_previdencias"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:gravity="right|center_vertical"
             android:text="@string/linha_previdencia"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            tools:ignore="RtlHardcoded" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/tv_titulo_poupancas"
+            app:layout_constraintTop_toTopOf="@+id/tv_titulo_fundos" />
 
         <TextView
-            android:id="@+id/tvValorFundos"
+            android:id="@+id/valor_fundos"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:gravity="left|center_vertical"
             android:text="@string/zero"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/verde_escuro"
-            tools:ignore="RtlHardcoded" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/aplicacao_color"
+            app:layout_constraintEnd_toStartOf="@+id/valor_poupancas"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_fundos" />
 
         <TextView
-            android:id="@+id/tvValorPoupancas"
+            android:id="@+id/valor_poupancas"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:gravity="center|center_vertical"
             android:text="@string/zero"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/verde_escuro" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/aplicacao_color"
+            app:layout_constraintEnd_toStartOf="@+id/valor_previdencias"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/valor_fundos"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_poupancas" />
 
         <TextView
-            android:id="@+id/tvValorPrevidencias"
+            android:id="@+id/valor_previdencias"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:gravity="right|center_vertical"
             android:text="@string/zero"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/verde_escuro"
-            tools:ignore="RtlHardcoded" />
-    </LinearLayout>
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/aplicacao_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/valor_poupancas"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_previdencias" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

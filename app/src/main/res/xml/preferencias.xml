@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         android:key="@string/pref_categoria_geral_key"
@@ -47,6 +48,7 @@
             android:dialogTitle="@string/pref_dialogo_senha"
             android:key="@string/pref_key_senha"
             android:summary="@string/pref_descricao_senha"
+            android:inputType="textPassword"
             android:title="@string/pref_titulo_senha" />
         <ListPreference
             android:key="pergunta_seguranca_id"
@@ -62,26 +64,43 @@
             android:title="@string/dica_resposta_secreta_ajustes"
             android:summary="@string/dica_resposta_secreta_ajustes_summary"
             android:dialogTitle="@string/titulo_pergunta_secreta"
-            android:inputType="text" />
+            android:inputType="textNoSuggestions" />
 
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="@string/pref_categoria_bkup_restaura_key"
-        android:title="@string/pref_titulo_bkup_restaura">
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="@string/pref_key_auto_bkup"
-            android:summary="@string/pref_descricao_auto_bkup_sim"
-            android:title="@string/pref_titulo_auto_bkup" />
+        android:title="@string/pref_titulo_bkup">
+        <!-- New Preference to select the backup folder using SAF -->
+        <Preference
+            android:key="@string/pref_key_bkup_select_folder"
+            android:title="@string/pref_titulo_bkup_select_folder"
+            android:summary="@string/pref_descricao_bkup_select_folder"
+            app:iconSpaceReserved="false" />
+
+        <!-- New Preference to execute the manual backup -->
         <Preference
             android:key="@string/pref_key_bkup"
+            android:title="@string/pref_titulo_bkup"
             android:summary="@string/pref_descricao_bkup"
-            android:title="@string/pref_titulo_bkup" />
+            app:iconSpaceReserved="false" />
+
+        <!-- New Preference to execute the manual restore -->
         <Preference
             android:key="@string/pref_key_restaura"
+            android:title="@string/pref_titulo_restaura"
             android:summary="@string/pref_descricao_restaura"
-            android:title="@string/pref_titulo_restaura" />
+            app:iconSpaceReserved="false" />
+
+        <!-- Existing auto backup switch -->
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/pref_key_auto_bkup"
+            android:summaryOff="@string/pref_descricao_auto_bkup_off"
+            android:summaryOn="@string/pref_descricao_auto_bkup_on"
+            android:title="@string/pref_titulo_auto_bkup"
+            app:iconSpaceReserved="false" />
+
     </PreferenceCategory>
+
     <PreferenceCategory
         android:key="@string/pref_categoria_exportar_key"
         android:title="@string/pref_titulo_categoria_exportar">
@@ -89,6 +108,12 @@
             android:key="@string/pref_key_exportar"
             android:summary="@string/pref_descricao_exportar"
             android:title="@string/pref_titulo_exportar" />
+
+        <Preference
+            android:key="@string/pref_key_importar"
+            android:summary="@string/pref_descricao_importar"
+            android:title="@string/pref_titulo_importar" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/pref_categoria_apagatudo_key"

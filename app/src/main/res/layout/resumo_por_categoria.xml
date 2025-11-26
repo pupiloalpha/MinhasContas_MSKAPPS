@@ -1,41 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mskapp="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    mskapp:layout_behavior="@string/appbar_scrolling_view_behavior"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:ignore="RtlHardcoded">
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="12dp">
 
-        <include layout="@layout/linha_receitas" />
-
-        <LinearLayout
+        <include
+            android:id="@+id/resumo_receitas"
+            layout="@layout/linha_receitas"
             android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:background="@android:color/transparent" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
 
-        <include layout="@layout/linha_despesas_nova" />
-
-        <LinearLayout
+        <include
+            android:id="@+id/resumo_despesas"
+            layout="@layout/linha_despesas_nova"
             android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:background="@android:color/transparent" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
 
-        <include layout="@layout/linha_aplicacoes" />
-
-        <LinearLayout
+        <include
+            android:id="@+id/resumo_aplicacoes"
+            layout="@layout/linha_aplicacoes"
             android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:background="@android:color/transparent" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
 
-        <include layout="@layout/linha_saldo_novo" />
-
+        <include
+            android:id="@+id/resumo_saldo"
+            layout="@layout/linha_saldo_novo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

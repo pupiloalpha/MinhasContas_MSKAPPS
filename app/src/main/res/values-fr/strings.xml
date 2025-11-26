@@ -1,234 +1,295 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Strings do Aplicativo -->
+    <string name="app_name">Mes Comptes</string>
+    <string name="sobre">L\'application Mes Comptes a été créée pour faciliter votre contrôle financier.
+        \n\nBasée sur des tutoriels Internet et d\'autres applications du genre.
+        \nDéveloppé par Paulo E S Mesquita avec le soutien de Flávia Vilar Borges.
+        \n\nVersion : %1$s\n\nContact : mskapps.brazil@gmail.com</string>
+    <string name="dica_inicio">Application créée pour faciliter votre contrôle financier.</string>
+    <string name="tela_inicial">Ne plus afficher</string>
+    <string name="icone" translatable="false">icone</string>
+    <string name="data" translatable="false">00/00/2000</string>
+    <string name="zero">R$ 0,00</string>
+    <string name="vazio">Dossier vide</string>
+    <string name="sem_nome">Sans Nom</string>
+    <string name="permissao_negada">Autorisation refusée</string>
 
-    <string name="app_name">Mes comptes</string>
-    <string name="titulo_criar">Créer nouveau compte</string>
-    <string name="titulo_categoria">Choisissez catégoria</string>
+    <string name="titulo_criar">Nouveau compte</string>
+    <string name="titulo_categoria">Choisir catégorie</string>
     <string name="titulo_editar">Modifier compte</string>
-    <string name="titulo_resumo">Sommaire mensuel</string>
-    <string name="titulo_enviar">Envoyer sommaire mensuel</string>
-    <string name="titulo_pesquisar">Recherche</string>
+    <string name="titulo_resumo">Résumé mensuel</string>
+    <string name="titulo_enviar">Envoyer résumé mensuel</string>
+    <string name="titulo_pesquisar">Rechercher compte</string>
     <string name="titulo_filtro">Filtrer par type</string>
-    <string name="titulo_grafico">Graphiques de comptes</string>
-    <string name="titulo_calendario">Ajounter un rappel</string>
-    <string name="titulo_excluir">Supprimer le compte</string>
-    <string name="acesso">Mot de passe d\'accès verrouillé</string>
-    <string name="senha">Mot de passe d\'accès</string>
-    <string name="dica_senha">Montrer le Mot de passe</string>
-    <string name="esqueci_senha">J\'ai oublié mon mot de passe.</string>
-    <string name="titulo_senha">Accès refusé</string>
-    <string name="senha_errada">Mot de passe incorrects.</string>
-    <string name="titulo_despesa_saque">Créez frais</string>
-    <string name="texto_despesa_saque">Vous voulez créer une dépense de ce compte?</string>
+    <string name="titulo_grafico">Graphiques des comptes</string>
+    <string name="titulo_calendario">Ajouter rappel</string>
+    <string name="titulo_excluir">Supprimer compte</string>
+    <string name="titulo_despesa_saque">Créer dépense</string>
     <string name="titulo_exclui_tudo">Supprimer tous les comptes</string>
-    <string name="texto_exclui_tudo">Vous voulez supprimer tous les comptes?</string>
-    <string name="cancelar">Résilier</string>
-    <string name="salvar">Sauvegarder</string>
+    <string name="titulo_backup">Sauvegarde et Restauration Manuelle</string>
+    <string name="importar_excel">Importation de Comptes</string>
+    <string name="titulo_atencao">ATTENTION !</string>
+    <string name="titulo_permissao_negada">Autorisation refusée</string>
+    <string name="dica_titulo_barra">VEUILLEZ PATIENTER</string>
+
+    <string name="cancelar">Annuler</string>
+    <string name="salvar">Enregistrer</string>
     <string name="criar">Créer</string>
     <string name="entrar">ENTRER</string>
-    <string name="sem_nome">Sans Nom</string>
-    <string name="sobre">Application Mes Comptes créée pour faciliter votre contrôle financier.\n
-        \nBasé sur les tutoriels à partir d\'Internet et d\'autres applications de ce type.
-        \nDéveloppé par Paulo E S Mesquita avec le soutien Flavia Vilar Borges.
-        \n\nVersion:%1$s\n\nContact: mskapps.brazil@gmail.com</string>
-    <string name="dica_inicio">Application créée pour faciliter votre contrôle financier.</string>
-    <string name="tela_inicial">Ne pas montrer de nouveau</string>
+    <string name="ok" translatable="false">OK</string>
+    <string name="confirmar">Confirmer</string>
+    <string name="redefinir_senha">Réinitialiser Mot de Passe</string>
 
+
+    <string name="menu_ajustes">Paramètres</string>
+    <string name="menu_sobre">A propos</string>
+    <string name="menu_ajuda">Comment utiliser</string>
+
+
+    <string name="acesso">Accès bloqué par mot de passe</string>
+    <string name="senha">Mot de passe d\'accès</string>
+    <string name="dica_senha">Afficher mot de passe</string>
+    <string name="esqueci_senha">J\'ai oublié mon mot de passe</string>
+    <string name="titulo_senha">Accès refusé</string>
+    <string name="senha_errada">Mot de passe incorrect.</string>
     <string name="titulo_acesso">Sécurité et Accès</string>
     <string name="titulo_pergunta_secreta">Question Secrète</string>
     <string name="dica_resposta_secreta_ajustes">Entrez votre réponse secrète</string>
     <string name="alerta_seguranca_nao_configurada">Configurez une Question Secrète dans les Options de Sécurité pour utiliser la récupération de mot de passe.</string>
     <string name="recuperacao_senha">Récupération de Mot de Passe</string>
     <string name="dica_resposta_secreta">Entrez la réponse à la question de sécurité</string>
-    <string name="redefinir_senha">Réinitialiser le Mot de Passe</string>
     <string name="nova_senha">Nouveau Mot de Passe</string>
-    <string name="confirmar">Confirmer</string>
-    <string name="senha_redefinida_sucesso">Mot de passe réinitialisé avec succès ! Connectez-vous avec votre nouveau mot de passe.</string>
+    <string name="senha_redefinida_sucesso">Mot de passe réinitialisé avec succès ! Accédez avec votre nouveau mot de passe.</string>
     <string name="erro_recuperacao_nao_configurada">Le mécanisme de récupération n\'a pas été configuré. Contactez le support.</string>
     <string name="erro_resposta_incorreta">Réponse incorrecte. Veuillez réessayer.</string>
     <string name="erro_senha_vazia">Le nouveau mot de passe ne peut pas être vide.</string>
-    <string name="pref_categoria_seguranca_key">seguranca_key</string>
-    <string name="dica_resposta_secreta_ajustes_summary">Appuyez pour définir votre réponse secrète de récupération</string>
     <string name="resposta_definida">Réponse Secrète Définie</string>
 
-    <!-- Strings do Menu do Aplicativo -->
 
-    <string name="menu_ajustes">Paramètres</string>
-    <string name="menu_sobre">À propos</string>
-    <string name="menu_ajuda">Apprenez à utiliser</string>
-
-    <!-- Strings Das Telas Aplicativo -->
-
-    <string name="dica_grafico">Choisissez un tableau</string>
+    <string name="dica_grafico">Choisissez un graphique</string>
     <string name="dica_spinner">Choisissez un type</string>
     <string name="dica_conta">Nom du compte</string>
-    <string name="dica_nome_categoria">Nom de catégorie</string>
-    <string name="dica_pesquisa_conta">Saisissez le nom du compte</string>
-    <string name="dica_valor">Valeur €</string>
-    <string name="dica_evento">Compte %1$s gagne aujourd\'hui!</string>
-    <string name="dica_calendario">Valeur € %1$s\n Événement créé par l\'application Mes Comptes.</string>
-    <string name="dica_valor_juros">Valeur intérêt %</string>
-    <string name="dica_valor_total">Parcelle valeur</string>
-    <string name="dica_dinheiro">€ %1$s</string>
-    <string name="dica_cifrao">€</string>
-    <string name="dica_receita">Recett</string>
-    <string name="dica_despesa">Dépense</string>
+    <string name="dica_nome_categoria">Nom de la catégorie</string>
+    <string name="dica_pesquisa_conta">Entrez le nom du compte</string>
+    <string name="dica_valor">Valeur R$</string>
+    <string name="dica_valor_juros">Valeur intérêts %</string>
+    <string name="dica_valor_total">Fractionner valeur</string>
+    <string name="dica_dinheiro">R$ %1$s</string>
+    <string name="dica_cifrao">R$</string>
     <string name="dica_repete">Répéter compte</string>
-    <string name="dica_numero">Quant.</string>
-    <string name="dica_juros">Enter intérêt</string>
+    <string name="dica_numero">Qté</string>
+    <string name="dica_juros">Insérer intérêts</string>
     <string name="dica_vencimento">Jour</string>
-    <string name="dica_pagamento">Compte paie</string>
+    <string name="dica_vazio">Aucun compte créé</string>
+    <string name="dica_pesquisa">Aucun compte trouvé</string>
+
+
+    <string name="dica_receita">Revenu</string>
+    <string name="dica_despesa">Dépense</string>
+    <string name="dica_pagamento">Compte payé</string>
     <string name="dica_recebe">Revenu reçu</string>
     <string name="dica_deposito">Déposé</string>
-    <string name="dica_investimento">Investissement</string>
-    <string name="dica_resumo">COMPTES SOMMAIRES</string>
-    <string name="dica_altera">CHANGE COMPTE</string>
-    <string name="zero">€ 0.00</string>
-    <string name="data">00/00/2000</string>
-    <string name="dica_vazio">Pas de compte créé</string>
-    <string name="dica_pesquisa">Pas de compte trouvé</string>
+    <string name="dica_investimento">Investi</string>
     <string name="dica_carteira">Portefeuille</string>
     <string name="dica_banco">Banque/Portefeuille</string>
+    <string name="dica_aplicacao">Placement</string>
+    <string name="dica_despesas">Toutes les dépenses</string>
+    <string name="dica_aplicacoes">Tous les placements</string>
+
     <string name="dica_alimentacao">Alimentation</string>
     <string name="dica_educacao">Éducation</string>
-    <string name="dica_lazer">Loisir</string>
-    <string name="dica_moradia">Habitation</string>
+    <string name="dica_lazer">Loisirs</string>
+    <string name="dica_moradia">Logement</string>
     <string name="dica_saude">Santé</string>
     <string name="dica_transporte">Transport</string>
     <string name="dica_vestuario">Vêtements</string>
-    <string name="dica_outros">Autre</string>
+    <string name="dica_outros">Autres</string>
 
-    <!-- Strings Da Telas de ResumoTipoMensal das Contas do Aplicativo -->
 
-    <string name="linha_receita">RECETTES</string>
-    <string name="linha_aplicacoes">APPLICATIONS</string>
-    <string name="linha_poupanca">Épargne</string>
-    <string name="linha_previdencia">Sécurité</string>
-    <string name="linha_fundos">Investissement</string>
+    <string name="dica_resumo">RÉSUMÉ COMPTES</string>
+    <string name="dica_altera">MODIFIER COMPTE</string>
+    <string name="linha_receita">REVENUS</string>
+    <string name="linha_aplicacoes">PLACEMENTS</string>
+    <string name="linha_poupanca">Épargnes</string>
+    <string name="linha_previdencia">Prévoyance</string>
+    <string name="linha_fundos">Fonds</string>
     <string name="linha_despesa">DÉPENSES</string>
     <string name="linha_despFixa">Dépenses fixes</string>
     <string name="linha_despVar">Dépenses variables</string>
     <string name="linha_cartao">Carte de crédit</string>
-    <string name="linha_prestacoes">Aventages</string>
-    <string name="linha_saldo">SOLDE COURANT</string>
+    <string name="linha_prestacoes">Versements</string>
+    <string name="linha_saldo">SOLDE ACTUEL</string>
     <string name="coluna_pagas">Comptes\npayés</string>
-    <string name="coluna_mes">Comptes\nmensueles</string>
-    <string name="planilha">SOMMAIRE_%1$s</string>
-
-    <!-- Strings dos Dialogos do Aplicativo -->
-
-    <string name="dica_menu_ajustes">Options de peaufiner</string>
-    <string name="dica_menu_edicao">Options d\'édition</string>
-    <string name="dica_menu_exclusao">Options d\'exclusion</string>
-    <string name="dica_titulo_barra">ATTENDRE</string>
-    <string name="dica_texto_reinicio">ATTENTION!\nFermez et ouvrez l\'application pour voir le résultat de vos réglages.</string>
-    <string name="dica_barra_progresso">Création de nouveaux comptes &#x2026;</string>
-    <string name="dica_barra_altera">Modification des comptes &#x2026;</string>
-    <string name="dica_barra_exporta">L\'exportation vers Excel &#x2026;</string>
-    <string name="dica_barra_recupera">Récupération des comptes &#x2026;</string>
-    <string name="dica_barra_exclui">Suppression de comptes &#x2026;</string>
-
-    <!-- Strings Do Dialogo de ResumoTipoMensal do Saldo mensal -->
-
+    <string name="coluna_mes">Comptes\ndu mois</string>
+    <string name="planilha">RÉSUMÉ_%1$s</string>
     <string name="resumo_mes_anterior">Solde mois précédent</string>
-    <string name="resumo_saldo">Solde mois courant</string>
-    <string name="resumo_pagas">Dépenses payés</string>
+    <string name="resumo_saldo">Solde mois actuel</string>
+    <string name="resumo_data" translatable="false">%1$s/%2$s/%3$s</string>
+    <string name="resumo_pagas">Dépenses payées</string>
     <string name="resumo_faltam">Dépenses à payer</string>
     <string name="resumo_recebidas">Revenus reçus</string>
-    <string name="resumo_areceber">Revenus à recouvrer</string>
-
-    <!-- Strings de Notificacoes do Aplicativo -->
-
-    <string name="dica_exporta_excel">Excel créé!</string>
-    <string name="dica_erro_exporta_excel">Impossible de générer le fichier Excel!</string>
-    <string name="dica_copia_bd">Copier tenue avec succès!</string>
-    <string name="dica_exclusao_bd">Tous les comptes ont été supprimés!</string>
-    <string name="dica_restaura_bd">Restauration réalisée avec succès!</string>
-    <string name="dica_saldo_zero">Vous avez passé toutes vos recettes</string>
-    <string name="dica_saldo_maior">Vous passé une partie de leur chiffre d\'affaires</string>
-    <string name="dica_saldo_menor">Vous avez passé plus de votre revenu total</string>
-    <string name="dica_conta_criada">Compte %1$s créé avec succès!</string>
-    <string name="dica_conta_alterada">Compte %1$s changé avec succès!</string>
-    <string name="dica_conta_excluida">Compte %1$s supprimé!</string>
-
-    <!-- Strings da Tela de Gráficos do Aplicativo -->
-
-    <string name="dica_grafico_aplicacoes">Application comparatif</string>
-    <string name="dica_grafico_despesas">Comparaison des coûts</string>
-    <string name="dica_grafico_contas">Comparaison des comptes</string>
-    <string name="dica_grafico_pagamentos">Comparaison des paiements</string>
-    <string name="dica_grafico_receitas">Comparaison des revenus</string>
-
-    <!-- Strings do Menu de Ajustes -->
+    <string name="resumo_areceber">Revenus à recevoir</string>
 
 
-    <!-- Ajustes Gerais -->
+    <string name="dica_grafico_aplicacoes">Comparatif des placements</string>
+    <string name="dica_grafico_despesas">Comparatif des dépenses</string>
+    <string name="dica_grafico_contas">Comparatif des comptes</string>
+    <string name="dica_grafico_pagamentos">Comparatif des paiements</string>
+    <string name="dica_grafico_receitas">Comparatif des revenus</string>
 
-    <string name="pref_titulo_geral">Set général</string>
-    <string name="pref_titulo_ordem">Choisissez l\'ordre des comptes</string>
-    <string name="pref_descricao_ordem">Choisissez l\'ordre dans lequel les comptes seront cotées</string>
-    <string name="pref_dialogo_ordem">Ordre des comptes liste</string>
+
+    <string name="dica_evento">Le compte %1$s est dû aujourd\'hui !</string>
+    <string name="dica_calendario">Valeur R$ %1$s\nÉvénement créé par l\'application Mes Comptes.</string>
+    <string name="dica_copia_bd">Copie réalisée avec succès !</string>
+    <string name="erro_geral_bd">Erreur lors de la lecture des comptes à envoyer !</string>
+    <string name="dica_nenhuma_conta">Aucun compte trouvé pour la période sélectionnée !</string>
+    <string name="dica_exclusao_bd">Tous les comptes ont été supprimés !</string>
+    <string name="dica_restaura_bd">Restauration réalisée avec succès !</string>
+    <string name="dica_saldo_zero">Vous avez dépensé tous vos revenus</string>
+    <string name="erro_valor_invalido">Valeur au format incorrect.</string>
+    <string name="dica_saldo_maior">Vous avez dépensé une partie de vos revenus</string>
+    <string name="dica_saldo_menor">Vous avez dépensé plus que le total de vos revenus</string>
+    <string name="dica_conta_criada">Compte %1$s créé avec succès !</string>
+    <string name="dica_conta_alterada">Compte %1$s modifié avec succès !</string>
+    <string name="dica_conta_excluida">Compte %1$s supprimé !</string>
+    <string name="dica_copia_bd_prefs">Sauvegarde de la Base de Données et des Préférences créée avec succès !</string>
+    <string name="dica_restaura_bd_prefs">Base de Données et Préférences restaurées avec succès ! Veuillez redémarrer l\'application.</string>
+    <string name="dica_restart_app">Veuillez redémarrer l\'application pour que les changements prennent effet.</string>
+    <string name="dica_restaura_prefs">Preferences restored successfully!</string>
+    <string name="backup_complete">Sauvegarde terminée !</string>
+    <string name="export_success">Fichier Excel exporté avec succès !</string>
+    <string name="export_failed">Échec de l\'exportation du fichier Excel.</string>
+    <string name="export_cancelled">Exportation Excel annulée.</string>
+    <string name="dica_erro_importacao_cancelada">Importation annulée par l\'utilisateur.</string>
+    <string name="dica_importacao_vazia">Importation terminée. Le fichier Excel ne contenait aucune donnée valide.</string>
+    <string name="dica_importacao_sucesso">Importation terminée ! %d comptes ont été insérés dans la base de données.</string>
+    <string name="dica_erro_importacao_falhou">Échec critique lors de la tentative d\'importation des données Excel. Vérifiez le format du fichier.</string>
+    <string name="dica_exporta_excel">Fichier au format Excel créé avec succès !</string>
+    <string name="dica_erro_exporta_excel">Impossible de générer le fichier Excel !</string>
+
+
+    <string name="texto_despesa_saque">Souhaitez-vous créer une dépense avec la valeur de ce compte ?</string>
+    <string name="texto_exclui_tudo">Souhaitez-vous supprimer tous les comptes ?</string>
+    <string name="dica_menu_ajustes">Options de réglage</string>
+    <string name="dica_menu_edicao">Options d\'édition</string>
+    <string name="dica_menu_exclusao">Options de suppression</string>
+    <string name="dica_texto_reinicio">ATTENTION !\nFermez et ouvrez l\'application pour visualiser le résultat de vos configurations.</string>
+    <string name="dica_barra_progresso">Création de nouveaux comptes …</string>
+    <string name="dica_barra_altera">Modification des comptes …</string>
+    <string name="dica_barra_exporta">Exportation vers Excel …</string>
+    <string name="dica_barra_recupera">Récupération des comptes …</string>
+    <string name="dica_barra_exclui">Suppression des comptes …</string>
+    <string name="dica_atencao">Souhaitez-vous supprimer les %1$s comptes sélectionnés ?</string>
+    <string name="aguarde_importacao">Veuillez patienter pendant que le fichier est lu et que les données sont insérées…</string>
+    <string name="titulo_criar_repeticoes">Création de Répétitions</string>
+    <string name="msg_criando_repeticoes">Création de %1$d nouveaux comptes pour le compte %2$s. Veuillez patienter…</string>
+    <string name="dica_repeticoes_sucesso">%1$d répétitions créées avec succès !</string>
+    <string name="dica_repeticoes_parcial">%1$d sur %2$d répétitions ont été créées avec succès, les autres ont été ignorées.</string>
+    <string name="dica_repeticoes_falha">Échec de la création des répétitions. Veuillez réessayer.</string>
+    <string name="exportar_excel">Exportation des Données vers Excel</string>
+    <string name="aguarde_exportacao">Traitement des données et création du fichier Excel. Veuillez patienter…</string>
+    <string name="confirmar_exclusao_multipla_titulo">Confirmer la Suppression</string>
+    <string name="nao">Non</string>
+    <string name="sim">Oui</string>
+
+    <string name="title_select_directory">Choisir un répertoire</string>
+    <string name="title_select_file">Choisir un fichier (%s)</string>
+    <string name="salvar_em">Enregistrer dans</string>
+    <string name="msg_select_matching_file">Veuillez sélectionner un fichier « %s ».</string>
+
+
+    <string name="pref_categoria_geral_key" translatable="false">geral</string>
+    <string name="pref_titulo_geral">Réglage Général</string>
+    <string name="pref_titulo_ordem">Choisir l\'ordre des comptes</string>
+    <string name="pref_descricao_ordem">Choisir l\'ordre dans lequel les comptes seront listés</string>
+    <string name="pref_dialogo_ordem">Ordre des comptes dans la liste</string>
+    <string name="pref_key_ordem" translatable="false">ordem</string>
     <string name="pref_titulo_pagamento">Paiement automatique</string>
-    <string name="pref_descricao_autopagamento">Examiner les comptes payées à l\'échéance</string>
-    <string name="pref_descricao_editapagamento">Utilisateur doit informer le compte de paiement</string>
-    <string name="pref_titulo_resumo">Voir résumé mensuel</string>
-    <string name="pref_descricao_resumo_mensal">Montre le résumé mensuel des comptes</string>
-    <string name="pref_descricao_resumo_diario">Indique résumé quotidien des comptes</string>
-    <string name="pref_titulo_saldo">Ajout solde précédent</string>
-    <string name="pref_descricao_saldo_somado">Résumer le solde du mois précédent</string>
-    <string name="pref_descricao_saldo_real">Afficher équilibre mois en cours</string>
+    <string name="pref_descricao_autopagamento">Considérer les comptes payés à la date d\'échéance</string>
+    <string name="pref_descricao_editapagamento">L\'utilisateur doit informer le paiement du compte</string>
+    <string name="pref_key_pagamento" translatable="false">pagamento</string>
+    <string name="pref_titulo_resumo">Afficher résumé mensuel</string>
+    <string name="pref_descricao_resumo_mensal">Affiche le résumé mensuel des comptes</string>
+    <string name="pref_descricao_resumo_diario">Affiche le résumé quotidien des comptes</string>
+    <string name="pref_key_resumo" translatable="false">resumo</string>
+    <string name="pref_titulo_categoria">Catégories de dépenses</string>
+    <string name="pref_descricao_categoria">Afficher les catégories dans le résumé des comptes</string>
+    <string name="pref_descricao_sem_categoria">Afficher les types de dépenses dans le résumé</string>
+    <string name="pref_key_categoria" translatable="false">categoria</string>
+    <string name="pref_titulo_saldo">Ajouter solde précédent</string>
+    <string name="pref_descricao_saldo_somado">Ajoute le solde du mois précédent</string>
+    <string name="pref_descricao_saldo_real">Affiche le solde du mois actuel</string>
+    <string name="pref_key_saldo" translatable="false">saldo</string>
 
-    <!-- Ajustes Acesso -->
-
+    <string name="pref_categoria_seguranca_key">seguranca_key</string>
+    <string name="dica_resposta_secreta_ajustes_summary">Appuyez pour définir votre réponse secrète de récupération</string>
+    <string name="pref_categoria_acesso_key" translatable="false">login</string>
     <string name="pref_titulo_categoria_acesso">Accès par mot de passe</string>
     <string name="pref_titulo_senha">Mot de passe d\'accès</string>
     <string name="pref_descricao_senha">Mot de passe pour entrer dans l\'application</string>
-    <string name="pref_dialogo_senha">Entrez le mot de passe</string>
-    <string name="pref_titulo_acesso">Application Block</string>
-    <string name="pref_descricao_acesso_negado">Utiliser mot de passe pour entrer dans l\'application</string>
-    <string name="pref_descricao_acesso_livre">Entrer application sans mot de passe</string>
+    <string name="pref_descricao_senha_definida">Mot de passe défini</string>
+    <string name="pref_dialogo_senha">Entrez le mot de passe d\'accès</string>
+    <string name="pref_key_senha" translatable="false">senha</string>
+    <string name="pref_titulo_acesso">Verrouiller l\'application</string>
+    <string name="pref_descricao_acesso_negado">Utiliser un mot de passe pour entrer dans l\'application</string>
+    <string name="pref_descricao_acesso_livre">Entrer dans l\'application sans mot de passe</string>
+    <string name="pref_key_acesso" translatable="false">acesso</string>
 
-    <!-- Ajustes Exportar -->
-
-    <string name="pref_titulo_categoria_exportar">Exporter sommaire</string>
+    <string name="pref_titulo_categoria_exportar">Exportation et Importation de Données</string>
+    <string name="pref_categoria_exportar_key" translatable="false">exportar</string>
     <string name="pref_titulo_exportar">Exporter vers Excel</string>
-    <string name="pref_descricao_exportar">Enregistre le résumé mensuel de l\'année en cours sur une feuille de calcul dans Excel format</string>
+    <string name="pref_descricao_exportar">Sauvegarde le résumé mensuel de l\'année en cours dans une feuille de calcul au format Excel</string>
+    <string name="pref_key_exportar" translatable="false">excel</string>
+    <string name="pref_titulo_importar">Importer des Données (Excel)</string>
+    <string name="pref_descricao_importar">Importe des données de comptes d\'un fichier Excel (.xls) dans la base de données.</string>
+    <string name="pref_key_importar">pref_key_importar</string>
 
-    <!-- Ajustes BackUp -->
+    <string name="pref_categoria_bkup_restaura_key" translatable="false">bkuprest</string>
+    <string name="pref_titulo_bkup_restaura">Sauvegarde et Restauration</string>
+    <string name="pref_titulo_auto_bkup">Sauvegarde Automatique</string>
+    <string name="pref_descricao_auto_bkup_on">Faire la sauvegarde des comptes chaque fois que l\'application est fermée</string>
+    <string name="pref_descricao_auto_bkup_off">Faire la sauvegarde des comptes lorsque l\'utilisateur le demande</string>
+    <string name="pref_key_auto_bkup" translatable="false">autobackup</string>
+    <string name="pref_titulo_bkup">Faire la sauvegarde des comptes</string>
+    <string name="pref_key_bkup" translatable="false">backup</string>
+    <string name="pref_titulo_restaura">Restaurer les comptes sauvegardés</string>
+    <string name="pref_descricao_restaura">Récupère une copie des comptes sauvegardés</string>
+    <string name="pref_key_restaura" translatable="false">restaura</string>
+    <string name="pref_key_bkup_select_folder" translatable="false">select_backup_folder</string>
+    <string name="pref_titulo_bkup_select_folder">1. Choisir le Dossier de Sauvegarde/Restauration</string>
+    <string name="pref_descricao_bkup_select_folder">Appuyez pour sélectionner le répertoire où les sauvegardes seront enregistrées ou restaurées.</string>
+    <string name="pref_descricao_bkup_local_chosen">Emplacement de Sauvegarde/Restauration Défini</string>
+    <string name="pref_key_bkup_execute" translatable="false">execute_backup</string>
+    <string name="pref_titulo_bkup_execute">2. Effectuer la Sauvegarde Maintenant</string>
+    <string name="pref_descricao_bkup_execute">Copie la base de données et les configurations vers l\'emplacement choisi.</string>
+    <string name="pref_key_restaura_execute" translatable="false">execute_restore</string>
+    <string name="pref_titulo_restaura_execute">3. Restaurer la Sauvegarde Maintenant</string>
+    <string name="pref_descricao_restaura_execute">Restaure la base de données et les configurations à partir de l\'emplacement choisi. Redémarrez l\'application après la restauration.</string>
+    <string name="pref_descricao_bkup">Sauvegarde/Restauration terminée.</string>
+    <string name="backup_location_set">Emplacement de sauvegarde configuré sur %1$s</string>
+    <string name="error_backup_location_not_set">Emplacement de sauvegarde non configuré. Veuillez sélectionner un dossier d\'abord.</string>
+    <string name="error_restore_location_not_set">Emplacement de restauration non configuré. Veuillez sélectionner un dossier d\'abord.</string>
+    <string name="erro_backup_nao_encontrado_ou_ilegivel">Sauvegarde non trouvée ou illisible à l\'emplacement sélectionné.</string>
+    <string name="erro_backup_perm_write">Erreur : Aucune autorisation d\'écriture pour le répertoire de sauvegarde.</string>
+    <string name="erro_restore_perm_read">Erreur : Aucune autorisation de lecture pour le répertoire de restauration.</string>
+    <string name="erro_restore_db_not_found">Erreur : Fichier de Base de Données de sauvegarde non trouvé ou ne peut être lu.</string>
+    <string name="erro_backup_bd_saf">Erreur : Échec de la création ou de la recherche du fichier de sauvegarde de la BD.</string>
+    <string name="erro_backup_prefs_geral">Erreur : Échec de la sauvegarde des préférences utilisateur !</string>
+    <string name="erro_restore_prefs_geral">Erreur : Échec de la restauration des préférences utilisateur !</string>
 
-    <string name="pref_titulo_bkup_restaura">Sauvegarde et restauration</string>
-    <string name="pref_titulo_auto_bkup">Sauvegarde automatique</string>
-    <string name="pref_descricao_auto_bkup_sim">Faire sauvegarde allways puis application est fermée</string>
-    <string name="pref_descricao_auto_bkup_nao">Faire de sauvegarde uniquement lorsque l\'utilisateur de choisir</string>
-    <string name="pref_titulo_bkup">Enregistrer les comptes</string>
-    <string name="pref_descricao_bkup">Enregistrer une copie des comptes</string>
-    <string name="pref_titulo_restaura">Restaurer les comptes enregistrés</string>
-    <string name="pref_descricao_restaura">Récupère une copie des comptes enregistrés</string>
-
-    <!-- Ajustes APAGATUDO -->
-
+    <string name="pref_categoria_apagatudo_key" translatable="false">apagatudomesmo</string>
     <string name="pref_titulo_apagatudo">Supprimer tous les comptes</string>
-    <string name="pref_descricao_apagatudo">Supprimer tous les comptes créés sur demande</string>
+    <string name="pref_descricao_apagatudo">Supprime tous les comptes créés dans l\'application</string>
+    <string name="pref_key_apagatudo" translatable="false">apagatudo</string>
 
-    <!-- Ajustes Informacoes do Aplicativo -->
-
-    <string name="pref_titulo_categoria_info">A propos de l\'application</string>
+    <string name="pref_titulo_categoria_info">À propos de l\'application</string>
+    <string name="pref_categoria_info_key" translatable="false">info</string>
     <string name="pref_titulo_autor">Développeur</string>
-    <string name="pref_titulo_versao">Version de l\'application</string>
-    <string name="pref_descricao_versao">Version: %1$s</string>
-
-    <!-- KEYS DAS PREFERENCIAS -->
-
-    <string name="vazio">Dossier vide</string>
-    <string name="dica_aplicacao">Application</string>
-    <string name="dica_despesas">Tous les dépenses</string>
-    <string name="dica_aplicacoes">Tous les applications</string>
-    <string name="pref_descricao_categoria">Afficher les catégories en résumé</string>
-    <string name="pref_descricao_sem_categoria">Afficher les types de dépenses dans le résumé</string>
-    <string name="pref_titulo_categoria">Catégories de dépenses</string>
-    <string name="titulo_permissao_negada">Permission refusée</string>
-    <string name="permissao_negada">Permission refusée</string>
+    <string name="pref_descricao_autor" translatable="false">Paulo E S Mesquita</string>
+    <string name="pref_key_autor" translatable="false">desenvolvedor</string>
+    <string name="pref_titulo_versao">Version de l\'Application</string>
+    <string name="pref_descricao_versao">Version : %1$s</string>
+    <string name="pref_key_versao" translatable="false">versao</string>
 
 </resources>

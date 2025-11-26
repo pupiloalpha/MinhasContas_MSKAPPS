@@ -1,231 +1,297 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Strings do Aplicativo -->
+    <string name="app_name">My Accounts</string>
+    <string name="sobre">The My Accounts application was created to facilitate your financial control.\n
+        \nBased on internet tutorials and other apps of the genre.
+        \nDeveloped by Paulo E S Mesquita with support from Flávia Vilar Borges.
+        \n\nVersion: %1$s\n\nContact: mskapps.brazil@gmail.com</string>
+    <string name="dica_inicio">App created to facilitate your financial control.</string>
+    <string name="tela_inicial">Do not show again</string>
+    <string name="icone" translatable="false">icone</string>
+    <string name="data" translatable="false">00/00/2000</string>
+    <string name="zero">$ 0.00</string>
+    <string name="vazio">Empty Folder</string>
+    <string name="sem_nome">No Name</string>
+    <string name="permissao_negada">Permission denied</string>
 
-    <string name="app_name">My Bills</string>
-    <string name="titulo_criar">New bill</string>
+    <string name="titulo_criar">New account</string>
     <string name="titulo_categoria">Choose category</string>
-    <string name="titulo_editar">Change bill</string>
-    <string name="titulo_resumo">Monthly Summary</string>
+    <string name="titulo_editar">Edit account</string>
+    <string name="titulo_resumo">Monthly summary</string>
     <string name="titulo_enviar">Send monthly summary</string>
-    <string name="titulo_pesquisar">Bill Search</string>
+    <string name="titulo_pesquisar">Search account</string>
     <string name="titulo_filtro">Filter by type</string>
-    <string name="titulo_grafico">Charts of bills</string>
+    <string name="titulo_grafico">Account charts</string>
     <string name="titulo_calendario">Add reminder</string>
-    <string name="titulo_excluir">Delete bill</string>
-    <string name="acesso">Access denied</string>
-    <string name="senha">Access password</string>
-    <string name="dica_senha">Show password</string>
-    <string name="esqueci_senha">I forgot my password</string>
-    <string name="titulo_senha">Access denied</string>
-    <string name="senha_errada">Wrong password.</string>
+    <string name="titulo_excluir">Delete account</string>
     <string name="titulo_despesa_saque">Create expense</string>
-    <string name="texto_despesa_saque">Want to create an expense for this account?</string>
-    <string name="titulo_exclui_tudo">Delete all bills</string>
-    <string name="texto_exclui_tudo">Want to delete all bills?</string>
+    <string name="titulo_exclui_tudo">Delete all accounts</string>
+    <string name="titulo_backup">Manual Backup and Restore</string>
+    <string name="importar_excel">Account Import</string>
+    <string name="titulo_atencao">ATTENTION!</string>
+    <string name="titulo_permissao_negada">Permission denied</string>
+    <string name="dica_titulo_barra">PLEASE WAIT</string>
+
     <string name="cancelar">Cancel</string>
     <string name="salvar">Save</string>
     <string name="criar">Create</string>
-    <string name="entrar">ENTRER</string>
-    <string name="sem_nome">No Name</string>
-    <string name="sobre">Application My Bills was created to ease your financial control.\n
-        \nBased on tutorials from the internet and other applications of its kind.
-        \nDeveloped by Paulo E S Mesquita with support Vilar, Flavia Borges.
-        \n\nVersion:%1$s.\n\nContact: mskapps.brazil@gmail.com</string>
-    <string name="dica_inicio">Application created to facilitate your financial control.</string>
-    <string name="tela_inicial">Do not show again</string>
-    <string name="titulo_acesso">Security and Access</string>
-    <string name="titulo_pergunta_secreta">Secret Question</string>
-    <string name="dica_resposta_secreta_ajustes">Enter your secret answer</string>
-    <string name="alerta_seguranca_nao_configurada">Set up a Secret Question in Security Options to use password recovery.</string>
-    <string name="recuperacao_senha">Password Recovery</string>
-    <string name="dica_resposta_secreta">Enter the answer to the security question</string>
-    <string name="redefinir_senha">Reset Password</string>
-    <string name="nova_senha">New Password</string>
+    <string name="entrar">ENTER</string>
+    <string name="ok" translatable="false">OK</string>
     <string name="confirmar">Confirm</string>
-    <string name="senha_redefinida_sucesso">Password successfully reset! Log in with your new password.</string>
-    <string name="erro_recuperacao_nao_configurada">The recovery mechanism has not been configured. Contact support.</string>
-    <string name="erro_resposta_incorreta">Incorrect answer. Please try again.</string>
-    <string name="erro_senha_vazia">The new password cannot be empty.</string>
-    <string name="pref_categoria_seguranca_key">seguranca_key</string>
-    <string name="dica_resposta_secreta_ajustes_summary">Tap to set your secret recovery answer</string>
-    <string name="resposta_definida">Secret Answer Defined</string>
+    <string name="redefinir_senha">Reset Password</string>
 
-    <!-- Strings do Menu do Aplicativo -->
 
     <string name="menu_ajustes">Settings</string>
     <string name="menu_sobre">About</string>
-    <string name="menu_ajuda">Learn how to use</string>
+    <string name="menu_ajuda">How to use</string>
 
-    <!-- Strings Das Telas Aplicativo -->
+
+    <string name="acesso">Access blocked by password</string>
+    <string name="senha">Access password</string>
+    <string name="dica_senha">Show password</string>
+    <string name="esqueci_senha">Forgot my password</string>
+    <string name="titulo_senha">Access denied</string>
+    <string name="senha_errada">Incorrect password.</string>
+    <string name="titulo_acesso">Security and Access</string>
+    <string name="titulo_pergunta_secreta">Secret Question</string>
+    <string name="dica_resposta_secreta_ajustes">Enter your secret answer</string>
+    <string name="alerta_seguranca_nao_configurada">Configure a Secret Question in Security Options to use password recovery.</string>
+    <string name="recuperacao_senha">Password Recovery</string>
+    <string name="dica_resposta_secreta">Enter the answer to the security question</string>
+    <string name="nova_senha">New Password</string>
+    <string name="senha_redefinida_sucesso">Password reset successfully! Log in with your new password.</string>
+    <string name="erro_recuperacao_nao_configurada">The recovery mechanism has not been configured. Contact support.</string>
+    <string name="erro_resposta_incorreta">Incorrect answer. Try again.</string>
+    <string name="erro_senha_vazia">The new password cannot be empty.</string>
+    <string name="resposta_definida">Secret Answer Set</string>
+
 
     <string name="dica_grafico">Choose a chart</string>
     <string name="dica_spinner">Choose a type</string>
-    <string name="dica_conta">Bill name</string>
+    <string name="dica_conta">Account name</string>
     <string name="dica_nome_categoria">Category name</string>
-    <string name="dica_pesquisa_conta">Enter the bill name</string>
-    <string name="dica_valor">Value $</string>
-    <string name="dica_evento">Bill %1$s wins today!</string>
-    <string name="dica_calendario">Value $ %1$s\nEvent created by application My Bills.</string>
-    <string name="dica_valor_juros">Value interest %</string>
-    <string name="dica_valor_total">Spread value</string>
-    <string name="dica_dinheiro">$ %1$s</string>
-    <string name="dica_cifrao">$</string>
+    <string name="dica_pesquisa_conta">Enter the account name</string>
+    <string name="dica_valor">Value $</string> <!-- Corrigido: R$ para $ -->
+    <string name="dica_valor_juros">Interest value %</string>
+    <string name="dica_valor_total">Installment value</string>
+    <string name="dica_dinheiro">$ %1$s</string> <!-- Corrigido: R$ para $ -->
+    <string name="dica_cifrao">$</string> <!-- Corrigido: R$ para $ -->
+    <string name="dica_repete">Repeat account</string>
+    <string name="dica_numero">Qty</string>
+    <string name="dica_juros">Insert interest</string>
+    <string name="dica_vencimento">Day</string>
+    <string name="dica_vazio">No accounts created</string>
+    <string name="dica_pesquisa">No accounts found</string>
+
+
     <string name="dica_receita">Income</string>
     <string name="dica_despesa">Expense</string>
-    <string name="dica_repete">Repeat bill</string>
-    <string name="dica_numero">Qty</string>
-    <string name="dica_juros">Enter interest</string>
-    <string name="dica_vencimento">Day</string>
-    <string name="dica_pagamento">Bill paid</string>
+    <string name="dica_pagamento">Paid bill</string>
     <string name="dica_recebe">Income received</string>
-    <string name="dica_deposito">I deposit</string>
-    <string name="dica_investimento">I invest</string>
-    <string name="dica_resumo">SUMMARY BILL</string>
-    <string name="dica_altera">CHANGE BILL</string>
-    <string name="zero">U$ 0.00</string>
-    <string name="data">00/00/2000</string>
-    <string name="dica_vazio">No bill created</string>
-    <string name="dica_pesquisa">No bill found</string>
+    <string name="dica_deposito">Deposited</string>
+    <string name="dica_investimento">Invested</string>
     <string name="dica_carteira">Wallet</string>
     <string name="dica_banco">Bank/Wallet</string>
+    <string name="dica_aplicacao">Investment</string>
+    <string name="dica_despesas">All expenses</string>
+    <string name="dica_aplicacoes">All investments</string>
+
     <string name="dica_alimentacao">Food</string>
     <string name="dica_educacao">Education</string>
     <string name="dica_lazer">Leisure</string>
-    <string name="dica_moradia">Home</string>
+    <string name="dica_moradia">Housing</string>
     <string name="dica_saude">Health</string>
-    <string name="dica_transporte">Transportation</string>
+    <string name="dica_transporte">Transport</string>
     <string name="dica_vestuario">Clothing</string>
     <string name="dica_outros">Others</string>
 
-    <!-- Strings Da Telas de ResumoTipoMensal das Contas do Aplicativo -->
 
-    <string name="linha_receita">INCOMES</string>
-    <string name="linha_aplicacoes">APPLICATIONS</string>
+    <string name="dica_resumo">ACCOUNT SUMMARY</string>
+    <string name="dica_altera">EDIT ACCOUNT</string>
+    <string name="linha_receita">INCOME</string>
+    <string name="linha_aplicacoes">INVESTMENTS</string>
     <string name="linha_poupanca">Savings</string>
-    <string name="linha_previdencia">Security</string>
-    <string name="linha_fundos">Investments</string>
+    <string name="linha_previdencia">Pension</string>
+    <string name="linha_fundos">Funds</string>
     <string name="linha_despesa">EXPENSES</string>
-    <string name="linha_despFixa">Fixed Expenses</string>
-    <string name="linha_despVar">Variables Expenses</string>
+    <string name="linha_despFixa">Fixed expenses</string>
+    <string name="linha_despVar">Variable expenses</string>
     <string name="linha_cartao">Credit card</string>
     <string name="linha_prestacoes">Installments</string>
     <string name="linha_saldo">CURRENT BALANCE</string>
-    <string name="coluna_pagas">Paid\nbills</string>
-    <string name="coluna_mes">Monthly\nbills</string>
-    <string name="planilha">EXTRACT_%1$s</string>
-
-    <!-- Strings dos Dialogos do Aplicativo -->
-
-    <string name="dica_menu_ajustes">Tuning Options</string>
-    <string name="dica_menu_edicao">Editing options</string>
-    <string name="dica_menu_exclusao">exclusion Options</string>
-    <string name="dica_titulo_barra">WAIT</string>
-    <string name="dica_texto_reinicio">ATTENTION!\nClose and open the application to see the result of your settings.</string>
-    <string name="dica_barra_progresso">Creating new bill &#x2026;</string>
-    <string name="dica_barra_altera">Modifying the bills &#x2026;</string>
-    <string name="dica_barra_exporta">Exporting to Excel &#x2026;</string>
-    <string name="dica_barra_recupera">Recovering the bills &#x2026;</string>
-    <string name="dica_barra_exclui">Deleting the bills &#x2026;</string>
-
-    <!-- Strings Do Dialogo de ResumoTipoMensal do Saldo mensal -->
-
-    <string name="resumo_mes_anterior">Balance previous month</string>
-    <string name="resumo_saldo">Current month balance</string>
-    <string name="resumo_pagas">Expences paid</string>
-    <string name="resumo_faltam">Expences payable</string>
+    <string name="coluna_pagas">Paid\naccounts</string>
+    <string name="coluna_mes">Accounts\nthis month</string>
+    <string name="planilha">SUMMARY_%1$s</string>
+    <string name="resumo_mes_anterior">Previous month\'s balance</string>
+    <string name="resumo_saldo">Current month\'s balance</string>
+    <string name="resumo_data" translatable="false">%1$s/%2$s/%3$s</string>
+    <string name="resumo_pagas">Paid expenses</string>
+    <string name="resumo_faltam">Expenses to pay</string>
     <string name="resumo_recebidas">Income received</string>
     <string name="resumo_areceber">Income to receive</string>
 
-    <!-- Strings de Notificacoes do Aplicativo -->
 
-    <string name="dica_exporta_excel">Excel file created successfully!</string>
-    <string name="dica_erro_exporta_excel">Unable to generate the Excel file!</string>
-    <string name="dica_copia_bd">Copy held successfully!</string>
-    <string name="dica_exclusao_bd">All bills were deleted!</string>
-    <string name="dica_restaura_bd">Restoration performed successfully!</string>
-    <string name="dica_saldo_zero">You spent all your recipes</string>
-    <string name="dica_saldo_maior">You spent part of your recipes</string>
-    <string name="dica_saldo_menor">You spent more than their total revenue</string>
-    <string name="dica_conta_criada">Bill %1$s created successfully</string>
-    <string name="dica_conta_alterada">Bill %1$s edited successfully!</string>
-    <string name="dica_conta_excluida">Bill %1$s deleted!</string>
+    <string name="dica_grafico_aplicacoes">Investment comparison</string>
+    <string name="dica_grafico_despesas">Expense comparison</string>
+    <string name="dica_grafico_contas">Account comparison</string>
+    <string name="dica_grafico_pagamentos">Payment comparison</string>
+    <string name="dica_grafico_receitas">Income comparison</string>
 
-    <!-- Strings da Tela de Gráficos do Aplicativo -->
 
-    <string name="dica_grafico_aplicacoes">Comparative applications</string>
-    <string name="dica_grafico_despesas">Comparative costs</string>
-    <string name="dica_grafico_contas">Comparative bill</string>
-    <string name="dica_grafico_pagamentos">Comparative payments</string>
-    <string name="dica_grafico_receitas">Comparative incomes</string>
+    <string name="dica_evento">Account %1$s is due today!</string>
+    <string name="dica_calendario">Value $ %1$s\nEvent created by My Accounts app.</string> <!-- Corrigido: R$ para $ -->
+    <string name="dica_copia_bd">Copy performed successfully!</string>
+    <string name="erro_geral_bd">Error reading accounts for sending!</string>
+    <string name="dica_nenhuma_conta">No accounts found for the selected period!</string>
+    <string name="dica_exclusao_bd">All accounts have been deleted!</string>
+    <string name="dica_restaura_bd">Restore performed successfully!</string>
+    <string name="dica_saldo_zero">You spent all your income</string>
+    <string name="erro_valor_invalido">Value in incorrect format.</string>
+    <string name="dica_saldo_maior">You spent part of your income</string>
+    <string name="dica_saldo_menor">You spent more than your total income</string>
+    <string name="dica_conta_criada">Account %1$s created successfully!</string>
+    <string name="dica_conta_alterada">Account %1$s edited successfully!</string>
+    <string name="dica_conta_excluida">Account %1$s deleted!</string>
+    <string name="dica_copia_bd_prefs">Database and Preferences Backup created successfully!</string>
+    <string name="dica_restaura_bd_prefs">Database and Preferences restored successfully! Please restart the application.</string>
+    <string name="dica_restart_app">Please restart the application for changes to take effect.</string>
+    <string name="dica_restaura_prefs">Preferences restored successfully!</string>
+    <string name="backup_complete">Backup complete!</string>
+    <string name="export_success">Excel file exported successfully!</string>
+    <string name="export_failed">Failed to export Excel file.</string>
+    <string name="export_cancelled">Excel export canceled.</string>
+    <string name="dica_erro_importacao_cancelada">Import canceled by the user.</string>
+    <string name="dica_importacao_vazia">Import complete. The Excel file contained no valid data.</string>
+    <string name="dica_importacao_sucesso">Import complete! %d accounts were inserted into the database.</string>
+    <string name="dica_erro_importacao_falhou">Critical failure when attempting to import Excel data. Check the file format.</string>
+    <string name="dica_exporta_excel">Excel format file created successfully!</string>
+    <string name="dica_erro_exporta_excel">Could not generate the Excel file!</string>
 
-    <!-- Strings do Menu de Ajustes -->
-    <!-- Ajustes Gerais -->
 
-    <string name="pref_titulo_geral">Adjustment General</string>
-    <string name="pref_titulo_ordem">Choose the order of BILL</string>
-    <string name="pref_descricao_ordem">Choose the order in which the bill will be listed</string>
-    <string name="pref_dialogo_ordem">Order of the bill in the list</string>
+    <string name="texto_despesa_saque">Do you want to create an expense with the value of this account?</string>
+    <string name="texto_exclui_tudo">Do you want to delete all accounts?</string>
+    <string name="dica_menu_ajustes">Adjustment options</string>
+    <string name="dica_menu_edicao">Editing options</string>
+    <string name="dica_menu_exclusao">Deletion options</string>
+    <string name="dica_texto_reinicio">ATTENTION!\nClose and open the application to view the result of your settings.</string>
+    <string name="dica_barra_progresso">Creating new accounts …</string>
+    <string name="dica_barra_altera">Modifying accounts …</string>
+    <string name="dica_barra_exporta">Exporting to Excel …</string>
+    <string name="dica_barra_recupera">Recovering accounts …</string>
+    <string name="dica_barra_exclui">Deleting accounts …</string>
+    <string name="dica_atencao">Do you want to delete the %1$s selected accounts?</string>
+    <string name="aguarde_importacao">Please wait while the file is read and the data is inserted…</string>
+    <string name="titulo_criar_repeticoes">Creating Repetitions</string>
+    <string name="msg_criando_repeticoes">Creating %1$d new accounts for account %2$s. Please wait…</string>
+    <string name="dica_repeticoes_sucesso">%1$d repetitions created successfully!</string>
+    <string name="dica_repeticoes_parcial">%1$d of %2$d repetitions were created successfully, the others were ignored.</string>
+    <string name="dica_repeticoes_falha">Failed to create repetitions. Try again.</string>
+    <string name="exportar_excel">Exporting Data to Excel</string>
+    <string name="aguarde_exportacao">Processing data and creating the Excel file. Please wait…</string>
+    <string name="confirmar_exclusao_multipla_titulo">Confirm Deletion</string>
+    <string name="nao">No</string>
+    <string name="sim">Yes</string>
+
+    <string name="title_select_directory">Choose a directory</string>
+    <string name="title_select_file">Choose a file (%s)</string>
+    <string name="salvar_em">Save to</string>
+    <string name="msg_select_matching_file">Please select an "%s" file.</string>
+
+
+    <string name="pref_categoria_geral_key" translatable="false">geral</string>
+    <string name="pref_titulo_geral">General Adjustment</string>
+    <string name="pref_titulo_ordem">Choose account order</string>
+    <string name="pref_descricao_ordem">Choose the order in which accounts will be listed</string>
+    <string name="pref_dialogo_ordem">Order of accounts in the list</string>
+    <string name="pref_key_ordem" translatable="false">ordem</string>
     <string name="pref_titulo_pagamento">Automatic payment</string>
-    <string name="pref_descricao_autopagamento">Consider bills paid by the due date</string>
-    <string name="pref_descricao_editapagamento">User must inform the payment account</string>
+    <string name="pref_descricao_autopagamento">Consider accounts paid on the due date</string>
+    <string name="pref_descricao_editapagamento">User must inform the account payment</string>
+    <string name="pref_key_pagamento" translatable="false">pagamento</string>
     <string name="pref_titulo_resumo">Show monthly summary</string>
-    <string name="pref_descricao_resumo_mensal">Shows the monthly summary of bills</string>
-    <string name="pref_descricao_resumo_diario">Shows the daily summary of bills</string>
-    <string name="pref_titulo_saldo">Adding previous balance</string>
-    <string name="pref_descricao_saldo_somado">Sum the balance of the previous month</string>
-    <string name="pref_descricao_saldo_real">Show current month balance</string>
+    <string name="pref_descricao_resumo_mensal">Shows the monthly account summary</string>
+    <string name="pref_descricao_resumo_diario">Shows the daily account summary</string>
+    <string name="pref_key_resumo" translatable="false">resumo</string>
+    <string name="pref_titulo_categoria">Expense categories</string>
+    <string name="pref_descricao_categoria">Show categories in the account summary</string>
+    <string name="pref_descricao_sem_categoria">Show expense types in the summary</string>
+    <string name="pref_key_categoria" translatable="false">categoria</string>
+    <string name="pref_titulo_saldo">Sum previous balance</string>
+    <string name="pref_descricao_saldo_somado">Sums the previous month\'s balance</string>
+    <string name="pref_descricao_saldo_real">Shows current month\'s balance</string>
+    <string name="pref_key_saldo" translatable="false">saldo</string>
 
-    <!-- Ajustes de Acesso -->
-
+    <string name="pref_categoria_seguranca_key">seguranca_key</string>
+    <string name="dica_resposta_secreta_ajustes_summary">Tap to set your secret recovery answer</string>
+    <string name="pref_categoria_acesso_key" translatable="false">login</string>
     <string name="pref_titulo_categoria_acesso">Password access</string>
-    <string name="pref_titulo_senha">Password</string>
+    <string name="pref_titulo_senha">Access password</string>
     <string name="pref_descricao_senha">Password to enter the application</string>
-    <string name="pref_dialogo_senha">Enter the password</string>
-    <string name="pref_titulo_acesso">Block application</string>
+    <string name="pref_descricao_senha_definida">Password set</string>
+    <string name="pref_dialogo_senha">Enter the access password</string>
+    <string name="pref_key_senha" translatable="false">senha</string>
+    <string name="pref_titulo_acesso">Lock application</string>
     <string name="pref_descricao_acesso_negado">Use password to enter the application</string>
-    <string name="pref_descricao_acesso_livre">Application without entering the password</string>
+    <string name="pref_descricao_acesso_livre">Enter the application without a password</string>
+    <string name="pref_key_acesso" translatable="false">acesso</string>
 
-    <!-- Ajustes Exportar -->
-
-    <string name="pref_titulo_categoria_exportar">Summary export</string>
+    <string name="pref_titulo_categoria_exportar">Data Export and Import</string>
+    <string name="pref_categoria_exportar_key" translatable="false">exportar</string>
     <string name="pref_titulo_exportar">Export to Excel</string>
-    <string name="pref_descricao_exportar">Saves the monthly summary of the current year on a spreadsheet of Excel</string>
+    <string name="pref_descricao_exportar">Saves the current year\'s monthly summary in an Excel format spreadsheet</string>
+    <string name="pref_key_exportar" translatable="false">excel</string>
+    <string name="pref_titulo_importar">Import Data (Excel)</string>
+    <string name="pref_descricao_importar">Imports account data from an Excel file (.xls) to the database.</string>
+    <string name="pref_key_importar">pref_key_importar</string>
 
-    <!-- Ajustes BackUp -->
-
+    <string name="pref_categoria_bkup_restaura_key" translatable="false">bkuprest</string>
     <string name="pref_titulo_bkup_restaura">Backup and Restore</string>
     <string name="pref_titulo_auto_bkup">Automatic Backup</string>
-    <string name="pref_descricao_auto_bkup_sim">Make backup allways then app is closed</string>
-    <string name="pref_descricao_auto_bkup_nao">Make backup only when user choose</string>
-    <string name="pref_titulo_bkup">Backup bill</string>
-    <string name="pref_descricao_bkup">Saves a copy of the bill</string>
-    <string name="pref_titulo_restaura">Restore saved bills</string>
-    <string name="pref_descricao_restaura">Retrieves a copy of the bill saved</string>
+    <string name="pref_descricao_auto_bkup_on">Backup accounts whenever the application is closed</string>
+    <string name="pref_descricao_auto_bkup_off">Backup accounts when requested by the user</string>
+    <string name="pref_key_auto_bkup" translatable="false">autobackup</string>
 
-    <!-- Ajustes APAGATUDO -->
+    <string name="pref_titulo_bkup">Backup accounts</string>
+    <string name="pref_key_bkup" translatable="false">backup</string>
+    <string name="pref_titulo_restaura">Restore saved accounts</string>
+    <string name="pref_descricao_restaura">Recovers a copy of the saved accounts</string>
+    <string name="pref_key_restaura" translatable="false">restaura</string>
+    <string name="pref_key_bkup_select_folder" translatable="false">select_backup_folder</string>
 
-    <string name="pref_titulo_apagatudo">Delete all bills</string>
-    <string name="pref_descricao_apagatudo">Deletes all bills created in the application</string>
+    <string name="pref_titulo_bkup_select_folder">1. Choose Backup/Restore Folder</string>
+    <string name="pref_descricao_bkup_select_folder">Tap to select the directory where backups will be saved or restored.</string>
+    <string name="pref_descricao_bkup_local_chosen">Backup/Restore Location Set</string>
+    <string name="pref_key_bkup_execute" translatable="false">execute_backup</string>
+    <string name="pref_titulo_bkup_execute">2. Perform Backup Now</string>
+    <string name="pref_descricao_bkup_execute">Copies the database and settings to the chosen location.</string>
+    <string name="pref_key_restaura_execute" translatable="false">execute_restore</string>
+    <string name="pref_titulo_restaura_execute">3. Restore Backup Now</string>
+    <string name="pref_descricao_restaura_execute">Restores the database and settings from the chosen location. Restart the app after restoring.</string>
+    <string name="pref_descricao_bkup">Backup/Restore complete.</string>
+    <string name="backup_location_set">Backup location set to %1$s</string>
+    <string name="error_backup_location_not_set">Backup location not configured. Please select a folder first.</string>
+    <string name="error_restore_location_not_set">Restore location not configured. Please select a folder first.</string>
+    <string name="erro_backup_nao_encontrado_ou_ilegivel">Backup not found or illegible in the selected location.</string>
+    <string name="erro_backup_perm_write">Error: No write permission for the backup directory.</string>
+    <string name="erro_restore_perm_read">Error: No read permission for the restore directory.</string>
+    <string name="erro_restore_db_not_found">Error: Backup Database file not found or cannot be read.</string>
+    <string name="erro_backup_bd_saf">Error: Failed to create or find DB backup file.</string>
+    <string name="erro_backup_prefs_geral">Error: User preferences backup failed!</string>
+    <string name="erro_restore_prefs_geral">Error: User preferences restore failed!</string>
 
-    <!-- Ajustes Informacoes do Aplicativo -->
+    <string name="pref_categoria_apagatudo_key" translatable="false">apagatudomesmo</string>
+    <string name="pref_titulo_apagatudo">Delete all accounts</string>
+    <string name="pref_descricao_apagatudo">Deletes all accounts created in the application</string>
+    <string name="pref_key_apagatudo" translatable="false">apagatudo</string>
 
-    <string name="pref_titulo_categoria_info">About Application</string>
+    <string name="pref_titulo_categoria_info">About the Application</string>
+    <string name="pref_categoria_info_key" translatable="false">info</string>
     <string name="pref_titulo_autor">Developer</string>
+    <string name="pref_descricao_autor" translatable="false">Paulo E S Mesquita</string>
+    <string name="pref_key_autor" translatable="false">desenvolvedor</string>
     <string name="pref_titulo_versao">Application Version</string>
     <string name="pref_descricao_versao">Version: %1$s</string>
-
-    <!-- KEYS DAS PREFERENCIAS -->
-
-    <string name="vazio">Empty folder</string>
-    <string name="dica_aplicacao">Application</string>
-    <string name="dica_despesas">All expenses</string>
-    <string name="dica_aplicacoes">All applications</string>
-    <string name="pref_descricao_categoria">Show categories in the summary accounts</string>
-    <string name="pref_descricao_sem_categoria">Show types of expenses in the summary</string>
-    <string name="pref_titulo_categoria">Categories of expenses</string>
-    <string name="titulo_permissao_negada">Permission denied</string>
-    <string name="permissao_negada">Permission denied</string>
+    <string name="pref_key_versao" translatable="false">versao</string>
 
 </resources>

@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Main App Theme Colors -->
-    <color name="primary">#388E3C</color> <!-- Green for Toolbar in dark mode -->
-    <color name="primary_dark">#2E7D32</color> <!-- Dark green for Toolbar in light mode -->
-    <color name="primary_text">#FFFFFF</color> <!-- White for text for StatusBar in older APIs -->
-    <color name="on_primary">#000000</color> <!-- Black for text and icons on primary color -->
-    <color name="surface">#121212</color> <!-- Dark gray for surfaces -->
-    <color name="on_surface">#FFFFFF</color> <!-- White for text on surfaces -->
+    <color name="primary">#4CAF50</color>
+    <color name="primary_dark">#388E3C</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="secondary">#9E9E9E</color>
+    <color name="surface">#121212</color>
+    <color name="on_surface">#FFFFFF</color>
+    <color name="tab_indicator">#8BC34A</color>
+    <color name="tab_text_selected">#8BC34A</color>
+    <color name="tab_text_unselected">#9E9E9E</color>
+    <color name="receita_color">#42A5F5</color>
+    <color name="despesa_color">#EF5350</color>
+    <color name="aplicacao_color">#81C784</color>
+    <color name="card_receita_color">#5042A5F5</color>
+    <color name="card_despesa_color">#50EF5350</color>
+    <color name="card_aplicacao_color">#5081C784</color>
+    <color name="card_saldo_color">#50EEEEEE</color>
 
-    <!-- Tab Colors -->
-    <color name="tab_indicator">#81C784</color> <!-- Lighter Green for Tab indicator -->
-    <color name="tab_text_selected">#66BB6A</color> <!-- Lighter Green for selected Tab text -->
-    <color name="tab_text_unselected">#BDBDBD</color> <!-- Light Gray for unselected Tab text -->
-
-    <!-- Specific Colors for Revenue and Expense -->
-    <color name="receita_color">#2196F3</color> <!-- Blue -->
-    <color name="despesa_color">#F44336</color> <!-- Red -->
-    <color name="aplicacao_color">#4CAF50</color> <!-- Green -->
+    <!-- Old App Theme Colors -->
+    <color name="amarelo">#ffffbb33</color>
+    <color name="azul">#ff0099cc</color>
+    <color name="branco">#ffffff</color>
+    <color name="cinza">#696969</color>
+    <color name="cinza_claro">#CC999999</color>
+    <color name="cinza_mais_claro">#70999999</color>
+    <color name="cinza_fab">#CC9E9E9E</color>
+    <color name="laranja">#ffff8800</color>
+    <color name="preto">#ff2b2b2b</color>
+    <color name="roxo">#ffaa66cc</color>
+    <color name="verde">#ff669900</color>
+    <color name="vermelho">#ffcc0000</color>
 </resources>

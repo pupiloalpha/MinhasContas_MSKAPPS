@@ -2,46 +2,54 @@
 <resources>
 
     <string-array name="TipoReceita">
-        <item>Sencilla receta</item>
+        <item>Ingreso simple</item>
         <item>Banco</item>
         <item>Cartera</item>
     </string-array>
     <string-array name="TipoAplicacao">
         <item>Acciones y fondos</item>
         <item>Ahorro</item>
-        <item>Privado de pensiones</item>
+        <item>Previsión privada</item>
     </string-array>
     <string-array name="TipoDespesa">
         <item>Tarjeta de crédito</item>
-        <item>Gastos fijos</item>
-        <item>Gastos variables</item>
-        <item>Provisión</item>
+        <item>Gasto fijo</item>
+        <item>Gasto variable</item>
+        <item>Préstamo/Cuota</item>
     </string-array>
     <string-array name="FiltroAplicacao">
         <item>Acciones y fondos</item>
         <item>Ahorro</item>
-        <item>Privado de pensiones</item>
-        <item>Todas las aplicationes</item>
+        <item>Previsión privada</item>
+        <item>Todas las aplicaciones</item>
     </string-array>
     <string-array name="FiltroDespesa">
         <item>Tarjeta de crédito</item>
-        <item>Gastos fijos</item>
-        <item>Gastos variables</item>
-        <item>Provisión</item>
+        <item>Gasto fijo</item>
+        <item>Gasto variable</item>
+        <item>Préstamo/Cuota</item>
         <item>Gastos por pagar</item>
         <item>Gastos pagados</item>
         <item>Todos los gastos</item>
     </string-array>
+    <string-array name="FiltroReceita">
+        <item>Ingreso simple</item>
+        <item>Banco</item>
+        <item>Cartera</item>
+        <item>Ingresos por recibir</item>
+        <item>Ingresos recibidos</item>
+        <item>Todos los ingresos</item>
+    </string-array>
     <string-array name="GraficoContas">
         <item>Gastos</item>
-        <item>Recetas</item>
+        <item>Ingresos</item>
         <item>Aplicaciones</item>
     </string-array>
     <string-array name="GraficoDespesas">
         <item>Tarjeta de crédito</item>
         <item>Gastos fijos</item>
-        <item>Los gastos variables</item>
-        <item>Beneficios</item>
+        <item>Gastos variables</item>
+        <item>Préstamos/Cuotas</item>
     </string-array>
     <string-array name="GraficoPagamentos">
         <item>Gastos por pagar</item>
@@ -50,12 +58,12 @@
     <string-array name="GraficoAplicacoes">
         <item>Acciones y fondos</item>
         <item>Ahorro</item>
-        <item>Privado de pensiones</item>
+        <item>Previsión privada</item>
     </string-array>
     <string-array name="TipoAjusteConta">
-        <item>Esta repetición de cuenta</item>
-        <item>La próxima repeticiones cuenta</item>
-        <item>Todo se repite cuenta</item>
+        <item>Esta repetición de la cuenta</item>
+        <item>Las próximas repeticiones de la cuenta</item>
+        <item>Todas las repeticiones de la cuenta</item>
     </string-array>
     <string-array name="MesesDoAno">
         <item>ENERO</item>
@@ -76,98 +84,107 @@
         <item>Feb</item>
         <item>Mar</item>
         <item>Abr</item>
-        <item>Mai</item>
+        <item>May</item>
         <item>Jun</item>
         <item>Jul</item>
         <item>Ago</item>
-        <item>Set</item>
-        <item>Out</item>
+        <item>Sep</item>
+        <item>Oct</item>
         <item>Nov</item>
         <item>Dic</item>
     </string-array>
     <string-array name="Semana">
         <item>dom</item>
-        <item>lum</item>
+        <item>lun</item>
         <item>mar</item>
-        <item>mie</item>
+        <item>mié</item>
         <item>jue</item>
         <item>vie</item>
-        <item>sab</item>
+        <item>sáb</item>
     </string-array>
     <string-array name="NomeConta">
-        <item>Academia</item>
+        <item>Gimnasio</item>
         <item>Almuerzo</item>
-        <item>Food</item>
+        <item>Alimentación</item>
         <item>Alquiler</item>
         <item>Apartamento</item>
         <item>Aplicación</item>
-        <item>Car</item>
-        <item>Card</item>
-        <item>móviles</item>
-        <item>Luz</item>
+        <item>Coche</item>
+        <item>Tarjeta</item>
+        <item>Celular</item>
+        <item>Compañía Eléctrica (CEMIG)</item>
         <item>Combustible</item>
-        <item>Condo</item>
+        <item>Condominio</item>
         <item>Reparación</item>
-        <item>Água</item>
+        <item>Compañía de Agua (COPASA)</item>
         <item>Club</item>
-        <item>Course</item>
+        <item>Curso</item>
         <item>Dentista</item>
-        <item>Loan</item>
-        <item>Parking</item>
-        <item>Escuela</item>
+        <item>Préstamo</item>
+        <item>Estacionamiento</item>
+        <item>Universidad</item>
         <item>Farmacia</item>
-        <item>Fair</item>
+        <item>Feria</item>
         <item>Gasolina</item>
-        <item>Gas para cocinar</item>
+        <item>Gas de cocina</item>
         <item>Internet</item>
         <item>Cena</item>
-        <item>Diario</item>
-        <item>Merienda</item>
-        <item>Matrícula</item>
-        <item>Medical</item>
-        <item>Moto</item>
+        <item>Periódico</item>
+        <item>Bocadillo</item>
+        <item>Mensualidad</item>
+        <item>Médico</item>
+        <item>Motocicleta</item>
         <item>Taller</item>
         <item>Autobús</item>
         <item>Panadería</item>
-        <item>Ride</item>
-        <item>Plano de Saúde</item>
+        <item>Paseo</item>
+        <item>Seguro de Salud</item>
         <item>Ahorro</item>
-        <item>Provisión</item>
-        <item>Seguridad</item>
+        <item>Cuota</item>
+        <item>Previsión</item>
         <item>Comida</item>
         <item>Revista</item>
         <item>Revisión</item>
         <item>Ropa</item>
         <item>Salario</item>
-        <item>Insurance</item>
+        <item>Seguro</item>
         <item>Supermercado</item>
-        <item>Phone</item>
-        <item>TV por suscripción</item>
-        <item>Ropa</item>
-        <item>Travel</item>
+        <item>Teléfono</item>
+        <item>TV por Cable</item>
+        <item>Vestuario</item>
+        <item>Viaje</item>
     </string-array>
 
     <string-array name="CategoriaConta">
-        <item>Comida</item>
+        <item>Alimentación</item>
         <item>Educación</item>
         <item>Ocio</item>
         <item>Vivienda</item>
         <item>Salud</item>
         <item>Transporte</item>
-        <item>Ropa</item>
-        <item>Otro</item>
+        <item>Vestuario</item>
+        <item>Otros</item>
     </string-array>
 
-    <!-- Cuerdas menú Ajustes -->
     <string-array name="ordem_contas">
-        <item>Nombre de la cuenta (A-Z)</item>
-        <item>Nombre de la cuenta (Z-A)</item>
-        <item>Cuenta de la fecha\n(Reciente-Posterior)</item>
-        <item>Cuenta de la fecha\n(Posterior-Reciente)</item>
-        <item>Tipo de cuenta\n(ingresos-gastos)</item>
-        <item>Tipo de cuenta\n(ingresos-gastos)</item>
-        <item>Valor de la cuenta\n(de mayor a menor)</item>
-        <item>Valor de la cuenta\n(de menor a mayor)</item>
+        <item>Por nombre de la cuenta (A-Z)</item>
+        <item>Por nombre de la cuenta (Z-A)</item>
+        <item>Por fecha de la cuenta\n(Reciente-Posterior)</item>
+        <item>Por fecha de la cuenta\n(Posterior-Reciente)</item>
+        <item>Por tipo de cuenta\n(Ingresos-Gastos)</item>
+        <item>Por tipo de cuenta\n(Gastos-Ingresos)</item>
+        <item>Por valor de cuenta\n(Mayor-Menor)</item>
+        <item>Por valor de cuenta\n(Menor-Mayor)</item>
+    </string-array>
+    <string-array name="ordem_contas_valores" translatable="false">
+        <item>nome ASC</item>
+        <item>nome DESC</item>
+        <item>dia_data ASC</item>
+        <item>dia_data DESC</item>
+        <item>tipo DESC, classe DESC</item>
+        <item>tipo ASC, classe ASC</item>
+        <item>valor DESC</item>
+        <item>valor ASC</item>
     </string-array>
 
     <string-array name="repete_conta">
@@ -181,8 +198,16 @@
         <item>¿Cuál es el nombre de su primera mascota?</item>
         <item>¿Cuál es el nombre de la ciudad donde nació?</item>
         <item>¿Cuál es el nombre de su escuela primaria?</item>
-        <item>¿Cuál es el apellido de soltera de su madre?</item>
+        <item>¿Cuál es el apellido de su madre?</item>
         <item>¿Cuál es su color favorito?</item>
+    </string-array>
+
+    <string-array name="perguntas_seguranca_valores">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
     </string-array>
 
 </resources>

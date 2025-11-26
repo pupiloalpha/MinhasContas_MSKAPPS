@@ -5,4 +5,14 @@
         <item quantity="one">Uma conta selecionada</item>
         <item quantity="other">%d contas selecionadas</item>
     </plurals>
+
+    <plurals name="confirmar_exclusao_multipla_mensagem">
+        <item quantity="one">Deseja realmente excluir a conta selecionada?</item>
+        <item quantity="other">Deseja realmente excluir as %d contas selecionadas?</item>
+    </plurals>
+
+    <plurals name="dica_contas_excluidas">
+        <item quantity="one">Uma conta foi excluída!</item>
+        <item quantity="other">%d contas foram excluídas!</item>
+    </plurals>
 </resources>

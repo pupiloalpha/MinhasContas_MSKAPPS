@@ -85,7 +85,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:contentDescription="@string/icone"
-        android:tint="@color/cinza"
+        mskapp:tint="@color/cinza"
         mskapp:srcCompat="@drawable/visto" />
 
 </RelativeLayout>

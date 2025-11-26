@@ -1,231 +1,295 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Cuerdas de aplicación -->
+    <string name="app_name">Mis Cuentas</string>
+    <string name="sobre">La aplicación Mis Cuentas fue creada para facilitar tu control financiero.
+        \n\nBasada en tutoriales de internet y otras aplicaciones del género.
+        \nDesarrollado por Paulo E S Mesquita con el apoyo de Flávia Vilar Borges.
+        \n\nVersión: %1$s\n\nContacto: mskapps.brazil@gmail.com</string>
+    <string name="dica_inicio">Aplicación creada para facilitar tu control financiero.</string>
+    <string name="tela_inicial">No mostrar de nuevo</string>
+    <string name="icone" translatable="false">icone</string>
+    <string name="data" translatable="false">00/00/2000</string>
+    <string name="zero">R$ 0,00</string>
+    <string name="vazio">Carpeta vacía</string>
+    <string name="sem_nome">Sin Nombre</string>
+    <string name="permissao_negada">Permiso denegado</string>
 
-    <string name="app_name">Mis cuentas</string>
-    <string name="titulo_criar">Crear nueva cuenta</string>
-    <string name="titulo_categoria">Elige una categoría</string>
-    <string name="titulo_editar">Cambiar cuenta</string>
-    <string name="titulo_resumo">Resumen Mensual</string>
+    <string name="titulo_criar">Nueva cuenta</string>
+    <string name="titulo_categoria">Elegir categoría</string>
+    <string name="titulo_editar">Modificar cuenta</string>
+    <string name="titulo_resumo">Resumen mensual</string>
     <string name="titulo_enviar">Enviar resumen mensual</string>
-    <string name="titulo_pesquisar">Buscar en cuenta</string>
+    <string name="titulo_pesquisar">Buscar cuenta</string>
     <string name="titulo_filtro">Filtrar por tipo</string>
-    <string name="titulo_grafico">Planes de cuentas</string>
-    <string name="titulo_calendario">Agregar aviso</string>
-    <string name="titulo_excluir">Eliminar la cuenta</string>
-    <string name="acesso">Acceso denegado</string>
-    <string name="senha">Contraseña de acceso</string>
-    <string name="dica_senha">Mostrar contraseña</string>
-    <string name="esqueci_senha">Lo esqueci mi contraseña</string>
-    <string name="titulo_senha">Acceso denegado</string>
-    <string name="senha_errada">Contraseña incorrecta.</string>
+    <string name="titulo_grafico">Gráficos de las cuentas</string>
+    <string name="titulo_calendario">Añadir recordatorio</string>
+    <string name="titulo_excluir">Eliminar cuenta</string>
     <string name="titulo_despesa_saque">Crear gasto</string>
-    <string name="texto_despesa_saque">¿Quieres crear un gasto de esta cuenta?</string>
     <string name="titulo_exclui_tudo">Eliminar todas las cuentas</string>
-    <string name="texto_exclui_tudo">¿Quieres eliminar todas las cuentas?</string>
+    <string name="titulo_backup">Copia de Seguridad y Restauración Manual</string>
+    <string name="importar_excel">Importación de Cuentas</string>
+    <string name="titulo_atencao">ATENCIÓN!</string>
+    <string name="titulo_permissao_negada">Permiso denegado</string>
+    <string name="dica_titulo_barra">ESPERE</string>
+
     <string name="cancelar">Cancelar</string>
     <string name="salvar">Guardar</string>
     <string name="criar">Crear</string>
     <string name="entrar">ENTRAR</string>
-    <string name="sem_nome">Sin Nombre</string>
-    <string name="sobre">La aplicación Mis Cuentas foi creada para facilitar su control financiero.\n
-        \nBasado en tutoriales de Internet y otras aplicaciones de su tipo.
-        \nDesarrollado por Paulo E S Mesquita con apoyo Vilar Flavia Borges.
-        \n\n Versión: %1$s.\n\nContacto: mskapps.brazil@gmail.com</string>
-    <string name="dica_inicio">Aplicación creada para facilitar su control financiero.</string>
-    <string name="tela_inicial">No mostrar de nuevo</string>
-    <string name="titulo_acesso">Seguridad y Acceso</string>
-    <string name="titulo_pergunta_secreta">Pregunta Secreta</string>
-    <string name="dica_resposta_secreta_ajustes">Ingrese su respuesta secreta</string>
-    <string name="alerta_seguranca_nao_configurada">Configure una Pregunta Secreta en Opciones de Seguridad para usar la recuperación de contraseña.</string>
-    <string name="recuperacao_senha">Recuperación de Contraseña</string>
-    <string name="dica_resposta_secreta">Ingrese la respuesta a la pregunta de seguridad</string>
-    <string name="redefinir_senha">Restablecer Contraseña</string>
-    <string name="nova_senha">Nueva Contraseña</string>
+    <string name="ok" translatable="false">OK</string>
     <string name="confirmar">Confirmar</string>
-    <string name="senha_redefinida_sucesso">¡Contraseña restablecida con éxito! Inicie sesión con su nueva contraseña.</string>
-    <string name="erro_recuperacao_nao_configurada">El mecanismo de recuperación no ha sido configurado. Contacte al soporte.</string>
-    <string name="erro_resposta_incorreta">Respuesta incorrecta. Intente de nuevo.</string>
-    <string name="erro_senha_vazia">La nueva contraseña no puede estar vacía.</string>
-    <string name="pref_categoria_seguranca_key">seguranca_key</string>
-    <string name="dica_resposta_secreta_ajustes_summary">Toque para establecer su respuesta secreta de recuperación</string>
-    <string name="resposta_definida">Respuesta Secreta Definida</string>
+    <string name="redefinir_senha">Restablecer Contraseña</string>
 
-    <!-- Cuerdas del menú de la aplicación -->
 
     <string name="menu_ajustes">Configuración</string>
-    <string name="menu_sobre">Acerca</string>
-    <string name="menu_ajuda">Aprenda a utilizar</string>
+    <string name="menu_sobre">Acerca de</string>
+    <string name="menu_ajuda">Aprende a usar</string>
 
-    <!-- Cuerdas de Pantallas de aplicaciones -->
+
+    <string name="acesso">Acceso bloqueado por contraseña</string>
+    <string name="senha">Contraseña de acceso</string>
+    <string name="dica_senha">Mostrar contraseña</string>
+    <string name="esqueci_senha">Olvidé mi contraseña</string>
+    <string name="titulo_senha">Acceso denegado</string>
+    <string name="senha_errada">Contraseña incorrecta.</string>
+    <string name="titulo_acesso">Seguridad y Acceso</string>
+    <string name="titulo_pergunta_secreta">Pregunta Secreta</string>
+    <string name="dica_resposta_secreta_ajustes">Escribe tu respuesta secreta</string>
+    <string name="alerta_seguranca_nao_configurada">Configura una Pregunta Secreta en las Opciones de Seguridad para usar la recuperación de contraseña.</string>
+    <string name="recuperacao_senha">Recuperación de Contraseña</string>
+    <string name="dica_resposta_secreta">Escribe la respuesta a la pregunta de seguridad</string>
+    <string name="nova_senha">Nueva Contraseña</string>
+    <string name="senha_redefinida_sucesso">Contraseña restablecida con éxito! Accede con tu nueva contraseña.</string>
+    <string name="erro_recuperacao_nao_configurada">El mecanismo de recuperación no fue configurado. Contacta al soporte.</string>
+    <string name="erro_resposta_incorreta">Respuesta incorrecta. Intenta de nuevo.</string>
+    <string name="erro_senha_vazia">La nueva contraseña no puede estar vacía.</string>
+    <string name="resposta_definida">Respuesta Secreta Definida</string>
+
 
     <string name="dica_grafico">Elige un gráfico</string>
     <string name="dica_spinner">Elige un tipo</string>
     <string name="dica_conta">Nombre de la cuenta</string>
     <string name="dica_nome_categoria">Nombre de la categoría</string>
-    <string name="dica_pesquisa_conta">Ingrese el nombre de la cuenta</string>
-    <string name="dica_valor">Valor €</string>
-    <string name="dica_evento">Cuenta %1$s gana hoy!</string>
-    <string name="dica_calendario">Valor € %1$s\nEvento creado por la aplicación Mis cuentas.</string>
+    <string name="dica_pesquisa_conta">Escribe el nombre de la cuenta</string>
+    <string name="dica_valor">Valor R$</string>
     <string name="dica_valor_juros">Valor interés %</string>
-    <string name="dica_valor_total">Difundir valor</string>
-    <string name="dica_dinheiro">€ %1$s</string>
-    <string name="dica_cifrao">€</string>
-    <string name="dica_receita">Receta</string>
-    <string name="dica_despesa">Gasto</string>
-    <string name="dica_repete">Repita cuenta</string>
+    <string name="dica_valor_total">Dividir valor</string>
+    <string name="dica_dinheiro">R$ %1$s</string>
+    <string name="dica_cifrao">R$</string>
+    <string name="dica_repete">Repetir cuenta</string>
     <string name="dica_numero">Cant.</string>
-    <string name="dica_juros">Introducir interés</string>
+    <string name="dica_juros">Insertar interés</string>
     <string name="dica_vencimento">Día</string>
+    <string name="dica_vazio">Ninguna cuenta creada</string>
+    <string name="dica_pesquisa">Ninguna cuenta encontrada</string>
+
+
+    <string name="dica_receita">Ingreso</string>
+    <string name="dica_despesa">Gasto</string>
     <string name="dica_pagamento">Cuenta pagada</string>
-    <string name="dica_recebe">Receta recibida</string>
-    <string name="dica_deposito">Deposito</string>
-    <string name="dica_investimento">Investí</string>
-    <string name="dica_resumo">CUENTAS RESUMEN</string>
-    <string name="dica_altera">MODIFICA LA CUENTA</string>
-    <string name="zero">€ 0.00</string>
-    <string name="data">00/00/2000</string>
-    <string name="dica_vazio">No tiene cuenta creada</string>
-    <string name="dica_pesquisa">No tienes cuenta encontró</string>
-    <string name="dica_carteira">Cartera</string>
-    <string name="dica_banco">Banco/Cartera</string>
-    <string name="dica_alimentacao">Comida</string>
+    <string name="dica_recebe">Ingreso recibido</string>
+    <string name="dica_deposito">Deposité</string>
+    <string name="dica_investimento">Invertí</string>
+    <string name="dica_carteira">Billetera</string>
+    <string name="dica_banco">Banco/Billetera</string>
+    <string name="dica_aplicacao">Aplicación</string>
+    <string name="dica_despesas">Todos los gastos</string>
+    <string name="dica_aplicacoes">Todas las aplicaciones</string>
+
     <string name="dica_educacao">Educación</string>
     <string name="dica_lazer">Ocio</string>
-    <string name="dica_moradia">Vivenda</string>
+    <string name="dica_moradia">Vivienda</string>
     <string name="dica_saude">Salud</string>
     <string name="dica_transporte">Transporte</string>
-    <string name="dica_vestuario">Ropa</string>
-    <string name="dica_outros">Otro</string>
+    <string name="dica_vestuario">Vestuario</string>
+    <string name="dica_outros">Otros</string>
 
-    <!-- Cuerdas de Pantallas Resumen Cuentas aplicación -->
 
-    <string name="linha_receita">RECETAS</string>
+    <string name="dica_resumo">RESUMEN CUENTAS</string>
+    <string name="dica_altera">MODIFICAR CUENTA</string>
+    <string name="linha_receita">INGRESOS</string>
     <string name="linha_aplicacoes">APLICACIONES</string>
-    <string name="linha_poupanca">Ahorro</string>
-    <string name="linha_previdencia">Seguridad</string>
+    <string name="linha_poupanca">Ahorros</string>
+    <string name="linha_previdencia">Previsión</string>
     <string name="linha_fundos">Inversiones</string>
     <string name="linha_despesa">GASTOS</string>
-    <string name="linha_despFixa">Gastos Fijos</string>
+    <string name="linha_despFixa">Gastos fijos</string>
     <string name="linha_despVar">Gastos variables</string>
     <string name="linha_cartao">Tarjeta de crédito</string>
-    <string name="linha_prestacoes">Beneficios</string>
+    <string name="linha_prestacoes">Cuotas</string>
     <string name="linha_saldo">SALDO ACTUAL</string>
     <string name="coluna_pagas">Cuentas\npagadas</string>
-    <string name="coluna_mes">Cuentas\nmensuales</string>
+    <string name="coluna_mes">Cuentas\ndel mes</string>
     <string name="planilha">RESUMEN_%1$s</string>
-
-    <!-- Cadenas de Dialogos aplicación -->
-
-    <string name="dica_menu_ajustes">Opciones de optimización</string>
-    <string name="dica_menu_edicao">Opciones de edición</string>
-    <string name="dica_menu_exclusao">Opciones exclusión</string>
-    <string name="dica_titulo_barra">AGUARDE</string>
-    <string name="dica_texto_reinicio">!ATTENCIÓN!\nCierre y abra la aplicación para ver el resultado de los ajustes.</string>
-    <string name="dica_barra_progresso">Creación de nuevas cuentas &#x2026;</string>
-    <string name="dica_barra_altera">Modificación de las cuentas &#x2026;</string>
-    <string name="dica_barra_exporta">Exportacíon a Excel &#x2026;</string>
-    <string name="dica_barra_recupera">La recuperación de las cuentas &#x2026;</string>
-    <string name="dica_barra_exclui">Eliminación de cuentas &#x2026;</string>
-
-    <!-- Strings Do Dialogo de ResumoTipoMensal do Saldo mensal -->
-
     <string name="resumo_mes_anterior">Saldo mes anterior</string>
     <string name="resumo_saldo">Saldo mes actual</string>
+    <string name="resumo_data" translatable="false">%1$s/%2$s/%3$s</string>
     <string name="resumo_pagas">Gastos pagados</string>
     <string name="resumo_faltam">Gastos por pagar</string>
-    <string name="resumo_recebidas">Recetas recibidas</string>
-    <string name="resumo_areceber">Recetas pendientes</string>
+    <string name="resumo_recebidas">Ingresos recibidos</string>
+    <string name="resumo_areceber">Ingresos por recibir</string>
 
-    <!-- Cuerdas Notificaciones aplicación -->
 
-    <string name="dica_exporta_excel">Archivo Excel creado!</string>
-    <string name="dica_erro_exporta_excel">No se puede generar el archivo de Excel!</string>
-    <string name="dica_copia_bd">Copia celebró con éxito!</string>
-    <string name="dica_exclusao_bd">Todas las cuentas se han suprimido!</string>
-    <string name="dica_restaura_bd">Restauración realizó con éxito!</string>
-    <string name="dica_saldo_zero">Pasaste todas sus recetas</string>
-    <string name="dica_saldo_maior">Usted pasó parte de sus recetas</string>
-    <string name="dica_saldo_menor">Usted pasó más de sus ingresos totales</string>
-    <string name="dica_conta_criada">Cuenta %1$s ha creado con éxito</string>
-    <string name="dica_conta_alterada">Cuenta %1$s ha cambiado con éxito!</string>
-    <string name="dica_conta_excluida">Cuenta %1$s suprimida!</string>
+    <string name="dica_grafico_aplicacoes">Comparativo de aplicaciones</string>
+    <string name="dica_grafico_despesas">Comparativo de gastos</string>
+    <string name="dica_grafico_contas">Comparativo de cuentas</string>
+    <string name="dica_grafico_pagamentos">Comparativo de pagos</string>
+    <string name="dica_grafico_receitas">Comparativo de ingresos</string>
 
-    <!-- Cuerdas pantalla Aplicación Graphics -->
 
-    <string name="dica_grafico_aplicacoes">Aplicaciones comparativos</string>
-    <string name="dica_grafico_despesas">Costos comparativos</string>
-    <string name="dica_grafico_contas">Comparativa de cuentas</string>
-    <string name="dica_grafico_pagamentos">Pagos comparativos</string>
-    <string name="dica_grafico_receitas">Recetas comparativos</string>
+    <string name="dica_evento">La cuenta %1$s vence hoy!</string>
+    <string name="dica_calendario">Valor R$ %1$s\nEvento creado por la aplicación Mis Cuentas.</string>
+    <string name="dica_copia_bd">Copia realizada con éxito!</string>
+    <string name="erro_geral_bd">Error al leer cuentas para envío!</string>
+    <string name="dica_nenhuma_conta">Ninguna cuenta encontrada para el período seleccionado!</string>
+    <string name="dica_exclusao_bd">Todas las cuentas han sido eliminadas!</string>
+    <string name="dica_restaura_bd">Restauración realizada con éxito!</string>
+    <string name="dica_saldo_zero">Gastaste todos tus ingresos</string>
+    <string name="erro_valor_invalido">Valor en formato incorrecto.</string>
+    <string name="dica_saldo_maior">Gastaste parte de tus ingresos</string>
+    <string name="dica_saldo_menor">Gastaste más que el total de tus ingresos</string>
+    <string name="dica_conta_criada">Cuenta %1$s creada con éxito!</string>
+    <string name="dica_conta_alterada">Cuenta %1$s modificada con éxito!</string>
+    <string name="dica_conta_excluida">Cuenta %1$s eliminada!</string>
+    <string name="dica_copia_bd_prefs">Copia de Seguridad de la Base de Datos y Preferencias creada con éxito!</string>
+    <string name="dica_restaura_bd_prefs">Base de Datos y Preferencias restauradas con éxito! Por favor, reinicia la aplicación.</string>
+    <string name="dica_restart_app">Por favor, reinicia la aplicación para que los cambios surtan efecto.</string>
+    <string name="dica_restaura_prefs">Preferences restored successfully!</string>
+    <string name="backup_complete">Copia de seguridad finalizada!</string>
+    <string name="export_success">Archivo Excel exportado con éxito!</string>
+    <string name="export_failed">Fallo al exportar el archivo Excel.</string>
+    <string name="export_cancelled">Exportación de Excel cancelada.</string>
+    <string name="dica_erro_importacao_cancelada">Importación cancelada por el usuario.</string>
+    <string name="dica_importacao_vazia">Importación finalizada. El archivo Excel no contenía datos válidos.</string>
+    <string name="dica_importacao_sucesso">Importación finalizada! %d cuentas fueron insertadas en la base de datos.</string>
+    <string name="dica_erro_importacao_falhou">Fallo crítico al intentar importar los datos de Excel. Verifica el formato del archivo.</string>
+    <string name="dica_exporta_excel">Archivo en formato Excel creado con éxito!</string>
+    <string name="dica_erro_exporta_excel">No fue posible generar el archivo Excel!</string>
 
-    <!-- Cuerdas menú Configuración -->
-    <!-- Ajustes Gerais -->
 
-    <string name="pref_titulo_geral">Ajuste general</string>
-    <string name="pref_titulo_ordem">Seleccione el orden de las cuentas</string>
-    <string name="pref_descricao_ordem">Elija el orden en que las cuentas serán listados</string>
-    <string name="pref_dialogo_ordem">Orden de las cuentas de la lista</string>
+    <string name="texto_despesa_saque">¿Desea crear un gasto con el valor de esta cuenta?</string>
+    <string name="texto_exclui_tudo">¿Desea eliminar todas las cuentas?</string>
+    <string name="dica_menu_ajustes">Opciones de ajuste</string>
+    <string name="dica_menu_edicao">Opciones de edición</string>
+    <string name="dica_menu_exclusao">Opciones de eliminación</string>
+    <string name="dica_texto_reinicio">ATENCIÓN!\nCierra y abre la aplicación para ver el resultado de tu configuración.</string>
+    <string name="dica_barra_progresso">Creando nuevas cuentas …</string>
+    <string name="dica_barra_altera">Modificando las cuentas …</string>
+    <string name="dica_barra_exporta">Exportando a Excel …</string>
+    <string name="dica_barra_recupera">Recuperando las cuentas …</string>
+    <string name="dica_barra_exclui">Eliminando las cuentas …</string>
+    <string name="dica_atencao">¿Desea eliminar las %1$s cuentas seleccionadas?</string>
+    <string name="aguarde_importacao">Espere mientras el archivo es leído y los datos son insertados…</string>
+    <string name="titulo_criar_repeticoes">Creación de Repeticiones</string>
+    <string name="msg_criando_repeticoes">Creando %1$d nuevas cuentas para la cuenta %2$s. Espere…</string>
+    <string name="dica_repeticoes_sucesso">%1$d repeticiones creadas con éxito!</string>
+    <string name="dica_repeticoes_parcial">%1$d de %2$d repeticiones fueron creadas con éxito, las demás fueron ignoradas.</string>
+    <string name="dica_repeticoes_falha">Fallo al crear las repeticiones. Intenta de nuevo.</string>
+    <string name="exportar_excel">Exportando Datos a Excel</string>
+    <string name="aguarde_exportacao">Procesando datos y creando el archivo Excel. Espere…</string>
+    <string name="confirmar_exclusao_multipla_titulo">Confirmar Eliminación</string>
+    <string name="nao">No</string>
+    <string name="sim">Sí</string>
+
+    <string name="title_select_directory">Elige un directorio</string>
+    <string name="title_select_file">Elige un archivo (%s)</string>
+    <string name="salvar_em">Guardar en</string>
+    <string name="msg_select_matching_file">Por favor, selecciona un archivo "%s".</string>
+
+
+    <string name="pref_categoria_geral_key" translatable="false">geral</string>
+    <string name="pref_titulo_geral">Ajuste General</string>
+    <string name="pref_titulo_ordem">Elige el orden de las cuentas</string>
+    <string name="pref_descricao_ordem">Elige el orden en el cual las cuentas serán listadas</string>
+    <string name="pref_dialogo_ordem">Orden de las cuentas en la lista</string>
+    <string name="pref_key_ordem" translatable="false">ordem</string>
     <string name="pref_titulo_pagamento">Pago automático</string>
-    <string name="pref_descricao_autopagamento">Considerar las facturas pagadas por la fecha de vencimiento</string>
-    <string name="pref_descricao_editapagamento">Usuario deberá comunicar a la cuenta de pago</string>
-    <string name="pref_titulo_resumo">Muestre resumen mensual</string>
+    <string name="pref_descricao_autopagamento">Considerar cuentas pagadas en la fecha de vencimiento</string>
+    <string name="pref_descricao_editapagamento">El usuario debe informar el pago de la cuenta</string>
+    <string name="pref_key_pagamento" translatable="false">pagamento</string>
+    <string name="pref_titulo_resumo">Mostrar resumen mensual</string>
     <string name="pref_descricao_resumo_mensal">Muestra el resumen mensual de cuentas</string>
     <string name="pref_descricao_resumo_diario">Muestra el resumen diario de cuentas</string>
-    <string name="pref_titulo_saldo">Adición de saldo anterior</string>
+    <string name="pref_key_resumo" translatable="false">resumo</string>
+    <string name="pref_titulo_categoria">Categorías de gastos</string>
+    <string name="pref_descricao_categoria">Mostrar categorías en el resumen de cuentas</string>
+    <string name="pref_descricao_sem_categoria">Mostrar tipos de gastos en el resumen</string>
+    <string name="pref_key_categoria" translatable="false">categoria</string>
+    <string name="pref_titulo_saldo">Sumar saldo anterior</string>
     <string name="pref_descricao_saldo_somado">Suma el saldo del mes anterior</string>
-    <string name="pref_descricao_saldo_real">Mostrar saldo mes actual</string>
+    <string name="pref_descricao_saldo_real">Muestra saldo mes actual</string>
+    <string name="pref_key_saldo" translatable="false">saldo</string>
 
-    <!-- Ajustes Acesso -->
-
+    <string name="pref_categoria_seguranca_key">seguranca_key</string>
+    <string name="dica_resposta_secreta_ajustes_summary">Toca para definir tu respuesta secreta de recuperación</string>
+    <string name="pref_categoria_acesso_key" translatable="false">login</string>
     <string name="pref_titulo_categoria_acesso">Acceso por contraseña</string>
-    <string name="pref_titulo_senha">Contraseña</string>
+    <string name="pref_titulo_senha">Contraseña de acceso</string>
     <string name="pref_descricao_senha">Contraseña para entrar en la aplicación</string>
-    <string name="pref_dialogo_senha">Introduzca la contraseña</string>
+    <string name="pref_descricao_senha_definida">Contraseña definida</string>
+    <string name="pref_dialogo_senha">Escribe la contraseña de acceso</string>
+    <string name="pref_key_senha" translatable="false">senha</string>
     <string name="pref_titulo_acesso">Bloquear aplicación</string>
-    <string name="pref_descricao_acesso_negado">Utilice la contraseña para entrar en la aplicación</string>
-    <string name="pref_descricao_acesso_livre">Aplicación sin introducir la contraseña</string>
+    <string name="pref_descricao_acesso_negado">Usar contraseña para entrar en la aplicación</string>
+    <string name="pref_descricao_acesso_livre">Entrar en la aplicación sin contraseña</string>
+    <string name="pref_key_acesso" translatable="false">acesso</string>
 
-    <!-- Ajustes Exportar -->
-
-    <string name="pref_titulo_categoria_exportar">Exportar resumen</string>
+    <string name="pref_titulo_categoria_exportar">Exportación e Importación de Datos</string>
+    <string name="pref_categoria_exportar_key" translatable="false">exportar</string>
     <string name="pref_titulo_exportar">Exportar a Excel</string>
-    <string name="pref_descricao_exportar">Guarda el resumen mensual del año en curso en una hoja de cálculo del Excel</string>
+    <string name="pref_descricao_exportar">Guarda el resumen mensual del año actual en una hoja de cálculo de formato Excel</string>
+    <string name="pref_key_exportar" translatable="false">excel</string>
+    <string name="pref_titulo_importar">Importar Datos (Excel)</string>
+    <string name="pref_descricao_importar">Importa datos de cuentas de un archivo Excel (.xls) a la base de datos.</string>
+    <string name="pref_key_importar">pref_key_importar</string>
 
-    <!-- Ajustes Backup -->
-
-    <string name="pref_titulo_bkup_restaura">Copia de seguridad y restauración</string>
-    <string name="pref_titulo_auto_bkup">Copia de seguridad automática</string>
-    <string name="pref_descricao_auto_bkup_sim">Hacer copia de seguridad siempre que la aplicación de cerca</string>
-    <string name="pref_descricao_auto_bkup_nao">Hacer copia de seguridad sólo cuando el usuario seleccione</string>
-    <string name="pref_titulo_bkup">Copia de seguridad</string>
-    <string name="pref_descricao_bkup">Guarda una copia de las cuentas</string>
+    <string name="pref_categoria_bkup_restaura_key" translatable="false">bkuprest</string>
+    <string name="pref_titulo_bkup_restaura">Copia de Seguridad y Restauración</string>
+    <string name="pref_titulo_auto_bkup">Copia de Seguridad Automática</string>
+    <string name="pref_descricao_auto_bkup_on">Hacer copia de seguridad de las cuentas siempre que se cierre la aplicación</string>
+    <string name="pref_descricao_auto_bkup_off">Hacer copia de seguridad de las cuentas cuando el usuario lo solicite</string>
+    <string name="pref_key_auto_bkup" translatable="false">autobackup</string>
+    <string name="pref_titulo_bkup">Hacer copia de seguridad de las cuentas</string>
+    <string name="pref_key_bkup" translatable="false">backup</string>
     <string name="pref_titulo_restaura">Restaurar cuentas guardadas</string>
     <string name="pref_descricao_restaura">Recupera una copia de las cuentas guardadas</string>
+    <string name="pref_key_restaura" translatable="false">restaura</string>
+    <string name="pref_key_bkup_select_folder" translatable="false">select_backup_folder</string>
+    <string name="pref_titulo_bkup_select_folder">1. Elegir Carpeta de Copia de Seguridad/Restauración</string>
+    <string name="pref_descricao_bkup_select_folder">Toca para seleccionar el directorio donde las copias de seguridad serán guardadas o restauradas.</string>
+    <string name="pref_descricao_bkup_local_chosen">Ubicación de Copia de Seguridad/Restauración Definida</string>
+    <string name="pref_key_bkup_execute" translatable="false">execute_backup</string>
+    <string name="pref_titulo_bkup_execute">2. Hacer Copia de Seguridad Ahora</string>
+    <string name="pref_descricao_bkup_execute">Copia la base de datos y la configuración a la ubicación elegida.</string>
+    <string name="pref_key_restaura_execute" translatable="false">execute_restore</string>
+    <string name="pref_titulo_restaura_execute">3. Restaurar Copia de Seguridad Ahora</string>
+    <string name="pref_descricao_restaura_execute">Restaura la base de datos y la configuración desde la ubicación elegida. Reinicia la aplicación después de restaurar.</string>
+    <string name="pref_descricao_bkup">Copia de Seguridad/Restauración finalizada.</string>
+    <string name="backup_location_set">Ubicación de copia de seguridad configurada en %1$s</string>
+    <string name="error_backup_location_not_set">Ubicación de copia de seguridad no configurada. Por favor, selecciona una carpeta primero.</string>
+    <string name="error_restore_location_not_set">Ubicación de restauración no configurada. Por favor, selecciona una carpeta primero.</string>
+    <string name="erro_backup_nao_encontrado_ou_ilegivel">Copia de seguridad no encontrada o ilegible en la ubicación seleccionada.</string>
+    <string name="erro_backup_perm_write">Error: Sin permiso de escritura para el directorio de copia de seguridad.</string>
+    <string name="erro_restore_perm_read">Error: Sin permiso de lectura para el directorio de restauración.</string>
+    <string name="erro_restore_db_not_found">Error: Archivo de Base de Datos de la copia de seguridad no encontrado o no puede ser leído.</string>
+    <string name="erro_backup_bd_saf">Error: Fallo al crear o encontrar archivo de copia de seguridad de la BD.</string>
+    <string name="erro_backup_prefs_geral">Error: ¡Fallo la copia de seguridad de las preferencias del usuario!</string>
+    <string name="erro_restore_prefs_geral">Error: ¡Fallo la restauración de las preferencias del usuario!</string>
 
-    <!-- Ajustes APAGATUDO -->
-
+    <string name="pref_categoria_apagatudo_key" translatable="false">apagatudomesmo</string>
     <string name="pref_titulo_apagatudo">Eliminar todas las cuentas</string>
     <string name="pref_descricao_apagatudo">Elimina todas las cuentas creadas en la aplicación</string>
+    <string name="pref_key_apagatudo" translatable="false">apagatudo</string>
 
-    <!-- Ajustes Informacoes do Aplicativo -->
-
-    <string name="pref_titulo_categoria_info">Acerca de Application</string>
+    <string name="pref_titulo_categoria_info">Acerca de la Aplicación</string>
+    <string name="pref_categoria_info_key" translatable="false">info</string>
     <string name="pref_titulo_autor">Desarrollador</string>
-    <string name="pref_titulo_versao">Versión de la aplicación</string>
+    <string name="pref_descricao_autor" translatable="false">Paulo E S Mesquita</string>
+    <string name="pref_key_autor" translatable="false">desenvolvedor</string>
+    <string name="pref_titulo_versao">Versión de la Aplicación</string>
     <string name="pref_descricao_versao">Versión: %1$s</string>
-
-    <!-- KEYS DAS PREFERENCIAS -->
-
-    <string name="vazio">Carpeta vacía</string>
-    <string name="dica_aplicacao">Aplicatione</string>
-    <string name="dica_despesas">Todos los gastos</string>
-    <string name="dica_aplicacoes">Todas las aplicationes</string>
-    <string name="pref_descricao_categoria">Mostrar categorías en resumen</string>
-    <string name="pref_descricao_sem_categoria">Mostrar tipos de gastos en el resumen</string>
-    <string name="pref_titulo_categoria">Categorías de gastos</string>
-    <string name="titulo_permissao_negada">Permiso denegado</string>
-    <string name="permissao_negada">Permiso denegado</string>
+    <string name="pref_key_versao" translatable="false">versao</string>
+    <string name="dica_alimentacao">Alimentación</string>
 
 </resources>

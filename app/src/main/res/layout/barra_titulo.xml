@@ -12,5 +12,4 @@
         android:minHeight="?attr/actionBarSize"
         mskapp:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
         mskapp:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
-
 </com.google.android.material.appbar.AppBarLayout>

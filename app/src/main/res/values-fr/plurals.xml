@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="selecao">
-        <item quantity="zero">Pas de compte sélectionné</item>
+        <item quantity="zero">Aucun compte sélectionné</item>
         <item quantity="one">Un compte sélectionné</item>
         <item quantity="other">%d comptes sélectionnés</item>
+    </plurals>
+
+    <plurals name="confirmar_exclusao_multipla_mensagem">
+        <item quantity="one">Voulez-vous vraiment supprimer le compte sélectionné ?</item>
+        <item quantity="other">Voulez-vous vraiment supprimer les %d comptes sélectionnés ?</item>
+    </plurals>
+
+    <plurals name="dica_contas_excluidas">
+        <item quantity="one">Un compte a été supprimé !</item>
+        <item quantity="other">%d comptes ont été supprimés !</item>
     </plurals>
 </resources>

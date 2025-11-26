@@ -2,60 +2,68 @@
 <resources>
 
     <string-array name="TipoReceita">
-        <item>Recette simple</item>
+        <item>Revenu simple</item>
         <item>Banque</item>
         <item>Portefeuille</item>
     </string-array>
     <string-array name="TipoAplicacao">
         <item>Actions et fonds</item>
-        <item>Économies</item>
-        <item>Pension privé</item>
+        <item>Épargne</item>
+        <item>Retraite privée</item>
     </string-array>
     <string-array name="TipoDespesa">
         <item>Carte de crédit</item>
         <item>Dépense fixe</item>
         <item>Dépense variable</item>
-        <item>Versement</item>
+        <item>Prêt/Versement</item>
     </string-array>
     <string-array name="FiltroAplicacao">
         <item>Actions et fonds</item>
-        <item>Économies</item>
-        <item>Pension privé</item>
-        <item>Tous les applications</item>
+        <item>Épargne</item>
+        <item>Retraite privée</item>
+        <item>Toutes les applications</item>
     </string-array>
     <string-array name="FiltroDespesa">
         <item>Carte de crédit</item>
         <item>Dépense fixe</item>
         <item>Dépense variable</item>
-        <item>Versement</item>
-        <item>harges à payer</item>
-        <item>Frais payés</item>
-        <item>Tous les dépenses</item>
+        <item>Prêt/Versement</item>
+        <item>Dépenses à payer</item>
+        <item>Dépenses payées</item>
+        <item>Toutes les dépenses</item>
+    </string-array>
+    <string-array name="FiltroReceita">
+        <item>Revenu simple</item>
+        <item>Banque</item>
+        <item>Portefeuille</item>
+        <item>Revenus à recevoir</item>
+        <item>Revenus reçus</item>
+        <item>Tous les revenus</item>
     </string-array>
     <string-array name="GraficoContas">
-        <item>Déspeses</item>
-        <item>Recettes</item>
+        <item>Dépenses</item>
+        <item>Revenus</item>
         <item>Applications</item>
     </string-array>
     <string-array name="GraficoDespesas">
         <item>Carte de crédit</item>
-        <item>Les frais fixes</item>
-        <item>Les charges variables</item>
-        <item>Avantages</item>
+        <item>Dépenses fixes</item>
+        <item>Dépenses variables</item>
+        <item>Versements</item>
     </string-array>
     <string-array name="GraficoPagamentos">
-        <item>harges à payer</item>
-        <item>Frais payés</item>
+        <item>Dépenses à payer</item>
+        <item>Dépenses payées</item>
     </string-array>
     <string-array name="GraficoAplicacoes">
         <item>Actions et fonds</item>
-        <item>Économies</item>
-        <item>Pension privé</item>
+        <item>Épargne</item>
+        <item>Retraite privée</item>
     </string-array>
     <string-array name="TipoAjusteConta">
         <item>Cette répétition du compte</item>
-        <item>La prochaine répétition du compte</item>
-        <item>Toutes les répétitions compte</item>
+        <item>Les prochaines répétitions du compte</item>
+        <item>Toutes les répétitions du compte</item>
     </string-array>
     <string-array name="MesesDoAno">
         <item>JANVIER</item>
@@ -77,9 +85,9 @@
         <item>Mar</item>
         <item>Avr</item>
         <item>Mai</item>
-        <item>Juin</item>
+        <item>Jui</item>
         <item>Juil</item>
-        <item>Août</item>
+        <item>Aoû</item>
         <item>Sep</item>
         <item>Oct</item>
         <item>Nov</item>
@@ -87,7 +95,7 @@
     </string-array>
     <string-array name="Semana">
         <item>dim</item>
-        <item>lum</item>
+        <item>lun</item>
         <item>mar</item>
         <item>mer</item>
         <item>jeu</item>
@@ -95,95 +103,111 @@
         <item>sam</item>
     </string-array>
     <string-array name="NomeConta">
-        <item>Académie</item>
+        <item>Salle de sport</item>
         <item>Déjeuner</item>
-        <item>Léger</item>
-        <item>Déjeuner</item>
-        <item>Alimentation</item>
-        <item>Louer</item>
+        <item>Nourriture</item>
+        <item>Loyer</item>
         <item>Appartement</item>
-        <item>Demande</item>
-        <item>Car</item>
+        <item>Application</item>
+        <item>Voiture</item>
         <item>Carte</item>
-        <item>Cellular</item>
+        <item>Téléphone portable</item>
+        <item>Société de services publics (CEMIG)</item>
         <item>Carburant</item>
         <item>Condominium</item>
-        <item>Réparer</item>
+        <item>Réparation</item>
+        <item>Société de services publics (COPASA)</item>
         <item>Club</item>
         <item>Cours</item>
         <item>Dentiste</item>
         <item>Prêt</item>
         <item>Parking</item>
-        <item>Collège</item>
+        <item>Université</item>
         <item>Pharmacie</item>
-        <item>Foire</item>
+        <item>Marché</item>
         <item>Essence</item>
-        <item>Gaz de cuisson</item>
+        <item>Gaz de cuisine</item>
         <item>Internet</item>
         <item>Dîner</item>
         <item>Journal</item>
-        <item>Snack</item>
-        <item>Paiement mensuel</item>
+        <item>Goûter</item>
+        <item>Frais mensuels</item>
         <item>Médecin</item>
         <item>Moto</item>
-        <item>Séminaire</item>
+        <item>Atelier</item>
         <item>Bus</item>
         <item>Boulangerie</item>
-        <item>Montez</item>
-        <item>Plan de la santé</item>
-        <item>Économies</item>
+        <item>Sortie</item>
+        <item>Régime de santé</item>
+        <item>Épargne</item>
         <item>Versement</item>
-        <item>Prévoyance</item>
+        <item>Retraite</item>
         <item>Repas</item>
         <item>Magazine</item>
-        <item>Passez en revue</item>
+        <item>Révision</item>
         <item>Vêtements</item>
         <item>Salaire</item>
         <item>Assurance</item>
         <item>Supermarché</item>
         <item>Téléphone</item>
-        <item>abonnement à la télévision</item>
-        <item>Vêtements</item>
+        <item>Télévision par abonnement</item>
+        <item>Habillement</item>
         <item>Voyage</item>
     </string-array>
 
     <string-array name="CategoriaConta">
-        <item>Alimentation</item>
+        <item>Nourriture</item>
         <item>Éducation</item>
-        <item>Loisir</item>
-        <item>Habitation</item>
+        <item>Loisirs</item>
+        <item>Logement</item>
         <item>Santé</item>
         <item>Transport</item>
-        <item>Vêtements</item>
-        <item>Autre</item>
+        <item>Habillement</item>
+        <item>Autres</item>
     </string-array>
 
-    <!-- Strings do menu de Ajustes -->
-
     <string-array name="ordem_contas">
-        <item>Nom de compte (A-Z)</item>
-        <item>Nom de compte (A-Z)</item>
-        <item>Date de compte\n(Recénts-Postérieure) </item>
-        <item>Date de compte\n(Postérieure-Recénts) </item>
-        <item>Type de compte\n(Revenus-Dépenses)</item>
-        <item>Type de compte\n(Revenus-Dépenses)</item>
-        <item>Valeur du compte\n(Haute-Basse)</item>
-        <item>Valeur du compte\n(Basse-Haute)</item>
+        <item>Par nom de compte (A-Z)</item>
+        <item>Par nom de compte (Z-A)</item>
+        <item>Par date de compte\n(Récente-Postérieure)</item>
+        <item>Par date de compte\n(Postérieure-Récente)</item>
+        <item>Par type de compte\n(Revenus-Dépenses)</item>
+        <item>Par type de compte\n(Dépenses-Revenus)</item>
+        <item>Par valeur de compte\n(La plus élevée-La plus basse)</item>
+        <item>Par valeur de compte\n(La plus basse-La plus élevée)</item>
+    </string-array>
+    <string-array name="ordem_contas_valores" translatable="false">
+        <item>nome ASC</item>
+        <item>nome DESC</item>
+        <item>dia_data ASC</item>
+        <item>dia_data DESC</item>
+        <item>tipo DESC, classe DESC</item>
+        <item>tipo ASC, classe ASC</item>
+        <item>valor DESC</item>
+        <item>valor ASC</item>
     </string-array>
 
     <string-array name="repete_conta">
-        <item>Quotidienne</item>
-        <item>Hebdomadaire</item>
+        <item>Quotidiennement</item>
+        <item>Hebdomadairement</item>
         <item>Mensuellement</item>
-        <item>Annuellemente</item>
+        <item>Annuellement</item>
     </string-array>
 
     <string-array name="perguntas_seguranca">
-        <item>Quel est le nom de votre premier animal de compagnie?</item>
-        <item>Quel est le nom de la ville où vous êtes né?</item>
-        <item>Quel est le nom de votre école primaire?</item>
-        <item>Quel est le nom de jeune fille de votre mère?</item>
-        <item>Quelle est votre couleur préférée?</item>
+        <item>Quel est le nom de votre premier animal de compagnie ?</item>
+        <item>Quel est le nom de la ville où vous êtes né ?</item>
+        <item>Quel est le nom de votre école primaire ?</item>
+        <item>Quel est le nom de famille de votre mère ?</item>
+        <item>Quelle est votre couleur préférée ?</item>
+    </string-array>
+
+    <string-array name="perguntas_seguranca_valores">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
     </string-array>
 
 </resources>
