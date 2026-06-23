@@ -1,42 +1,117 @@
-apply plugin: 'com.android.application'
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.services)
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion '29.0.2'
+    namespace 'com.msk.minhascontas'
+    compileSdk = 37
 
     defaultConfig {
         applicationId "com.msk.minhascontas"
-        minSdkVersion 15
-        targetSdkVersion 29
-        versionCode 1430700
-        versionName "3.7.0"
-        vectorDrawables.useSupportLibrary = true
+        minSdk = 26
+        targetSdk = 35
+        versionCode 1430901
+        versionName "3.9.1"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Define a chave da API do Gemini a partir do local.properties
+        buildConfigField "String", "GEMINI_API_KEY", "\"${localProperties.getProperty('gemini.api.key')}\""
     }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            ndk {
+                debugSymbolLevel 'SYMBOL_TABLE'
+            }
         }
     }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+        compose true
+    }
+
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
-    implementation 'androidx.core:core:1.1.0'
-    implementation 'androidx.navigation:navigation-fragment:2.1.0'
-    implementation 'androidx.navigation:navigation-ui:2.1.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
-    testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.gridlayout
+    implementation libs.core.ktx
+    implementation libs.lifecycle.runtime.ktx
+    implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.lifecycle.viewmodel.compose
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+    implementation libs.constraintlayout
+    implementation libs.coordinatorlayout
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
+    implementation libs.mpandroidchart
+    implementation libs.preference
+    implementation libs.documentfile
+    implementation libs.poi         // Suporte para XLS (HSSF)
+    implementation libs.poi.ooxml   // Suporte para XLSX (XSSF)
+    implementation libs.xmlbeans
+    implementation libs.curvesapi
+    implementation libs.pdfbox
+    implementation libs.generativeai
+    implementation libs.room.runtime
+    implementation libs.room.ktx
+    kapt libs.room.compiler
+    kapt libs.kotlin.metadata
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.auth
+    implementation libs.play.services.auth
+    implementation libs.androidx.credentials
+    implementation libs.androidx.credentials.play.services.auth
+    implementation libs.googleid
+    implementation libs.firebase.firestore
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material3.windowsizeclass)
+    implementation(libs.androidx.adaptive)
+    implementation(libs.androidx.adaptive.layout)
+    implementation(libs.androidx.adaptive.navigation)
+    implementation(libs.androidx.material3.adaptive.navigation.suite)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.runtime.livedata)
+    implementation libs.vico.compose
+    implementation libs.vico.compose.m3
+    implementation libs.vico.core
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

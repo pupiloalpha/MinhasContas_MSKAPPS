@@ -1,0 +1,60 @@
+{
+  "project_info": {
+    "project_number": "172144765308",
+    "firebase_url": "https://minhas-contas-8dfa3.firebaseio.com",
+    "project_id": "minhas-contas-8dfa3",
+    "storage_bucket": "minhas-contas-8dfa3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:172144765308:android:3419dfd7ec6f238d351cf9",
+        "android_client_info": {
+          "package_name": "com.msk.minhascontas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "172144765308-egv4g3on83jbb9gpbo3bqm294m9im3l0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.msk.minhascontas",
+            "certificate_hash": "a45e41d8b6537769c20f8908156ad7c62f015a14"
+          }
+        },
+        {
+          "client_id": "172144765308-ogqbempsa83fi2c9f0icst3r99mc4ejk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.msk.minhascontas",
+            "certificate_hash": "5ac0f292b95f07347fd2e86533e9341036fcbd36"
+          }
+        },
+        {
+          "client_id": "172144765308-vmp27uq0f89kv2akln59of2hk0d827pv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.msk.minhascontas",
+            "certificate_hash": "f584669f8e7374679eb833e0d1690649655066b6"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzBY3vV9VJ5xNVBGcIPOOg-bzeFgZRlAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "172144765308-9b8rnovfp7dvv45ptsrq7h7ctu022cnq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
