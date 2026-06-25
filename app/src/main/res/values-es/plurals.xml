@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <plurals name="selecao">
-        <item quantity="zero">No se cuenta seleccionada</item>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <plurals name="selecao" tools:ignore="MissingQuantity,UnusedQuantity">
+        <item quantity="zero">Ninguna cuenta seleccionada</item>
         <item quantity="one">Una cuenta seleccionada</item>
         <item quantity="other">%d cuentas seleccionadas</item>
+    </plurals>
+
+    <plurals name="confirmar_exclusao_multipla_mensagem" tools:ignore="MissingQuantity">
+        <item quantity="one">¿Desea realmente eliminar la cuenta seleccionada?</item>
+        <item quantity="other">¿Desea realmente eliminar las %d cuentas seleccionadas?</item>
+    </plurals>
+
+    <plurals name="dica_contas_excluidas" tools:ignore="MissingQuantity">
+        <item quantity="one">¡Una cuenta fue eliminada!</item>
+        <item quantity="other">¡%d cuentas fueron eliminadas!</item>
     </plurals>
 </resources>

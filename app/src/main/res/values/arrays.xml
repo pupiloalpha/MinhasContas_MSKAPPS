@@ -32,6 +32,14 @@
         <item>Despesas pagas</item>
         <item>Todas as despesas</item>
     </string-array>
+    <string-array name="FiltroReceita">
+        <item>Receita simples</item>
+        <item>Banco</item>
+        <item>Carteira</item>
+        <item>Receitas a receber</item>
+        <item>Receitas recebidas</item>
+        <item>Todas as receitas</item>
+    </string-array>
     <string-array name="GraficoContas">
         <item>Despesas</item>
         <item>Receitas</item>
@@ -156,6 +164,7 @@
         <item>Transporte</item>
         <item>Vestuário</item>
         <item>Outros</item>
+        <item>Investimentos/Dívidas</item>
     </string-array>
 
     <!-- Strings do menu de Ajustes -->
@@ -171,14 +180,14 @@
         <item>Por valor de conta\n(Menor-Maior)</item>
     </string-array>
     <string-array name="ordem_contas_valores" translatable="false">
-        <item>conta ASC</item>
-        <item>conta DESC</item>
+        <item>nome_conta ASC</item>
+        <item>nome_conta DESC</item>
         <item>dia_data ASC</item>
         <item>dia_data DESC</item>
         <item>tipo_conta DESC, classe_conta DESC</item>
         <item>tipo_conta ASC, classe_conta ASC</item>
-        <item>valor DESC</item>
-        <item>valor ASC</item>
+        <item>valor_conta DESC</item>
+        <item>valor_conta ASC</item>
     </string-array>
 
     <string-array name="repete_conta">
@@ -186,6 +195,22 @@
         <item>Semanalmente</item>
         <item>Mensalmente</item>
         <item>Anualmente</item>
+    </string-array>
+
+    <string-array name="perguntas_seguranca">
+        <item>Qual o nome do seu primeiro animal de estimação?</item>
+        <item>Qual o nome da cidade onde você nasceu?</item>
+        <item>Qual o nome da sua escola primária?</item>
+        <item>Qual o sobrenome da sua mãe?</item>
+        <item>Qual sua cor favorita?</item>
+    </string-array>
+
+    <string-array name="perguntas_seguranca_valores">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
     </string-array>
 
 </resources>

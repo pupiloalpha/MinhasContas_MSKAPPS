@@ -3,22 +3,10 @@
     xmlns:mskapp="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/botao_notificacoes"
-        android:icon="@drawable/ic_star_gold"
-        android:orderInCategory="1"
-        android:title="@string/titulo_notificacoes"
-        mskapp:showAsAction="always" />
-    <item
         android:id="@+id/botao_pesquisar"
         android:icon="@drawable/ic_search_white"
         android:orderInCategory="2"
         android:title="@string/titulo_pesquisar"
-        mskapp:showAsAction="always" />
-    <item
-        android:id="@+id/botao_enviar"
-        android:icon="@drawable/enviar"
-        android:orderInCategory="3"
-        android:title="@string/titulo_enviar"
         mskapp:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_ajustes"

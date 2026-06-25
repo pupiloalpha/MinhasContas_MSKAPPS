@@ -1,24 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#212121</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#424242</color>
+    <!-- Main App Theme Colors -->
+    <color name="primary">#0F4C5C</color>
+    <color name="primary_dark">#0A343F</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="secondary">#696969</color>
+    <color name="background">#F8F9FA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#1E1E1E</color>
 
-    <color name="amarelo">#ffffbb33</color>
-    <color name="azul">#ff0099cc</color>
+    <color name="fab_color">#E5BA73</color>
+    <color name="on_fab_color">#1E1E1E</color>
+
+    <color name="tab_indicator">#E5BA73</color>
+    <color name="tab_text_selected">#0F4C5C</color>
+    <color name="tab_text_unselected">#757575</color>
+
+    <!-- Category Colors -->
+    <color name="receita_color">#0D47A1</color>
+    <color name="card_receita_color">#E3F2FD</color>
+
+    <color name="despesa_color">#B71C1C</color>
+    <color name="card_despesa_color">#FFEBEE</color>
+
+    <color name="aplicacao_color">#1B5E20</color>
+    <color name="card_aplicacao_color">#E8F5E9</color>
+
+    <color name="saldo_color">#212121</color>
+    <color name="card_saldo_color">#F5F5F5</color>
+
+    <color name="linha_selecionada">#50757575</color>
+
+    <color name="dialog_button">@color/primary</color>
+
+    <!-- Category Specific Colors (Container & OnContainer) -->
+    <color name="total_planejado_container">#F5F5F5</color>
+    <color name="total_planejado_on_container">#0F4C5C</color>
+    <color name="cat_alimentacao_container">#FFEBEE</color>
+    <color name="cat_alimentacao_on_container">#B71C1C</color>
+    <color name="cat_educacao_container">#F3E5F5</color>
+    <color name="cat_educacao_on_container">#6A1B9A</color>
+    <color name="cat_lazer_container">#FFF8E1</color>
+    <color name="cat_lazer_on_container">#F57F17</color>
+    <color name="cat_moradia_container">#E3F2FD</color>
+    <color name="cat_moradia_on_container">#0D47A1</color>
+    <color name="cat_saude_container">#E8F5E9</color>
+    <color name="cat_saude_on_container">#1B5E20</color>
+    <color name="cat_transporte_container">#FFF3E0</color>
+    <color name="cat_transporte_on_container">#E65100</color>
+    <color name="cat_vestuario_container">#EFEBE9</color>
+    <color name="cat_vestuario_on_container">#4E342E</color>
+    <color name="cat_outros_container">#ECEFF1</color>
+    <color name="cat_outros_on_container">#37474F</color>
+    <color name="cat_invest_dividas_container">#ECEFF1</color>
+    <color name="cat_invest_dividas_on_container">#1A1A1A</color>
+
+    <color name="total_planejado_color">#0A343F</color>
+
+    <!-- Old App Theme Colors - Mapped to new palette -->
+    <color name="amarelo">#E5BA73</color>
+    <color name="azul">#0D47A1</color>
     <color name="branco">#ffffff</color>
     <color name="cinza">#696969</color>
     <color name="cinza_claro">#CC999999</color>
     <color name="cinza_mais_claro">#70999999</color>
     <color name="cinza_fab">#CC696969</color>
     <color name="laranja">#ffff8800</color>
-    <color name="preto">#ff2b2b2b</color>
+    <color name="preto">#1E1E1E</color>
     <color name="roxo">#ffaa66cc</color>
-    <color name="verde_escuro">#ff669900</color>
-    <color name="verde">#ff99cc00</color>
-    <color name="verde_claro">#ffc5e1a5</color>
-    <color name="vermelho">#ffcc0000</color>
+    <color name="verde">#1B5E20</color>
+    <color name="vermelho">#B71C1C</color>
     <color name="vermelho_claro">#ffff4444</color>
     <color name="marrom">#ff9e9d24</color>
-
 </resources>

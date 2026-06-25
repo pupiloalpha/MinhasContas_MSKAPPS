@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- CATEGORIA: EXIBIÇÃO E COMPORTAMENTO -->
     <PreferenceCategory
         android:key="@string/pref_categoria_geral_key"
         android:title="@string/pref_titulo_geral">
+
         <ListPreference
-            android:defaultValue="conta ASC"
+            android:defaultValue="nome_conta ASC"
             android:dialogTitle="@string/pref_titulo_ordem"
             android:entries="@array/ordem_contas"
             android:entryValues="@array/ordem_contas_valores"
@@ -16,56 +19,185 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@string/pref_key_resumo"
-            android:summary="@string/pref_descricao_resumo_mensal"
+            android:summaryOn="@string/pref_descricao_resumo_mensal"
+            android:summaryOff="@string/pref_descricao_resumo_diario"
             android:title="@string/pref_titulo_resumo" />
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="@string/pref_key_categoria"
-            android:summary="@string/pref_descricao_categoria"
+            android:summaryOn="@string/pref_descricao_categoria"
+            android:summaryOff="@string/pref_descricao_sem_categoria"
             android:title="@string/pref_titulo_categoria" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="@string/pref_key_pagamento"
-            android:summary="@string/pref_descricao_editapagamento"
-            android:title="@string/pref_titulo_pagamento" />
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="@string/pref_key_saldo"
-            android:summary="@string/pref_descricao_saldo_real"
+            android:summaryOn="@string/pref_descricao_saldo_somado"
+            android:summaryOff="@string/pref_descricao_saldo_real"
             android:title="@string/pref_titulo_saldo" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_aplicacao_acumulada"
+            android:summaryOn="@string/pref_descricao_aplicacao_acumulada_on"
+            android:summaryOff="@string/pref_descricao_aplicacao_acumulada_off"
+            android:title="@string/pref_titulo_aplicacao_acumulada" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_pagamento"
+            android:summaryOn="@string/pref_descricao_autopagamento"
+            android:summaryOff="@string/pref_descricao_editapagamento"
+            android:title="@string/pref_titulo_pagamento" />
     </PreferenceCategory>
+
+    <!-- CATEGORIA: RECURSOS E PERSONALIZAÇÃO -->
     <PreferenceCategory
-        android:key="@string/pref_categoria_acesso_key"
-        android:title="@string/pref_titulo_categoria_acesso">
+        android:title="@string/pref_titulo_categoria_recursos">
+        <Preference
+            android:key="@string/pref_key_personalizar_categorias"
+            android:title="@string/pref_titulo_personalizar_categorias"
+            android:summary="@string/pref_descricao_personalizar_categorias" />
+
+        <Preference
+            android:key="@string/pref_key_planejamento_financeiro"
+            android:title="@string/pref_titulo_planejamento_financeiro"
+            android:summary="@string/pref_descricao_planejamento_financeiro" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="@string/pref_key_notificacao"
+            android:summary="@string/pref_descricao_notificacao"
+            android:title="@string/pref_titulo_notificacao" />
+    </PreferenceCategory>
+
+    <!-- CATEGORIA: ALERTAS E NOTIFICAÇÕES INTERNAS -->
+    <PreferenceCategory
+        android:key="@string/pref_categoria_alertas_key"
+        android:title="@string/pref_titulo_alertas">
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_alert_vencimento_key"
+            android:summary="@string/pref_alert_vencimento_desc"
+            android:title="@string/pref_alert_vencimento_titulo" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_alert_limite_categoria_key"
+            android:summary="@string/pref_alert_limite_categoria_desc"
+            android:title="@string/pref_alert_limite_categoria_titulo" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_alert_objetivo_plano_key"
+            android:summary="@string/pref_alert_objetivo_plano_desc"
+            android:title="@string/pref_alert_objetivo_plano_titulo" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_alert_receita_referencia_key"
+            android:summary="@string/pref_alert_receita_referencia_desc"
+            android:title="@string/pref_alert_receita_referencia_titulo" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_alert_despesa_receita_key"
+            android:summary="@string/pref_alert_despesa_receita_desc"
+            android:title="@string/pref_alert_despesa_receita_titulo" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_alert_falta_aplicacao_key"
+            android:summary="@string/pref_alert_falta_aplicacao_desc"
+            android:title="@string/pref_alert_falta_aplicacao_titulo" />
+    </PreferenceCategory>
+
+    <!-- CATEGORIA: SEGURANÇA E ACESSO -->
+    <PreferenceCategory
+        android:key="@string/pref_categoria_seguranca_key"
+        android:title="@string/titulo_acesso">
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="@string/pref_key_acesso"
-            android:summary="@string/pref_descricao_acesso_livre"
+            android:summaryOn="@string/pref_descricao_acesso_negado"
+            android:summaryOff="@string/pref_descricao_acesso_livre"
             android:title="@string/pref_titulo_acesso" />
 
         <EditTextPreference
             android:dialogTitle="@string/pref_dialogo_senha"
             android:key="@string/pref_key_senha"
             android:summary="@string/pref_descricao_senha"
+            android:inputType="textPassword"
             android:title="@string/pref_titulo_senha" />
+
+        <ListPreference
+            android:key="pergunta_seguranca_id"
+            android:title="@string/titulo_pergunta_secreta"
+            android:summary="%s"
+            android:entries="@array/perguntas_seguranca"
+            android:entryValues="@array/perguntas_seguranca_valores"
+            android:defaultValue="0"
+            android:dialogTitle="@string/titulo_pergunta_secreta" />
+
+        <EditTextPreference
+            android:key="resposta_secreta"
+            android:title="@string/dica_resposta_secreta_ajustes"
+            android:summary="@string/dica_resposta_secreta_ajustes_summary"
+            android:dialogTitle="@string/titulo_pergunta_secreta"
+            android:inputType="textNoSuggestions" />
     </PreferenceCategory>
+
+    <!-- CATEGORIA: SINCRONIZAÇÃO EM NUVEM -->
     <PreferenceCategory
-        android:key="@string/pref_categoria_bkup_restaura_key"
+        android:key="@string/pref_categoria_nuvem_key"
+        android:title="@string/pref_titulo_nuvem">
+        <Preference
+            android:key="@string/pref_key_google_login"
+            android:title="@string/pref_titulo_google_login"
+            android:summary="@string/pref_descricao_google_login" />
+        <Preference
+            android:key="sync_cloud_download"
+            android:title="Baixar dados da Nuvem"
+            android:summary="Recupera seus dados do Google se você trocou de aparelho" />
+        <Preference
+            android:key="sync_cloud_upload"
+            android:title="@string/pref_titulo_google_upload"
+            android:summary="@string/pref_descricao_google_upload" />
+    </PreferenceCategory>
+
+    <!-- CATEGORIA: BACKUP E RESTAURAÇÃO LOCAL -->
+    <PreferenceCategory
         android:title="@string/pref_titulo_bkup_restaura">
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="@string/pref_key_auto_bkup"
-            android:summary="@string/pref_descricao_auto_bkup_sim"
-            android:title="@string/pref_titulo_auto_bkup" />
+        <Preference
+            android:key="@string/pref_key_bkup_select_folder"
+            android:title="@string/pref_titulo_bkup_select_folder"
+            android:summary="@string/pref_descricao_bkup_select_folder"
+            app:iconSpaceReserved="false" />
+
         <Preference
             android:key="@string/pref_key_bkup"
-            android:summary="@string/pref_descricao_bkup"
-            android:title="@string/pref_titulo_bkup" />
+            android:title="@string/pref_titulo_bkup_execute"
+            android:summary="@string/pref_descricao_bkup_execute"
+            app:iconSpaceReserved="false" />
+
         <Preference
             android:key="@string/pref_key_restaura"
-            android:summary="@string/pref_descricao_restaura"
-            android:title="@string/pref_titulo_restaura" />
+            android:title="@string/pref_titulo_restaura_execute"
+            android:summary="@string/pref_descricao_restaura_execute"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/pref_key_auto_bkup"
+            android:summaryOff="@string/pref_descricao_auto_bkup_off"
+            android:summaryOn="@string/pref_descricao_auto_bkup_on"
+            android:title="@string/pref_titulo_auto_bkup"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
+
+    <!-- CATEGORIA: EXPORTAÇÃO E IMPORTAÇÃO -->
     <PreferenceCategory
         android:key="@string/pref_categoria_exportar_key"
         android:title="@string/pref_titulo_categoria_exportar">
@@ -73,7 +205,24 @@
             android:key="@string/pref_key_exportar"
             android:summary="@string/pref_descricao_exportar"
             android:title="@string/pref_titulo_exportar" />
+
+        <Preference
+            android:key="@string/pref_key_importar"
+            android:summary="@string/pref_descricao_importar"
+            android:title="@string/pref_titulo_importar" />
+
+        <Preference
+            android:key="@string/pref_key_importar_pdf"
+            android:summary="@string/pref_descricao_importar_pdf"
+            android:title="@string/pref_titulo_importar_pdf" />
+
+        <Preference
+            android:key="@string/pref_key_importar_banco_antigo"
+            android:summary="@string/pref_descricao_importar_banco_antigo"
+            android:title="@string/pref_titulo_importar_banco_antigo" />
     </PreferenceCategory>
+
+    <!-- CATEGORIA: MANUTENÇÃO -->
     <PreferenceCategory
         android:key="@string/pref_categoria_apagatudo_key"
         android:title="@string/pref_titulo_apagatudo">
@@ -82,6 +231,8 @@
             android:summary="@string/pref_descricao_apagatudo"
             android:title="@string/pref_titulo_apagatudo" />
     </PreferenceCategory>
+
+    <!-- CATEGORIA: SOBRE -->
     <PreferenceCategory
         android:key="@string/pref_categoria_info_key"
         android:title="@string/pref_titulo_categoria_info">

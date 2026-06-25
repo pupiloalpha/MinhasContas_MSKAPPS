@@ -1,141 +1,173 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@null"
-    android:paddingTop="5dp">
+    android:background="@drawable/widget_background"
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <include
-        android:id="@+id/barra"
-        layout="@layout/widget_barra" />
-
+    <!-- Cabeçalho (Barra Superior) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/barra"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:background="@color/branco"
-        android:orientation="vertical"
-        android:paddingBottom="5dp"
-        android:paddingTop="5dp">
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/tvAbreAplicativo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/icone"
+                android:src="@mipmap/ic_launcher" />
+
+            <TextView
+                android:id="@+id/tvWidgetTitulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/app_name"
+                android:textColor="@color/on_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ibAdicionaConta"
+            android:layout_width="40dp"
             android:layout_height="40dp"
-            android:orientation="horizontal">
+            android:contentDescription="@string/titulo_criar"
+            android:padding="8dp"
+            android:src="@drawable/ic_add_widget"
+            app:tint="@color/on_primary" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical|start"
-                android:text="@string/linha_saldo"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/preto"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvValorSaldoAtual"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:gravity="end|center_vertical"
-                android:text="@string/zero"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/preto"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@color/preto"
-            android:orientation="vertical">
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical|start"
-                android:text="@string/linha_receita"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorPrimary" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="@string/linha_despesa"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorPrimary" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical|end"
-                android:text="@string/linha_aplicacoes"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorPrimary" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvValorReceitas"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
-                android:layout_marginStart="5dp"
-                android:layout_weight="1"
-                android:gravity="start|center_vertical"
-                android:text="@string/zero"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/azul" />
-
-            <TextView
-                android:id="@+id/tvValorDespesas"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="@string/zero"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/vermelho" />
-
-            <TextView
-                android:id="@+id/tvValorAplicacoes"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical|end"
-                android:text="@string/zero"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/verde_escuro" />
-        </LinearLayout>
-
+        <ImageView
+            android:id="@+id/ibPesquisaConta"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/titulo_pesquisar"
+            android:padding="8dp"
+            android:src="@drawable/ic_search_widget"
+            app:tint="@color/on_primary"/>
     </LinearLayout>
 
-</RelativeLayout>
+    <!-- Conteúdo do Resumo Financeiro -->
+    <LinearLayout
+        android:id="@+id/llConteudoResumo"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/widget_inner_background"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="4dp">
+
+        <!-- Bloco do Saldo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/linha_saldo"
+            android:textColor="@color/secondary"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvValorSaldoAtual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/zero"
+            android:textColor="@color/on_surface"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:id="@+id/divisorWidget"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:background="@color/cinza_mais_claro" />
+
+        <!-- Bloco de Detalhes (Receita, Despesa, Aplicação) -->
+        <LinearLayout
+            android:id="@+id/llSecaoDetalhes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/linha_receita"
+                    android:textSize="10sp" />
+                <TextView
+                    android:id="@+id/tvValorReceitas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/receita_color"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/linha_despesa"
+                    android:textSize="10sp" />
+                <TextView
+                    android:id="@+id/tvValorDespesas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/despesa_color"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/linha_aplicacoes"
+                    android:textSize="10sp" />
+                <TextView
+                    android:id="@+id/tvValorAplicacoes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/aplicacao_color"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

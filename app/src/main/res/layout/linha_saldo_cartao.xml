@@ -109,6 +109,69 @@
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@+id/valor_saldo_atual"
             app:layout_constraintTop_toBottomOf="@+id/tv_titulo_saldo_anterior" />
+
+        <View
+            android:id="@+id/view_separador_2dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/cinza"
+            app:layout_constraintTop_toBottomOf="@+id/valor_saldo_atual" />
+
+        <TextView
+            android:id="@+id/tv_titulo_saldo_banco"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:gravity="left|center_vertical"
+            android:text="@string/dica_banco"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toStartOf="@+id/tv_titulo_cartao"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view_separador_2dp" />
+
+        <TextView
+            android:id="@+id/tv_titulo_cartao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:gravity="right|center_vertical"
+            android:text="@string/linha_cartao"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/tv_titulo_saldo_banco"
+            app:layout_constraintTop_toTopOf="@+id/tv_titulo_saldo_banco" />
+
+        <TextView
+            android:id="@+id/valor_banco"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="left|center_vertical"
+            android:text="@string/zero"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toStartOf="@+id/valor_cartao_credito"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_saldo_banco" />
+
+        <TextView
+            android:id="@+id/valor_cartao_credito"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:gravity="right|center_vertical"
+            android:text="@string/zero"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/valor_banco"
+            app:layout_constraintTop_toBottomOf="@+id/tv_titulo_cartao" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

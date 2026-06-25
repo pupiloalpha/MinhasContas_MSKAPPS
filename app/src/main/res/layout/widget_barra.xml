@@ -1,60 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center"
-    android:layout_marginLeft="5dp"
-    android:layout_marginRight="5dp"
-    android:background="@color/widget_fundo"
-    android:orientation="horizontal">
+    android:background="@drawable/widget_background"
+    android:minHeight="56dp"
+    android:orientation="horizontal"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
     <LinearLayout
-        android:id="@+id/tvAbreAplciativo"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_weight="2"
-        android:background="@color/widget_fundo"
+        android:id="@+id/tvAbreAplicativo"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@null"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
             android:contentDescription="@string/icone"
-            android:padding="5dp"
+            android:padding="4dp"
             android:src="@mipmap/ic_launcher" />
 
         <TextView
+            android:id="@+id/tvWidgetTitulo"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/app_name"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/branco" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/on_primary" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/ibAdicionaConta"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.5"
-        android:adjustViewBounds="true"
-        android:background="@color/widget_fundo"
-        android:contentDescription="@string/icone"
-        android:cropToPadding="true"
-        android:padding="10dp"
-        android:src="@drawable/ic_add_widget" />
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
+        android:clickable="true"
+        android:contentDescription="@string/titulo_criar"
+        android:focusable="true"
+        android:padding="12dp"
+        android:src="@drawable/ic_add_widget"
+        app:tint="@color/on_primary" />
 
     <ImageView
         android:id="@+id/ibPesquisaConta"
-        android:layout_width="40dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.5"
-        android:adjustViewBounds="true"
-        android:background="@color/widget_fundo"
-        android:contentDescription="@string/icone"
-        android:cropToPadding="true"
-        android:padding="10dp"
-        android:src="@drawable/ic_search_widget" />
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
+        android:clickable="true"
+        android:contentDescription="@string/titulo_pesquisar"
+        android:focusable="true"
+        android:padding="12dp"
+        android:src="@drawable/ic_search_widget"
+        app:tint="@color/on_primary"/>
 
 </LinearLayout>
