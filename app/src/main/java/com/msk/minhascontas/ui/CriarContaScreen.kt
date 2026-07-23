@@ -35,6 +35,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.msk.minhascontas.R
+import com.msk.minhascontas.db.Conta
 import com.msk.minhascontas.db.ContasContract
 import com.msk.minhascontas.ui.theme.MinhasContasDialogTheme
 import com.msk.minhascontas.utils.AlertaCalendario
@@ -70,8 +71,8 @@ fun CriarContaScreen(
         else -> colorResource(R.color.despesa_color)
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.initData(initialMes, initialAno)
+    LaunchedEffect(initialMes, initialAno) {
+        viewModel.initData(initialMes, initialAno, context)
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -134,16 +135,14 @@ fun CriarContaScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OutlinedTextField(
+            AutocompleteTextField(
                 value = uiState.nome,
                 onValueChange = { viewModel.updateNome(it) },
-                label = { Text(stringResource(R.string.dica_conta)) },
+                suggestions = uiState.sugestoes,
+                onSuggestionSelected = { viewModel.selecionarSugestao(it) },
+                label = stringResource(R.string.dica_conta),
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = secondaryColor,
-                    focusedLabelColor = secondaryColor,
-                    cursorColor = secondaryColor
-                )
+                themeColor = secondaryColor
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -172,13 +171,18 @@ fun CriarContaScreen(
                 ) {
                     Icon(Icons.Default.DateRange, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    val date = Calendar.getInstance().apply { set(uiState.ano, uiState.mes - 1, uiState.dia) }
+                    val date = Calendar.getInstance().apply {
+                        set(Calendar.YEAR, uiState.ano)
+                        set(Calendar.MONTH, uiState.mes - 1)
+                        set(Calendar.DAY_OF_MONTH, uiState.dia)
+                    }
                     Text(DateFormat.getDateInstance(DateFormat.SHORT).format(date.time))
                 }
 
                 if (showDatePicker) {
                     val datePickerState = rememberDatePickerState(
-                        initialSelectedDateMillis = Calendar.getInstance().apply {
+                        initialSelectedDateMillis = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                            clear()
                             set(uiState.ano, uiState.mes - 1, uiState.dia)
                         }.timeInMillis
                     )
@@ -188,7 +192,7 @@ fun CriarContaScreen(
                             confirmButton = {
                                 TextButton(onClick = {
                                     datePickerState.selectedDateMillis?.let {
-                                        val cal = Calendar.getInstance().apply { timeInMillis = it }
+                                        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = it }
                                         viewModel.updateData(
                                             cal.get(Calendar.YEAR),
                                             cal.get(Calendar.MONTH) + 1,
@@ -446,6 +450,74 @@ private fun TipoContaSelector(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun AutocompleteTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    suggestions: List<Conta>,
+    onSuggestionSelected: (Conta) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    themeColor: Color = MaterialTheme.colorScheme.primary
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val filteredSuggestions = remember(value, suggestions) {
+        if (value.length < 2) emptyList()
+        else suggestions.filter { it.nome.contains(value, ignoreCase = true) }
+    }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded && filteredSuggestions.isNotEmpty(),
+        onExpandedChange = { expanded = it },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+                expanded = true
+            },
+            label = { Text(label) },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = themeColor,
+                focusedLabelColor = themeColor,
+                cursorColor = themeColor
+            ),
+            modifier = Modifier.menuAnchor().fillMaxWidth()
+        )
+
+        if (filteredSuggestions.isNotEmpty()) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.exposedDropdownSize()
+            ) {
+                filteredSuggestions.take(10).forEach { conta ->
+                    DropdownMenuItem(
+                        text = {
+                            Column {
+                                Text(conta.nome, style = MaterialTheme.typography.bodyLarge)
+                                // Opcional: mostrar categoria para ajudar a diferenciar
+                                val context = LocalContext.current
+                                val info = when (conta.tipo) {
+                                    ContasContract.TIPO_DESPESA -> LabelUtils.getCategoriaLabel(context, conta.categoria)
+                                    else -> LabelUtils.getClasseLabel(context, conta.tipo, conta.classeConta)
+                                }
+                                Text(info, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                            }
+                        },
+                        onClick = {
+                            onSuggestionSelected(conta)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun LabelDropdown(
     label: String,
     options: List<String>,
@@ -471,7 +543,7 @@ fun LabelDropdown(
                 focusedLabelColor = themeColor,
                 cursorColor = themeColor
             ),
-            modifier = Modifier.menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+            modifier = Modifier.menuAnchor().fillMaxWidth()
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -493,6 +565,8 @@ fun LabelDropdown(
 private fun getClasseOptions(context: Context, tipo: Int): List<String> {
     val size = when (tipo) {
         ContasContract.TIPO_DESPESA -> 4
+        ContasContract.TIPO_RECEITA -> 4
+        ContasContract.TIPO_APLICACAO -> 4
         else -> 3
     }
     return (0 until size).map { LabelUtils.getClasseLabel(context, tipo, it) }

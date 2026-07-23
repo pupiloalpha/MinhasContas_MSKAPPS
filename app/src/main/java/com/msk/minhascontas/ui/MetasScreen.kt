@@ -1,5 +1,6 @@
 package com.msk.minhascontas.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.msk.minhascontas.R
+import com.msk.minhascontas.db.ContasContract
 import com.msk.minhascontas.db.ProgressoCategoria
 import com.msk.minhascontas.viewmodel.MetasViewModel
 import java.text.NumberFormat
@@ -28,6 +30,7 @@ fun MetasScreen(
     mes: Int,
     ano: Int,
     dia: Int,
+    onCategoryClick: (tipo: Int, filtro: Int) -> Unit = { _, _ -> },
     viewModel: MetasViewModel = viewModel()
 ) {
     val progressos by viewModel.getProgressoMensal(mes, ano, dia).observeAsState(emptyList())
@@ -49,7 +52,15 @@ fun MetasScreen(
             contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
         ) {
             items(progressos, key = { it.index }) { progresso ->
-                ProgressoCategoriaCard(progresso)
+                ProgressoCategoriaCard(
+                    progresso = progresso,
+                    onClick = {
+                        // Se for a categoria 8 (Investimentos/Dívidas), mostramos todos os tipos (-1)
+                        // Caso contrário, focamos em Despesas (Tipo 0) filtradas pela categoria.
+                        val actualTipo = if (progresso.index == 8) -1 else ContasContract.TIPO_DESPESA
+                        onCategoryClick(actualTipo, progresso.index)
+                    }
+                )
             }
         }
     }
@@ -59,7 +70,10 @@ fun MetasScreen(
  * Card que exibe o progresso individual de uma categoria.
  */
 @Composable
-fun ProgressoCategoriaCard(progresso: ProgressoCategoria) {
+fun ProgressoCategoriaCard(
+    progresso: ProgressoCategoria,
+    onClick: () -> Unit = {}
+) {
     val currencyFormat = NumberFormat.getCurrencyInstance()
     
     // Calcula a porcentagem de uso do orçamento
@@ -76,7 +90,9 @@ fun ProgressoCategoriaCard(progresso: ProgressoCategoria) {
     val contentColor = colorResource(progresso.onCorRes)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {

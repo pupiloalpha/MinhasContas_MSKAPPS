@@ -131,16 +131,12 @@ public final class DBContas {
         if (sInstance == null) {
             sInstance = new DBContas(context.getApplicationContext());
         }
-        // Adicionar esta verificação e tentativa de reabrir o banco
-        // sempre que a instância for solicitada, garantindo que 'db' esteja ativo.
         if (sInstance.db == null || !sInstance.db.isOpen()) {
             try {
                 sInstance.open();
-                Log.d(TAG, "DBContas.getInstance: Banco de dados encontrado fechado ou nulo, reabrindo.");
-            } catch (SQLException e) {
-                Log.e(TAG, "DBContas.getInstance: Falha ao reabrir banco de dados durante a chamada getInstance.", e);
-                // Re-lança a exceção para que o onCreate da Activity possa lidar com isso (ex: mostrar Toast e fechar)
-                throw e;
+                Log.d(TAG, "DBContas.getInstance: Banco de dados reaberto.");
+            } catch (Exception e) {
+                Log.e(TAG, "DBContas.getInstance: Falha crítica ao abrir banco.", e);
             }
         }
         return sInstance;
@@ -245,6 +241,10 @@ public final class DBContas {
             // Não lançamos exceção aqui para tentar prosseguir com a abertura mesmo sem backup,
             // mas o ideal seria alertar.
         }
+    }
+
+    public SQLiteDatabase getDatabase() {
+        return db;
     }
 
     /**
@@ -727,13 +727,17 @@ public final class DBContas {
      * @return A {@code List<Conta>} containing the results. Returns an empty list if no accounts match the criteria.
      */
     public List<Conta> getContas(ContaFilter filter, String ordem) {
+        if (db == null || !db.isOpen()) {
+            Log.e(TAG, "Tentativa de consulta com banco fechado.");
+            return new ArrayList<>();
+        }
         List<Conta> listaContas = new ArrayList<>();
         Cursor cursor = null;
 
         StringBuilder selecao = new StringBuilder();
         List<String> argumentosList = new ArrayList<>();
 
-        // MUDANÇA PRINCIPAL AQUI: Replicar a lógica de construção da cláusula WHERE do getAllContas
+        // Replicar a lógica de construção da cláusula WHERE do getAllContas
         if (filter != null) {
             if (!TextUtils.isEmpty(filter.getNome())) {
                 if (selecao.length() > 0) selecao.append(" AND ");
@@ -3141,6 +3145,36 @@ public final class DBContas {
         return linhasInseridas;
     }
 
+    /**
+     * Updates multiple accounts by their IDs with the provided values.
+     * Uses a transaction for atomicity and performance.
+     *
+     * @param ids    List of account IDs to update.
+     * @param values ContentValues containing the columns to update and their new values.
+     * @return The number of rows successfully updated.
+     */
+    public int atualizarContasEmMassa(List<Long> ids, ContentValues values) {
+        if (ids == null || ids.isEmpty() || values == null || values.size() == 0) {
+            return 0;
+        }
+
+        db.beginTransaction();
+        int rowsUpdated = 0;
+        try {
+            for (Long id : ids) {
+                if (db.update(TABELA_CONTAS, values, Colunas._ID + " = ?", new String[]{String.valueOf(id)}) > 0) {
+                    rowsUpdated++;
+                }
+            }
+            db.setTransactionSuccessful();
+        } catch (SQLException e) {
+            Log.e(TAG, "Erro na atualização em massa: " + e.getMessage());
+        } finally {
+            db.endTransaction();
+        }
+        return rowsUpdated;
+    }
+
 
     // --- INNER CLASS: CONTAFILTER ---
     /**
@@ -3161,6 +3195,14 @@ public final class DBContas {
         private int classe = -1;
         private int categoria = -1;
         private String pagamento = null;
+        private List<Integer> categoriasIn = null;
+        private List<Integer> classesIn = null;
+        private List<Integer> tiposIn = null;
+        private Double valorGlobal = null;
+        private Integer diaGlobal = null;
+        private Integer mesGlobal = null;
+        private Integer anoGlobal = null;
+        private boolean isPesquisaGlobal = false;
 
         // --- CONSTRUCTORS ---
         public ContaFilter() {
@@ -3222,6 +3264,38 @@ public final class DBContas {
             this.categoria = categoria;
             return this;
         }
+        public ContaFilter setCategoriasIn(List<Integer> categorias) {
+            this.categoriasIn = categorias;
+            return this;
+        }
+        public ContaFilter setClassesIn(List<Integer> classes) {
+            this.classesIn = classes;
+            return this;
+        }
+        public ContaFilter setTiposIn(List<Integer> tipos) {
+            this.tiposIn = tipos;
+            return this;
+        }
+        public ContaFilter setValorGlobal(Double valor) {
+            this.valorGlobal = valor;
+            return this;
+        }
+        public ContaFilter setDiaGlobal(Integer dia) {
+            this.diaGlobal = dia;
+            return this;
+        }
+        public ContaFilter setMesGlobal(Integer mes) {
+            this.mesGlobal = mes;
+            return this;
+        }
+        public ContaFilter setAnoGlobal(Integer ano) {
+            this.anoGlobal = ano;
+            return this;
+        }
+        public ContaFilter setPesquisaGlobal(boolean isGlobal) {
+            this.isPesquisaGlobal = isGlobal;
+            return this;
+        }
         public ContaFilter setPagamento(String pagamento) {
             this.pagamento = pagamento;
             return this;
@@ -3250,12 +3324,57 @@ public final class DBContas {
          * @return A SQL WHERE clause string (e.g., "COLUMN_NAME = ? AND ANOTHER_COLUMN LIKE ?").
          */
         public String buildWhereClause() {
-            List<String> clauses = new ArrayList<>(); // Changed from Vector to ArrayList for modern Java style
+            List<String> clauses = new ArrayList<>();
+            List<String> textFilters = new ArrayList<>();
+
+            // Se for pesquisa global, agrupamos os filtros de texto com OR
+            if (isPesquisaGlobal) {
+                if (!TextUtils.isEmpty(nome)) {
+                    textFilters.add(Colunas.COLUNA_NOME_CONTA + " LIKE ?");
+                }
+                if (categoriasIn != null && !categoriasIn.isEmpty()) {
+                    textFilters.add(Colunas.COLUNA_CATEGORIA_CONTA + " IN (" + makePlaceholders(categoriasIn.size()) + ")");
+                }
+                if (classesIn != null && !classesIn.isEmpty()) {
+                    textFilters.add(Colunas.COLUNA_CLASSE_CONTA + " IN (" + makePlaceholders(classesIn.size()) + ")");
+                }
+                if (tiposIn != null && !tiposIn.isEmpty()) {
+                    textFilters.add(Colunas.COLUNA_TIPO_CONTA + " IN (" + makePlaceholders(tiposIn.size()) + ")");
+                }
+                if (valorGlobal != null) {
+                    textFilters.add(Colunas.COLUNA_VALOR_CONTA + " = ?");
+                }
+                if (diaGlobal != null) {
+                    textFilters.add(Colunas.COLUNA_DIA_DATA_CONTA + " = ?");
+                }
+                if (mesGlobal != null) {
+                    textFilters.add(Colunas.COLUNA_MES_DATA_CONTA + " = ?");
+                }
+                if (anoGlobal != null) {
+                    textFilters.add(Colunas.COLUNA_ANO_DATA_CONTA + " = ?");
+                }
+
+                if (!textFilters.isEmpty()) {
+                    clauses.add("(" + TextUtils.join(" OR ", textFilters) + ")");
+                }
+            } else {
+                // Comportamento original para filtros específicos (AND)
+                if (!TextUtils.isEmpty(nome)) {
+                    clauses.add(Colunas.COLUNA_NOME_CONTA + " LIKE ?");
+                }
+                if (tipo != -1) {
+                    clauses.add(Colunas.COLUNA_TIPO_CONTA + " = ?");
+                }
+                if (classe != -1) {
+                    clauses.add(Colunas.COLUNA_CLASSE_CONTA + " = ?");
+                }
+                if (categoria != -1) {
+                    clauses.add(Colunas.COLUNA_CATEGORIA_CONTA + " = ?");
+                }
+            }
+
             if (codigoConta != null) {
                 clauses.add(Colunas.COLUNA_CODIGO_CONTA + " = ?");
-            }
-            if (!TextUtils.isEmpty(nome)) {
-                clauses.add(Colunas.COLUNA_NOME_CONTA + " LIKE ?");
             }
             if (nrRepeticaoMin > 0) {
                 clauses.add(Colunas.COLUNA_NR_REPETICAO_CONTA + " >= ?");
@@ -3273,27 +3392,23 @@ public final class DBContas {
                 clauses.add(Colunas.COLUNA_DIA_DATA_CONTA + " <= ?");
             }
 
-            // *** MUDANÇA ESSENCIAL: Garante que o mês é um valor válido (1-12). ***
-            // A condition 'mes > 0' funcionaria se o mês fosse sempre 1-12, mas ser explícito é melhor.
             if (mes >= 1 && mes <= 12) {
                 clauses.add(Colunas.COLUNA_MES_DATA_CONTA + " = ?");
             }
             if (ano > 0) {
                 clauses.add(Colunas.COLUNA_ANO_DATA_CONTA + " = ?");
             }
-            if (tipo != -1) {
-                clauses.add(Colunas.COLUNA_TIPO_CONTA + " = ?");
-            }
-            if (classe != -1) {
-                clauses.add(Colunas.COLUNA_CLASSE_CONTA + " = ?");
-            }
-            if (categoria != -1) {
-                clauses.add(Colunas.COLUNA_CATEGORIA_CONTA + " = ?");
-            }
             if (pagamento != null) {
                 clauses.add(Colunas.COLUNA_PAGOU_CONTA + " = ?");
             }
             return TextUtils.join(" AND ", clauses);
+        }
+
+        private String makePlaceholders(int count) {
+            if (count < 1) return "";
+            StringBuilder sb = new StringBuilder("?");
+            for (int i = 1; i < count; i++) sb.append(",?");
+            return sb.toString();
         }
 
         /**
@@ -3302,12 +3417,50 @@ public final class DBContas {
          * @return A String array of arguments.
          */
         public String[] buildWhereArgs() {
-            List<String> args = new ArrayList<>(); // Changed from Vector to ArrayList
+            List<String> args = new ArrayList<>();
+            
+            if (isPesquisaGlobal) {
+                if (!TextUtils.isEmpty(nome)) {
+                    args.add("%" + nome + "%");
+                }
+                if (categoriasIn != null && !categoriasIn.isEmpty()) {
+                    for (Integer cat : categoriasIn) args.add(String.valueOf(cat));
+                }
+                if (classesIn != null && !classesIn.isEmpty()) {
+                    for (Integer cls : classesIn) args.add(String.valueOf(cls));
+                }
+                if (tiposIn != null && !tiposIn.isEmpty()) {
+                    for (Integer t : tiposIn) args.add(String.valueOf(t));
+                }
+                if (valorGlobal != null) {
+                    args.add(String.valueOf(valorGlobal));
+                }
+                if (diaGlobal != null) {
+                    args.add(String.valueOf(diaGlobal));
+                }
+                if (mesGlobal != null) {
+                    args.add(String.valueOf(mesGlobal));
+                }
+                if (anoGlobal != null) {
+                    args.add(String.valueOf(anoGlobal));
+                }
+            } else {
+                if (!TextUtils.isEmpty(nome)) {
+                    args.add("%" + nome + "%");
+                }
+                if (tipo != -1) {
+                    args.add(String.valueOf(tipo));
+                }
+                if (classe != -1) {
+                    args.add(String.valueOf(classe));
+                }
+                if (categoria != -1) {
+                    args.add(String.valueOf(categoria));
+                }
+            }
+
             if (codigoConta != null) {
                 args.add(codigoConta);
-            }
-            if (!TextUtils.isEmpty(nome)) {
-                args.add("%" + nome + "%"); // Use wildcard for partial matching
             }
             if (nrRepeticaoMin > 0) {
                 args.add(String.valueOf(nrRepeticaoMin));
@@ -3326,21 +3479,11 @@ public final class DBContas {
                 args.add(String.valueOf(diaFim));
             }
 
-            // *** MUDANÇA ESSENCIAL: Garante que o mês é um valor válido (1-12). ***
             if (mes >= 1 && mes <= 12) {
                 args.add(String.valueOf(mes));
             }
             if (ano > 0) {
                 args.add(String.valueOf(ano));
-            }
-            if (tipo != -1) {
-                args.add(String.valueOf(tipo));
-            }
-            if (classe != -1) {
-                args.add(String.valueOf(classe));
-            }
-            if (categoria != -1) {
-                args.add(String.valueOf(categoria));
             }
             if (pagamento != null) {
                 args.add(pagamento);

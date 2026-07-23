@@ -176,7 +176,9 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
             setQtRepete(mesesRestantes)
         }.build()
 
-        repository.salvarContasRecorrentes(contaBase, mesesRestantes, 300) // 300 = Mensal
+        viewModelScope.launch {
+            repository.salvarContasRecorrentes(contaBase, mesesRestantes, 300) // 300 = Mensal
+        }
     }
 
     /**

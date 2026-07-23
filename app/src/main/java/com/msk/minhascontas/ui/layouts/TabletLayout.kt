@@ -56,6 +56,7 @@ import com.msk.minhascontas.ui.PersonalizarCategoriasScreen
 import com.msk.minhascontas.ui.PesquisaScreen
 import com.msk.minhascontas.ui.SummaryPane
 import com.msk.minhascontas.viewmodel.ContasViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -99,7 +100,7 @@ fun TabletLayout(
     // Sincroniza o pedido de edição externo com o overlay local
     LaunchedEffect(editingAccountId) {
         if (editingAccountId != null) {
-            overlayDestination = DetailDestination.EditarConta(editingAccountId)
+            overlayDestination = DetailDestination.EditarConta(listOf(editingAccountId))
         }
     }
 
@@ -112,23 +113,58 @@ fun TabletLayout(
 
     val dateState by contasViewModel.currentDateState.collectAsState()
     val viewState by contasViewModel.viewState.collectAsState()
+    val scope = rememberCoroutineScope()
     val isMonthly = viewState?.isMonthlySummary ?: true
 
     // Identificação reativa de recursos
     val currentDetail = navigator.currentDestination?.contentKey
-    val appBarTitleRes = remember(currentDetail) {
+    val configuration = LocalConfiguration.current
+    
+    val appBarTitle = remember(currentDetail, configuration) {
         when (currentDetail) {
             is DetailDestination.Contas -> {
-                when (currentDetail.tipo) {
-                    ContasContract.TIPO_RECEITA -> R.string.linha_receita
-                    ContasContract.TIPO_DESPESA -> R.string.linha_despesa
-                    ContasContract.TIPO_APLICACAO -> R.string.linha_aplicacoes
-                    else -> R.string.nav_contas
+                if (currentDetail.categoria >= 0) {
+                    com.msk.minhascontas.utils.LabelUtils.getCategoriaLabel(context, currentDetail.categoria)
+                } else if (currentDetail.filtro >= 0) {
+                    val labels = when (currentDetail.tipo) {
+                        ContasContract.TIPO_RECEITA -> context.resources.getStringArray(R.array.FiltroReceita)
+                        ContasContract.TIPO_DESPESA -> context.resources.getStringArray(R.array.FiltroDespesa)
+                        ContasContract.TIPO_APLICACAO -> context.resources.getStringArray(R.array.FiltroAplicacao)
+                        else -> emptyArray()
+                    }
+                    
+                    // Aplica rótulos personalizados para classes, mas mantém labels de status (Pago/Falta)
+                    val numClasses = when (currentDetail.tipo) {
+                        ContasContract.TIPO_DESPESA -> context.resources.getStringArray(R.array.TipoDespesa).size
+                        ContasContract.TIPO_RECEITA -> context.resources.getStringArray(R.array.TipoReceita).size
+                        ContasContract.TIPO_APLICACAO -> context.resources.getStringArray(R.array.TipoAplicacao).size
+                        else -> 0
+                    }
+
+                    if (currentDetail.filtro < numClasses) {
+                        com.msk.minhascontas.utils.LabelUtils.getClasseLabel(context, currentDetail.tipo, currentDetail.filtro)
+                    } else if (currentDetail.filtro < labels.size) {
+                        labels[currentDetail.filtro]
+                    } else {
+                        when (currentDetail.tipo) {
+                            ContasContract.TIPO_RECEITA -> context.getString(R.string.linha_receita)
+                            ContasContract.TIPO_DESPESA -> context.getString(R.string.linha_despesa)
+                            ContasContract.TIPO_APLICACAO -> context.getString(R.string.linha_aplicacoes)
+                            else -> context.getString(R.string.nav_contas)
+                        }
+                    }
+                } else {
+                    when (currentDetail.tipo) {
+                        ContasContract.TIPO_RECEITA -> context.getString(R.string.linha_receita)
+                        ContasContract.TIPO_DESPESA -> context.getString(R.string.linha_despesa)
+                        ContasContract.TIPO_APLICACAO -> context.getString(R.string.linha_aplicacoes)
+                        else -> context.getString(R.string.nav_contas)
+                    }
                 }
             }
-            is DetailDestination.Dashboard -> R.string.nav_dashboard
-            is DetailDestination.Metas -> R.string.nav_metas
-            else -> R.string.app_name
+            is DetailDestination.Dashboard -> context.getString(R.string.nav_dashboard)
+            is DetailDestination.Metas -> context.getString(R.string.nav_metas)
+            else -> context.getString(R.string.app_name)
         }
     }
 
@@ -155,30 +191,33 @@ fun TabletLayout(
             val mes = dateState?.mes ?: 1
             val ano = dateState?.ano ?: 2024
             val diaFim = if (isMonthly) -1 else (dateState?.dia ?: -1)
-            
+
             withContext(Dispatchers.IO) {
-                val filter = DBContas.ContaFilter().setMes(mes).setAno(ano).setDiaFim(diaFim)
                 val tipo = currentDetail.tipo
                 val filtro = currentDetail.filtro
+                val categoria = currentDetail.categoria
 
-                if (tipo != -1) {
-                    filter.setTipo(tipo)
-                    if (filtro >= 0) {
-                        if (tipo == ContasContract.TIPO_DESPESA && filtro == 4) filter.setPagamento(ContasContract.STATUS_PENDENTE)
-                        else if (tipo == ContasContract.TIPO_DESPESA && filtro == 5) filter.setPagamento(ContasContract.STATUS_PAGO_RECEBIDO)
-                        else if (tipo == ContasContract.TIPO_RECEITA && filtro == 3) filter.setPagamento(ContasContract.STATUS_PENDENTE)
-                        else if (tipo == ContasContract.TIPO_RECEITA && filtro == 4) filter.setPagamento(ContasContract.STATUS_PAGO_RECEBIDO)
-                        else filter.setClasse(filtro)
+                if (categoria >= 0) {
+                    contasRepository?.somaValoresPorFiltro(ano, mes, tipo, -1, categoria, null, if (isMonthly) -1 else (dateState?.dia ?: -1))
+                } else {
+                    val filter = DBContas.ContaFilter().setMes(mes).setAno(ano).setDiaFim(diaFim)
+                    if (tipo != -1) {
+                        filter.setTipo(tipo)
+                        if (filtro >= 0) {
+                            if (tipo == ContasContract.TIPO_DESPESA && filtro == 4) filter.setPagamento(ContasContract.STATUS_PENDENTE)
+                            else if (tipo == ContasContract.TIPO_DESPESA && filtro == 5) filter.setPagamento(ContasContract.STATUS_PAGO_RECEBIDO)
+                            else if (tipo == ContasContract.TIPO_RECEITA && filtro == 3) filter.setPagamento(ContasContract.STATUS_PENDENTE)
+                            else if (tipo == ContasContract.TIPO_RECEITA && filtro == 4) filter.setPagamento(ContasContract.STATUS_PAGO_RECEBIDO)
+                            else filter.setClasse(filtro)
+                        }
                     }
+                    contasRepository?.calcularTotalMensal(mes, ano, tipo, filter)
                 }
-                contasRepository?.calcularTotalMensal(mes, ano, tipo, filter)
             }
         } else null
     }
 
-    val configuration = LocalConfiguration.current
     val dinheiro = remember(configuration) { NumberFormat.getCurrencyInstance(configuration.locales[0]) }
-    val appBarTitle = stringResource(appBarTitleRes)
     val appBarSubtitle = appBarTotal?.let { dinheiro.format(it) }
 
     if (overlayDestination != null) {
@@ -241,9 +280,9 @@ fun TabletLayout(
             ) { Icon(Icons.Default.Add, contentDescription = null) }
         }
 
-        Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+        Column(modifier = Modifier.weight(1f).fillMaxHeight().statusBarsPadding()) {
             TopAppBar(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier,
             navigationIcon = {
                 if (navigator.canNavigateBack()) {
                     IconButton(onClick = { coroutineScope.launch { navigator.navigateBack() } }) {
@@ -291,8 +330,8 @@ fun TabletLayout(
                     }
                 }
 
-                IconButton(onClick = { overlayDestination = DetailDestination.BuscarConta }) { 
-                    Icon(Icons.Default.Search, contentDescription = null) 
+                IconButton(onClick = { overlayDestination = DetailDestination.BuscarConta }) {
+                    Icon(Icons.Default.Search, contentDescription = null)
                 }
                 IconButton(onClick = onShare) { Icon(Icons.Default.Share, contentDescription = null) }
 
@@ -300,8 +339,10 @@ fun TabletLayout(
                     IconButton(onClick = {
                         val state = contasViewModel.currentDateState.value
                         if (state != null) {
-                            val contas = contasRepository?.getContasDoMes(state.mes, state.ano, -1, null)
-                            if (contas != null) contasViewModel.runAiAnalysis(contas)
+                            scope.launch {
+                                val contas = contasRepository?.getContasDoMes(state.mes, state.ano, -1, null)
+                                if (contas != null) contasViewModel.runAiAnalysis(contas)
+                            }
                         }
                     }) {
                         Icon(Icons.Default.AutoAwesome, contentDescription = null)
@@ -350,7 +391,16 @@ fun TabletLayout(
                     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                         when (val dest = navigator.currentDestination?.contentKey) {
                             is DetailDestination.Dashboard -> GraficosScreen(mes = dateStateDetail.mes, ano = dateStateDetail.ano, dia = if (isMonthly) null else dateStateDetail.dia)
-                            is DetailDestination.Metas -> MetasScreen(mes = dateStateDetail.mes, ano = dateStateDetail.ano, dia = if (isMonthly) -1 else dateStateDetail.dia)
+                            is DetailDestination.Metas -> MetasScreen(
+                                mes = dateStateDetail.mes,
+                                ano = dateStateDetail.ano,
+                                dia = if (isMonthly) -1 else dateStateDetail.dia,
+                                onCategoryClick = { tipo, categoria ->
+                                    coroutineScope.launch {
+                                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, DetailDestination.Contas(tipo, -1, categoria))
+                                    }
+                                }
+                            )
                             is DetailDestination.Contas -> ContasDetailPane(dest, dateStateDetail, isMonthly, page, fragmentManager)
                             else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(stringResource(R.string.dica_inicio)) }
                         }
@@ -417,7 +467,7 @@ fun TabletLayout(
                     )
                     is DetailDestination.EditarConta -> {
                         val editarViewModel: com.msk.minhascontas.viewmodel.EditarContaViewModel = viewModel()
-                        LaunchedEffect(dest.id) { editarViewModel.loadConta(dest.id) }
+                        LaunchedEffect(dest.ids) { editarViewModel.loadContas(dest.ids) }
                         EditarContaScreen(
                             viewModel = editarViewModel,
                             onComplete = { mudou ->

@@ -11,7 +11,7 @@ sealed class DetailDestination : Parcelable {
     @Parcelize
     data object Dashboard : DetailDestination()
     @Parcelize
-    data class Contas(val tipo: Int = -1, val filtro: Int = -1) : DetailDestination()
+    data class Contas(val tipo: Int = -1, val filtro: Int = -1, val categoria: Int = -1) : DetailDestination()
     @Parcelize
     data object Metas : DetailDestination()
     @Parcelize
@@ -25,7 +25,7 @@ sealed class DetailDestination : Parcelable {
     @Parcelize
     data object BuscarConta : DetailDestination()
     @Parcelize
-    data class EditarConta(val id: Long) : DetailDestination()
+    data class EditarConta(val ids: List<Long>) : DetailDestination()
     @Parcelize
     data object PersonalizarCategorias : DetailDestination()
     @Parcelize

@@ -10,8 +10,10 @@ import android.text.method.LinkMovementMethod
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,6 +25,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -42,11 +45,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.preference.PreferenceManager
 import com.msk.minhascontas.R
+import com.msk.minhascontas.db.Conta
 import com.msk.minhascontas.db.ContasContract
 import com.msk.minhascontas.db.DBContas
 import com.msk.minhascontas.features.ai.AIResult
 import com.msk.minhascontas.features.info.Ajustes
+import com.msk.minhascontas.ui.theme.MinhasContasDialogTheme
 import com.msk.minhascontas.utils.AjustesUtils
+import com.msk.minhascontas.utils.ShareUtils
 
 @Composable
 fun AppLockDialog(onDismiss: () -> Unit, onRecoverPassword: () -> Unit) {
@@ -56,35 +62,37 @@ fun AppLockDialog(onDismiss: () -> Unit, onRecoverPassword: () -> Unit) {
     val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
     val savedPassword = prefs.getString("senha", "") ?: ""
 
-    AlertDialog(
-        onDismissRequest = { },
-        title = { Text(stringResource(R.string.acesso)) },
-        text = {
-            Column {
-                TextField(
-                    value = password,
-                    onValueChange = { password = it; error = false },
-                    label = { Text(stringResource(R.string.senha)) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    isError = error,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                if (error) {
-                    Text(stringResource(R.string.senha_errada), color = Color.Red, style = MaterialTheme.typography.bodySmall)
+    MinhasContasDialogTheme {
+        AlertDialog(
+            onDismissRequest = { },
+            title = { Text(stringResource(R.string.acesso)) },
+            text = {
+                Column {
+                    TextField(
+                        value = password,
+                        onValueChange = { password = it; error = false },
+                        label = { Text(stringResource(R.string.senha)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        isError = error,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (error) {
+                        Text(stringResource(R.string.senha_errada), color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                    }
+                    TextButton(onClick = onRecoverPassword) {
+                        Text(stringResource(R.string.esqueci_senha))
+                    }
                 }
-                TextButton(onClick = onRecoverPassword) {
-                    Text(stringResource(R.string.esqueci_senha))
+            },
+            confirmButton = {
+                Button(onClick = {
+                    if (password == savedPassword) onDismiss() else { error = true; password = "" }
+                }) {
+                    Text(stringResource(android.R.string.ok))
                 }
             }
-        },
-        confirmButton = {
-            Button(onClick = {
-                if (password == savedPassword) onDismiss() else { error = true; password = "" }
-            }) {
-                Text(stringResource(android.R.string.ok))
-            }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -101,91 +109,98 @@ fun RestartAppDialog(reason: String?, onDismiss: () -> Unit) {
         else -> stringResource(R.string.dica_texto_reinicio)
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { Text(message) },
-        confirmButton = {
-            Button(onClick = { (context as? android.app.Activity)?.let { AjustesUtils.restartApplication(it) } }) {
-                Text(stringResource(R.string.reiniciar_agora))
+    MinhasContasDialogTheme {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(title) },
+            text = { Text(message) },
+            confirmButton = {
+                Button(onClick = { (context as? android.app.Activity)?.let { AjustesUtils.restartApplication(it) } }) {
+                    Text(stringResource(R.string.reiniciar_agora))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancelar)) }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancelar)) }
-        }
-    )
+        )
+    }
 }
 
 @Composable
 fun AiLoadingDialog() {
-    AlertDialog(
-        onDismissRequest = { },
-        confirmButton = { },
-        title = { Text(stringResource(R.string.gemini_title)) },
-        text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                CircularProgressIndicator()
-                Spacer(Modifier.height(16.dp))
-                Text(stringResource(R.string.gemini_loading))
+    MinhasContasDialogTheme {
+        AlertDialog(
+            onDismissRequest = { },
+            confirmButton = { },
+            title = { Text(stringResource(R.string.gemini_title)) },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                    CircularProgressIndicator()
+                    Spacer(Modifier.height(16.dp))
+                    Text(stringResource(R.string.gemini_loading))
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable
 fun AiResultDialog(result: AIResult, onDismiss: () -> Unit) {
     val context = LocalContext.current
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.gemini_title)) },
-        text = {
-            Box(modifier = Modifier.heightIn(max = 400.dp).verticalScroll(rememberScrollState())) {
-                when (result) {
-                    is AIResult.Success -> {
-                        AndroidView(
-                            factory = { ctx ->
-                                TextView(ctx).apply {
-                                    movementMethod = LinkMovementMethod.getInstance()
-                                }
-                            },
-                            update = { it.text = Html.fromHtml(result.content, Html.FROM_HTML_MODE_LEGACY) },
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
-                    is AIResult.Error -> {
-                        Text(stringResource(R.string.ai_error_fallback_msg))
+    MinhasContasDialogTheme {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(R.string.gemini_title)) },
+            text = {
+                Box(modifier = Modifier.heightIn(max = 400.dp).verticalScroll(rememberScrollState())) {
+                    when (result) {
+                        is AIResult.Success -> {
+                            AndroidView(
+                                factory = { ctx ->
+                                    TextView(ctx).apply {
+                                        movementMethod = LinkMovementMethod.getInstance()
+                                    }
+                                },
+                                update = { it.text = Html.fromHtml(result.content, Html.FROM_HTML_MODE_LEGACY) },
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+
+                        is AIResult.Error -> {
+                            Text(stringResource(R.string.ai_error_fallback_msg))
+                        }
                     }
                 }
+            },
+            confirmButton = {
+                if (result is AIResult.Success) {
+                    Button(onClick = onDismiss) { Text(stringResource(R.string.gemini_entendi)) }
+                } else {
+                    Button(onClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://gemini.google.com/"))
+                            context.startActivity(intent)
+                        } catch (ignore: Exception) {
+                            Toast.makeText(context, R.string.erro_abrir_gemini, Toast.LENGTH_SHORT).show()
+                        }
+                        onDismiss()
+                    }) { Text(stringResource(R.string.ai_send_gemini)) }
+                }
+            },
+            dismissButton = {
+                if (result is AIResult.Error) {
+                    TextButton(onClick = {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = ClipData.newPlainText("AI Prompt", result.fullPrompt)
+                        clipboard.setPrimaryClip(clip)
+                        Toast.makeText(context, R.string.ai_prompt_copied, Toast.LENGTH_SHORT).show()
+                    }) { Text(stringResource(R.string.ai_copy_prompt)) }
+                } else if (result is AIResult.Success) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
+                }
             }
-        },
-        confirmButton = {
-            if (result is AIResult.Success) {
-                Button(onClick = onDismiss) { Text(stringResource(R.string.gemini_entendi)) }
-            } else {
-                Button(onClick = {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://gemini.google.com/"))
-                        context.startActivity(intent)
-                    } catch (ignore: Exception) {
-                        Toast.makeText(context, R.string.erro_abrir_gemini, Toast.LENGTH_SHORT).show()
-                    }
-                    onDismiss()
-                }) { Text(stringResource(R.string.ai_send_gemini)) }
-            }
-        },
-        dismissButton = {
-            if (result is AIResult.Error) {
-                TextButton(onClick = {
-                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText("AI Prompt", result.fullPrompt)
-                    clipboard.setPrimaryClip(clip)
-                    Toast.makeText(context, R.string.ai_prompt_copied, Toast.LENGTH_SHORT).show()
-                }) { Text(stringResource(R.string.ai_copy_prompt)) }
-            } else if (result is AIResult.Success) {
-                TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
-            }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -204,45 +219,130 @@ fun NotificationsDialog(
         return
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.titulo_notificacoes)) },
-        text = {
-            Box(modifier = Modifier.heightIn(max = 400.dp)) {
-                AndroidView(
-                    factory = { ctx ->
-                        val listView = ListView(ctx)
-                        val from = arrayOf(ContasContract.Notificacoes.COLUNA_TITULO, ContasContract.Notificacoes.COLUNA_MENSAGEM)
-                        val to = intArrayOf(R.id.tvTituloNotificacao, R.id.tvMensagemNotificacao)
-                        val adapter = SimpleCursorAdapter(ctx, R.layout.item_notificacao, cursor, from, to, 0)
-                        listView.adapter = adapter
-                        listView.setOnItemClickListener { _, _, _, id ->
-                            val cursorItem = adapter.cursor
-                            val typeIndex = cursorItem.getColumnIndex(ContasContract.Notificacoes.COLUNA_TIPO)
-                            val type = if (typeIndex != -1) cursorItem.getString(typeIndex) else ""
+    MinhasContasDialogTheme {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(R.string.titulo_notificacoes)) },
+            text = {
+                Box(modifier = Modifier.heightIn(max = 400.dp)) {
+                    AndroidView(
+                        factory = { ctx ->
+                            val listView = ListView(ctx)
+                            val from = arrayOf(ContasContract.Notificacoes.COLUNA_TITULO, ContasContract.Notificacoes.COLUNA_MENSAGEM)
+                            val to = intArrayOf(R.id.tvTituloNotificacao, R.id.tvMensagemNotificacao)
+                            val adapter = SimpleCursorAdapter(ctx, R.layout.item_notificacao, cursor, from, to, 0)
+                            listView.adapter = adapter
+                            listView.setOnItemClickListener { _, _, _, id ->
+                                val cursorItem = adapter.cursor
+                                val typeIndex = cursorItem.getColumnIndex(ContasContract.Notificacoes.COLUNA_TIPO)
+                                val type = if (typeIndex != -1) cursorItem.getString(typeIndex) else ""
 
-                            if (type.startsWith("fim_serie|")) {
-                                val idContaStr = type.substringAfter("|")
-                                val idConta = idContaStr.toLongOrNull()
-                                if (idConta != null) {
-                                    onRenovarSerie(idConta)
+                                if (type.startsWith("fim_serie|")) {
+                                    val idContaStr = type.substringAfter("|")
+                                    val idConta = idContaStr.toLongOrNull()
+                                    if (idConta != null) {
+                                        onRenovarSerie(idConta)
+                                    }
                                 }
+                                db.marcarNotificacaoComoLida(id)
+                                val newCursor = db.getNotificacoesNaoLidasCursor()
+                                adapter.changeCursor(newCursor)
+                                if (newCursor.count == 0) onDismiss()
                             }
-                            db.marcarNotificacaoComoLida(id)
-                            val newCursor = db.getNotificacoesNaoLidasCursor()
-                            adapter.changeCursor(newCursor)
-                            if (newCursor.count == 0) onDismiss()
-                        }
-                        listView
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                            listView
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = { db.marcarTodasNotificacoesComoLidas(); onDismiss() }) {
+                    Text(stringResource(R.string.marcar_todas_lidas))
+                }
             }
-        },
-        confirmButton = {
-            Button(onClick = { db.marcarTodasNotificacoesComoLidas(); onDismiss() }) {
-                Text(stringResource(R.string.marcar_todas_lidas))
+        )
+    }
+}
+
+@Composable
+fun ShareSelectionDialog(
+    month: Int,
+    year: Int,
+    contas: List<Conta>,
+    onDismiss: () -> Unit,
+    onShare: (text: String) -> Unit
+) {
+    val context = LocalContext.current
+    val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
+    
+    val keySaldo = stringResource(R.string.pref_key_saldo)
+    val keyAplic = stringResource(R.string.pref_key_aplicacao_acumulada)
+    
+    val usaSaldoSomado = prefs.getBoolean(keySaldo, false)
+    val usaInvestimentoAcumulado = prefs.getBoolean(keyAplic, false)
+
+    var shareType by remember { mutableStateOf("summary") }
+    val mesesArray = remember { context.resources.getStringArray(R.array.MesesDoAno) }
+    val mesNome = mesesArray.getOrNull(month - 1) ?: month.toString()
+
+    MinhasContasDialogTheme {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(R.string.titulo_enviar)) },
+            text = {
+                Column {
+                    Text(
+                        text = "${stringResource(R.string.import_period_label)} $mesNome/$year",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { shareType = "summary" }
+                            .padding(vertical = 8.dp)
+                    ) {
+                        RadioButton(selected = shareType == "summary", onClick = { shareType = "summary" })
+                        Text(stringResource(R.string.titulo_resumo), modifier = Modifier.padding(start = 8.dp))
+                    }
+                    
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { shareType = "list" }
+                            .padding(vertical = 8.dp)
+                    ) {
+                        RadioButton(selected = shareType == "list", onClick = { shareType = "list" })
+                        Text(stringResource(R.string.share_list_detailed), modifier = Modifier.padding(start = 8.dp))
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val text = if (shareType == "summary") {
+                        ShareUtils.generateSummaryText(
+                            context, month, year, contas, 
+                            0.0, 0.0, // Valores simplificados para o diálogo
+                            usaSaldoSomado, usaInvestimentoAcumulado
+                        )
+                    } else {
+                        ShareUtils.generateListText(context, month, year, contas)
+                    }
+                    onShare(text)
+                    onDismiss()
+                }) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.cancelar))
+                }
             }
-        }
-    )
+        )
+    }
 }

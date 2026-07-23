@@ -25,6 +25,18 @@ class GraficosViewModel(application: Application) : AndroidViewModel(application
         repository.getContasFlow(filter, null)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val mediaCategorias: StateFlow<Map<Int, Double>> = combine(_mes, _ano) { mes, ano ->
+        Pair(mes, ano)
+    }.flatMapLatest {
+        flow {
+            val result = mutableMapOf<Int, Double>()
+            for (i in 0..8) {
+                result[i] = repository.getMediaCategoriaUltimosMeses(i, 3)
+            }
+            emit(result)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
     fun updateDate(mes: Int, ano: Int, dia: Int?) {
         _mes.value = mes
         _ano.value = ano

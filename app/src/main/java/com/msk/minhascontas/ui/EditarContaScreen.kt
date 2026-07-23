@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -68,25 +69,36 @@ fun EditarContaScreen(
     var valorJuros by remember { mutableStateOf(String.format(Locale.getDefault(), "%.2f", contaBase.valorJuros * 100)) }
 
     var showScopeDialog by remember { mutableStateOf(false) }
+    var showBulkConfirmDialog by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
 
-    val primaryColor = when (tipoConta) {
-        ContasContract.TIPO_RECEITA -> colorResource(R.color.azul)
-        ContasContract.TIPO_APLICACAO -> colorResource(R.color.verde)
-        else -> colorResource(R.color.vermelho)
+    val isBulk = viewModel.isBulkEdit
+    
+    val primaryColor = if (isBulk) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        when (tipoConta) {
+            ContasContract.TIPO_RECEITA -> colorResource(R.color.azul)
+            ContasContract.TIPO_APLICACAO -> colorResource(R.color.verde)
+            else -> colorResource(R.color.vermelho)
+        }
     }
 
-    val secondaryColor = when (tipoConta) {
-        ContasContract.TIPO_RECEITA -> colorResource(R.color.receita_color)
-        ContasContract.TIPO_APLICACAO -> colorResource(R.color.aplicacao_color)
-        else -> colorResource(R.color.despesa_color)
+    val secondaryColor = if (isBulk) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        when (tipoConta) {
+            ContasContract.TIPO_RECEITA -> colorResource(R.color.receita_color)
+            ContasContract.TIPO_APLICACAO -> colorResource(R.color.aplicacao_color)
+            else -> colorResource(R.color.despesa_color)
+        }
     }
 
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.titulo_editar)) },
+                title = { Text(stringResource(if (isBulk) R.string.confirmacao_edicao_massa_titulo else R.string.titulo_editar)) },
                 navigationIcon = {
                     IconButton(onClick = onCancel) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -94,7 +106,13 @@ fun EditarContaScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        if (viewModel.isRecurring) {
+                        if (isBulk) {
+                            if (viewModel.modifiedFields.isNotEmpty()) {
+                                showBulkConfirmDialog = true
+                            } else {
+                                onCancel()
+                            }
+                        } else if (viewModel.isRecurring) {
                             showScopeDialog = true
                         } else {
                             val updated = contaBase.copy(
@@ -132,10 +150,15 @@ fun EditarContaScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+            val isNomeDivergent = isBulk && viewModel.divergentFields.contains("nome") && !viewModel.modifiedFields.contains("nome")
             OutlinedTextField(
-                value = nome,
-                onValueChange = { nome = it },
+                value = if (isNomeDivergent) "" else nome,
+                onValueChange = { 
+                    nome = it
+                    viewModel.markFieldAsModified("nome")
+                },
                 label = { Text(stringResource(R.string.dica_conta)) },
+                placeholder = { if (isNomeDivergent) Text(stringResource(R.string.valores_diversos), color = Color.Gray, fontStyle = FontStyle.Italic) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = secondaryColor,
@@ -147,10 +170,15 @@ fun EditarContaScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(modifier = Modifier.fillMaxWidth()) {
+                val isValorDivergent = isBulk && viewModel.divergentFields.contains("valor") && !viewModel.modifiedFields.contains("valor")
                 OutlinedTextField(
-                    value = valor,
-                    onValueChange = { valor = it },
+                    value = if (isValorDivergent) "" else valor,
+                    onValueChange = { 
+                        valor = it
+                        viewModel.markFieldAsModified("valor")
+                    },
                     label = { Text(stringResource(R.string.dica_valor)) },
+                    placeholder = { if (isValorDivergent) Text(stringResource(R.string.valores_diversos), color = Color.Gray, fontStyle = FontStyle.Italic) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.weight(1f),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -166,6 +194,7 @@ fun EditarContaScreen(
                 val configuration = LocalConfiguration.current
                 val currentLocale = configuration.locales.get(0)
                 val dataFormato = DateFormat.getDateInstance(DateFormat.SHORT, currentLocale)
+                val isDataDivergent = isBulk && viewModel.divergentFields.contains("data") && !viewModel.modifiedFields.contains("data")
 
                 OutlinedButton(
                     onClick = { showDatePicker = true },
@@ -180,58 +209,88 @@ fun EditarContaScreen(
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = null)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(dataFormato.format(dateCalendar.time))
+                    Text(if (isDataDivergent) stringResource(R.string.valores_diversos) else dataFormato.format(dateCalendar.time))
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Seletor de Tipo Modernizado
+            val isTipoDivergent = isBulk && viewModel.divergentFields.contains("tipo") && !viewModel.modifiedFields.contains("tipo")
             TipoContaSelector(
-                selectedType = tipoConta,
-                onTypeSelected = { tipoConta = it }
+                selectedType = if (isTipoDivergent) -1 else tipoConta,
+                onTypeSelected = { 
+                    tipoConta = it
+                    viewModel.markFieldAsModified("tipo")
+                },
+                isDivergent = isTipoDivergent,
+                neutralColor = secondaryColor
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Class Selection
             val classesLabels = remember(tipoConta) {
+                if (tipoConta == -1) return@remember emptyList<String>()
                 val count = when (tipoConta) {
                     ContasContract.TIPO_DESPESA -> 4
+                    ContasContract.TIPO_APLICACAO -> 4
                     else -> 3
                 }
                 (0 until count).map { LabelUtils.getClasseLabel(context, tipoConta, it) }
             }
+            
+            val isClasseDivergent = isBulk && viewModel.divergentFields.contains("classe") && !viewModel.modifiedFields.contains("classe")
+            
             DropdownField(
                 label = stringResource(R.string.dica_spinner),
                 options = classesLabels,
-                selectedOption = if (classeConta < classesLabels.size) classesLabels[classeConta] else "",
-                onOptionSelected = { index, _ -> classeConta = index },
-                themeColor = secondaryColor
+                selectedOption = if (isClasseDivergent) stringResource(R.string.valores_diversos) else if (classeConta < classesLabels.size) classesLabels[classeConta] else "",
+                onOptionSelected = { index, _ -> 
+                    classeConta = index
+                    viewModel.markFieldAsModified("classe")
+                },
+                themeColor = secondaryColor,
+                isDivergent = isClasseDivergent
             )
 
             if (tipoConta == ContasContract.TIPO_DESPESA) {
                 Spacer(modifier = Modifier.height(16.dp))
                 val categoriasLabels = stringArrayResource(R.array.CategoriaConta).indices.map { LabelUtils.getCategoriaLabel(context, it) }
+                val isCategoriaDivergent = isBulk && viewModel.divergentFields.contains("categoria") && !viewModel.modifiedFields.contains("categoria")
                 DropdownField(
                     label = stringResource(R.string.titulo_categoria),
                     options = categoriasLabels,
-                    selectedOption = if (categoriaConta < categoriasLabels.size) categoriasLabels[categoriaConta] else "",
-                    onOptionSelected = { index, _ -> categoriaConta = index },
-                    themeColor = secondaryColor
+                    selectedOption = if (isCategoriaDivergent) stringResource(R.string.valores_diversos) else if (categoriaConta < categoriasLabels.size) categoriasLabels[categoriaConta] else "",
+                    onOptionSelected = { index, _ -> 
+                        categoriaConta = index
+                        viewModel.markFieldAsModified("categoria")
+                    },
+                    themeColor = secondaryColor,
+                    isDivergent = isCategoriaDivergent
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (tipoConta != ContasContract.TIPO_APLICACAO) {
+            if (tipoConta != ContasContract.TIPO_APLICACAO && tipoConta != -1) {
+                val isPagamentoDivergent = isBulk && viewModel.divergentFields.contains("pagamento") && !viewModel.modifiedFields.contains("pagamento")
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = pagamento,
-                        onCheckedChange = { pagamento = it },
+                    TriStateCheckbox(
+                        state = if (isPagamentoDivergent) androidx.compose.ui.state.ToggleableState.Indeterminate else if (pagamento) androidx.compose.ui.state.ToggleableState.On else androidx.compose.ui.state.ToggleableState.Off,
+                        onClick = { 
+                            pagamento = !pagamento
+                            viewModel.markFieldAsModified("pagamento")
+                        },
                         colors = CheckboxDefaults.colors(checkedColor = secondaryColor)
                     )
-                    Text(if (tipoConta == ContasContract.TIPO_DESPESA) stringResource(R.string.dica_pagamento) else stringResource(R.string.dica_recebe))
+                    Text(
+                        text = if (isPagamentoDivergent) stringResource(R.string.valores_diversos) 
+                               else if (tipoConta == ContasContract.TIPO_DESPESA) stringResource(R.string.dica_pagamento) 
+                               else stringResource(R.string.dica_recebe),
+                        fontStyle = if (isPagamentoDivergent) FontStyle.Italic else FontStyle.Normal,
+                        color = if (isPagamentoDivergent) Color.Gray else Color.Unspecified
+                    )
                 }
             }
 
@@ -239,6 +298,7 @@ fun EditarContaScreen(
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 val repeteOptions = stringArrayResource(R.array.repete_conta).toList()
+                val isIntervaloDivergent = isBulk && viewModel.divergentFields.contains("intervalo") && !viewModel.modifiedFields.contains("intervalo")
                 val currentIntervalText = when (intervalo) {
                     101 -> repeteOptions.getOrNull(0) ?: ""
                     107 -> repeteOptions.getOrNull(1) ?: ""
@@ -250,7 +310,7 @@ fun EditarContaScreen(
                     DropdownField(
                         label = stringResource(R.string.dica_repete),
                         options = repeteOptions,
-                        selectedOption = currentIntervalText,
+                        selectedOption = if (isIntervaloDivergent) stringResource(R.string.valores_diversos) else currentIntervalText,
                         onOptionSelected = { index, _ ->
                             intervalo = when (index) {
                                 0 -> 101
@@ -259,17 +319,26 @@ fun EditarContaScreen(
                                 3 -> 3650
                                 else -> 300
                             }
+                            viewModel.markFieldAsModified("intervalo")
                         },
-                        themeColor = secondaryColor
+                        themeColor = secondaryColor,
+                        isDivergent = isIntervaloDivergent
                     )
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
 
+                val isQtRepeteDivergent = isBulk && viewModel.divergentFields.contains("qtRepete") && !viewModel.modifiedFields.contains("qtRepete")
                 OutlinedTextField(
-                    value = qtPrest,
-                    onValueChange = { if (it.length <= 3) qtPrest = it.filter { c -> c.isDigit() } },
+                    value = if (isQtRepeteDivergent) "" else qtPrest,
+                    onValueChange = { 
+                        if (it.length <= 3) {
+                            qtPrest = it.filter { c -> c.isDigit() }
+                            viewModel.markFieldAsModified("qtRepete")
+                        }
+                    },
                     label = { Text(stringResource(R.string.dica_numero)) },
+                    placeholder = { if (isQtRepeteDivergent) Text(stringResource(R.string.valores_diversos), color = Color.Gray, fontStyle = FontStyle.Italic) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -282,10 +351,15 @@ fun EditarContaScreen(
 
             if (tipoConta != ContasContract.TIPO_RECEITA) {
                 Spacer(modifier = Modifier.height(16.dp))
+                val isJurosDivergent = isBulk && viewModel.divergentFields.contains("juros") && !viewModel.modifiedFields.contains("juros")
                 OutlinedTextField(
-                    value = valorJuros,
-                    onValueChange = { valorJuros = it },
+                    value = if (isJurosDivergent) "" else valorJuros,
+                    onValueChange = { 
+                        valorJuros = it
+                        viewModel.markFieldAsModified("juros")
+                    },
                     label = { Text(stringResource(R.string.dica_valor_juros)) },
+                    placeholder = { if (isJurosDivergent) Text(stringResource(R.string.valores_diversos), color = Color.Gray, fontStyle = FontStyle.Italic) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -351,9 +425,75 @@ fun EditarContaScreen(
         }
     }
 
+    if (showBulkConfirmDialog) {
+        MinhasContasDialogTheme {
+            AlertDialog(
+                onDismissRequest = { showBulkConfirmDialog = false },
+                title = { Text(stringResource(R.string.confirmacao_edicao_massa_titulo)) },
+                text = {
+                    Column {
+                        Text(
+                            text = stringResource(
+                                R.string.confirmacao_edicao_massa_mensagem,
+                                viewModel.modifiedFields.size,
+                                viewModel.selectedIds.size
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = stringResource(R.string.campos_alterados), style = MaterialTheme.typography.labelLarge)
+                        viewModel.modifiedFields.forEach { field ->
+                            val label = when(field) {
+                                "nome" -> stringResource(R.string.dica_conta)
+                                "valor" -> stringResource(R.string.dica_valor)
+                                "tipo" -> stringResource(R.string.dica_spinner)
+                                "classe" -> stringResource(R.string.classe)
+                                "categoria" -> stringResource(R.string.categoria_label)
+                                "data" -> stringResource(R.string.resumo_data, "", "", "").replace("//", "") // Fallback
+                                "pagamento" -> stringResource(R.string.dica_pagamento)
+                                "intervalo" -> stringResource(R.string.dica_repete)
+                                "qtRepete" -> stringResource(R.string.dica_numero)
+                                "juros" -> stringResource(R.string.dica_valor_juros)
+                                else -> field
+                            }
+                            Text("• $label", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showBulkConfirmDialog = false
+                        val updated = contaBase.copy(
+                            nome = nome,
+                            valor = valor.replace(',', '.').toDoubleOrNull() ?: 0.0,
+                            tipo = tipoConta,
+                            classeConta = classeConta,
+                            categoria = categoriaConta,
+                            dia = dia,
+                            mes = mes,
+                            ano = ano,
+                            pagamento = if (pagamento) ContasContract.STATUS_PAGO_RECEBIDO else ContasContract.STATUS_PENDENTE,
+                            qtRepete = qtPrest.toIntOrNull() ?: 1,
+                            intervalo = intervalo,
+                            valorJuros = (valorJuros.replace(',', '.').toDoubleOrNull() ?: 0.0) / 100.0
+                        )
+                        viewModel.updateConta(updated, TipoAtualizacao.SOMENTE_ESTA)
+                    }) {
+                        Text(stringResource(R.string.sim))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showBulkConfirmDialog = false }) {
+                        Text(stringResource(R.string.nao))
+                    }
+                }
+            )
+        }
+    }
+
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = Calendar.getInstance().apply {
+            initialSelectedDateMillis = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                clear()
                 set(ano, mes - 1, dia)
             }.timeInMillis
         )
@@ -363,10 +503,11 @@ fun EditarContaScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         datePickerState.selectedDateMillis?.let {
-                            val cal = Calendar.getInstance().apply { timeInMillis = it }
+                            val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = it }
                             ano = cal.get(Calendar.YEAR)
                             mes = cal.get(Calendar.MONTH) + 1
                             dia = cal.get(Calendar.DAY_OF_MONTH)
+                            viewModel.markFieldAsModified("data")
                         }
                         showDatePicker = false
                     }) {
@@ -401,7 +542,9 @@ fun EditarContaScreen(
 @Composable
 private fun TipoContaSelector(
     selectedType: Int,
-    onTypeSelected: (Int) -> Unit
+    onTypeSelected: (Int) -> Unit,
+    isDivergent: Boolean = false,
+    neutralColor: Color = MaterialTheme.colorScheme.primary
 ) {
     val types = listOf(
         Triple(ContasContract.TIPO_RECEITA, stringResource(R.string.dica_receita), colorResource(R.color.azul)),
@@ -419,7 +562,10 @@ private fun TipoContaSelector(
     ) {
         types.forEach { (type, label, color) ->
             val isSelected = selectedType == type
-            val bgColor by animateColorAsState(if (isSelected) color else Color.Transparent, label = "")
+            val bgColor by animateColorAsState(
+                if (isSelected) (if (selectedType == -1) neutralColor else color) else Color.Transparent, 
+                label = ""
+            )
             
             Box(
                 modifier = Modifier
@@ -431,11 +577,12 @@ private fun TipoContaSelector(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = label,
+                    text = if (isDivergent && selectedType == -1) stringResource(R.string.valores_diversos) else label,
                     style = MaterialTheme.typography.labelLarge,
                     color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    fontStyle = if (isDivergent && selectedType == -1) FontStyle.Italic else FontStyle.Normal
                 )
             }
         }
@@ -450,7 +597,8 @@ fun DropdownField(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (Int, String) -> Unit,
-    themeColor: Color = MaterialTheme.colorScheme.primary
+    themeColor: Color = MaterialTheme.colorScheme.primary,
+    isDivergent: Boolean = false
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -471,8 +619,12 @@ fun DropdownField(
                 cursorColor = themeColor
             ),
             modifier = Modifier
-                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                .fillMaxWidth()
+                .menuAnchor()
+                .fillMaxWidth(),
+            textStyle = LocalTextStyle.current.copy(
+                fontStyle = if (isDivergent && !selectedOption.isEmpty() && selectedOption == stringResource(R.string.valores_diversos)) FontStyle.Italic else FontStyle.Normal,
+                color = if (isDivergent && selectedOption == stringResource(R.string.valores_diversos)) Color.Gray else Color.Unspecified
+            )
         )
         ExposedDropdownMenu(
             expanded = expanded,

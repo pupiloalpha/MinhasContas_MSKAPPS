@@ -22,17 +22,17 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.firebase.auth.FirebaseAuth
 import com.msk.minhascontas.utils.DetailDestination
 import com.msk.minhascontas.R
-import com.msk.minhascontas.features.auth.LoginGoogle
 import com.msk.minhascontas.ui.CriarContaScreen
 import com.msk.minhascontas.viewmodel.CriarContaViewModel
 import com.msk.minhascontas.features.info.Ajustes
 import com.msk.minhascontas.ui.AjustesScreen
 import com.msk.minhascontas.viewmodel.AjustesViewModel
 import com.msk.minhascontas.features.listas.ListaMensalContas
-import com.msk.minhascontas.tarefas.*
+import com.msk.minhascontas.tarefas.BarraProgresso
+import com.msk.minhascontas.tarefas.ExportarExcelTarefa
+import com.msk.minhascontas.tarefas.ImportarBancoAntigoTarefa
 import com.msk.minhascontas.viewmodel.ContasViewModel
 import java.util.*
 
@@ -80,15 +80,16 @@ fun ContasDetailPane(
                     val oldMes = currentArgs?.getInt("mes") ?: -1
                     val oldAno = currentArgs?.getInt("ano") ?: -1
                     val oldDia = currentArgs?.getInt("dia") ?: 0
+                    val oldCategoria = currentArgs?.getInt("categoria") ?: -1
 
-                    if (oldTipo == dest.tipo && oldMes == mes && oldAno == ano && oldDia == dia) {
+                    if (oldTipo == dest.tipo && oldMes == mes && oldAno == ano && oldDia == dia && oldCategoria == dest.categoria) {
                         existingFragment.updateFilter(dest.filtro)
                         currentArgs?.putInt("filtro", dest.filtro)
                         return@post
                     }
                 }
 
-                val fragment = ListaMensalContas.newInstance(mes, ano, dia, dest.tipo, dest.filtro)
+                val fragment = ListaMensalContas.newInstance(mes, ano, dia, dest.tipo, dest.filtro, dest.categoria)
                 try {
                     if (!view.isAttachedToWindow) return@post
                     fragmentManager.beginTransaction()
@@ -147,10 +148,10 @@ fun AjustesDetailPane(
         if (uri != null) BarraProgresso(context as Activity, ExportarExcelTarefa(uri, Calendar.getInstance().get(Calendar.MONTH) + 1, Calendar.getInstance().get(Calendar.YEAR))).execute()
     }
     val excelImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        if (uris.isNotEmpty()) BarraProgresso(context as Activity, ImportarExcelTarefa(uris.first())).execute()
+        if (uris.isNotEmpty()) viewModel.lerExcel(uris.first())
     }
     val pdfImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        if (uris.isNotEmpty()) BarraProgresso(context as Activity, ImportarPDFTarefa(uris.first())).execute()
+        if (uris.isNotEmpty()) viewModel.lerPDF(uris.first())
     }
     val dbImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         if (uris.isNotEmpty()) BarraProgresso(context as Activity, ImportarBancoAntigoTarefa(uris.first())).execute()
@@ -160,29 +161,12 @@ fun AjustesDetailPane(
         viewModel = viewModel, onBackClick = onBack,
         onNavigateToPersonalizarCategorias = onNavigateToPersonalizarCategorias,
         onNavigateToPlanejamento = onNavigateToPlanejamento,
-        onGoogleLoginClick = { context.startActivity(Intent(context, LoginGoogle::class.java)) },
-        onSyncCloudDownload = {
-            isLoading = true; loadingMessage = context.applicationContext.getString(R.string.msg_cloud_downloading)
-            viewModel.downloadFromCloud { inseridas -> (context as Activity).runOnUiThread {
-                isLoading = false
-                if (inseridas >= 0) {
-                    Toast.makeText(context, context.applicationContext.getString(R.string.msg_cloud_sync_success, inseridas), Toast.LENGTH_LONG).show()
-                    onRestartReasonChange(Ajustes.REASON_DB_RESTORE)
-                } else Toast.makeText(context, context.applicationContext.getString(R.string.msg_cloud_download_error), Toast.LENGTH_SHORT).show()
-            } }
-        },
-        onSyncCloudUpload = {
-            isLoading = true; loadingMessage = context.applicationContext.getString(R.string.msg_uploading_data)
-            viewModel.syncAllToCloud()
-            Handler(Looper.getMainLooper()).postDelayed({ isLoading = false; Toast.makeText(context, R.string.google_upload_success, Toast.LENGTH_SHORT).show() }, 2000)
-        },
         onSelectBackupFolder = { safLauncher.launch(null) }, onExecuteBackup = executeManualBackup, onExecuteRestore = executeManualRestore,
         onExportExcel = { excelExportLauncher.launch("${context.applicationContext.getString(R.string.export_filename_prefix)}${Calendar.getInstance().get(Calendar.YEAR)}.xlsx") },
         onImportExcel = { excelImportLauncher.launch(arrayOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel")) },
         onImportPDF = { pdfImportLauncher.launch(arrayOf("application/pdf")) },
         onImportOldDB = { dbImportLauncher.launch(arrayOf("application/x-sqlite3", "application/octet-stream")) },
         onDeleteAll = { viewModel.excluirTudo { Toast.makeText(context, context.applicationContext.getString(R.string.dica_exclusao_bd), Toast.LENGTH_SHORT).show(); onRestartReasonChange(Ajustes.REASON_DB_RESTORE) } },
-        onLogout = { FirebaseAuth.getInstance().signOut(); viewModel.updateUserInfo() },
         isNotificationServiceEnabled = isNotificationServiceEnabled(),
         onOpenNotificationSettings = { context.startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")) },
         onPreferenceChanged = { Toast.makeText(context, context.applicationContext.getString(R.string.dica_restart_app), Toast.LENGTH_LONG).show(); onRestartReasonChange(Ajustes.REASON_PREFERENCES_CHANGED); onPreferenceChanged() },

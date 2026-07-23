@@ -58,10 +58,12 @@ import com.msk.minhascontas.ui.AiResultDialog
 import com.msk.minhascontas.ui.AppLockDialog
 import com.msk.minhascontas.ui.NotificationsDialog
 import com.msk.minhascontas.ui.RestartAppDialog
+import com.msk.minhascontas.ui.ShareSelectionDialog
 import com.msk.minhascontas.ui.layouts.MobileLayout
 import com.msk.minhascontas.ui.layouts.TabletLayout
 import com.msk.minhascontas.ui.theme.MinhasContasTheme
 import com.msk.minhascontas.utils.AjustesUtils
+import com.msk.minhascontas.utils.AlertHelper
 import com.msk.minhascontas.utils.BackupUtils
 import com.msk.minhascontas.utils.DetailDestination
 import com.msk.minhascontas.viewmodel.ContasViewModel
@@ -80,7 +82,7 @@ class MinhasContas : AppCompatActivity() {
 
     private var contasRepository: ContasRepository? = null
     private var contasViewModel: ContasViewModel? = null
-    var onResumoCardClickAction: ((Int, Int) -> Unit)? = null
+    var onResumoCardClickAction: ((Int, Int, Int) -> Unit)? = null
 
     private var autobkup = true
     private var bloqueioApp = false
@@ -129,18 +131,22 @@ class MinhasContas : AppCompatActivity() {
         contasRepository = ContasRepository.getInstance(this)
         contasViewModel = ViewModelProvider(this)[ContasViewModel::class.java]
 
-        loadUserPreferences()
+        // Inicialização assíncrona para não travar a abertura do app
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                loadUserPreferences()
+                checkFirstRunAndRestore()
+                checkDatabaseReset()
+                performDatabaseAdjustments()
+            }
+            checkAndRequestPermissions()
+        }
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             MinhasContasTheme {
                 MainScreen(windowSizeClass)
             }
-        }
-
-        lifecycleScope.launch {
-            checkDatabaseReset()
-            checkAndRequestPermissions()
         }
     }
 
@@ -164,7 +170,11 @@ class MinhasContas : AppCompatActivity() {
 
         var showAppLock by remember { mutableStateOf(bloqueioApp) }
         var showNotifications by remember { mutableStateOf(false) }
+        var showShareDialog by remember { mutableStateOf(false) }
         val restartReason by restartReasonState
+        
+        val currentContas by viewModel.currentContas.collectAsState()
+        val currentDateState by viewModel.currentDateState.collectAsState()
 
         if (isAiLoading) {
             AiLoadingDialog()
@@ -177,18 +187,17 @@ class MinhasContas : AppCompatActivity() {
             )
         }
 
-        // 1. Mantenha a instância do banco de dados (que é leve) no remember
-        val db = remember { DBContas.getInstance(context) }
+        // 1. Mantenha a referência ao repositório para acesso ao banco
+        val repository = contasRepository ?: return
 
-        // 2. Inicie o estado das notificações como "falso" temporariamente
-        var hasUnreadNotifications by remember { mutableStateOf(false) }
+        // 2. Busque o estado das notificações do ViewModel
+        val hasUnreadNotifications by viewModel.hasUnreadNotifications.collectAsState()
 
-        // 3. Busque o valor real de forma assíncrona fora da Main Thread
-        LaunchedEffect(db, showNotifications) {
-            val temNotificacoes = withContext(Dispatchers.IO) {
-                db.temNotificacoesNaoLidas()
+        // 3. Atualiza o estado das notificações quando o diálogo é fechado
+        LaunchedEffect(showNotifications) {
+            if (!showNotifications) {
+                viewModel.refreshNotifications()
             }
-            hasUnreadNotifications = temNotificacoes
         }
         
         val totalPages by viewModel.totalPages.collectAsState()
@@ -248,17 +257,18 @@ class MinhasContas : AppCompatActivity() {
         }
 
         LaunchedEffect(isCompact, navigator, viewPagerPosition) {
-            onResumoCardClickAction = { tipo, filtro ->
+            onResumoCardClickAction = { tipo, filtro, categoria ->
                 if (isCompact) {
                     val intent = Intent(this@MinhasContas, PaginadorListas::class.java).apply {
                         putExtra("tipo", tipo)
                         putExtra("filtro", filtro)
+                        putExtra("categoria", categoria)
                         putExtra(KEY_PAGINA, viewPagerPosition)
                     }
                     someActivityResultLauncher.launch(intent)
                 } else {
                     coroutineScope.launch {
-                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, DetailDestination.Contas(tipo, filtro))
+                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, DetailDestination.Contas(tipo, filtro, categoria))
                     }
                 }
             }
@@ -288,6 +298,18 @@ class MinhasContas : AppCompatActivity() {
             )
         }
 
+        if (showShareDialog) {
+            currentDateState?.let { date ->
+                ShareSelectionDialog(
+                    month = date.mes,
+                    year = date.ano,
+                    contas = currentContas,
+                    onDismiss = { showShareDialog = false },
+                    onShare = { text -> executeShare(text) }
+                )
+            }
+        }
+
         Surface(color = MaterialTheme.colorScheme.background) {
             if (isCompact) {
                 MobileLayout(
@@ -304,7 +326,7 @@ class MinhasContas : AppCompatActivity() {
                     onNavigateToPlanejamento = { startActivity(Intent(this@MinhasContas,
                         PlanoFinanceiroActivity::class.java)) },
                     onNavigateToBusca = { openSearch() },
-                    onShare = { shareContas() },
+                    onShare = { showShareDialog = true },
                     onNavigateToAjustes = { someActivityResultLauncher.launch(Intent(this@MinhasContas, Ajustes::class.java)) },
                     onNavigateToSobre = { startActivity(Intent("com.msk.minhascontas.SOBRE")) },
                     onNavigateToNovaConta = { openNovaConta() }
@@ -323,7 +345,7 @@ class MinhasContas : AppCompatActivity() {
                     viewPagerPosition = viewPagerPosition,
                     hasUnreadNotifications = hasUnreadNotifications,
                     onShowNotifications = { showNotifications = true },
-                    onShare = { shareContas() },
+                    onShare = { showShareDialog = true },
                     onSearch = { openSearch() },
                     onShowFilterDialog = { dest, onFilterSelected -> showFilterDialog(dest, onFilterSelected) },
                     onRestartReasonChange = { restartReasonState.value = it },
@@ -348,6 +370,68 @@ class MinhasContas : AppCompatActivity() {
         }
     }
 
+    private suspend fun checkFirstRunAndRestore() = withContext(Dispatchers.IO) {
+        val prefs = getSharedPreferences("app_state", MODE_PRIVATE)
+        
+        if (!prefs.contains("is_first_run")) {
+            val roomDbFile = getDatabasePath("minhas_contas_room_db")
+            val legacyDbFile = getDatabasePath("minhas_contas")
+
+            if (roomDbFile.exists() || legacyDbFile.exists()) {
+                prefs.edit().putBoolean("is_first_run", false).apply()
+                return@withContext
+            }
+        }
+
+        val isFirstRun = prefs.getBoolean("is_first_run", true)
+        if (isFirstRun) {
+            val roomDbFile = getDatabasePath("minhas_contas_room_db")
+            val legacyDbFile = getDatabasePath("minhas_contas")
+
+            if (roomDbFile.exists() || legacyDbFile.exists()) {
+                withContext(Dispatchers.Main) {
+                    showRestoreConfirmationDialog()
+                }
+            }
+            prefs.edit().putBoolean("is_first_run", false).apply()
+        }
+    }
+
+    private fun showRestoreConfirmationDialog() {
+        AppCompatAlertDialog.Builder(this, R.style.TemaDialogo)
+            .setTitle(R.string.backup_detected_title)
+            .setMessage(R.string.backup_detected_msg)
+            .setCancelable(false)
+            .setPositiveButton(R.string.backup_detected_positive) { _, _ ->
+                Toast.makeText(this, R.string.ajustes_salvos, Toast.LENGTH_SHORT).show()
+            }
+            .setNeutralButton(R.string.backup_detected_neutral) { _, _ ->
+                // Abre a tela de ajustes para o usuário selecionar a pasta e restaurar manualmente
+                val intent = Intent(this, Ajustes::class.java)
+                someActivityResultLauncher.launch(intent)
+            }
+            .setNegativeButton(R.string.backup_detected_negative) { _, _ ->
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        DBContas.getInstance(this@MinhasContas).close()
+                        com.msk.minhascontas.db.AppDatabase.getDatabase(this@MinhasContas).close()
+                        com.msk.minhascontas.db.AppDatabase.closeDatabase()
+
+                        deleteDatabase("minhas_contas_room_db")
+                        deleteDatabase("minhas_contas")
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@MinhasContas, getString(R.string.dica_exclusao_bd), Toast.LENGTH_LONG).show()
+                            recreate()
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Erro ao limpar banco restaurado", e)
+                    }
+                }
+            }
+            .show()
+    }
+
     private fun showFilterDialog(dest: DetailDestination.Contas, onFilterSelected: (Int) -> Unit) {
         val labels = when (dest.tipo) {
             ContasContract.TIPO_DESPESA -> resources.getStringArray(R.array.FiltroDespesa)
@@ -368,14 +452,16 @@ class MinhasContas : AppCompatActivity() {
             }.show()
     }
 
-    private fun checkDatabaseReset() {
+    private suspend fun checkDatabaseReset() = withContext(Dispatchers.IO) {
         val prefs = getSharedPreferences("MinhasContasPrefs", MODE_PRIVATE)
         if (prefs.getBoolean(DBContas.PREF_DB_RESET_FLAG, false)) {
-            AppCompatAlertDialog.Builder(this, R.style.TemaDialogo)
-                .setTitle(R.string.atencao)
-                .setMessage(R.string.msg_db_reset)
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
+            withContext(Dispatchers.Main) {
+                AppCompatAlertDialog.Builder(this@MinhasContas, R.style.TemaDialogo)
+                    .setTitle(R.string.atencao)
+                    .setMessage(R.string.msg_db_reset)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }
             prefs.edit { putBoolean(DBContas.PREF_DB_RESET_FLAG, false) }
         }
     }
@@ -406,32 +492,17 @@ class MinhasContas : AppCompatActivity() {
         someActivityResultLauncher.launch(intent)
     }
 
-    private fun shareContas() {
-        val viewModel = contasViewModel ?: return
-        val repository = contasRepository ?: return
-        val current = viewModel.currentDateState.value ?: return
-        val mesesArray = viewModel.stringMonths
-        val texto = StringBuilder("${getString(R.string.app_name)} ${mesesArray[current.mes - 1]}/${current.ano}:")
-        try {
-            val filter = DBContas.ContaFilter().setMes(current.mes).setAno(current.ano)
-            val lista = repository.getContas(filter, null)
-            if (lista.isNotEmpty()) {
-                for (conta in lista) {
-                    texto.append("\n${conta.nome} - ${conta.valor}")
-                }
-            } else {
-                texto.append(" ${getString(R.string.dica_nenhuma_conta)}")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Erro ao compartilhar contas", e)
-            texto.append(" ${getString(R.string.erro_geral_bd)}")
-        }
+    private fun executeShare(text: String) {
         val intent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
-            putExtra(Intent.EXTRA_TEXT, texto.toString())
+            putExtra(Intent.EXTRA_TEXT, text)
             type = "text/plain"
         }
-        startActivity(Intent.createChooser(intent, texto.toString()))
+        startActivity(Intent.createChooser(intent, getString(R.string.titulo_enviar)))
+    }
+
+    private fun shareContas() {
+        // ... (Mantido por compatibilidade se houver chamadas externas, mas agora usamos o Dialog)
     }
 
     private fun showPasswordRecoveryDialog() {
@@ -475,20 +546,29 @@ class MinhasContas : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
-        } else performDatabaseAdjustments()
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1) performDatabaseAdjustments()
+        if (requestCode == 1) {
+            lifecycleScope.launch {
+                performDatabaseAdjustments()
+            }
+        }
     }
 
-    private fun performDatabaseAdjustments() {
+    private suspend fun performDatabaseAdjustments() = withContext(Dispatchers.IO) {
         if (atualizaPagamento) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                val c = Calendar.getInstance()
-                contasRepository?.atualizarPagamentoContas(c.get(Calendar.DAY_OF_MONTH) + 1, c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR))
-            }
+            val c = Calendar.getInstance()
+            contasRepository?.atualizarPagamentoContas(c.get(Calendar.DAY_OF_MONTH) + 1, c.get(Calendar.MONTH) + 1, c.get(Calendar.YEAR))
+        }
+        // Verifica todos os alertas (vencimentos, limites, metas) ao iniciar o app
+        AlertHelper(this@MinhasContas).verificarTodosAlertas()
+        
+        // Atualiza o estado das notificações no ViewModel para refletir no badge
+        withContext(Dispatchers.Main) {
+            contasViewModel?.refreshNotifications()
         }
     }
 
@@ -498,13 +578,35 @@ class MinhasContas : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        loadUserPreferences()
         AjustesUtils.checkPendingUpdates(this) {
             syncViewPagerPositionAndRefresh(-1)
         }
     }
 
     override fun onDestroy() {
-        if (autobkup) AndroidBackupManager(this).dataChanged()
+        if (autobkup) {
+            // Executa o backup em uma Coroutine de escopo global/processo para não travar a destruição da Activity
+            // Nota: Em uma implementação ideal, usaríamos WorkManager.
+            val context = applicationContext
+            val uriString = getSharedPreferences("backup", MODE_PRIVATE).getString("backup_uri", "")
+            
+            lifecycleScope.launch(Dispatchers.IO) {
+                // 1. Google Drive (Android Backup Service)
+                AndroidBackupManager(context).dataChanged()
+
+                // 2. Local Storage Backup (SAF)
+                if (!uriString.isNullOrEmpty()) {
+                    try {
+                        val backupUri = uriString.toUri()
+                        BackupUtils.copiaBD(context, backupUri)
+                        BackupUtils.copiaSharedPreferences(context, backupUri)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Erro no backup automático local", e)
+                    }
+                }
+            }
+        }
         super.onDestroy()
     }
 

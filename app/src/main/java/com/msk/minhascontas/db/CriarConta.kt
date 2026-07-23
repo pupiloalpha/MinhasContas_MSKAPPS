@@ -16,9 +16,9 @@ class CriarConta : ComponentActivity() {
         enableEdgeToEdge()
 
         val extras = intent.extras
-        val initialPagina = extras?.getInt(MinhasContas.KEY_PAGINA) ?: MinhasContas.START_PAGE
-        val initialMes = extras?.getInt(MinhasContas.KEY_MES) ?: -1
-        val initialAno = extras?.getInt(MinhasContas.KEY_ANO) ?: -1
+        val initialPagina = extras?.getInt(MinhasContas.KEY_PAGINA, MinhasContas.START_PAGE) ?: MinhasContas.START_PAGE
+        val initialMes = extras?.getInt(MinhasContas.KEY_MES, -1) ?: -1
+        val initialAno = extras?.getInt(MinhasContas.KEY_ANO, -1) ?: -1
 
         setContent {
             MinhasContasTheme {

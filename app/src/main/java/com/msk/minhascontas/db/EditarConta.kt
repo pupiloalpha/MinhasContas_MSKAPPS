@@ -15,7 +15,11 @@ class EditarConta : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val idConta = intent.getLongExtra("id", -1L)
-        if (idConta != -1L) {
+        val idsContas = intent.getLongArrayExtra("ids")
+        
+        if (idsContas != null && idsContas.isNotEmpty()) {
+            viewModel.loadContas(idsContas.toList())
+        } else if (idConta != -1L) {
             viewModel.loadConta(idConta)
         } else {
             finish()

@@ -298,8 +298,19 @@ fun SummaryPane(
                 }
 
                 // Se o fragmento já existe no container correto e é do tipo esperado, não faz nada
-                if (existingFragment != null && existingFragment.id == view.id && expectedClass.isInstance(existingFragment)) {
+                if (existingFragment != null && existingFragment.javaClass == expectedClass) {
                     return@post
+                }
+                
+                // Remove fragmento existente se for diferente
+                if (existingFragment != null) {
+                    try {
+                        fragmentManager.beginTransaction()
+                            .remove(existingFragment)
+                            .commitNowAllowingStateLoss()
+                    } catch (e: Exception) {
+                        android.util.Log.e("SummaryPane", "Erro ao remover fragmento antigo", e)
+                    }
                 }
 
                 val fragment = if (isMonthly) {

@@ -10,7 +10,6 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -57,7 +56,6 @@ fun MinhasContasTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
@@ -76,13 +74,15 @@ fun MinhasContasDialogTheme(
 ) {
     val colorScheme = if (darkTheme) {
         DarkColorScheme.copy(
-            primary = DarkReceitaColor, // Cor para botões de diálogo no modo escuro
+            primary = DarkReceitaColor, // Cor de fundo para botões de diálogo no modo escuro
+            onPrimary = DarkPrimaryDark, // Cor do texto para botões de diálogo no modo escuro (contraste)
             surface = DarkSurface,
             onSurface = DarkOnSurface
         )
     } else {
         LightColorScheme.copy(
             primary = Primary, // Cor para botões de diálogo no modo claro
+            onPrimary = OnPrimary,
             surface = Surface,
             onSurface = OnSurface
         )

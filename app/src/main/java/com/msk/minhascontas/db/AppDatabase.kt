@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
  * Banco de dados Room para a aplicação.
  * Atualmente contém apenas a entidade Conta, mas está estruturado para expansão.
  */
-@Database(entities = [Conta::class], version = 1, exportSchema = false)
+@Database(entities = [Conta::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun contaDao(): ContaDao
@@ -39,8 +39,13 @@ abstract class AppDatabase : RoomDatabase() {
          * Fecha a instância do banco de dados e limpa o Singleton.
          */
         fun closeDatabase() {
-            INSTANCE?.close()
-            INSTANCE = null
+            try {
+                INSTANCE?.close()
+            } catch (e: Exception) {
+                // Silently handle close errors
+            } finally {
+                INSTANCE = null
+            }
         }
     }
 }

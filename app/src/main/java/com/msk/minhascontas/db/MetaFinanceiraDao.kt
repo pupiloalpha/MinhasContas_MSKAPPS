@@ -1,3 +1,4 @@
+/*
 package com.msk.minhascontas.db
 
 import androidx.lifecycle.LiveData
@@ -29,3 +30,4 @@ interface MetaFinanceiraDao {
     @Query("SELECT * FROM metas_financeiras WHERE codigoVinculo = :codigo LIMIT 1")
     suspend fun getMetaByCodigo(codigo: String): MetaFinanceira?
 }
+*/

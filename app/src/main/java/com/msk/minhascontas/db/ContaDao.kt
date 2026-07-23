@@ -15,11 +15,14 @@ interface ContaDao {
     @RawQuery(observedEntities = [Conta::class])
     fun getSumFiltered(query: SupportSQLiteQuery): Flow<Double?>
 
-    @RawQuery
+    @RawQuery(observedEntities = [Conta::class])
     suspend fun getContasFilteredSync(query: SupportSQLiteQuery): List<Conta>
 
-    @RawQuery
+    @RawQuery(observedEntities = [Conta::class])
     suspend fun getSumFilteredSync(query: SupportSQLiteQuery): Double?
+
+    @Query("SELECT * FROM contasListadas GROUP BY nome_conta ORDER BY _id DESC")
+    suspend fun getUniqueContasByName(): List<Conta>
 
     @Query("SELECT * FROM contasListadas WHERE _id = :id")
     suspend fun getContaById(id: Long): Conta?
@@ -41,6 +44,12 @@ interface ContaDao {
 
     @Query("DELETE FROM contasListadas")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM contasListadas WHERE codigo = :codigo")
+    suspend fun deleteByCodigo(codigo: String)
+
+    @Query("DELETE FROM contasListadas WHERE codigo = :codigo AND nr_repeticao >= :nr")
+    suspend fun deleteByCodigoFrom(codigo: String, nr: Int)
     
     @Query("SELECT * FROM contasListadas WHERE mes_data = :mes AND ano_data = :ano")
     fun getContasByMonth(mes: Int, ano: Int): Flow<List<Conta>>

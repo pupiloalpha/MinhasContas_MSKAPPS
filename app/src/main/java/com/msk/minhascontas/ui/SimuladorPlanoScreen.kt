@@ -21,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.msk.minhascontas.R
 import com.msk.minhascontas.db.MetaFinanceira
 import com.msk.minhascontas.viewmodel.PlanoFinanceiroViewModel
+import java.util.Locale
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 
@@ -39,11 +40,55 @@ fun SimuladorCoachScreen(
     var nomeMeta by remember { mutableStateOf(metaParaEditar?.nome ?: "") }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    // Estados locais para os campos de texto, permitindo digitação fluida com vírgula
+    var valorTotalText by remember { mutableStateOf("") }
+    var valorAtualText by remember { mutableStateOf("") }
+    var taxaJurosText by remember { mutableStateOf("") }
+    var aporteMensalText by remember { mutableStateOf("") }
+
     LaunchedEffect(metaParaEditar) {
         if (metaParaEditar != null) {
             viewModel.carregarParaEdicao(metaParaEditar)
+            valorTotalText = String.format(Locale.getDefault(), "%.2f", metaParaEditar.valorObjetivo)
+            valorAtualText = String.format(Locale.getDefault(), "%.2f", metaParaEditar.valorAtual)
+            taxaJurosText = String.format(Locale.getDefault(), "%.2f", metaParaEditar.taxaJurosMensal)
+            aporteMensalText = String.format(Locale.getDefault(), "%.2f", metaParaEditar.aporteMensalAlvo)
         } else {
             viewModel.resetarSimulacao()
+            valorTotalText = ""
+            valorAtualText = ""
+            taxaJurosText = ""
+            aporteMensalText = ""
+        }
+    }
+
+    // Sincroniza campos quando o viewModel é atualizado por ações externas (ex: sugestões)
+    LaunchedEffect(viewModel.valorTotal) {
+        val modelVal = viewModel.valorTotal
+        val uiVal = valorTotalText.replace(',', '.').toDoubleOrNull() ?: 0.0
+        if (Math.abs(modelVal - uiVal) > 0.01) {
+            valorTotalText = if (modelVal == 0.0) "" else String.format(Locale.getDefault(), "%.2f", modelVal)
+        }
+    }
+    LaunchedEffect(viewModel.valorAtual) {
+        val modelVal = viewModel.valorAtual
+        val uiVal = valorAtualText.replace(',', '.').toDoubleOrNull() ?: 0.0
+        if (Math.abs(modelVal - uiVal) > 0.01) {
+            valorAtualText = if (modelVal == 0.0) "" else String.format(Locale.getDefault(), "%.2f", modelVal)
+        }
+    }
+    LaunchedEffect(viewModel.taxaJuros) {
+        val modelVal = viewModel.taxaJuros
+        val uiVal = taxaJurosText.replace(',', '.').toDoubleOrNull() ?: 0.0
+        if (Math.abs(modelVal - uiVal) > 0.01) {
+            taxaJurosText = if (modelVal == 0.0) "" else String.format(Locale.getDefault(), "%.2f", modelVal)
+        }
+    }
+    LaunchedEffect(viewModel.aporteMensal) {
+        val modelVal = viewModel.aporteMensal
+        val uiVal = aporteMensalText.replace(',', '.').toDoubleOrNull() ?: 0.0
+        if (Math.abs(modelVal - uiVal) > 0.01) {
+            aporteMensalText = if (modelVal == 0.0) "" else String.format(Locale.getDefault(), "%.2f", modelVal)
         }
     }
 
@@ -152,9 +197,10 @@ fun SimuladorCoachScreen(
             // Valores
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedTextField(
-                    value = if (viewModel.valorTotal == 0.0) "" else viewModel.valorTotal.toString(),
+                    value = valorTotalText,
                     onValueChange = { 
-                        viewModel.valorTotal = it.toDoubleOrNull() ?: 0.0
+                        valorTotalText = it
+                        viewModel.valorTotal = it.replace(',', '.').toDoubleOrNull() ?: 0.0
                         viewModel.atualizarSimulacao()
                     },
                     label = { 
@@ -167,9 +213,10 @@ fun SimuladorCoachScreen(
                 )
                 
                 OutlinedTextField(
-                    value = if (viewModel.valorAtual == 0.0) "" else viewModel.valorAtual.toString(),
+                    value = valorAtualText,
                     onValueChange = { 
-                        viewModel.valorAtual = it.toDoubleOrNull() ?: 0.0
+                        valorAtualText = it
+                        viewModel.valorAtual = it.replace(',', '.').toDoubleOrNull() ?: 0.0
                         viewModel.atualizarSimulacao()
                     },
                     label = { Text(stringResource(R.string.valor_atual)) },
@@ -198,9 +245,10 @@ fun SimuladorCoachScreen(
             // Juros e Aporte
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedTextField(
-                    value = if (viewModel.taxaJuros == 0.0) "" else viewModel.taxaJuros.toString(),
+                    value = taxaJurosText,
                     onValueChange = { 
-                        viewModel.taxaJuros = it.toDoubleOrNull() ?: 0.0
+                        taxaJurosText = it
+                        viewModel.taxaJuros = it.replace(',', '.').toDoubleOrNull() ?: 0.0
                         viewModel.atualizarSimulacao()
                     },
                     label = { 
@@ -213,9 +261,10 @@ fun SimuladorCoachScreen(
                 )
                 
                 OutlinedTextField(
-                    value = if (viewModel.aporteMensal == 0.0) "" else viewModel.aporteMensal.toString(),
+                    value = aporteMensalText,
                     onValueChange = { 
-                        viewModel.aporteMensal = it.toDoubleOrNull() ?: 0.0
+                        aporteMensalText = it
+                        viewModel.aporteMensal = it.replace(',', '.').toDoubleOrNull() ?: 0.0
                         viewModel.atualizarSimulacao()
                     },
                     label = { Text(stringResource(R.string.coach_monthly_contribution)) },

@@ -32,9 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -69,14 +71,15 @@ fun MobileLayout(
     onNavigateToNovaConta: () -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val scope = rememberCoroutineScope()
     
     // Para o MobileLayout da Activity principal, o título é fixo como o nome do app
     // Já que as listas detalhadas abrem em novas Activities.
     val appBarTitle = stringResource(R.string.app_name)
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
         TopAppBar(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier,
             title = {
                 AnimatedContent(
                     targetState = appBarTitle,
@@ -110,8 +113,10 @@ fun MobileLayout(
                             showMenu = false
                             val state = contasViewModel.currentDateState.value
                             if (state != null) {
-                                val contas = contasRepository?.getContasDoMes(state.mes, state.ano, -1, null)
-                                if (contas != null) contasViewModel.runAiAnalysis(contas)
+                                scope.launch {
+                                    val contas = contasRepository?.getContasDoMes(state.mes, state.ano, -1, null)
+                                    if (contas != null) contasViewModel.runAiAnalysis(contas)
+                                }
                             }
                         }
                     )

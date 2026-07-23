@@ -79,13 +79,16 @@ object AjustesUtils {
     }
 
     /**
-     * Reinicia a aplicação a partir da atividade atual.
+     * Reinicia a aplicação a partir da atividade atual de forma robusta.
      */
     fun restartApplication(activity: Activity) {
-        val intent = activity.packageManager.getLaunchIntentForPackage(activity.packageName)
-        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        activity.startActivity(intent)
-        activity.finishAffinity() // Fecha todas as atividades da pilha
+        val intent = activity.packageManager.getLaunchIntentForPackage(activity.packageName)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+        if (intent != null) {
+            activity.startActivity(intent)
+        }
+        activity.finish()
     }
 
     /**

@@ -4,6 +4,9 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import androidx.sqlite.db.SimpleSQLiteQuery
+import com.msk.minhascontas.db.AppDatabase
+import com.msk.minhascontas.db.DBContas
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -12,31 +15,39 @@ import java.io.IOException
 object BackupUtils {
     private const val TAG = "BackupManager"
 
+    fun flushDatabases(context: Context) {
+        try {
+            // 1. Banco Legado
+            val dbLegado = DBContas.getInstance(context).database
+            dbLegado?.rawQuery("PRAGMA wal_checkpoint(FULL)", null)?.use { it.moveToFirst() }
+
+            // 2. Banco Room
+            val roomDb = AppDatabase.getDatabase(context)
+            roomDb.openHelper.writableDatabase.query(SimpleSQLiteQuery("PRAGMA wal_checkpoint(FULL)")).use { it.moveToFirst() }
+            Log.d(TAG, "Database checkpoint completed.")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error forcing database checkpoint", e)
+        }
+    }
+
     fun copiaBD(context: Context, backupTreeUri: Uri) {
         try {
             val backupDir = DocumentFile.fromTreeUri(context, backupTreeUri) ?: return
             
-            // 1. Backup do Banco Legado
-            val currentDB = context.getDatabasePath("minhas_contas")
-            if (currentDB.exists()) {
-                val backupDBFile = backupDir.findFile("minhas_contas.db") ?: backupDir.createFile("application/vnd.sqlite3", "minhas_contas.db")
-                if (backupDBFile != null) {
-                    FileInputStream(currentDB).use { fis ->
-                        context.contentResolver.openOutputStream(backupDBFile.uri)?.use { fos ->
-                            fis.copyTo(fos)
-                        }
-                    }
-                }
-            }
-
-            // 2. Backup do Banco Room
-            val roomDB = context.getDatabasePath("minhas_contas_room_db")
-            if (roomDB.exists()) {
-                val backupRoomFile = backupDir.findFile("minhas_contas_room.db") ?: backupDir.createFile("application/vnd.sqlite3", "minhas_contas_room.db")
-                if (backupRoomFile != null) {
-                    FileInputStream(roomDB).use { fis ->
-                        context.contentResolver.openOutputStream(backupRoomFile.uri)?.use { fos ->
-                            fis.copyTo(fos)
+            val dbsToBackup = listOf("minhas_contas", "minhas_contas_room_db")
+            
+            for (dbName in dbsToBackup) {
+                val dbFiles = listOf(dbName, "$dbName-wal", "$dbName-shm")
+                for (fileName in dbFiles) {
+                    val currentFile = context.getDatabasePath(fileName)
+                    if (currentFile.exists()) {
+                        val backupFile = backupDir.findFile(fileName) ?: backupDir.createFile("application/octet-stream", fileName)
+                        backupFile?.let {
+                            FileInputStream(currentFile).use { fis ->
+                                context.contentResolver.openOutputStream(it.uri)?.use { fos ->
+                                    fis.copyTo(fos)
+                                }
+                            }
                         }
                     }
                 }
@@ -50,24 +61,26 @@ object BackupUtils {
         try {
             val restoreDir = DocumentFile.fromTreeUri(context, restoreTreeUri) ?: return
             
-            // 1. Restaura Banco Legado
-            val backupDBFile = restoreDir.findFile("minhas_contas.db")
-            if (backupDBFile != null) {
-                val currentDB = context.getDatabasePath("minhas_contas")
-                context.contentResolver.openInputStream(backupDBFile.uri)?.use { fis ->
-                    FileOutputStream(currentDB).use { fos ->
-                        fis.copyTo(fos)
-                    }
-                }
-            }
-
-            // 2. Restaura Banco Room
-            val backupRoomFile = restoreDir.findFile("minhas_contas_room.db")
-            if (backupRoomFile != null) {
-                val roomDB = context.getDatabasePath("minhas_contas_room_db")
-                context.contentResolver.openInputStream(backupRoomFile.uri)?.use { fis ->
-                    FileOutputStream(roomDB).use { fos ->
-                        fis.copyTo(fos)
+            val dbsToRestore = listOf("minhas_contas", "minhas_contas_room_db")
+            
+            for (dbName in dbsToRestore) {
+                // Remove todos os arquivos do banco de dados existente
+                val dbPath = context.getDatabasePath(dbName).path
+                File(dbPath).delete()
+                File("$dbPath-wal").delete()
+                File("$dbPath-shm").delete()
+                
+                // Restaura apenas os arquivos que existirem no backup
+                val dbFiles = listOf(dbName, "$dbName-wal", "$dbName-shm")
+                for (fileName in dbFiles) {
+                    val backupFile = restoreDir.findFile(fileName)
+                    if (backupFile != null) {
+                        val targetFile = context.getDatabasePath(fileName)
+                        context.contentResolver.openInputStream(backupFile.uri)?.use { fis ->
+                            FileOutputStream(targetFile).use { fos ->
+                                fis.copyTo(fos)
+                            }
+                        }
                     }
                 }
             }

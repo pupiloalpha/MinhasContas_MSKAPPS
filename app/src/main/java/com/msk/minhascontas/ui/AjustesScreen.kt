@@ -24,8 +24,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.msk.minhascontas.R
+import com.msk.minhascontas.features.pdf.ImportSummary
 import com.msk.minhascontas.viewmodel.AjustesViewModel
 import com.msk.minhascontas.ui.theme.MinhasContasDialogTheme
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,9 +39,6 @@ fun AjustesScreen(
     onBackClick: () -> Unit,
     onNavigateToPersonalizarCategorias: () -> Unit,
     onNavigateToPlanejamento: () -> Unit,
-    onGoogleLoginClick: () -> Unit,
-    onSyncCloudDownload: () -> Unit,
-    onSyncCloudUpload: () -> Unit,
     onSelectBackupFolder: () -> Unit,
     onExecuteBackup: () -> Unit,
     onExecuteRestore: () -> Unit,
@@ -45,581 +47,612 @@ fun AjustesScreen(
     onImportPDF: () -> Unit,
     onImportOldDB: () -> Unit,
     onDeleteAll: () -> Unit,
-    onLogout: () -> Unit,
     isNotificationServiceEnabled: Boolean,
     onOpenNotificationSettings: () -> Unit,
     onPreferenceChanged: () -> Unit,
     isLoading: Boolean = false,
     loadingMessage: String = ""
 ) {
+    val context = LocalContext.current
     val appVersion by viewModel.appVersion.observeAsState("N/A")
     val backupLocation by viewModel.backupLocation.observeAsState("")
-    val userEmail by viewModel.userEmail.observeAsState(null)
+
+    val importSuccessFormat = stringResource(R.string.dica_importacao_sucesso)
+    val deleteEverythingMsg = stringResource(R.string.dica_exclusao_bd)
+
+    val importSummary by viewModel.importSummary.collectAsState()
+    val importState by viewModel.importState.collectAsState()
+    val importError by viewModel.importError.collectAsState()
+    val pdfProgress by viewModel.pdfProgress.collectAsState()
+    var showPreview by remember { mutableStateOf(false) }
 
     // Estados para os Diálogos
     var showOrderDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
     var showQuestionDialog by remember { mutableStateOf(false) }
     var showAnswerDialog by remember { mutableStateOf(false) }
-    var showLogoutDialog by remember { mutableStateOf(false) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
-    var showConfirmUploadDialog by remember { mutableStateOf(false) }
     var showNotificationDialog by remember { mutableStateOf(false) }
+    var showMigrationDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
-        modifier = Modifier.systemBarsPadding(),
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.menu_ajustes)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            // CATEGORIA: EXIBIÇÃO E COMPORTAMENTO
-            item { PreferenceCategory(stringResource(R.string.pref_titulo_geral)) }
-            
-            item {
-                val key = stringResource(R.string.pref_key_ordem)
-                val entries = stringArrayResource(R.array.ordem_contas)
-                val values = stringArrayResource(R.array.ordem_contas_valores)
-                val currentValue = viewModel.getPreference(key, values[0])
-                val currentIndex = values.indexOf(currentValue).coerceAtLeast(0)
-                
-                PreferenceItem(
-                    title = stringResource(R.string.pref_dialogo_ordem),
-                    summary = entries[currentIndex],
-                    onClick = { showOrderDialog = true }
-                )
-
-                if (showOrderDialog) {
-                    MinhasContasDialogTheme {
-                        ListPreferenceDialog(
-                            title = stringResource(R.string.pref_titulo_ordem),
-                            entries = entries,
-                            values = values,
-                            currentValue = currentValue,
-                            onDismiss = { showOrderDialog = false },
-                            onValueSelected = {
-                                viewModel.setPreference(key, it)
-                                showOrderDialog = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            item {
-                val key = stringResource(R.string.pref_key_resumo)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_titulo_resumo),
-                    summary = if (checked) stringResource(R.string.pref_descricao_resumo_mensal) else stringResource(R.string.pref_descricao_resumo_diario),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = Modifier.systemBarsPadding(),
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.menu_ajustes)) },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 )
             }
+        ) { padding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // CATEGORIA: EXIBIÇÃO E COMPORTAMENTO
+                item { PreferenceCategory(stringResource(R.string.pref_titulo_geral)) }
 
-            item {
-                val key = stringResource(R.string.pref_key_categoria)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_titulo_categoria),
-                    summary = if (checked) stringResource(R.string.pref_descricao_categoria) else stringResource(R.string.pref_descricao_sem_categoria),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
+                item {
+                    val key = stringResource(R.string.pref_key_ordem)
+                    val entries = stringArrayResource(R.array.ordem_contas)
+                    val values = stringArrayResource(R.array.ordem_contas_valores)
+                    val currentValue = viewModel.getPreference(key, values[0])
+                    val currentIndex = values.indexOf(currentValue).coerceAtLeast(0)
 
-            item {
-                val key = stringResource(R.string.pref_key_saldo)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_titulo_saldo),
-                    summary = if (checked) stringResource(R.string.pref_descricao_saldo_somado) else stringResource(R.string.pref_descricao_saldo_real),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_dialogo_ordem),
+                        summary = entries[currentIndex],
+                        onClick = { showOrderDialog = true }
+                    )
 
-            item {
-                val key = stringResource(R.string.pref_key_auto_import_fixas)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_titulo_auto_import_fixas),
-                    summary = if (checked) stringResource(R.string.pref_descricao_auto_import_fixas_on) else stringResource(R.string.pref_descricao_auto_import_fixas_off),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-
-            item {
-                val key = stringResource(R.string.pref_key_pagamento)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_titulo_pagamento),
-                    summary = if (checked) stringResource(R.string.pref_descricao_autopagamento) else stringResource(R.string.pref_descricao_editapagamento),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-
-            // CATEGORIA: RECURSOS E PERSONALIZAÇÃO
-            item { PreferenceCategory(stringResource(R.string.pref_titulo_categoria_recursos)) }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_personalizar_categorias),
-                    summary = stringResource(R.string.pref_descricao_personalizar_categorias),
-                    onClick = onNavigateToPersonalizarCategorias
-                )
-            }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_planejamento_financeiro),
-                    summary = stringResource(R.string.pref_descricao_planejamento_financeiro),
-                    onClick = onNavigateToPlanejamento
-                )
-            }
-            item {
-                val key = stringResource(R.string.pref_key_notificacao)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_titulo_notificacao),
-                    summary = stringResource(R.string.pref_descricao_notificacao),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        if (it && !isNotificationServiceEnabled) {
-                            showNotificationDialog = true
+                    if (showOrderDialog) {
+                        MinhasContasDialogTheme {
+                            ListPreferenceDialog(
+                                title = stringResource(R.string.pref_titulo_ordem),
+                                entries = entries,
+                                values = values,
+                                currentValue = currentValue,
+                                onDismiss = { showOrderDialog = false },
+                                onValueSelected = {
+                                    viewModel.setPreference(key, it)
+                                    showOrderDialog = false
+                                }
+                            )
                         }
                     }
-                )
-
-                if (showNotificationDialog) {
-                    MinhasContasDialogTheme {
-                        AlertDialog(
-                            onDismissRequest = { showNotificationDialog = false },
-                            title = { Text(stringResource(R.string.pref_titulo_notificacao)) },
-                            text = { Text(stringResource(R.string.msg_permissao_notificacao)) },
-                            confirmButton = {
-                                TextButton(onClick = {
-                                    onOpenNotificationSettings()
-                                    showNotificationDialog = false
-                                }) {
-                                    Text(stringResource(R.string.ir_para_configuracoes))
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { showNotificationDialog = false }) {
-                                    Text(stringResource(R.string.cancelar))
-                                }
-                            }
-                        )
-                    }
                 }
-            }
 
-            // CATEGORIA: ALERTAS E NOTIFICAÇÕES INTERNAS
-            item { PreferenceCategory(stringResource(R.string.pref_titulo_alertas)) }
-            item {
-                val key = stringResource(R.string.pref_alert_vencimento_key)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_alert_vencimento_titulo),
-                    summary = stringResource(R.string.pref_alert_vencimento_desc),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-            item {
-                val key = stringResource(R.string.pref_alert_limite_categoria_key)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_alert_limite_categoria_titulo),
-                    summary = stringResource(R.string.pref_alert_limite_categoria_desc),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-            item {
-                val key = stringResource(R.string.pref_alert_objetivo_plano_key)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_alert_objetivo_plano_titulo),
-                    summary = stringResource(R.string.pref_alert_objetivo_plano_desc),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-            item {
-                val key = stringResource(R.string.pref_alert_receita_referencia_key)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_alert_receita_referencia_titulo),
-                    summary = stringResource(R.string.pref_alert_receita_referencia_desc),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-            item {
-                val key = stringResource(R.string.pref_alert_despesa_receita_key)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_alert_despesa_receita_titulo),
-                    summary = stringResource(R.string.pref_alert_despesa_receita_desc),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-            item {
-                val key = stringResource(R.string.pref_alert_falta_aplicacao_key)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_alert_falta_aplicacao_titulo),
-                    summary = stringResource(R.string.pref_alert_falta_aplicacao_desc),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-
-            // CATEGORIA: SEGURANÇA E ACESSO
-            item { PreferenceCategory(stringResource(R.string.titulo_acesso)) }
-            item {
-                val key = stringResource(R.string.pref_key_acesso)
-                var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
-                SwitchPreferenceItem(
-                    title = stringResource(R.string.pref_titulo_acesso),
-                    summary = if (checked) stringResource(R.string.pref_descricao_acesso_negado) else stringResource(R.string.pref_descricao_acesso_livre),
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        viewModel.setPreference(key, it)
-                        onPreferenceChanged()
-                    }
-                )
-            }
-
-            item {
-                val key = stringResource(R.string.pref_key_senha)
-                val senha = viewModel.getPreference(key, "")
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_senha),
-                    summary = if (senha.isEmpty()) stringResource(R.string.pref_descricao_senha) else stringResource(R.string.pref_descricao_senha_definida),
-                    onClick = { showPasswordDialog = true }
-                )
-                if (showPasswordDialog) {
-                    MinhasContasDialogTheme {
-                        EditTextPreferenceDialog(
-                            title = stringResource(R.string.pref_dialogo_senha),
-                            initialValue = senha,
-                            isPassword = true,
-                            onDismiss = { showPasswordDialog = false },
-                            onValueSaved = {
-                                viewModel.setPreference(key, it)
-                                showPasswordDialog = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            item {
-                val key = "pergunta_seguranca_id"
-                val entries = stringArrayResource(R.array.perguntas_seguranca)
-                val values = stringArrayResource(R.array.perguntas_seguranca_valores)
-                val currentValue = viewModel.getPreference(key, "0")
-                val currentIndex = values.indexOf(currentValue).coerceAtLeast(0)
-
-                PreferenceItem(
-                    title = stringResource(R.string.titulo_pergunta_secreta),
-                    summary = entries[currentIndex],
-                    onClick = { showQuestionDialog = true }
-                )
-
-                if (showQuestionDialog) {
-                    MinhasContasDialogTheme {
-                        ListPreferenceDialog(
-                            title = stringResource(R.string.titulo_pergunta_secreta),
-                            entries = entries,
-                            values = values,
-                            currentValue = currentValue,
-                            onDismiss = { showQuestionDialog = false },
-                            onValueSelected = {
-                                viewModel.setPreference(key, it)
-                                showQuestionDialog = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            item {
-                val key = "resposta_secreta"
-                val resposta = viewModel.getPreference(key, "")
-                PreferenceItem(
-                    title = stringResource(R.string.dica_resposta_secreta_ajustes),
-                    summary = if (resposta.isEmpty()) stringResource(R.string.dica_resposta_secreta_ajustes_summary) else stringResource(R.string.resposta_definida),
-                    onClick = { showAnswerDialog = true }
-                )
-                if (showAnswerDialog) {
-                    MinhasContasDialogTheme {
-                        EditTextPreferenceDialog(
-                            title = stringResource(R.string.titulo_pergunta_secreta),
-                            initialValue = resposta,
-                            isPassword = true,
-                            onDismiss = { showAnswerDialog = false },
-                            onValueSaved = {
-                                viewModel.setPreference(key, it)
-                                showAnswerDialog = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            // CATEGORIA: SINCRONIZAÇÃO EM NUVEM
-            item { PreferenceCategory(stringResource(R.string.pref_titulo_nuvem)) }
-            item {
-                PreferenceItem(
-                    title = if (userEmail == null) stringResource(R.string.pref_titulo_google_login) else stringResource(R.string.pref_titulo_google_logout),
-                    summary = if (userEmail == null) stringResource(R.string.pref_descricao_google_login) else stringResource(R.string.pref_descricao_google_logout, userEmail!!),
-                    onClick = {
-                        if (userEmail == null) {
-                            onGoogleLoginClick()
-                        } else {
-                            showLogoutDialog = true
+                item {
+                    val key = stringResource(R.string.pref_key_resumo)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_titulo_resumo),
+                        summary = if (checked) stringResource(R.string.pref_descricao_resumo_mensal) else stringResource(R.string.pref_descricao_resumo_diario),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
                         }
-                    }
-                )
-
-                if (showLogoutDialog) {
-                    MinhasContasDialogTheme {
-                        AlertDialog(
-                            onDismissRequest = { showLogoutDialog = false },
-                            title = { Text(stringResource(R.string.pref_titulo_google_logout)) },
-                            text = { Text(stringResource(R.string.pref_descricao_google_logout, userEmail ?: "")) },
-                            confirmButton = {
-                                TextButton(onClick = {
-                                    onLogout()
-                                    showLogoutDialog = false
-                                }) {
-                                    Text(stringResource(R.string.salvar))
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { showLogoutDialog = false }) {
-                                    Text(stringResource(R.string.cancelar))
-                                }
-                            }
-                        )
-                    }
+                    )
                 }
-            }
-            if (userEmail != null) {
+
+                item {
+                    val key = stringResource(R.string.pref_key_categoria)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_titulo_categoria),
+                        summary = if (checked) stringResource(R.string.pref_descricao_categoria) else stringResource(R.string.pref_descricao_sem_categoria),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+
+                item {
+                    val key = stringResource(R.string.pref_key_saldo)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_titulo_saldo),
+                        summary = if (checked) stringResource(R.string.pref_descricao_saldo_somado) else stringResource(R.string.pref_descricao_saldo_real),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+
+                item {
+                    val key = stringResource(R.string.pref_key_auto_import_fixas)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_titulo_auto_import_fixas),
+                        summary = if (checked) stringResource(R.string.pref_descricao_auto_import_fixas_on) else stringResource(R.string.pref_descricao_auto_import_fixas_off),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+
+                item {
+                    val key = stringResource(R.string.pref_key_pagamento)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_titulo_pagamento),
+                        summary = if (checked) stringResource(R.string.pref_descricao_autopagamento) else stringResource(R.string.pref_descricao_editapagamento),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+
+                // CATEGORIA: RECURSOS E PERSONALIZAÇÃO
+                item { PreferenceCategory(stringResource(R.string.pref_titulo_categoria_recursos)) }
                 item {
                     PreferenceItem(
-                        title = stringResource(R.string.pref_titulo_cloud_download),
-                        summary = stringResource(R.string.pref_descricao_cloud_download),
-                        onClick = onSyncCloudDownload
+                        title = stringResource(R.string.pref_titulo_personalizar_categorias),
+                        summary = stringResource(R.string.pref_descricao_personalizar_categorias),
+                        onClick = onNavigateToPersonalizarCategorias
                     )
                 }
                 item {
                     PreferenceItem(
-                        title = stringResource(R.string.pref_titulo_google_upload),
-                        summary = stringResource(R.string.pref_descricao_google_upload),
-                        onClick = { showConfirmUploadDialog = true }
+                        title = stringResource(R.string.pref_titulo_planejamento_financeiro),
+                        summary = stringResource(R.string.pref_descricao_planejamento_financeiro),
+                        onClick = onNavigateToPlanejamento
+                    )
+                }
+                item {
+                    val key = stringResource(R.string.pref_key_notificacao)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_titulo_notificacao),
+                        summary = stringResource(R.string.pref_descricao_notificacao),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            if (it && !isNotificationServiceEnabled) {
+                                showNotificationDialog = true
+                            }
+                        }
                     )
 
-                    if (showConfirmUploadDialog) {
+                    if (showNotificationDialog) {
                         MinhasContasDialogTheme {
                             AlertDialog(
-                                onDismissRequest = { showConfirmUploadDialog = false },
-                                title = { Text(stringResource(R.string.google_upload_confirm_title)) },
-                                text = { Text(stringResource(R.string.google_upload_confirm_msg)) },
+                                onDismissRequest = { showNotificationDialog = false },
+                                title = { Text(stringResource(R.string.pref_titulo_notificacao)) },
+                                text = { Text(stringResource(R.string.msg_permissao_notificacao)) },
                                 confirmButton = {
                                     TextButton(onClick = {
-                                        onSyncCloudUpload()
-                                        showConfirmUploadDialog = false
+                                        onOpenNotificationSettings()
+                                        showNotificationDialog = false
                                     }) {
-                                        Text(stringResource(R.string.sim))
+                                        Text(stringResource(R.string.ir_para_configuracoes))
                                     }
                                 },
                                 dismissButton = {
-                                    TextButton(onClick = { showConfirmUploadDialog = false }) {
-                                        Text(stringResource(R.string.nao))
+                                    TextButton(onClick = { showNotificationDialog = false }) {
+                                        Text(stringResource(R.string.cancelar))
                                     }
                                 }
                             )
                         }
                     }
                 }
-            }
 
-            // CATEGORIA: BACKUP E RESTAURAÇÃO
-            item { PreferenceCategory(stringResource(R.string.pref_titulo_bkup_restaura)) }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_bkup_select_folder),
-                    summary = if (backupLocation.isEmpty()) stringResource(R.string.pref_descricao_bkup_select_folder) else "${stringResource(R.string.pref_descricao_bkup_local_chosen)}: $backupLocation",
-                    onClick = onSelectBackupFolder
-                )
-            }
-            if (backupLocation.isNotEmpty()) {
+                // CATEGORIA: ALERTAS E NOTIFICAÇÕES INTERNAS
+                item { PreferenceCategory(stringResource(R.string.pref_titulo_alertas)) }
+                item {
+                    val key = stringResource(R.string.pref_alert_vencimento_key)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_alert_vencimento_titulo),
+                        summary = stringResource(R.string.pref_alert_vencimento_desc),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+                item {
+                    val key = stringResource(R.string.pref_alert_limite_categoria_key)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_alert_limite_categoria_titulo),
+                        summary = stringResource(R.string.pref_alert_limite_categoria_desc),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+                item {
+                    val key = stringResource(R.string.pref_alert_objetivo_plano_key)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_alert_objetivo_plano_titulo),
+                        summary = stringResource(R.string.pref_alert_objetivo_plano_desc),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+                item {
+                    val key = stringResource(R.string.pref_alert_receita_referencia_key)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_alert_receita_referencia_titulo),
+                        summary = stringResource(R.string.pref_alert_receita_referencia_desc),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+                item {
+                    val key = stringResource(R.string.pref_alert_despesa_receita_key)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_alert_despesa_receita_titulo),
+                        summary = stringResource(R.string.pref_alert_despesa_receita_desc),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+                item {
+                    val key = stringResource(R.string.pref_alert_falta_aplicacao_key)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_alert_falta_aplicacao_titulo),
+                        summary = stringResource(R.string.pref_alert_falta_aplicacao_desc),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+                item {
+                    val key = stringResource(R.string.pref_alert_fim_serie_key)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_alert_fim_serie_titulo),
+                        summary = stringResource(R.string.pref_alert_fim_serie_desc),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+
+                // CATEGORIA: SEGURANÇA E ACESSO
+                item { PreferenceCategory(stringResource(R.string.titulo_acesso)) }
+                item {
+                    val key = stringResource(R.string.pref_key_acesso)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_titulo_acesso),
+                        summary = if (checked) stringResource(R.string.pref_descricao_acesso_negado) else stringResource(R.string.pref_descricao_acesso_livre),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
+                    )
+                }
+
+                item {
+                    val key = stringResource(R.string.pref_key_senha)
+                    val senha = viewModel.getPreference(key, "")
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_titulo_senha),
+                        summary = if (senha.isEmpty()) stringResource(R.string.pref_descricao_senha) else stringResource(R.string.pref_descricao_senha_definida),
+                        onClick = { showPasswordDialog = true }
+                    )
+                    if (showPasswordDialog) {
+                        MinhasContasDialogTheme {
+                            EditTextPreferenceDialog(
+                                title = stringResource(R.string.pref_dialogo_senha),
+                                initialValue = senha,
+                                isPassword = true,
+                                onDismiss = { showPasswordDialog = false },
+                                onValueSaved = {
+                                    viewModel.setPreference(key, it)
+                                    showPasswordDialog = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    val key = "pergunta_seguranca_id"
+                    val entries = stringArrayResource(R.array.perguntas_seguranca)
+                    val values = stringArrayResource(R.array.perguntas_seguranca_valores)
+                    val currentValue = viewModel.getPreference(key, "0")
+                    val currentIndex = values.indexOf(currentValue).coerceAtLeast(0)
+
+                    PreferenceItem(
+                        title = stringResource(R.string.titulo_pergunta_secreta),
+                        summary = entries[currentIndex],
+                        onClick = { showQuestionDialog = true }
+                    )
+
+                    if (showQuestionDialog) {
+                        MinhasContasDialogTheme {
+                            ListPreferenceDialog(
+                                title = stringResource(R.string.titulo_pergunta_secreta),
+                                entries = entries,
+                                values = values,
+                                currentValue = currentValue,
+                                onDismiss = { showQuestionDialog = false },
+                                onValueSelected = {
+                                    viewModel.setPreference(key, it)
+                                    showQuestionDialog = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    val key = "resposta_secreta"
+                    val resposta = viewModel.getPreference(key, "")
+                    PreferenceItem(
+                        title = stringResource(R.string.dica_resposta_secreta_ajustes),
+                        summary = if (resposta.isEmpty()) stringResource(R.string.dica_resposta_secreta_ajustes_summary) else stringResource(R.string.resposta_definida),
+                        onClick = { showAnswerDialog = true }
+                    )
+                    if (showAnswerDialog) {
+                        MinhasContasDialogTheme {
+                            EditTextPreferenceDialog(
+                                title = stringResource(R.string.titulo_pergunta_secreta),
+                                initialValue = resposta,
+                                isPassword = true,
+                                onDismiss = { showAnswerDialog = false },
+                                onValueSaved = {
+                                    viewModel.setPreference(key, it)
+                                    showAnswerDialog = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // CATEGORIA: BACKUP E RESTAURAÇÃO
+                item { PreferenceCategory(stringResource(R.string.pref_titulo_bkup_restaura)) }
+
                 item {
                     PreferenceItem(
-                        title = stringResource(R.string.pref_titulo_bkup_execute),
-                        summary = stringResource(R.string.pref_descricao_bkup_execute),
-                        onClick = onExecuteBackup
+                        title = stringResource(R.string.pref_titulo_migracao),
+                        summary = stringResource(R.string.pref_descricao_migracao),
+                        onClick = { showMigrationDialog = true }
+                    )
+                    if (showMigrationDialog) {
+                        MinhasContasDialogTheme {
+                            AlertDialog(
+                                onDismissRequest = { showMigrationDialog = false },
+                                title = { Text(stringResource(R.string.migracao_dialog_titulo)) },
+                                text = { Text(stringResource(R.string.migracao_dialog_corpo)) },
+                                confirmButton = {
+                                    TextButton(onClick = { showMigrationDialog = false }) {
+                                        Text(stringResource(R.string.ok))
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    val key = stringResource(R.string.pref_key_auto_bkup)
+                    var checked by remember { mutableStateOf(viewModel.getPreference(key, true)) }
+                    SwitchPreferenceItem(
+                        title = stringResource(R.string.pref_titulo_auto_bkup),
+                        summary = if (checked) stringResource(R.string.pref_descricao_auto_bkup_on) else stringResource(R.string.pref_descricao_auto_bkup_off),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            viewModel.setPreference(key, it)
+                            onPreferenceChanged()
+                        }
                     )
                 }
                 item {
                     PreferenceItem(
-                        title = stringResource(R.string.pref_titulo_restaura_execute),
-                        summary = stringResource(R.string.pref_descricao_restaura_execute),
-                        onClick = onExecuteRestore
+                        title = stringResource(R.string.pref_titulo_bkup_select_folder),
+                        summary = if (backupLocation.isEmpty()) stringResource(R.string.pref_descricao_bkup_select_folder) else "${stringResource(R.string.pref_descricao_bkup_local_chosen)}: $backupLocation",
+                        onClick = onSelectBackupFolder
                     )
                 }
-            }
-
-            // CATEGORIA: EXPORTAÇÃO E IMPORTAÇÃO
-            item { PreferenceCategory(stringResource(R.string.pref_titulo_categoria_exportar)) }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_exportar),
-                    summary = stringResource(R.string.pref_descricao_exportar),
-                    onClick = onExportExcel
-                )
-            }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_importar),
-                    summary = stringResource(R.string.pref_descricao_importar),
-                    onClick = onImportExcel
-                )
-            }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_importar_pdf),
-                    summary = stringResource(R.string.pref_descricao_importar_pdf),
-                    onClick = onImportPDF
-                )
-            }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_importar_banco_antigo),
-                    summary = stringResource(R.string.pref_descricao_importar_banco_antigo),
-                    onClick = onImportOldDB
-                )
-            }
-
-            // CATEGORIA: MANUTENÇÃO
-            item { PreferenceCategory(stringResource(R.string.pref_titulo_apagatudo)) }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_apagatudo),
-                    summary = stringResource(R.string.pref_descricao_apagatudo),
-                    titleColor = colorResource(R.color.despesa_color),
-                    onClick = { showDeleteAllDialog = true }
-                )
-
-                if (showDeleteAllDialog) {
-                    MinhasContasDialogTheme {
-                        AlertDialog(
-                            onDismissRequest = { showDeleteAllDialog = false },
-                            title = { Text(stringResource(R.string.titulo_exclui_tudo)) },
-                            text = { Text(stringResource(R.string.texto_exclui_tudo)) },
-                            confirmButton = {
-                                TextButton(onClick = {
-                                    onDeleteAll()
-                                    showDeleteAllDialog = false
-                                }) {
-                                    Text(stringResource(R.string.ok))
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(onClick = { showDeleteAllDialog = false }) {
-                                    Text(stringResource(R.string.cancelar))
-                                }
-                            }
+                if (backupLocation.isNotEmpty()) {
+                    item {
+                        PreferenceItem(
+                            title = stringResource(R.string.pref_titulo_bkup_execute),
+                            summary = stringResource(R.string.pref_descricao_bkup_execute),
+                            onClick = onExecuteBackup
+                        )
+                    }
+                    item {
+                        PreferenceItem(
+                            title = stringResource(R.string.pref_titulo_restaura_execute),
+                            summary = stringResource(R.string.pref_descricao_restaura_execute),
+                            onClick = onExecuteRestore
                         )
                     }
                 }
-            }
 
-            // CATEGORIA: SOBRE
-            item { PreferenceCategory(stringResource(R.string.pref_titulo_categoria_info)) }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_autor),
-                    summary = stringResource(R.string.pref_descricao_autor)
+                // CATEGORIA: EXPORTAÇÃO E IMPORTAÇÃO
+                item { PreferenceCategory(stringResource(R.string.pref_titulo_categoria_exportar)) }
+                item {
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_titulo_exportar),
+                        summary = stringResource(R.string.pref_descricao_exportar),
+                        onClick = onExportExcel
+                    )
+                }
+                item {
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_titulo_importar),
+                        summary = stringResource(R.string.pref_descricao_importar),
+                        onClick = onImportExcel
+                    )
+                }
+                item {
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_titulo_importar_pdf),
+                        summary = stringResource(R.string.pref_descricao_importar_pdf),
+                        onClick = onImportPDF
+                    )
+                }
+                item {
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_titulo_importar_banco_antigo),
+                        summary = stringResource(R.string.pref_descricao_importar_banco_antigo),
+                        onClick = onImportOldDB
+                    )
+                }
+
+                // CATEGORIA: MANUTENÇÃO
+                item { PreferenceCategory(stringResource(R.string.pref_titulo_apagatudo)) }
+                item {
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_titulo_apagatudo),
+                        summary = stringResource(R.string.pref_descricao_apagatudo),
+                        titleColor = colorResource(R.color.despesa_color),
+                        onClick = { showDeleteAllDialog = true }
+                    )
+
+                    if (showDeleteAllDialog) {
+                        MinhasContasDialogTheme {
+                            AlertDialog(
+                                onDismissRequest = { showDeleteAllDialog = false },
+                                title = { Text(stringResource(R.string.titulo_exclui_tudo)) },
+                                text = { Text(stringResource(R.string.texto_exclui_tudo)) },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        onDeleteAll()
+                                        showDeleteAllDialog = false
+                                    }) {
+                                        Text(stringResource(R.string.ok))
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { showDeleteAllDialog = false }) {
+                                        Text(stringResource(R.string.cancelar))
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // CATEGORIA: SOBRE
+                item { PreferenceCategory(stringResource(R.string.pref_titulo_categoria_info)) }
+                item {
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_titulo_autor),
+                        summary = stringResource(R.string.pref_descricao_autor)
+                    )
+                }
+                item {
+                    PreferenceItem(
+                        title = stringResource(R.string.pref_titulo_versao),
+                        summary = appVersion
+                    )
+                }
+
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+            }
+        }
+
+        // Overlay de Preview de Importação
+        if (showPreview) {
+            importSummary?.let { summary ->
+                MinhasContasDialogTheme {
+                    ImportarPreviewScreen(
+                        summary = summary,
+                        onConfirm = { contas, gerarFuturas ->
+                            viewModel.confirmarImportacao(contas, gerarFuturas) { total ->
+                                showPreview = false
+                                Toast.makeText(
+                                    context,
+                                    String.format(importSuccessFormat, total),
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        },
+                        onCancel = {
+                            showPreview = false
+                            viewModel.cancelarImportacao()
+                        }
+                    )
+                }
+            }
+        }
+
+        // Diálogo de Processamento de Importação
+        if (importState != AjustesViewModel.ImportState.IDLE && !showPreview) {
+            MinhasContasDialogTheme {
+                ImportProcessDialog(
+                    importState = importState,
+                    importError = importError,
+                    pdfProgress = pdfProgress,
+                    importSummary = importSummary,
+                    onConfirm = { showPreview = true },
+                    onCancel = { viewModel.cancelarImportacao() },
+                    onClearDb = {
+                        viewModel.excluirTudo {
+                            Toast.makeText(context, deleteEverythingMsg, Toast.LENGTH_SHORT).show()
+                            viewModel.confirmarLimpezaEDuplicados()
+                        }
+                    }
                 )
             }
-            item {
-                PreferenceItem(
-                    title = stringResource(R.string.pref_titulo_versao),
-                    summary = appVersion
-                )
-            }
-            
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+        }
+
+        LaunchedEffect(importSummary) {
+            if (importSummary == null) showPreview = false
         }
     }
 
@@ -764,6 +797,142 @@ fun ListPreferenceDialog(
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.cancelar), color = MaterialTheme.colorScheme.primary)
+            }
+        }
+    )
+}
+
+@Composable
+fun ImportProcessDialog(
+    importState: AjustesViewModel.ImportState,
+    importError: String?,
+    pdfProgress: Pair<Int, Int>,
+    importSummary: ImportSummary?,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+    onClearDb: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { if (importState == AjustesViewModel.ImportState.ERROR) onCancel() },
+        title = {
+            Text(
+                if (importState == AjustesViewModel.ImportState.ERROR) stringResource(R.string.titulo_atencao)
+                else stringResource(R.string.importar_excel)
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (importState == AjustesViewModel.ImportState.ERROR) {
+                    Text(
+                        text = importError ?: stringResource(R.string.dica_erro_importacao_falhou),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                } else {
+                    // Etapa 1: Leitura
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = if (importState != AjustesViewModel.ImportState.READING) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                            contentDescription = null,
+                            tint = if (importState != AjustesViewModel.ImportState.READING) colorResource(R.color.receita_color) else MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.import_step_reading) +
+                                    if (importState == AjustesViewModel.ImportState.READING && pdfProgress.second > 0) " (${pdfProgress.first}/${pdfProgress.second})" else "",
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    // Etapa 2: Análise
+                    if (importState == AjustesViewModel.ImportState.ANALYZING || importState == AjustesViewModel.ImportState.SUCCESS) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = if (importState == AjustesViewModel.ImportState.SUCCESS) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                contentDescription = null,
+                                tint = if (importState == AjustesViewModel.ImportState.SUCCESS) colorResource(R.color.receita_color) else MaterialTheme.colorScheme.outline,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.import_step_analyzing),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    // Resumo e Avisos
+                    if (importState == AjustesViewModel.ImportState.SUCCESS && importSummary != null) {
+                        HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
+
+                        Text(
+                            text = stringResource(R.string.import_ready, importSummary.totalRegistros),
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        if (importSummary.totalDuplicados > 0) {
+                            Surface(
+                                color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(Modifier.padding(8.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.import_duplicate_warning, importSummary.totalDuplicados),
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(
+                                        text = stringResource(R.string.limpar_banco_antes),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                                    )
+                                }
+                            }
+                        }
+                    } else if (importState == AjustesViewModel.ImportState.READING || importState == AjustesViewModel.ImportState.ANALYZING) {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (importState == AjustesViewModel.ImportState.SUCCESS) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (importSummary != null && importSummary.totalDuplicados > 0) {
+                        TextButton(
+                            onClick = onClearDb,
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Text(stringResource(R.string.pref_titulo_apagatudo))
+                        }
+                    }
+                    Button(
+                        onClick = onConfirm,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text(stringResource(R.string.confirmar), color = MaterialTheme.colorScheme.onPrimary)
+                    }
+                }
+            } else if (importState == AjustesViewModel.ImportState.ERROR) {
+                Button(onClick = onCancel) {
+                    Text(stringResource(R.string.ok))
+                }
+            }
+        },
+        dismissButton = {
+            if (importState == AjustesViewModel.ImportState.SUCCESS) {
+                TextButton(onClick = onCancel) {
+                    Text(stringResource(R.string.cancelar), color = MaterialTheme.colorScheme.primary)
+                }
             }
         }
     )

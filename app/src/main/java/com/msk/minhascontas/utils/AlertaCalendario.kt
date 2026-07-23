@@ -23,7 +23,7 @@ object AlertaCalendario {
         if (Build.VERSION.SDK_INT < 8) eventUriStr = "content://calendar/events"
 
         val relogio = Calendar.getInstance()
-        relogio.set(ano, mes, dia, 8, 0)
+        relogio.set(ano, mes - 1, dia, 8, 0)
         var data = relogio.getTimeInMillis()
 
         val event = ContentValues()
@@ -31,7 +31,7 @@ object AlertaCalendario {
         event.put("title", titulo)
         event.put("description", descricao)
         event.put("dtstart", data)
-        relogio.set(ano, mes, dia, 18, 0)
+        relogio.set(ano, mes - 1, dia, 18, 0)
         data = relogio.getTimeInMillis()
         event.put("dtend", data)
         event.put("eventTimezone", TimeZone.getDefault().getID())

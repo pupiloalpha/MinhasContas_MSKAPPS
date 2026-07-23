@@ -59,10 +59,12 @@ class MetasViewModel(application: Application) : AndroidViewModel(application) {
         val receitaReferencia = prefs.getFloat("plan_receita_referencia", 3000.0f).toDouble()
         val numCategorias = context.resources.getStringArray(R.array.CategoriaConta).size
         
-        // Agrupa gastos por categoria em memória
-        val gastosReais = contas.groupBy { 
-            if (it.tipo == ContasContract.TIPO_APLICACAO) 8 else it.categoria 
-        }.mapValues { it.value.sumOf { c -> c.valor } }
+        // Agrupa gastos por categoria em memória (apenas Despesas e Aplicações)
+        val gastosReais = contas
+            .filter { it.tipo != ContasContract.TIPO_RECEITA }
+            .groupBy { 
+                if (it.tipo == ContasContract.TIPO_APLICACAO) 8 else it.categoria 
+            }.mapValues { it.value.sumOf { c -> c.valor } }
         
         val progressos = mutableListOf<ProgressoCategoria>()
         for (i in 0 until numCategorias) {

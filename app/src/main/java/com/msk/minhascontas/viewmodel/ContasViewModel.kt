@@ -44,9 +44,12 @@ class ContasViewModel(application: Application) : AndroidViewModel(application) 
     private val _viewPagerPosition = MutableStateFlow(MinhasContas.START_PAGE)
     val viewPagerPosition: StateFlow<Int> = _viewPagerPosition.asStateFlow()
 
-    // Controle do total de páginas
+    // Controle de total de páginas
     private val _totalPages = MutableStateFlow(2000)
     val totalPages: StateFlow<Int> = _totalPages.asStateFlow()
+
+    // Cache local para evitar múltiplas chamadas de auto-importação na mesma sessão
+    private val mesesImportadosSessionCache = mutableSetOf<String>()
 
     // StateFlow que contém a data e a posição calculada.
     private val _currentDateState = MutableStateFlow<DateState?>(null)
@@ -82,6 +85,10 @@ class ContasViewModel(application: Application) : AndroidViewModel(application) 
     val aiAnalysisResult: StateFlow<AIResult?> = _aiAnalysisResult.asStateFlow()
     private val _isAiLoading = MutableStateFlow(false)
     val isAiLoading: StateFlow<Boolean> = _isAiLoading.asStateFlow()
+
+    // Estado das Notificações Internas (Alertas)
+    private val _hasUnreadNotifications = MutableStateFlow(false)
+    val hasUnreadNotifications: StateFlow<Boolean> = _hasUnreadNotifications.asStateFlow()
 
     // NOVO: Flow para o total financeiro do contexto atual (Mês/Ano selecionado)
     val currentMonthTotal: StateFlow<Double> = _currentDateState.flatMapLatest { date ->
@@ -163,6 +170,16 @@ class ContasViewModel(application: Application) : AndroidViewModel(application) 
         _aiAnalysisResult.value = null
     }
 
+    /**
+     * Atualiza o estado das notificações não lidas consultando o banco de dados.
+     */
+    fun refreshNotifications() {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            val tem = com.msk.minhascontas.db.DBContas.getInstance(getApplication()).temNotificacoesNaoLidas()
+            _hasUnreadNotifications.value = tem
+        }
+    }
+
     private fun calculateAndSetDateState(position: Int) {
         val viewState = _viewState.value
         val isMonthly = viewState == null || viewState.isMonthlySummary
@@ -173,27 +190,35 @@ class ContasViewModel(application: Application) : AndroidViewModel(application) 
         // Melhoria: Importação automática de fixas se habilitado
         if (isMonthly) {
             checkAndAutoImportFixas(newState.mes, newState.ano)
-            
-            // Melhoria 2: Verificar fim de séries
-            repository.verificarFimDeSeries(newState.mes, newState.ano)
         }
     }
 
     private fun checkAndAutoImportFixas(mes: Int, ano: Int) {
+        val chave = "$mes-$ano"
+        if (mesesImportadosSessionCache.contains(chave)) return
+
         val application = getApplication<Application>()
         val prefs = PreferenceManager.getDefaultSharedPreferences(application)
         val autoImport = prefs.getBoolean(application.getString(R.string.pref_key_auto_import_fixas), false)
         
         if (autoImport) {
-            viewModelScope.launch {
+            viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
                 // Importa para o mês visualizado
-                repository.importarFixasDeMesAnterior(mes, ano)
+                val result = repository.importarFixasDeMesAnterior(mes, ano)
+                if (result >= 0) {
+                    mesesImportadosSessionCache.add(chave)
+                }
                 
-                // Projeção: Importa também para o mês seguinte para garantir visualização em gráficos
+                // Projeção: Tenta preparar também o mês seguinte para suavizar a navegação
                 val calNext = Calendar.getInstance()
                 calNext.set(ano, mes - 1, 1)
                 calNext.add(Calendar.MONTH, 1)
-                repository.importarFixasDeMesAnterior(calNext.get(Calendar.MONTH) + 1, calNext.get(Calendar.YEAR))
+                val nextMes = calNext.get(Calendar.MONTH) + 1
+                val nextAno = calNext.get(Calendar.YEAR)
+                
+                if (!mesesImportadosSessionCache.contains("$nextMes-$nextAno")) {
+                    repository.importarFixasDeMesAnterior(nextMes, nextAno)
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ import android.provider.BaseColumns
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.msk.minhascontas.db.ContasContract.Colunas
 
@@ -13,7 +14,22 @@ import com.msk.minhascontas.db.ContasContract.Colunas
  * Esta classe encapsula os dados de uma conta, melhorando a coesão
  * e a manutenibilidade do código.
  */
-@Entity(tableName = Colunas.TABELA_NOME)
+@Entity(
+    tableName = Colunas.TABELA_NOME,
+    indices = [
+        Index(
+            value = [
+                Colunas.COLUNA_NOME_CONTA,
+                Colunas.COLUNA_DIA_DATA_CONTA,
+                Colunas.COLUNA_MES_DATA_CONTA,
+                Colunas.COLUNA_ANO_DATA_CONTA,
+                Colunas.COLUNA_VALOR_CONTA,
+                Colunas.COLUNA_CODIGO_CONTA
+            ],
+            unique = true
+        )
+    ]
+)
 data class Conta(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = BaseColumns._ID)

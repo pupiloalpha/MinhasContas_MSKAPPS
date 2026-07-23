@@ -29,9 +29,16 @@ class BackupAgent : BackupAgentHelper() {
 
         // 3. For SharedPreferences
         val defaultPrefsFileName = packageName + "_preferences"
-        val prefsHelper = SharedPreferencesBackupHelper(this, defaultPrefsFileName)
+        val prefsHelper = SharedPreferencesBackupHelper(
+            this,
+            defaultPrefsFileName,
+            "metas_coach_prefs",
+            "backup",
+            "app_state",
+            "MinhasContasPrefs"
+        )
         addHelper(PREFS_BACKUP_KEY, prefsHelper)
-        Log.d(TAG, "SharedPreferenceBackupHelper added for: $defaultPrefsFileName")
+        Log.d(TAG, "SharedPreferenceBackupHelper added for default and custom prefs.")
     }
 
     // Removed the getFilesDir() override. FileBackupHelper, when provided
@@ -62,14 +69,10 @@ class BackupAgent : BackupAgentHelper() {
         Log.d(TAG, "onRestore completed.")
     }
 
-    inner class DbBackupHelper(ctx: Context, dbName: String?) :
-        FileBackupHelper(ctx, ctx.getDatabasePath(dbName).getAbsolutePath()) {
+    inner class DbBackupHelper(ctx: Context, dbName: String) :
+        FileBackupHelper(ctx, "../databases/$dbName") {
         init {
-            Log.d(
-                TAG,
-                "DbBackupHelper initialized for path: " + ctx.getDatabasePath(dbName)
-                    .getAbsolutePath()
-            )
+            Log.d(TAG, "DbBackupHelper initialized for database: $dbName")
         }
     }
 

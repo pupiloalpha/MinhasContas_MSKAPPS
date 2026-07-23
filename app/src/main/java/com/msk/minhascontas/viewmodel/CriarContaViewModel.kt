@@ -20,6 +20,7 @@ import java.util.*
 
 data class CriarContaUiState(
     val nome: String = "",
+    val sugestoes: List<Conta> = emptyList(),
     val valor: String = "",
     val dia: Int = Calendar.getInstance().get(Calendar.DAY_OF_MONTH),
     val mes: Int = Calendar.getInstance().get(Calendar.MONTH) + 1,
@@ -42,7 +43,7 @@ class CriarContaViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CriarContaUiState())
     val uiState: StateFlow<CriarContaUiState> = _uiState.asStateFlow()
 
-    fun initData(initialMes: Int, initialAno: Int) {
+    fun initData(initialMes: Int, initialAno: Int, context: Context) {
         val c = Calendar.getInstance()
         var d = c.get(Calendar.DAY_OF_MONTH)
         var m = c.get(Calendar.MONTH) + 1
@@ -58,10 +59,108 @@ class CriarContaViewModel : ViewModel() {
                 1
             }
         }
-        _uiState.update { it.copy(dia = d, mes = m, ano = a) }
+        
+        // Resetar o estado para valores padrão, preservando apenas as sugestões se já existirem
+        val currentSugestoes = _uiState.value.sugestoes
+        _uiState.value = CriarContaUiState(
+            dia = d,
+            mes = m,
+            ano = a,
+            sugestoes = currentSugestoes
+        )
+
+        loadSugestoes(context)
+    }
+
+    private fun loadSugestoes(context: Context) {
+        viewModelScope.launch {
+            val repository = ContasRepository.getInstance(context)
+            val dbSugestoes = repository.getSugestoesContas()
+            
+            // Carrega nomes padrão dos recursos (internacionalizado)
+            val defaultNames = context.resources.getStringArray(R.array.NomeConta)
+            val defaultSugestoes = defaultNames.mapIndexed { index, name ->
+                val props = getDefaultContaProperties(index)
+                Conta.Builder(name, 0.0, 0, 0, 0, "template_$index")
+                    .setTipo(props.tipo)
+                    .setClasseConta(props.classe)
+                    .setCategoria(props.categoria)
+                    .build()
+            }
+            
+            // Combina as listas, priorizando as do banco (usuário) se houver nomes idênticos
+            val combined = (dbSugestoes + defaultSugestoes).distinctBy { it.nome.lowercase() }
+            
+            _uiState.update { it.copy(sugestoes = combined) }
+        }
+    }
+
+    private data class DefaultProperties(val tipo: Int, val classe: Int, val categoria: Int)
+
+    private fun getDefaultContaProperties(index: Int): DefaultProperties {
+        return when (index) {
+            0 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_SAUDE) // Academia / Gym
+            1, 2 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_ALIMENTACAO) // Almoço / Alimentação
+            3, 4 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_MORADIA) // Aluguel / Apartamento
+            5 -> DefaultProperties(ContasContract.TIPO_APLICACAO, ContasContract.CLASSE_APLICACAO_FUNDOS, ContasContract.CATEGORIA_INVESTIMENTOS) // Aplicação
+            6 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_TRANSPORTE) // Carro
+            7 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_CARTAO, ContasContract.CATEGORIA_OUTROS) // Cartão
+            8 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_OUTROS) // Celular
+            9 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_MORADIA) // CEMIG / Eletric
+            10 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_TRANSPORTE) // Combustível / Fuel
+            11 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_MORADIA) // Condomínio
+            12 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_OUTROS) // Conserto / Repair
+            13 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_MORADIA) // COPASA / Water
+            14 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_LAZER) // Clube
+            15 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_EDUCACAO) // Curso
+            16 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_SAUDE) // Dentista
+            17 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_PRESTACOES, ContasContract.CATEGORIA_INVESTIMENTOS) // Empréstimo / Loan
+            18 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_TRANSPORTE) // Estacionamento
+            19 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_EDUCACAO) // Faculdade / College
+            20 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_SAUDE) // Farmácia / Pharmacy
+            21 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_ALIMENTACAO) // Feira / Market
+            22 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_TRANSPORTE) // Gasolina
+            23 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_MORADIA) // Gás
+            24 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_MORADIA) // Internet
+            25 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_ALIMENTACAO) // Jantar / Dinner
+            26 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_LAZER) // Jornal
+            27 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_ALIMENTACAO) // Lanche / Snack
+            28 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_OUTROS) // Mensalidade
+            29 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_SAUDE) // Médico
+            30, 31, 32 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_TRANSPORTE) // Moto/Oficina/Ônibus
+            33 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_ALIMENTACAO) // Padaria
+            34 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_LAZER) // Passeio / Outing
+            35 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_SAUDE) // Plano de saúde
+            36 -> DefaultProperties(ContasContract.TIPO_APLICACAO, ContasContract.CLASSE_APLICACAO_POUPANCA, ContasContract.CATEGORIA_INVESTIMENTOS) // Poupança
+            37 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_PRESTACOES, ContasContract.CATEGORIA_INVESTIMENTOS) // Prestação
+            38 -> DefaultProperties(ContasContract.TIPO_APLICACAO, ContasContract.CLASSE_APLICACAO_RENDAVARIAVEL, ContasContract.CATEGORIA_INVESTIMENTOS) // Previdência
+            39 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_ALIMENTACAO) // Refeição / Meal
+            40 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_LAZER) // Revista
+            41 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_TRANSPORTE) // Revisão
+            42 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_VESTUARIO) // Roupa / Clothes
+            43 -> DefaultProperties(ContasContract.TIPO_RECEITA, 0, ContasContract.CATEGORIA_OUTROS) // Salário
+            44 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_OUTROS) // Seguro
+            45 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_ALIMENTACAO) // Supermercado
+            46 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_MORADIA) // Telefone
+            47 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_FIXA, ContasContract.CATEGORIA_LAZER) // TV assinatura
+            48 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_VESTUARIO) // Vestuário
+            49 -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_LAZER) // Viagem
+            else -> DefaultProperties(ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_VARIAVEL, ContasContract.CATEGORIA_OUTROS)
+        }
     }
 
     fun updateNome(nome: String) = _uiState.update { it.copy(nome = nome) }
+
+    fun selecionarSugestao(conta: Conta) {
+        _uiState.update { 
+            it.copy(
+                nome = conta.nome,
+                tipo = conta.tipo,
+                classe = conta.classeConta,
+                categoria = conta.categoria
+            )
+        }
+    }
     fun updateValor(valor: String) = _uiState.update { it.copy(valor = valor) }
     fun updateData(ano: Int, mes: Int, dia: Int) = _uiState.update { it.copy(ano = ano, mes = mes, dia = dia) }
     fun updateTipo(tipo: Int) = _uiState.update { 

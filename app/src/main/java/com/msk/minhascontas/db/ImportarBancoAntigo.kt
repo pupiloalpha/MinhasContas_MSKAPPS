@@ -5,6 +5,8 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
@@ -30,8 +32,8 @@ class ImportarBancoAntigo {
      * @param listener Callback opcional para progresso.
      * @return Uma lista de [Conta] ou null em caso de erro crítico.
      */
-    fun importar(context: Context, uri: Uri?, listener: ProgressListener?): List<Conta>? {
-        if (uri == null) return null
+    suspend fun importar(context: Context, uri: Uri?, listener: ProgressListener?): List<Conta>? = withContext(Dispatchers.IO) {
+        if (uri == null) return@withContext null
 
         var tempFile: File? = null
         var db: SQLiteDatabase? = null
@@ -50,11 +52,11 @@ class ImportarBancoAntigo {
             db = SQLiteDatabase.openDatabase(tempFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
 
             // 3. Identifica o nome da tabela (pode ser 'contas' ou 'contasListadas')
-            val tableName = if (tableExists(db, "contasListadas")) "contasListadas" else "contas"
+            val tableName = if (tableExists(db!!, "contasListadas")) "contasListadas" else "contas"
             
             if (!tableExists(db, tableName)) {
                 Log.e(TAG, "Tabela de contas não encontrada no arquivo.")
-                return null
+                return@withContext null
             }
 
             // 4. Executa a query para buscar todos os registros
@@ -74,11 +76,11 @@ class ImportarBancoAntigo {
             }
 
             Log.d(TAG, "Importação concluída. ${listaContas.size} registros lidos.")
-            return listaContas
+            return@withContext listaContas
 
         } catch (e: Exception) {
             Log.e(TAG, "Erro ao importar banco de dados: ${e.message}", e)
-            return null
+            return@withContext null
         } finally {
             db?.close()
             tempFile?.delete()
