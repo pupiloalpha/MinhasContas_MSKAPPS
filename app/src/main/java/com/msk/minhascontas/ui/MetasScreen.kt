@@ -33,7 +33,7 @@ fun MetasScreen(
     onCategoryClick: (tipo: Int, filtro: Int) -> Unit = { _, _ -> },
     viewModel: MetasViewModel = viewModel()
 ) {
-    val progressos by viewModel.getProgressoMensal(mes, ano, dia).observeAsState(emptyList())
+    val progressos by viewModel.getProgressoMensal(mes, ano).observeAsState(emptyList())
 
     if (progressos.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -57,7 +57,7 @@ fun MetasScreen(
                     onClick = {
                         // Se for a categoria 8 (Investimentos/Dívidas), mostramos todos os tipos (-1)
                         // Caso contrário, focamos em Despesas (Tipo 0) filtradas pela categoria.
-                        val actualTipo = if (progresso.index == 8) -1 else ContasContract.TIPO_DESPESA
+                        val actualTipo = if (progresso.index == 8) -2 else ContasContract.TIPO_DESPESA
                         onCategoryClick(actualTipo, progresso.index)
                     }
                 )

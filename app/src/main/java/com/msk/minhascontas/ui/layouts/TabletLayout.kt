@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentManager
@@ -43,7 +44,9 @@ import com.msk.minhascontas.R
 import com.msk.minhascontas.db.ContasContract
 import com.msk.minhascontas.db.ContasRepository
 import com.msk.minhascontas.db.DBContas
+import com.msk.minhascontas.db.ContaFilter
 import com.msk.minhascontas.features.graficos.GraficosScreen
+import com.msk.minhascontas.features.info.Ajustes
 import com.msk.minhascontas.features.planos.PlanejamentoScreen
 import com.msk.minhascontas.utils.AlertaCalendario
 import com.msk.minhascontas.features.info.SobreScreen
@@ -51,14 +54,12 @@ import com.msk.minhascontas.ui.MetasScreen
 import com.msk.minhascontas.features.planos.PlanejamentoViewModel
 import com.msk.minhascontas.features.planos.PlanoFinanceiroScreen
 import com.msk.minhascontas.ui.EditarContaScreen
-import com.msk.minhascontas.ui.MonthYearTabBar
 import com.msk.minhascontas.ui.PersonalizarCategoriasScreen
 import com.msk.minhascontas.ui.PesquisaScreen
-import com.msk.minhascontas.ui.SummaryPane
+import com.msk.minhascontas.utils.AjustesUtils
 import com.msk.minhascontas.viewmodel.ContasViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 
@@ -79,28 +80,40 @@ fun TabletLayout(
     hasUnreadNotifications: Boolean,
     onShowNotifications: () -> Unit,
     onShare: () -> Unit,
-    onSearch: () -> Unit,
     onShowFilterDialog: (DetailDestination.Contas, (Int) -> Unit) -> Unit,
     onRestartReasonChange: (String?) -> Unit,
     getAppVersion: () -> String,
     isNotificationServiceEnabled: () -> Boolean,
     executeManualBackup: () -> Unit,
     executeManualRestore: () -> Unit,
-    editingAccountId: Long?,
-    onEditContaRequest: (Long?) -> Unit
+    editingAccountIds: List<Long>?,
+    onEditContaRequest: (List<Long>?) -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val widthSizeClass = windowSizeClass.widthSizeClass
     val isExpanded = widthSizeClass == WindowWidthSizeClass.Expanded
-    val isMedium = widthSizeClass == WindowWidthSizeClass.Medium
 
     var overlayDestination by remember { mutableStateOf<DetailDestination?>(null) }
+    var selectedIds by remember { mutableStateOf<Set<Long>>(emptySet()) }
+    var selectedContas by remember { mutableStateOf<List<com.msk.minhascontas.db.Conta>>(emptyList()) }
+
+    LaunchedEffect(selectedIds) {
+        if (selectedIds.isNotEmpty() && contasRepository != null) {
+            val list = mutableListOf<com.msk.minhascontas.db.Conta>()
+            selectedIds.forEach { id ->
+                contasRepository.getConta(id)?.let { list.add(it) }
+            }
+            selectedContas = list
+        } else {
+            selectedContas = emptyList()
+        }
+    }
 
     // Sincroniza o pedido de edição externo com o overlay local
-    LaunchedEffect(editingAccountId) {
-        if (editingAccountId != null) {
-            overlayDestination = DetailDestination.EditarConta(listOf(editingAccountId))
+    LaunchedEffect(editingAccountIds) {
+        if (editingAccountIds != null) {
+            overlayDestination = DetailDestination.EditarConta(editingAccountIds)
         }
     }
 
@@ -119,7 +132,12 @@ fun TabletLayout(
     // Identificação reativa de recursos
     val currentDetail = navigator.currentDestination?.contentKey
     val configuration = LocalConfiguration.current
-    
+
+    // Limpa seleção ao trocar de tela
+    LaunchedEffect(currentDetail) {
+        selectedIds = emptySet()
+    }
+
     val appBarTitle = remember(currentDetail, configuration) {
         when (currentDetail) {
             is DetailDestination.Contas -> {
@@ -132,7 +150,7 @@ fun TabletLayout(
                         ContasContract.TIPO_APLICACAO -> context.resources.getStringArray(R.array.FiltroAplicacao)
                         else -> emptyArray()
                     }
-                    
+
                     // Aplica rótulos personalizados para classes, mas mantém labels de status (Pago/Falta)
                     val numClasses = when (currentDetail.tipo) {
                         ContasContract.TIPO_DESPESA -> context.resources.getStringArray(R.array.TipoDespesa).size
@@ -199,19 +217,35 @@ fun TabletLayout(
 
                 if (categoria >= 0) {
                     contasRepository?.somaValoresPorFiltro(ano, mes, tipo, -1, categoria, null, if (isMonthly) -1 else (dateState?.dia ?: -1))
-                } else {
-                    val filter = DBContas.ContaFilter().setMes(mes).setAno(ano).setDiaFim(diaFim)
-                    if (tipo != -1) {
-                        filter.setTipo(tipo)
-                        if (filtro >= 0) {
-                            if (tipo == ContasContract.TIPO_DESPESA && filtro == 4) filter.setPagamento(ContasContract.STATUS_PENDENTE)
-                            else if (tipo == ContasContract.TIPO_DESPESA && filtro == 5) filter.setPagamento(ContasContract.STATUS_PAGO_RECEBIDO)
-                            else if (tipo == ContasContract.TIPO_RECEITA && filtro == 3) filter.setPagamento(ContasContract.STATUS_PENDENTE)
-                            else if (tipo == ContasContract.TIPO_RECEITA && filtro == 4) filter.setPagamento(ContasContract.STATUS_PAGO_RECEBIDO)
-                            else filter.setClasse(filtro)
+                } else if (tipo == -2) {
+                    val totalDespesasCat8 = contasRepository?.somaValoresPorFiltro(ano, mes, ContasContract.TIPO_DESPESA, -1, 8, null) ?: 0.0
+                    val totalAplicacoes = contasRepository?.somaValoresPorFiltro(ano, mes, ContasContract.TIPO_APLICACAO, -1, -1, null) ?: 0.0
+                    totalDespesasCat8 + totalAplicacoes
+                } else if (tipo != -1) {
+                    val filter = ContaFilter().setMes(mes).setAno(ano).setDiaFim(diaFim)
+                    filter.setTipo(tipo)
+                    if (filtro >= 0) {
+                        when (tipo) {
+                            ContasContract.TIPO_DESPESA -> {
+                                when (filtro) {
+                                    4 -> filter.setPagamento(ContasContract.STATUS_PENDENTE)
+                                    5 -> filter.setPagamento(ContasContract.STATUS_PAGO_RECEBIDO)
+                                    else -> filter.setClasse(filtro)
+                                }
+                            }
+                            ContasContract.TIPO_RECEITA -> {
+                                when (filtro) {
+                                    3 -> filter.setPagamento(ContasContract.STATUS_PENDENTE)
+                                    4 -> filter.setPagamento(ContasContract.STATUS_PAGO_RECEBIDO)
+                                    else -> filter.setClasse(filtro)
+                                }
+                            }
+                            else -> filter.setClasse(filtro)
                         }
                     }
                     contasRepository?.calcularTotalMensal(mes, ano, tipo, filter)
+                } else {
+                    contasRepository?.calcularTotalMensal(mes, ano, tipo, ContaFilter().setMes(mes).setAno(ano).setDiaFim(diaFim))
                 }
             }
         } else null
@@ -265,7 +299,7 @@ fun TabletLayout(
             )
             NavigationRailItem(
                 selected = false,
-                onClick = { overlayDestination = DetailDestination.Planejamento },
+                onClick = { overlayDestination = DetailDestination.Planejamento() },
                 icon = { Icon(painterResource(R.drawable.ic_planejamento), null) },
                 label = { Text(stringResource(R.string.nav_planejamento)) },
                 colors = railColors
@@ -281,135 +315,156 @@ fun TabletLayout(
         }
 
         Column(modifier = Modifier.weight(1f).fillMaxHeight().statusBarsPadding()) {
-            TopAppBar(
-            modifier = Modifier,
-            navigationIcon = {
-                if (navigator.canNavigateBack()) {
-                    IconButton(onClick = { coroutineScope.launch { navigator.navigateBack() } }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
-                    }
-                }
-            },
-            title = {
-                AnimatedContent(
-                    targetState = appBarTitle to appBarSubtitle,
-                    transitionSpec = {
-                        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
-                            .togetherWith(fadeOut(animationSpec = tween(90)))
-                    },
-                    label = "TopAppBarTitle"
-                ) { (title, subtitle) ->
-                    Column {
-                        Text(title)
-                        if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-            },
-            actions = {
-                if (hasUnreadNotifications) {
-                    IconButton(onClick = onShowNotifications) {
-                        Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = Color.Yellow)
-                    }
-                }
-
-                val isListByType = currentDetail is DetailDestination.Contas && currentDetail.tipo != -1
-                val isOtherType = currentDetail is DetailDestination.Dashboard ||
-                        currentDetail is DetailDestination.Metas ||
-                        (currentDetail is DetailDestination.Contas && currentDetail.tipo == -1)
-
-                if (isListByType) {
-                    IconButton(onClick = {
-                        onShowFilterDialog(currentDetail as DetailDestination.Contas) { novoFiltro ->
-                            coroutineScope.launch {
-                                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, (currentDetail as DetailDestination.Contas).copy(filtro = novoFiltro))
+            AnimatedContent(
+                targetState = selectedIds.isNotEmpty(),
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "TopAppBarTransition"
+            ) { isSelectionMode ->
+                if (isSelectionMode) {
+                    SelectionTopAppBar(
+                        selectedContas = selectedContas,
+                        onSelectionClear = { selectedIds = emptySet() },
+                        onTogglePagamento = {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                selectedContas.forEach { conta ->
+                                    val novoStatus = if ("paguei" == conta.pagamento) "pendente" else "paguei"
+                                    contasRepository?.atualizarPagamento(conta.idConta, novoStatus)
+                                }
+                                withContext(Dispatchers.Main) {
+                                    selectedIds = emptySet()
+                                    // Força a atualização do produceState da TopAppBar
+                                    val currentPos = contasViewModel.viewPagerPosition.value
+                                    contasViewModel.setViewPagerPosition(-1)
+                                    contasViewModel.setViewPagerPosition(currentPos)
+                                }
                             }
-                        }
-                    }) {
-                        Icon(painterResource(R.drawable.ic_filter_list_white), contentDescription = null)
-                    }
-                }
-
-                IconButton(onClick = { overlayDestination = DetailDestination.BuscarConta }) {
-                    Icon(Icons.Default.Search, contentDescription = null)
-                }
-                IconButton(onClick = onShare) { Icon(Icons.Default.Share, contentDescription = null) }
-
-                if (isOtherType) {
-                    IconButton(onClick = {
-                        val state = contasViewModel.currentDateState.value
-                        if (state != null) {
-                            scope.launch {
-                                val contas = contasRepository?.getContasDoMes(state.mes, state.ano, -1, null)
-                                if (contas != null) contasViewModel.runAiAnalysis(contas)
+                        },
+                        onEditar = { ids: List<Long> -> onEditContaRequest(ids) },
+                        onExcluir = {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                selectedIds.forEach { contasRepository?.excluirConta(it) }
+                                withContext(Dispatchers.Main) {
+                                    selectedIds = emptySet()
+                                    // Força a atualização do produceState da TopAppBar
+                                    val currentPos = contasViewModel.viewPagerPosition.value
+                                    contasViewModel.setViewPagerPosition(-1)
+                                    contasViewModel.setViewPagerPosition(currentPos)
+                                }
                             }
+                        },
+                        onCoachClick = { metaId: String ->
+                            overlayDestination = DetailDestination.Planejamento(metaId)
                         }
-                    }) {
-                        Icon(Icons.Default.AutoAwesome, contentDescription = null)
-                    }
-                }
-                IconButton(onClick = { overlayDestination = DetailDestination.Ajustes }) { Icon(Icons.Default.Settings, contentDescription = null) }
-                IconButton(onClick = { overlayDestination = DetailDestination.Sobre }) { Icon(Icons.Default.Info, contentDescription = null) }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = appBarColor,
-                titleContentColor = Color.White,
-                actionIconContentColor = Color.White,
-                navigationIconContentColor = Color.White
-            )
-        )
-
-        MonthYearTabBar(
-            selectedPosition = viewPagerPosition,
-            contasViewModel = contasViewModel,
-            pageCount = totalPages,
-            months = contasViewModel.fullStringMonths,
-            onPositionSelected = { contasViewModel.setViewPagerPosition(it) }
-        )
-
-        ListDetailPaneScaffold(
-            directive = directive,
-            value = navigator.scaffoldValue,
-            listPane = {
-                HorizontalPager(state = listPagerState, key = { it }, modifier = Modifier.fillMaxSize()) { page ->
-                    val dateForPage = remember(page, isMonthly) { ContasViewModel.calculateDateState(page, isMonthly) }
-                    Surface(modifier = Modifier.fillMaxSize()) {
-                        SummaryPane(
-                            fragmentManager = fragmentManager,
-                            contasViewModel = contasViewModel,
-                            mes = dateForPage.mes,
-                            ano = dateForPage.ano,
-                            dia = dateForPage.dia,
-                            position = page
-                        )
-                    }
-                }
-            },
-            detailPane = {
-                HorizontalPager(state = detailPagerState, key = { it }, modifier = Modifier.fillMaxSize()) { page ->
-                    val dateStateDetail = remember(page, isMonthly) { ContasViewModel.calculateDateState(page, isMonthly) }
-                    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                        when (val dest = navigator.currentDestination?.contentKey) {
-                            is DetailDestination.Dashboard -> GraficosScreen(mes = dateStateDetail.mes, ano = dateStateDetail.ano, dia = if (isMonthly) null else dateStateDetail.dia)
-                            is DetailDestination.Metas -> MetasScreen(
-                                mes = dateStateDetail.mes,
-                                ano = dateStateDetail.ano,
-                                dia = if (isMonthly) -1 else dateStateDetail.dia,
-                                onCategoryClick = { tipo, categoria ->
+                    )
+                } else {
+                    StandardTopAppBar(
+                        title = appBarTitle,
+                        subtitle = appBarSubtitle,
+                        onBackClick = if (navigator.canNavigateBack()) { { coroutineScope.launch { navigator.navigateBack() } } } else null,
+                        onFilterClick = if (currentDetail is DetailDestination.Contas && currentDetail.tipo != -1) {
+                            {
+                                onShowFilterDialog(currentDetail) { novoFiltro ->
                                     coroutineScope.launch {
-                                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, DetailDestination.Contas(tipo, -1, categoria))
+                                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, currentDetail.copy(filtro = novoFiltro))
                                     }
                                 }
+                            }
+                        } else null,
+                        onSearchClick = { overlayDestination = DetailDestination.BuscarConta },
+                        onShareClick = onShare,
+                        onAiAnalysisClick = {
+                            val state = contasViewModel.currentDateState.value
+                            if (state != null) {
+                                scope.launch {
+                                    val contas = contasRepository?.getContasDoMes(state.mes, state.ano, -1, null)
+                                    if (contas != null) contasViewModel.runAiAnalysis(contas)
+                                }
+                            }
+                        },
+                        onAjustesClick = { overlayDestination = DetailDestination.Ajustes },
+                        onSobreClick = { overlayDestination = DetailDestination.Sobre },
+                        hasUnreadNotifications = hasUnreadNotifications,
+                        onShowNotifications = onShowNotifications,
+                        containerColor = appBarColor
+                    )
+                }
+            }
+
+            MonthYearTabBar(
+                selectedPosition = viewPagerPosition,
+                contasViewModel = contasViewModel,
+                pageCount = totalPages,
+                months = contasViewModel.fullStringMonths,
+                onPositionSelected = { contasViewModel.setViewPagerPosition(it) }
+            )
+
+            ListDetailPaneScaffold(
+                directive = directive,
+                value = navigator.scaffoldValue,
+                listPane = {
+                    HorizontalPager(state = listPagerState, key = { it }, modifier = Modifier.fillMaxSize()) { page ->
+                        val dateForPage = remember(page, isMonthly) { ContasViewModel.calculateDateState(page, isMonthly) }
+                        Surface(modifier = Modifier.fillMaxSize()) {
+                            SummaryPane(
+                                fragmentManager = fragmentManager,
+                                contasViewModel = contasViewModel,
+                                mes = dateForPage.mes,
+                                ano = dateForPage.ano,
+                                dia = dateForPage.dia,
+                                position = page
                             )
-                            is DetailDestination.Contas -> ContasDetailPane(dest, dateStateDetail, isMonthly, page, fragmentManager)
-                            else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(stringResource(R.string.dica_inicio)) }
+                        }
+                    }
+                },
+                detailPane = {
+                    HorizontalPager(state = detailPagerState, key = { it }, modifier = Modifier.fillMaxSize()) { page ->
+                        val dateStateDetail = remember(page, isMonthly) { ContasViewModel.calculateDateState(page, isMonthly) }
+                        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                            when (val dest = navigator.currentDestination?.contentKey) {
+                                is DetailDestination.Dashboard -> GraficosScreen(mes = dateStateDetail.mes, ano = dateStateDetail.ano, dia = if (isMonthly) null else dateStateDetail.dia)
+                                is DetailDestination.Metas -> MetasScreen(
+                                    mes = dateStateDetail.mes,
+                                    ano = dateStateDetail.ano,
+                                    dia = if (isMonthly) -1 else dateStateDetail.dia,
+                                    onCategoryClick = { tipo, categoria ->
+                                        coroutineScope.launch {
+                                            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, DetailDestination.Contas(tipo, -1, categoria))
+                                        }
+                                    }
+                                )
+                                is DetailDestination.Contas -> {
+                                    contasRepository?.let { repo ->
+                                        key(dest) { // Força a recriação do painel se o destino (incluindo filtro) mudar
+                                            ContasDetailPane(
+                                                dest = dest,
+                                                dateState = dateStateDetail,
+                                                isMonthly = isMonthly,
+                                                position = page,
+                                                repository = repo,
+                                                selectedIds = selectedIds,
+                                                onSelectionChange = { selectedIds = it },
+                                                onEditContaRequest = { ids -> onEditContaRequest(ids) },
+                                                onCoachClick = { metaId ->
+                                                    overlayDestination = DetailDestination.Planejamento(metaId)
+                                                },
+                                                onListaAtualizada = {
+                                                    // Força a atualização do produceState da TopAppBar
+                                                    val currentPos = contasViewModel.viewPagerPosition.value
+                                                    contasViewModel.setViewPagerPosition(-1)
+                                                    contasViewModel.setViewPagerPosition(currentPos)
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                                else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(stringResource(R.string.dica_inicio)) }
+                            }
                         }
                     }
                 }
-            }
-        )
+            )
+        }
     }
-}
 
     // Overlays
     if (overlayDestination != null) {
@@ -424,6 +479,7 @@ fun TabletLayout(
             ) {
                 when (val dest = overlayDestination) {
                     is DetailDestination.Planejamento -> PlanoFinanceiroScreen(
+                        initialMetaId = dest.metaId,
                         onVoltar = { overlayDestination = null },
                         onSearch = { overlayDestination = DetailDestination.BuscarConta },
                         onAjustes = { overlayDestination = DetailDestination.Ajustes },
@@ -431,7 +487,7 @@ fun TabletLayout(
                     )
                     is DetailDestination.Ajustes -> AjustesDetailPane(
                         onBack = { overlayDestination = null },
-                        onPreferenceChanged = { contasViewModel.setViewPagerPosition(-1) }, // Força refresh se necessário
+                        onPreferenceChanged = { contasViewModel.setViewPagerPosition(-1) },
                         onNavigateToPersonalizarCategorias = { overlayDestination = DetailDestination.PersonalizarCategorias },
                         onNavigateToPlanejamento = { overlayDestination = DetailDestination.DefinirMetas },
                         onRestartReasonChange = onRestartReasonChange,
@@ -444,7 +500,7 @@ fun TabletLayout(
                         dateState = dateState,
                         onBack = { overlayDestination = null },
                         onSuccess = {
-                            contasViewModel.setViewPagerPosition(contasViewModel.viewPagerPosition.value ?: 1000)
+                            contasViewModel.setViewPagerPosition(contasViewModel.viewPagerPosition.value)
                             overlayDestination = null
                         }
                     )
@@ -480,9 +536,11 @@ fun TabletLayout(
                     is DetailDestination.PersonalizarCategorias -> PersonalizarCategoriasScreen(
                         onBack = { overlayDestination = DetailDestination.Ajustes },
                         onSaved = {
-                            overlayDestination = DetailDestination.Ajustes
-                            Toast.makeText(context, R.string.ajustes_salvos, Toast.LENGTH_SHORT)
-                                .show()
+                            AjustesUtils.pendingDataRefresh = true
+                            AjustesUtils.pendingRestartReason = Ajustes.REASON_LABELS_CHANGED
+                            onRestartReasonChange(Ajustes.REASON_LABELS_CHANGED)
+                            overlayDestination = null
+                            Toast.makeText(context, R.string.ajustes_salvos, Toast.LENGTH_SHORT).show()
                         }
                     )
                     is DetailDestination.DefinirMetas -> {

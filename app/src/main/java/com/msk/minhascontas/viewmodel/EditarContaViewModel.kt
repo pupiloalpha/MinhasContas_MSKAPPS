@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.msk.minhascontas.db.Conta
 import com.msk.minhascontas.db.ContasRepository
 import com.msk.minhascontas.db.DBContas
+import com.msk.minhascontas.db.ContaFilter
+import com.msk.minhascontas.db.TipoAtualizacao
 import com.msk.minhascontas.db.ContasContract.Colunas
 import com.msk.minhascontas.tarefas.AtualizarContaTarefa
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +69,7 @@ class EditarContaViewModel(application: Application) : AndroidViewModel(applicat
                     if (c.qtRepete > 1) {
                         isRecurring = true
                     } else {
-                        val filter = DBContas.ContaFilter().setCodigoConta(c.codigo)
+                        val filter = ContaFilter().setCodigoConta(c.codigo)
                         val series = withContext(Dispatchers.IO) {
                             repository.getContas(filter, null)
                         }
@@ -112,7 +114,7 @@ class EditarContaViewModel(application: Application) : AndroidViewModel(applicat
         modifiedFields = modifiedFields + fieldName
     }
 
-    fun updateConta(updatedConta: Conta, tipo: DBContas.TipoAtualizacao) {
+    fun updateConta(updatedConta: Conta, tipo: TipoAtualizacao) {
         if (isBulkEdit) {
             updateBulk(updatedConta)
         } else {

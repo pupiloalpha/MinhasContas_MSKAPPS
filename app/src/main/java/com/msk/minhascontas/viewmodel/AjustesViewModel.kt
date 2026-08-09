@@ -18,6 +18,7 @@ import com.msk.minhascontas.features.pdf.ContaImportada
 import com.msk.minhascontas.features.pdf.ImportSummary
 import com.msk.minhascontas.features.pdf.ImportarPDF
 import com.msk.minhascontas.features.excel.ImportarExcel
+import com.msk.minhascontas.utils.AjustesUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -81,7 +82,7 @@ class AjustesViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun setPreference(key: String, value: Boolean) {
-        sharedPref.edit().putBoolean(key, value).apply()
+        sharedPref.edit().putBoolean(key, value).commit()
     }
 
     fun getPreference(key: String, defaultValue: String): String {
@@ -89,7 +90,7 @@ class AjustesViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun setPreference(key: String, value: String) {
-        sharedPref.edit().putString(key, value).apply()
+        sharedPref.edit().putString(key, value).commit()
     }
 
     fun excluirTudo(callback: () -> Unit) {
@@ -180,6 +181,7 @@ class AjustesViewModel(application: Application) : AndroidViewModel(application)
             // Usa o importador de PDF para a persistência, pois a lógica é idêntica
             val importador = ImportarPDF()
             val result = importador.confirmarImportacao(getApplication(), contas, gerarFuturas)
+            AjustesUtils.pendingDataRefresh = true
             _importSummary.value = null
             _importState.value = ImportState.IDLE
             onFinish(result)

@@ -28,6 +28,10 @@ import java.util.Arrays;
 import static com.msk.minhascontas.db.ContasContract.Colunas; // Import Estático para simplificar referências
 import static com.msk.minhascontas.db.ContasContract.Notificacoes; // Import Estático para notificações
 
+import com.msk.minhascontas.db.ContaFilter;
+import com.msk.minhascontas.db.TipoExclusao;
+import com.msk.minhascontas.db.TipoAtualizacao;
+
 import com.msk.minhascontas.R;
 import com.msk.minhascontas.utils.LabelUtils;
 
@@ -86,7 +90,7 @@ public final class DBContas {
     private static final int VERSAO_BANCO_DE_DADOS = 12; // Updated to 12 for Notifications table
 
     // --- CONSTANT FOR DB RESET FLAG ---
-    public static final String PREF_DB_RESET_FLAG = "db_reset_flag";
+    public static final String PREF_DB_RESET_FLAG = ContasRepository.PREF_DB_RESET_FLAG;
 
     // Nome do arquivo de backup
     private static final String NOME_BACKUP_AUTOMATICO = "minhas_contas_backup_seguranca.db";
@@ -254,22 +258,6 @@ public final class DBContas {
         if (DBHelper != null) {
             DBHelper.close();
         }
-    }
-
-    // --- ENUMS FOR RECURRING ACCOUNT OPERATIONS ---
-
-    /** Options for deleting recurring accounts. */
-    public enum TipoExclusao {
-        SOMENTE_ESTA,      // Delete only this specific account instance
-        DESTA_EM_DIANTE,   // Delete this account and all subsequent recurring accounts
-        TODAS_AS_REPETICOES // Delete all recurring accounts in the series
-    }
-
-    /** Options for updating recurring accounts. */
-    public enum TipoAtualizacao {
-        SOMENTE_ESTA,      // Update only this specific account instance
-        DESTA_EM_DIANTE,   // Update this account and all subsequent recurring accounts (recalculating values)
-        TODAS_AS_REPETICOES // Update all recurring accounts in the series (recalculating values)
     }
 
     // --- HELPER / CONVERSION METHODS ---
@@ -466,11 +454,9 @@ public final class DBContas {
 
     /**
      * Lista todas as contas (detalhada) de um determinado mês e ano.
-     * Usado para popular a aba de DADOS DETALHADOS na exportação.
-     * @param mes O mês de referência.
-     * @param ano O ano de referência.
-     * @return Um Cursor contendo todos os dados. O chamador é responsável por fechar o Cursor.
+     * @deprecated Migrated to ContasRepository using Room.
      */
+    @Deprecated
     @SuppressLint("Recycle")
     public Cursor listaContasCompleta(int mes, int ano) {
         String orderBy = Colunas.COLUNA_DIA_DATA_CONTA + " ASC, " + Colunas.COLUNA_NOME_CONTA + " ASC";
@@ -527,25 +513,18 @@ public final class DBContas {
 
     /**
      * Inserts a new account record into the database using a Conta POJO.
-     *
-     * @param conta The Conta object containing the data to insert.
-     * @return The row ID of the newly inserted row, or -1 if an error occurred.
+     * @deprecated Migrated to ContasRepository using Room. Keep for legacy reference.
      */
+    @Deprecated
     public long geraConta(Conta conta) {
         ContentValues dadosConta = criarContentValues(conta);
         return db.insert(TABELA_CONTAS, null, dadosConta);
     }
 
     /**
-     * Generates and inserts a series of recurring accounts into the database.
-     * The first account is inserted based on 'primeiraConta', and subsequent accounts
-     * are calculated based on the interval and number of repetitions. Juros (interest)
-     * are applied for DESPESAS (type 0) and RECEITAS (type 2) if specified.
-     *
-     * @param primeiraConta The base Conta object for the first recurrence.
-     * @param qtRepeticoes  The total number of repetitions for the series (including the first).
-     * @param intervalo     The interval type for recurrence (e.g., 300 for monthly, 3650 for yearly).
+     * @deprecated Migrated to ContasRepository using Room.
      */
+    @Deprecated
     public void geraContasRecorrentes(Conta primeiraConta, int qtRepeticoes, int intervalo) {
         // Set recurrence properties for the first account
         primeiraConta.setNRepete(1);
@@ -739,46 +718,46 @@ public final class DBContas {
 
         // Replicar a lógica de construção da cláusula WHERE do getAllContas
         if (filter != null) {
-            if (!TextUtils.isEmpty(filter.getNome())) {
+            if (!TextUtils.isEmpty(filter.nome)) {
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_NOME_CONTA).append(" LIKE ?");
-                argumentosList.add("%" + filter.getNome() + "%");
+                argumentosList.add("%" + filter.nome + "%");
             }
 
-            if (filter.getTipo() != -1) {
+            if (filter.tipo != -1) {
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_TIPO_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filter.getTipo()));
+                argumentosList.add(String.valueOf(filter.tipo));
             }
 
-            if (filter.getClasse() != -1) {
+            if (filter.classe != -1) {
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_CLASSE_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filter.getClasse()));
+                argumentosList.add(String.valueOf(filter.classe));
             }
 
-            if (filter.getCategoria() != -1) {
+            if (filter.categoria != -1) {
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_CATEGORIA_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filter.getCategoria()));
+                argumentosList.add(String.valueOf(filter.categoria));
             }
 
-            if (filter.getDia() > 0) { // Adicionado filtro por dia
+            if (filter.dia > 0) { // Adicionado filtro por dia
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_DIA_DATA_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filter.getDia()));
+                argumentosList.add(String.valueOf(filter.dia));
             }
 
-            if (filter.getMes() > 0) { // Adicionado filtro por mês
+            if (filter.mes > 0) { // Adicionado filtro por mês
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_MES_DATA_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filter.getMes()));
+                argumentosList.add(String.valueOf(filter.mes));
             }
 
-            if (filter.getAno() > 0) { // Adicionado filtro por ano
+            if (filter.ano > 0) { // Adicionado filtro por ano
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_ANO_DATA_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filter.getAno()));
+                argumentosList.add(String.valueOf(filter.ano));
             }
 
             if (filter.pagamento != null && !filter.pagamento.isEmpty()) { // Adicionado filtro por pagamento
@@ -917,33 +896,33 @@ public final class DBContas {
         String ordenacao = Colunas.COLUNA_ANO_DATA_CONTA + " DESC, " + Colunas.COLUNA_MES_DATA_CONTA + " DESC, " + Colunas.COLUNA_DIA_DATA_CONTA + " DESC";
 
         if (filtro != null) {
-            if (!TextUtils.isEmpty(filtro.getNome())) {
+            if (!TextUtils.isEmpty(filtro.nome)) {
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_NOME_CONTA).append(" LIKE ?");
-                argumentosList.add("%" + filtro.getNome() + "%");
+                argumentosList.add("%" + filtro.nome + "%");
             }
 
-            if (filtro.getTipo() != -1) {
+            if (filtro.tipo != -1) {
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_TIPO_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filtro.getTipo()));
+                argumentosList.add(String.valueOf(filtro.tipo));
             }
 
-            if (filtro.getClasse() != -1) {
+            if (filtro.classe != -1) {
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_CLASSE_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filtro.getClasse()));
+                argumentosList.add(String.valueOf(filtro.classe));
             }
 
-            if (filtro.getCategoria() != -1) {
+            if (filtro.categoria != -1) {
                 if (selecao.length() > 0) selecao.append(" AND ");
                 selecao.append(Colunas.COLUNA_CATEGORIA_CONTA).append(" = ?");
-                argumentosList.add(String.valueOf(filtro.getCategoria()));
+                argumentosList.add(String.valueOf(filtro.categoria));
             }
 
-            int ano = filtro.getAno();
-            int mes = filtro.getMes();
-            int dia = filtro.getDia();
+            int ano = filtro.ano;
+            int mes = filtro.mes;
+            int dia = filtro.dia;
 
             if (ano > 0) {
                 if (selecao.length() > 0) selecao.append(" AND ");
@@ -1568,9 +1547,9 @@ public final class DBContas {
 
     /**
      * Retorna os nomes das linhas do resumo (Títulos das categorias/tipos).
-     * @param context O contexto para acessar Resources e Strings.
-     * @return Um array de String com os nomes das linhas.
+     * @deprecated Migrated to ContasRepository.
      */
+    @Deprecated
     public String[] NomeLinhas(Context context) {
         Resources res = context.getResources();
         com.msk.minhascontas.utils.LabelUtils labelUtils = com.msk.minhascontas.utils.LabelUtils.INSTANCE;
@@ -1633,10 +1612,9 @@ public final class DBContas {
 
     /**
      * Updates the data of a specific account by its ID.
-     *
-     * @param conta The Conta object with the updated data.
-     * @return true if the update was successful, false otherwise.
+     * @deprecated Migrated to ContasRepository using Room.
      */
+    @Deprecated
     public boolean alteraConta(Conta conta) {
         ContentValues args = criarContentValues(conta);
         args.remove(Colunas._ID); // _ID is used in WHERE clause, not updated directly
@@ -1645,25 +1623,20 @@ public final class DBContas {
 
     /**
      * Updates recurring accounts based on the specified update type.
-     * - {@link TipoAtualizacao#SOMENTE_ESTA}: Updates only the base account.
-     * - {@link TipoAtualizacao#DESTA_EM_DIANTE}: Updates the base account and all subsequent recurrences.
-     * - {@link TipoAtualizacao#TODAS_AS_REPETICOES}: Updates all recurrences in the series.
-     * Values (like valor with juros) are recalculated for affected accounts.
-     *
-     * @param contaBase     The Conta object with the updated base data.
-     * @param tipoAtualizacao The type of update to perform for the recurring series.
+     * @deprecated Migrated to ContasRepository using Room.
      */
+    @Deprecated
     public void alteraContasRecorrentes(Conta contaBase, TipoAtualizacao tipoAtualizacao) {
         if (tipoAtualizacao == TipoAtualizacao.SOMENTE_ESTA) {
             alteraConta(contaBase); // Only update the current instance
             return;
         }
 
-        ContaFilter filter = new ContaFilter()
-                .setCodigoConta(contaBase.getCodigo());
+        ContaFilter filter = new ContaFilter();
+        filter.codigoConta = contaBase.getCodigo();
 
         if (tipoAtualizacao == TipoAtualizacao.DESTA_EM_DIANTE) {
-            filter.setNrRepeticaoMin(contaBase.getNRepete());
+            filter.nrRepeticaoMin = contaBase.getNRepete();
         }
 
         try (Cursor cursor = getContasByFilter(filter, Colunas.COLUNA_NR_REPETICAO_CONTA + " ASC")) {
@@ -1752,11 +1725,9 @@ public final class DBContas {
 
     /**
      * Updates the payment status (PAGO/FALTA) of a specific account.
-     *
-     * @param idConta The ID of the account to update.
-     * @param status  The new status (DBContas.PAGAMENTO_PAGO or DBContas.PAGAMENTO_FALTA).
-     * @return The number of rows affected (0 or 1).
+     * @deprecated Migrated to ContasRepository using Room.
      */
+    @Deprecated
     public int updateContaPagamento(long idConta, String status) {
         ContentValues values = new ContentValues();
         values.put(Colunas.COLUNA_PAGOU_CONTA, status);
@@ -2077,10 +2048,9 @@ public final class DBContas {
 
     /**
      * Deletes a single account record by its ID.
-     *
-     * @param idConta The ID of the account to delete.
-     * @return The number of rows deleted (0 or 1).
+     * @deprecated Migrated to ContasRepository using Room.
      */
+    @Deprecated
     public int deleteConta(long idConta) {
         String selection = Colunas._ID + " = ?";
         String[] selectionArgs = {String.valueOf(idConta)};
@@ -2112,27 +2082,18 @@ public final class DBContas {
     }
 
     /**
-     * Deletes recurring accounts based on the series code, starting repetition number, and exclusion type.
-     * - {@link TipoExclusao#SOMENTE_ESTA}: Deletes only the specific account instance.
-     * - {@link TipoExclusao#DESTA_EM_DIANTE}: Deletes this account and all subsequent recurring accounts in the series.
-     *   Also adjusts the `qt_repeticoes` of remaining accounts in the series.
-     * - {@link TipoExclusao#TODAS_AS_REPETICOES}: Deletes all accounts in the recurring series.
-     *
-     * @param idConta           The ID of the specific account (used only for SOMENTE_ESTA).
-     * @param codigoConta        The unique code of the recurring series.
-     * @param nrRepeticao       The repetition number of the current account (used for DESTA_EM_DIANTE).
-     * @param tipoExclusao       The type of exclusion to perform.
-     * @return true if at least one account was deleted, false otherwise.
+     * @deprecated Migrated to ContasRepository using Room.
      */
+    @Deprecated
     public boolean deletarContasRecorrentes(long idConta, String codigoConta, int nrRepeticao, TipoExclusao tipoExclusao) {
         if (tipoExclusao == TipoExclusao.SOMENTE_ESTA) {
             return deletarConta(idConta); // Delegates to simple delete
         } else {
-            ContaFilter filterDelecao = new ContaFilter()
-                    .setCodigoConta(codigoConta);
+            ContaFilter filterDelecao = new ContaFilter();
+            filterDelecao.codigoConta = codigoConta;
 
             if (tipoExclusao == TipoExclusao.DESTA_EM_DIANTE) {
-                filterDelecao.setNrRepeticaoMin(nrRepeticao); // Delete this and all greater repetitions
+                filterDelecao.nrRepeticaoMin = nrRepeticao; // Delete this and all greater repetitions
             }
 
             String whereClauseDelecao = filterDelecao.buildWhereClause();
@@ -2150,9 +2111,9 @@ public final class DBContas {
                 int novoQtRepete = nrRepeticao - 1;
 
                 if (novoQtRepete > 0) {
-                    ContaFilter filterAtualizacao = new ContaFilter()
-                            .setCodigoConta(codigoConta)
-                            .setNrRepeticaoMax(novoQtRepete); // Update only remaining ones
+                    ContaFilter filterAtualizacao = new ContaFilter();
+                    filterAtualizacao.codigoConta = codigoConta;
+                    filterAtualizacao.nrRepeticaoMax = novoQtRepete; // Update only remaining ones
 
                     String whereClauseAtualizacao = filterAtualizacao.buildWhereClause();
                     String[] whereArgsAtualizacao = filterAtualizacao.buildWhereArgs();
@@ -2624,11 +2585,9 @@ public final class DBContas {
 
     /**
      * Insere uma nova notificação no banco de dados.
-     * @param titulo Título do alerta
-     * @param mensagem Mensagem detalhada
-     * @param tipo Identificador da regra (ex: "alert_vencimento")
-     * @return ID da linha inserida ou -1 se falhar
+     * @deprecated Migrated to NotificationDao in Room.
      */
+    @Deprecated
     public long addNotificacao(String titulo, String mensagem, String tipo) {
         if (db == null || !db.isOpen()) open();
         
@@ -2682,7 +2641,9 @@ public final class DBContas {
 
     /**
      * Marca uma notificação específica como lida.
+     * @deprecated Migrated to NotificationDao in Room.
      */
+    @Deprecated
     public void marcarNotificacaoComoLida(long id) {
         if (db == null || !db.isOpen()) open();
         ContentValues values = new ContentValues();
@@ -3177,386 +3138,7 @@ public final class DBContas {
 
 
     // --- INNER CLASS: CONTAFILTER ---
-    /**
-     * Builder class to create filters for 'contas' (accounts/bills).
-     * Useful for searching recurring series or accounts with specific criteria.
-     * This class is {@link Serializable} to allow passing via Bundle between Android components.
-     */
-    public static class ContaFilter implements Serializable {
-        private String codigoConta = null;
-        private int nrRepeticaoMin = -1;
-        private int nrRepeticaoMax = -1;
-        private int dia = -1;
-        private int diaFim = -1; // Novo: Para acumulado MTD
-        private int mes = -1;
-        private int ano = -1;
-        private String nome;
-        private int tipo = -1;
-        private int classe = -1;
-        private int categoria = -1;
-        private String pagamento = null;
-        private List<Integer> categoriasIn = null;
-        private List<Integer> classesIn = null;
-        private List<Integer> tiposIn = null;
-        private Double valorGlobal = null;
-        private Integer diaGlobal = null;
-        private Integer mesGlobal = null;
-        private Integer anoGlobal = null;
-        private boolean isPesquisaGlobal = false;
-
-        // --- CONSTRUCTORS ---
-        public ContaFilter() {
-            // Empty constructor
-        }
-
-        // --- GETTERS ---
-        public String getNome() { return nome; }
-        public int getTipo() { return tipo; }
-        public int getClasse() { return classe; }
-        public int getCategoria() { return categoria; }
-        public int getDia() { return dia; }
-        public int getDiaFim() { return diaFim; }
-        public int getMes() { return mes; }
-        public int getAno() { return ano; }
-
-        // --- SETTERS (fluent interface) ---
-        public ContaFilter setCodigoConta(String codigo) {
-            this.codigoConta = codigo;
-            return this;
-        }
-        public ContaFilter setNome(String nome) {
-            this.nome = nome;
-            return this;
-        }
-        public ContaFilter setNrRepeticaoMin(int nr) {
-            this.nrRepeticaoMin = nr;
-            return this;
-        }
-        public ContaFilter setNrRepeticaoMax(int nr) {
-            this.nrRepeticaoMax = nr;
-            return this;
-        }
-        public ContaFilter setDia(int dia) {
-            this.dia = dia;
-            return this;
-        }
-        public ContaFilter setDiaFim(int diaFim) {
-            this.diaFim = diaFim;
-            return this;
-        }
-        public ContaFilter setMes(int mes) {
-            this.mes = mes;
-            return this;
-        }
-        public ContaFilter setAno(int ano) {
-            this.ano = ano;
-            return this;
-        }
-        public ContaFilter setTipo(int tipo) {
-            this.tipo = tipo;
-            return this;
-        }
-        public ContaFilter setClasse(int classe) {
-            this.classe = classe;
-            return this;
-        }
-        public ContaFilter setCategoria(int categoria) {
-            this.categoria = categoria;
-            return this;
-        }
-        public ContaFilter setCategoriasIn(List<Integer> categorias) {
-            this.categoriasIn = categorias;
-            return this;
-        }
-        public ContaFilter setClassesIn(List<Integer> classes) {
-            this.classesIn = classes;
-            return this;
-        }
-        public ContaFilter setTiposIn(List<Integer> tipos) {
-            this.tiposIn = tipos;
-            return this;
-        }
-        public ContaFilter setValorGlobal(Double valor) {
-            this.valorGlobal = valor;
-            return this;
-        }
-        public ContaFilter setDiaGlobal(Integer dia) {
-            this.diaGlobal = dia;
-            return this;
-        }
-        public ContaFilter setMesGlobal(Integer mes) {
-            this.mesGlobal = mes;
-            return this;
-        }
-        public ContaFilter setAnoGlobal(Integer ano) {
-            this.anoGlobal = ano;
-            return this;
-        }
-        public ContaFilter setPesquisaGlobal(boolean isGlobal) {
-            this.isPesquisaGlobal = isGlobal;
-            return this;
-        }
-        public ContaFilter setPagamento(String pagamento) {
-            this.pagamento = pagamento;
-            return this;
-        }
-        /**
-         * Sets multiple date filters simultaneously.
-         *
-         * @param ano The year (-1 for no year filter).
-         * @param mes The month (-1 for no month filter).
-         * @param dia The day (-1 for no day filter).
-         * @return The current ContaFilter instance for chaining.
-         */
-        public ContaFilter setFiltroData(int ano, int mes, int dia) {
-            this.ano = ano;
-            this.mes = mes;
-            this.dia = dia;
-            return this;
-        }
-
-        // --- WHERE CLAUSE BUILDERS ---
-
-        /**
-         * Builds the WHERE clause string based on the defined filters.
-         * Uses '?' placeholders for arguments to prevent SQL injection.
-         *
-         * @return A SQL WHERE clause string (e.g., "COLUMN_NAME = ? AND ANOTHER_COLUMN LIKE ?").
-         */
-        public String buildWhereClause() {
-            List<String> clauses = new ArrayList<>();
-            List<String> textFilters = new ArrayList<>();
-
-            // Se for pesquisa global, agrupamos os filtros de texto com OR
-            if (isPesquisaGlobal) {
-                if (!TextUtils.isEmpty(nome)) {
-                    textFilters.add(Colunas.COLUNA_NOME_CONTA + " LIKE ?");
-                }
-                if (categoriasIn != null && !categoriasIn.isEmpty()) {
-                    textFilters.add(Colunas.COLUNA_CATEGORIA_CONTA + " IN (" + makePlaceholders(categoriasIn.size()) + ")");
-                }
-                if (classesIn != null && !classesIn.isEmpty()) {
-                    textFilters.add(Colunas.COLUNA_CLASSE_CONTA + " IN (" + makePlaceholders(classesIn.size()) + ")");
-                }
-                if (tiposIn != null && !tiposIn.isEmpty()) {
-                    textFilters.add(Colunas.COLUNA_TIPO_CONTA + " IN (" + makePlaceholders(tiposIn.size()) + ")");
-                }
-                if (valorGlobal != null) {
-                    textFilters.add(Colunas.COLUNA_VALOR_CONTA + " = ?");
-                }
-                if (diaGlobal != null) {
-                    textFilters.add(Colunas.COLUNA_DIA_DATA_CONTA + " = ?");
-                }
-                if (mesGlobal != null) {
-                    textFilters.add(Colunas.COLUNA_MES_DATA_CONTA + " = ?");
-                }
-                if (anoGlobal != null) {
-                    textFilters.add(Colunas.COLUNA_ANO_DATA_CONTA + " = ?");
-                }
-
-                if (!textFilters.isEmpty()) {
-                    clauses.add("(" + TextUtils.join(" OR ", textFilters) + ")");
-                }
-            } else {
-                // Comportamento original para filtros específicos (AND)
-                if (!TextUtils.isEmpty(nome)) {
-                    clauses.add(Colunas.COLUNA_NOME_CONTA + " LIKE ?");
-                }
-                if (tipo != -1) {
-                    clauses.add(Colunas.COLUNA_TIPO_CONTA + " = ?");
-                }
-                if (classe != -1) {
-                    clauses.add(Colunas.COLUNA_CLASSE_CONTA + " = ?");
-                }
-                if (categoria != -1) {
-                    clauses.add(Colunas.COLUNA_CATEGORIA_CONTA + " = ?");
-                }
-            }
-
-            if (codigoConta != null) {
-                clauses.add(Colunas.COLUNA_CODIGO_CONTA + " = ?");
-            }
-            if (nrRepeticaoMin > 0) {
-                clauses.add(Colunas.COLUNA_NR_REPETICAO_CONTA + " >= ?");
-            }
-            if (nrRepeticaoMax > 0) {
-                clauses.add(Colunas.COLUNA_NR_REPETICAO_CONTA + " <= ?");
-            }
-            
-            // Lógica de dia / range de dia
-            if (dia > 0 && diaFim > 0) {
-                clauses.add(Colunas.COLUNA_DIA_DATA_CONTA + " BETWEEN ? AND ?");
-            } else if (dia > 0) {
-                clauses.add(Colunas.COLUNA_DIA_DATA_CONTA + " = ?");
-            } else if (diaFim > 0) {
-                clauses.add(Colunas.COLUNA_DIA_DATA_CONTA + " <= ?");
-            }
-
-            if (mes >= 1 && mes <= 12) {
-                clauses.add(Colunas.COLUNA_MES_DATA_CONTA + " = ?");
-            }
-            if (ano > 0) {
-                clauses.add(Colunas.COLUNA_ANO_DATA_CONTA + " = ?");
-            }
-            if (pagamento != null) {
-                clauses.add(Colunas.COLUNA_PAGOU_CONTA + " = ?");
-            }
-            return TextUtils.join(" AND ", clauses);
-        }
-
-        private String makePlaceholders(int count) {
-            if (count < 1) return "";
-            StringBuilder sb = new StringBuilder("?");
-            for (int i = 1; i < count; i++) sb.append(",?");
-            return sb.toString();
-        }
-
-        /**
-         * Builds the array of arguments corresponding to the '?' placeholders in the WHERE clause.
-         *
-         * @return A String array of arguments.
-         */
-        public String[] buildWhereArgs() {
-            List<String> args = new ArrayList<>();
-            
-            if (isPesquisaGlobal) {
-                if (!TextUtils.isEmpty(nome)) {
-                    args.add("%" + nome + "%");
-                }
-                if (categoriasIn != null && !categoriasIn.isEmpty()) {
-                    for (Integer cat : categoriasIn) args.add(String.valueOf(cat));
-                }
-                if (classesIn != null && !classesIn.isEmpty()) {
-                    for (Integer cls : classesIn) args.add(String.valueOf(cls));
-                }
-                if (tiposIn != null && !tiposIn.isEmpty()) {
-                    for (Integer t : tiposIn) args.add(String.valueOf(t));
-                }
-                if (valorGlobal != null) {
-                    args.add(String.valueOf(valorGlobal));
-                }
-                if (diaGlobal != null) {
-                    args.add(String.valueOf(diaGlobal));
-                }
-                if (mesGlobal != null) {
-                    args.add(String.valueOf(mesGlobal));
-                }
-                if (anoGlobal != null) {
-                    args.add(String.valueOf(anoGlobal));
-                }
-            } else {
-                if (!TextUtils.isEmpty(nome)) {
-                    args.add("%" + nome + "%");
-                }
-                if (tipo != -1) {
-                    args.add(String.valueOf(tipo));
-                }
-                if (classe != -1) {
-                    args.add(String.valueOf(classe));
-                }
-                if (categoria != -1) {
-                    args.add(String.valueOf(categoria));
-                }
-            }
-
-            if (codigoConta != null) {
-                args.add(codigoConta);
-            }
-            if (nrRepeticaoMin > 0) {
-                args.add(String.valueOf(nrRepeticaoMin));
-            }
-            if (nrRepeticaoMax > 0) {
-                args.add(String.valueOf(nrRepeticaoMax));
-            }
-            
-            // Argumentos de dia
-            if (dia > 0 && diaFim > 0) {
-                args.add(String.valueOf(dia));
-                args.add(String.valueOf(diaFim));
-            } else if (dia > 0) {
-                args.add(String.valueOf(dia));
-            } else if (diaFim > 0) {
-                args.add(String.valueOf(diaFim));
-            }
-
-            if (mes >= 1 && mes <= 12) {
-                args.add(String.valueOf(mes));
-            }
-            if (ano > 0) {
-                args.add(String.valueOf(ano));
-            }
-            if (pagamento != null) {
-                args.add(pagamento);
-            }
-            return args.toArray(new String[0]);
-        }
-
-        /**
-         * Constructs a partial WHERE clause for common filters (month, year, type, class, payment).
-         * Used by methods like {@link DBContas#getContasDoMes(int, int, int, ContaFilter)}.
-         *
-         * @return A WHERE clause string with '?' placeholders, or null if no filters are set.
-         */
-        public String getSelection() {
-            List<String> selectionParts = new ArrayList<>();
-            if (mes != -1) {
-                selectionParts.add(Colunas.COLUNA_MES_DATA_CONTA + " = ?");
-            }
-            if (ano != -1) {
-                selectionParts.add(Colunas.COLUNA_ANO_DATA_CONTA + " = ?");
-            }
-            if (tipo != -1) {
-                selectionParts.add(Colunas.COLUNA_TIPO_CONTA + " = ?");
-            }
-            if (classe != -1) {
-                selectionParts.add(Colunas.COLUNA_CLASSE_CONTA + " = ?");
-            }
-            if (pagamento != null) {
-                selectionParts.add(Colunas.COLUNA_PAGOU_CONTA + " = ?");
-            }
-            if (dia > 0 && diaFim > 0) {
-                selectionParts.add(Colunas.COLUNA_DIA_DATA_CONTA + " BETWEEN ? AND ?");
-            } else if (dia > 0) {
-                selectionParts.add(Colunas.COLUNA_DIA_DATA_CONTA + " = ?");
-            } else if (diaFim > 0) {
-                selectionParts.add(Colunas.COLUNA_DIA_DATA_CONTA + " <= ?");
-            }
-            return selectionParts.isEmpty() ? null : TextUtils.join(" AND ", selectionParts);
-        }
-
-        /**
-         * Returns the arguments for the partial WHERE clause constructed by {@link #getSelection()}.
-         *
-         * @return A String array of arguments corresponding to the '?' placeholders.
-         */
-        public String[] getSelectionArgs() {
-            List<String> args = new ArrayList<>();
-            if (mes != -1) {
-                args.add(String.valueOf(mes));
-            }
-            if (ano != -1) {
-                args.add(String.valueOf(ano));
-            }
-            if (tipo != -1) {
-                args.add(String.valueOf(tipo));
-            }
-            if (classe != -1) {
-                args.add(String.valueOf(classe));
-            }
-            if (pagamento != null) {
-                args.add(pagamento);
-            }
-            if (dia > 0 && diaFim > 0) {
-                args.add(String.valueOf(dia));
-                args.add(String.valueOf(diaFim));
-            } else if (dia > 0) {
-                args.add(String.valueOf(dia));
-            } else if (diaFim > 0) {
-                args.add(String.valueOf(diaFim));
-            }
-            return args.toArray(new String[0]);
-        }
-    }
+    // (MOVED TO KOTLIN)
 
     // --- INNER CLASS: DATABASEHELPER ---
     /**

@@ -13,27 +13,24 @@ import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.adaptive.currentWindowSize
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.window.core.layout.WindowSizeClass
 import com.msk.minhascontas.R
 import com.msk.minhascontas.features.ai.AIResult
 import com.msk.minhascontas.db.MetaFinanceira
+import com.msk.minhascontas.ui.layouts.StandardTopAppBar
+import com.msk.minhascontas.ui.theme.FabColor
 import com.msk.minhascontas.viewmodel.PlanoFinanceiroViewModel
 import java.text.NumberFormat
 
@@ -48,29 +45,26 @@ fun DashboardCoachScreen(
     onSobre: () -> Unit,
     viewModel: PlanoFinanceiroViewModel = viewModel()
 ) {
-    val metas by viewModel.metasAtivas.observeAsState(emptyList())
+    // Coleta as metas recalculadas dinamicamente via StateFlow
+    val metas by viewModel.metasComProgressoReal.collectAsState()
     val locale = LocalConfiguration.current.locales[0]
     val currencyFormat = remember(locale) { NumberFormat.getCurrencyInstance(locale) }
+
+    // Recalcula o progresso ao entrar ou retomar a tela
+    LaunchedEffect(Unit) {
+        viewModel.recalcularProgressoMetasComBanco()
+    }
 
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.coach_title_dashboard), fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onVoltar) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onSearch) { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary) }
-                    IconButton(onClick = onAjustes) { Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary) }
-                    IconButton(onClick = onSobre) { Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary) }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+            StandardTopAppBar(
+                title = stringResource(R.string.coach_title_dashboard),
+                onBackClick = onVoltar,
+                onSearchClick = onSearch,
+                onAjustesClick = onAjustes,
+                onSobreClick = onSobre,
+                containerColor = MaterialTheme.colorScheme.primary
             )
         },
         floatingActionButton = {
@@ -90,36 +84,24 @@ fun DashboardCoachScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Card de Orçamento Estratégico (Regra 20%)
-            item {
-                OrcamentoEstrategicoCard(viewModel, currencyFormat)
-            }
-
-            // Seção de Diagnóstico IA
-            item {
-                DiagnosticoAICard(viewModel)
-            }
-
-            // Título da lista de metas
+            item { OrcamentoEstrategicoCard(viewModel, currencyFormat) }
+            item { DiagnosticoAICard(viewModel) }
             item {
                 Text(
                     text = stringResource(R.string.coach_your_plans),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
-
             if (metas.isEmpty()) {
-                item {
-                    EmptyGoalsCard(onNavegarSimulador)
-                }
+                item { EmptyGoalsCard(onNavegarSimulador) }
             } else {
                 items(metas, key = { it.id }) { meta ->
                     MetaItemCard(meta, currencyFormat, onMetaClick)
                 }
             }
-            
             item { Spacer(modifier = Modifier.height(72.dp)) }
         }
     }
@@ -127,16 +109,19 @@ fun DashboardCoachScreen(
 
 @Composable
 fun OrcamentoEstrategicoCard(viewModel: PlanoFinanceiroViewModel, currencyFormat: NumberFormat) {
-    val totalDisponivel = viewModel.valorDisponivelTotal20Porcento
-    val metas by viewModel.metasAtivas.observeAsState(emptyList())
+    val totalDisponivel = viewModel.valorMetaPrioridade20
+    val metas by viewModel.metasComProgressoReal.collectAsState()
     val valorComprometido = metas.sumOf { it.aporteMensalAlvo }
     val valorLivre = (totalDisponivel - valorComprometido).coerceAtLeast(0.0)
-    
+
     val progresso = if (totalDisponivel > 0) (valorComprometido / totalDisponivel).toFloat().coerceIn(0f, 1f) else 0f
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -172,14 +157,14 @@ fun OrcamentoEstrategicoCard(viewModel: PlanoFinanceiroViewModel, currencyFormat
                     .fillMaxWidth()
                     .height(12.dp),
                 color = MaterialTheme.colorScheme.onPrimary,
-                trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f),
+                trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 InfoItem(stringResource(R.string.coach_total), currencyFormat.format(totalDisponivel), MaterialTheme.colorScheme.onPrimary)
-                InfoItem(stringResource(R.string.coach_free), currencyFormat.format(valorLivre), colorResource(R.color.amarelo))
+                InfoItem(stringResource(R.string.coach_free), currencyFormat.format(valorLivre), MaterialTheme.colorScheme.onPrimary)
             }
         }
     }
@@ -192,16 +177,17 @@ fun DiagnosticoAICard(viewModel: PlanoFinanceiroViewModel) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = colorResource(R.color.total_planejado_color))
+                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.coach_diag_title),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -209,11 +195,12 @@ fun DiagnosticoAICard(viewModel: PlanoFinanceiroViewModel) {
 
             if (result == null && !isLoading) {
                 Text(
-                    text = if (viewModel.valorPrestacoesAtivas > 0) 
+                    text = if (viewModel.valorPrestacoesAtivas > 0)
                         stringResource(R.string.coach_diag_debt_found, NumberFormat.getCurrencyInstance().format(viewModel.valorPrestacoesAtivas))
-                    else 
+                    else
                         stringResource(R.string.coach_diag_no_investments),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
@@ -227,15 +214,17 @@ fun DiagnosticoAICard(viewModel: PlanoFinanceiroViewModel) {
                     CircularProgressIndicator()
                 }
             } else if (result is AIResult.Success) {
+                val textColor = MaterialTheme.colorScheme.onSurface.toArgb()
                 AndroidView(
                     factory = { context ->
                         TextView(context).apply {
                             text = Html.fromHtml(result.content, Html.FROM_HTML_MODE_LEGACY)
+                            setTextColor(textColor)
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 TextButton(
                     onClick = { viewModel.gerarAnaliseIA() },
                     modifier = Modifier.align(Alignment.End)
@@ -261,8 +250,7 @@ fun MetaItemCard(meta: MetaFinanceira, currencyFormat: NumberFormat, onClick: (M
 
     val iconColor = when (meta.tipoMeta) {
         MetaFinanceira.TIPO_DIVIDA -> MaterialTheme.colorScheme.error
-        MetaFinanceira.TIPO_RESERVA -> colorResource(R.color.aplicacao_color)
-        MetaFinanceira.TIPO_INVESTIMENTO -> colorResource(R.color.aplicacao_color)
+        MetaFinanceira.TIPO_RESERVA, MetaFinanceira.TIPO_INVESTIMENTO -> MaterialTheme.colorScheme.tertiary
         else -> MaterialTheme.colorScheme.primary
     }
 
@@ -270,21 +258,21 @@ fun MetaItemCard(meta: MetaFinanceira, currencyFormat: NumberFormat, onClick: (M
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick(meta) },
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
-                        .background(iconColor.copy(alpha = 0.1f), MaterialTheme.shapes.small),
+                        .background(iconColor.copy(alpha = 0.15f), MaterialTheme.shapes.small),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(icon, contentDescription = null, tint = iconColor)
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = meta.nome, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(text = meta.nome, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     Text(
                         text = when (meta.tipoMeta) {
                             MetaFinanceira.TIPO_DIVIDA -> stringResource(R.string.coach_debt_amortization)
@@ -297,8 +285,8 @@ fun MetaItemCard(meta: MetaFinanceira, currencyFormat: NumberFormat, onClick: (M
                     )
                 }
                 if (isCompleted) {
-                    Badge(containerColor = colorResource(R.color.cat_saude_on_container)) {
-                        Text(stringResource(R.string.coach_completed), color = Color.White)
+                    Badge(containerColor = MaterialTheme.colorScheme.tertiaryContainer) {
+                        Text(stringResource(R.string.coach_completed), color = MaterialTheme.colorScheme.onTertiaryContainer, modifier = Modifier.padding(4.dp))
                     }
                 } else {
                     Text(
@@ -315,8 +303,8 @@ fun MetaItemCard(meta: MetaFinanceira, currencyFormat: NumberFormat, onClick: (M
             LinearProgressIndicator(
                 progress = { progresso },
                 modifier = Modifier.fillMaxWidth().height(6.dp),
-                color = if (isCompleted) colorResource(R.color.aplicacao_color) else iconColor,
-                trackColor = iconColor.copy(alpha = 0.1f)
+                color = iconColor,
+                trackColor = iconColor.copy(alpha = 0.15f)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -324,11 +312,11 @@ fun MetaItemCard(meta: MetaFinanceira, currencyFormat: NumberFormat, onClick: (M
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
                     Text(text = stringResource(R.string.valor), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(text = currencyFormat.format(meta.valorAtual), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                    Text(text = currencyFormat.format(meta.valorAtual), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(text = stringResource(R.string.coach_target_value), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(text = currencyFormat.format(meta.valorObjetivo), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                    Text(text = currencyFormat.format(meta.valorObjetivo), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
@@ -349,13 +337,14 @@ fun EmptyGoalsCard(onAction: () -> Unit) {
                 Icons.Default.Lightbulb,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
-                tint = colorResource(R.color.fab_color)
+                tint = FabColor
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.coach_no_goals_msg),
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(24.dp))
             Button(onClick = onAction) {

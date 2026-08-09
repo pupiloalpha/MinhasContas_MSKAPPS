@@ -4,37 +4,29 @@ import android.app.Activity
 import android.app.backup.BackupManager
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import androidx.documentfile.provider.DocumentFile
-import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.msk.minhascontas.utils.DetailDestination
 import com.msk.minhascontas.R
-import com.msk.minhascontas.ui.CriarContaScreen
-import com.msk.minhascontas.viewmodel.CriarContaViewModel
+import com.msk.minhascontas.db.ContasRepository
 import com.msk.minhascontas.features.info.Ajustes
-import com.msk.minhascontas.ui.AjustesScreen
-import com.msk.minhascontas.viewmodel.AjustesViewModel
-import com.msk.minhascontas.features.listas.ListaMensalContas
+import com.msk.minhascontas.features.listas.ListaMensalContasScreen
 import com.msk.minhascontas.tarefas.BarraProgresso
 import com.msk.minhascontas.tarefas.ExportarExcelTarefa
 import com.msk.minhascontas.tarefas.ImportarBancoAntigoTarefa
+import com.msk.minhascontas.ui.AjustesScreen
+import com.msk.minhascontas.ui.CriarContaScreen
+import com.msk.minhascontas.utils.DetailDestination
+import com.msk.minhascontas.viewmodel.AjustesViewModel
 import com.msk.minhascontas.viewmodel.ContasViewModel
-import java.util.*
+import com.msk.minhascontas.viewmodel.CriarContaViewModel
+import java.util.Calendar
 
 @Composable
 fun ContasDetailPane(
@@ -42,65 +34,30 @@ fun ContasDetailPane(
     dateState: ContasViewModel.DateState?,
     isMonthly: Boolean,
     position: Int,
-    fragmentManager: FragmentManager
+    repository: ContasRepository,
+    selectedIds: Set<Long> = emptySet(),
+    onSelectionChange: (Set<Long>) -> Unit = {},
+    onEditContaRequest: ((List<Long>) -> Unit)? = null,
+    onCoachClick: ((String) -> Unit)? = null,
+    onListaAtualizada: (() -> Unit)? = null
 ) {
     val mes = dateState?.mes ?: 1
     val ano = dateState?.ano ?: 2026
     val dia = if (isMonthly) 0 else (dateState?.dia ?: 0)
-    val fragmentTag = "DetailContas_$position"
-    val containerId = rememberSaveable(position) { View.generateViewId() }
 
-    DisposableEffect(fragmentTag) {
-        onDispose {
-            if (!fragmentManager.isDestroyed) {
-                val existingFragment = fragmentManager.findFragmentByTag(fragmentTag)
-                if (existingFragment != null) {
-                    try {
-                        fragmentManager.beginTransaction()
-                            .remove(existingFragment)
-                            .commitNowAllowingStateLoss()
-                    } catch (e: Exception) {
-                        Log.e("MinhasContas", "Erro ao remover fragmento $fragmentTag", e)
-                    }
-                }
-            }
-        }
-    }
-
-    AndroidView(
-        factory = { ctx -> FragmentContainerView(ctx).apply { id = containerId } },
-        update = { view ->
-            if (fragmentManager.isDestroyed || fragmentManager.isStateSaved) return@AndroidView
-            view.post {
-                if (!view.isAttachedToWindow) return@post
-                val existingFragment = fragmentManager.findFragmentByTag(fragmentTag) as? ListaMensalContas
-                if (existingFragment != null && existingFragment.id == view.id) {
-                    val currentArgs = existingFragment.arguments
-                    val oldTipo = currentArgs?.getInt("tipo") ?: -1
-                    val oldMes = currentArgs?.getInt("mes") ?: -1
-                    val oldAno = currentArgs?.getInt("ano") ?: -1
-                    val oldDia = currentArgs?.getInt("dia") ?: 0
-                    val oldCategoria = currentArgs?.getInt("categoria") ?: -1
-
-                    if (oldTipo == dest.tipo && oldMes == mes && oldAno == ano && oldDia == dia && oldCategoria == dest.categoria) {
-                        existingFragment.updateFilter(dest.filtro)
-                        currentArgs?.putInt("filtro", dest.filtro)
-                        return@post
-                    }
-                }
-
-                val fragment = ListaMensalContas.newInstance(mes, ano, dia, dest.tipo, dest.filtro, dest.categoria)
-                try {
-                    if (!view.isAttachedToWindow) return@post
-                    fragmentManager.beginTransaction()
-                        .replace(view.id, fragment, fragmentTag)
-                        .commitNowAllowingStateLoss()
-                } catch (e: Exception) {
-                    Log.w("MinhasContas", "Falha na transação de fragmento $fragmentTag: ${e.message}")
-                }
-            }
-        },
-        modifier = Modifier.fillMaxSize()
+    ListaMensalContasScreen(
+        mes = mes,
+        ano = ano,
+        dia = dia,
+        tipo = dest.tipo,
+        filtro = dest.filtro,
+        categoria = dest.categoria,
+        repository = repository,
+        selectedIds = selectedIds,
+        onSelectionChange = onSelectionChange,
+        onEditarConta = onEditContaRequest,
+        onCoachClick = onCoachClick,
+        onListaAtualizada = onListaAtualizada
     )
 }
 

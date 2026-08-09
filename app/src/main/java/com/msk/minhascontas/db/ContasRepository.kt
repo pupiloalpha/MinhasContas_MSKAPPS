@@ -6,9 +6,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.msk.minhascontas.R
-import com.msk.minhascontas.db.DBContas.ContaFilter
-import com.msk.minhascontas.db.DBContas.TipoAtualizacao
-import com.msk.minhascontas.db.DBContas.TipoExclusao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,60 +16,32 @@ import kotlinx.coroutines.sync.withLock
 import java.util.Calendar
 
 /**
- * Repositório que centraliza o acesso aos dados de Contas.
- * Atualmente utiliza o DBContas (SQLite tradicional), mas está preparado
- * para ser migrado para Room sem impactar a interface do usuário.
+ * Repositório central com sincronização direta e fidedigna entre a Tela de Resumo e Gráficos.
  */
 class ContasRepository private constructor(context: Context) {
 
     private val appContext: Context = context.applicationContext
     private val dbContas: DBContas = DBContas.getInstance(context)
+    private val notificationRepository = NotificationRepository.getInstance(context)
     private val appDatabase: AppDatabase = AppDatabase.getDatabase(context)
     private val metasRepository = MetasRepository(context)
+    private val recurrenceManager = RecurrenceManager(appDatabase)
 
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
-    // Mutex para evitar condições de corrida em importações automáticas
     private val importMutex = kotlinx.coroutines.sync.Mutex()
-    // Cache de meses processados para evitar IO repetitivo na mesma sessão
     private val mesesProcessadosCache = mutableSetOf<String>()
 
     init {
-        checkAndMigrateLegacyData()
-    }
-
-    private fun checkAndMigrateLegacyData() {
         repositoryScope.launch {
-            try {
-                // 1. Verifica se o Room está vazio
-                val countRoom = appDatabase.contaDao().count()
-
-                if (countRoom == 0) {
-                    // 2. Se o Room estiver vazio, verifica se o Legado tem dados
-                    val countLegacy = dbContas.quantasContas()
-                    if (countLegacy > 0) {
-                        Log.i(TAG, "Detectado banco legado com $countLegacy contas. Iniciando migração automática para Room...")
-                        
-                        val legacyContas = dbContas.getAllContasDetalhado()
-                        if (legacyContas.isNotEmpty()) {
-                            // 3. Insere no Room
-                            appDatabase.contaDao().insertAll(legacyContas)
-                            Log.i(TAG, "Migração para Room concluída com sucesso ($countLegacy registros).")
-                        }
-                    } else {
-                        Log.d(TAG, "Banco legado vazio. Nenhuma migração necessária.")
-                    }
-                } else {
-                    Log.d(TAG, "Room já contém dados ($countRoom registros). Ignorando migração.")
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Erro durante a migração do legado para Room", e)
-            }
+            LegacyMigrator(dbContas, appDatabase).checkAndMigrate()
         }
     }
 
     companion object {
         private const val TAG = "ContasRepository"
+        const val PREF_DB_RESET_FLAG = "db_reset_flag"
+
         @Volatile
         private var instance: ContasRepository? = null
 
@@ -96,10 +65,6 @@ class ContasRepository private constructor(context: Context) {
         }
     }
 
-    /**
-     * Retorna um Cursor para uma conta específica.
-     * Útil para compatibilidade com adaptadores Legados (CursorAdapter).
-     */
     fun getContaCursor(id: Long): Cursor? {
         return dbContas.getContaPeloId(id)
     }
@@ -107,8 +72,6 @@ class ContasRepository private constructor(context: Context) {
     suspend fun getContas(filter: ContaFilter?, order: String?): List<Conta> {
         val whereClause = filter?.buildWhereClause() ?: ""
         val whereArgs = filter?.buildWhereArgs() ?: emptyArray<String>()
-
-        // Tratamento robusto para evitar comandos SQL inválidos ou injeções de sintaxe
         val orderByClean = if (!order.isNullOrBlank()) " ORDER BY $order" else ""
 
         val queryStr = StringBuilder("SELECT * FROM ").append(ContasContract.Colunas.TABELA_NOME)
@@ -121,10 +84,6 @@ class ContasRepository private constructor(context: Context) {
         return appDatabase.contaDao().getContasFilteredSync(query)
     }
 
-    /**
-     * Retorna um Cursor para uma lista de contas filtradas.
-     * Útil para compatibilidade com adaptadores Legados (CursorAdapter).
-     */
     fun getContasCursor(filter: ContaFilter?, order: String?): Cursor? {
         return dbContas.getContasByFilter(filter, order)
     }
@@ -133,7 +92,7 @@ class ContasRepository private constructor(context: Context) {
         val f = filtro ?: ContaFilter()
         f.setMes(mes).setAno(ano)
         if (tipo != -1) f.setTipo(tipo)
-        
+
         val whereClause = f.buildWhereClause()
         val whereArgs = f.buildWhereArgs()
         val orderBy = "${ContasContract.Colunas.COLUNA_DIA_DATA_CONTA} ASC, ${ContasContract.Colunas.COLUNA_VALOR_CONTA} DESC"
@@ -154,7 +113,7 @@ class ContasRepository private constructor(context: Context) {
             .setCategoria(categoria)
             .setPagamento(status)
             .setDiaFim(diaFim)
-        
+
         return calcularTotalMensal(mes, ano, tipo, filter)
     }
 
@@ -162,8 +121,8 @@ class ContasRepository private constructor(context: Context) {
         val f = filtro ?: ContaFilter()
         f.setMes(mes).setAno(ano).setTipo(tipo)
 
-        val whereClause = f.buildWhereClause() ?: ""
-        val whereArgs = f.buildWhereArgs() ?: emptyArray<String>()
+        val whereClause = f.buildWhereClause()
+        val whereArgs = f.buildWhereArgs()
 
         val queryStr = StringBuilder("SELECT SUM(")
             .append(ContasContract.Colunas.COLUNA_VALOR_CONTA)
@@ -178,16 +137,13 @@ class ContasRepository private constructor(context: Context) {
         return appDatabase.contaDao().getSumFilteredSync(query) ?: 0.0
     }
 
-    /**
-     * Retorna um Flow com o total somado baseado no filtro, usando Room.
-     */
     fun calcularTotalFlow(mes: Int, ano: Int, tipo: Int, filtro: ContaFilter?): Flow<Double> {
         val f = filtro ?: ContaFilter()
         f.setMes(mes).setAno(ano).setTipo(tipo)
-        
+
         val whereClause = f.buildWhereClause()
         val whereArgs = f.buildWhereArgs()
-        
+
         val queryStr = "SELECT SUM(${ContasContract.Colunas.COLUNA_VALOR_CONTA}) FROM ${ContasContract.Colunas.TABELA_NOME}" +
                 (if (whereClause.isNotBlank()) " WHERE $whereClause" else "")
 
@@ -209,10 +165,10 @@ class ContasRepository private constructor(context: Context) {
         } else {
             appDatabase.contaDao().sumPreviousDaysGrouped(ano, mes, dia)
         }
-        
+
         val recTotal = sums.find { it.tipo == ContasContract.TIPO_RECEITA }?.total ?: 0.0
         val despTotal = sums.find { it.tipo == ContasContract.TIPO_DESPESA }?.total ?: 0.0
-        
+
         return recTotal - despTotal
     }
 
@@ -228,85 +184,118 @@ class ContasRepository private constructor(context: Context) {
 
         val sums = appDatabase.contaDao().getMonthlySums(categoria, startYearMonth, endYearMonth - 1)
         val filteredSums = sums.filter { it.total > 0 }
-        
+
+        return if (filteredSums.isEmpty()) 0.0 else filteredSums.sumOf { it.total } / filteredSums.size
+    }
+
+    suspend fun getMediaTipoUltimosMeses(tipo: Int, mesesAtras: Int): Double {
+        val cal = Calendar.getInstance()
+        val endYearMonth = cal.get(Calendar.YEAR) * 12 + (cal.get(Calendar.MONTH) + 1)
+        cal.add(Calendar.MONTH, -mesesAtras)
+        val startYearMonth = cal.get(Calendar.YEAR) * 12 + (cal.get(Calendar.MONTH) + 1)
+
+        val sums = appDatabase.contaDao().getMonthlySumsByType(tipo, startYearMonth, endYearMonth - 1)
+        val filteredSums = sums.filter { it.total > 0 }
+
         return if (filteredSums.isEmpty()) 0.0 else filteredSums.sumOf { it.total } / filteredSums.size
     }
 
     /**
-     * Coleta os valores do resumo financeiro para um determinado mês e ano.
-     * Otimizado para usar Room e evitar IO redundante.
+     * Retorna a consolidação exata utilizada na Tela de Resumo Financeiro.
      */
-    suspend fun coletaDadosResumo(context: Context, mes: Int, ano: Int): Array<String?> {
-        val res = context.resources
-        val ptBr = java.util.Locale("pt", "BR")
-        val dinheiro = java.text.NumberFormat.getCurrencyInstance(ptBr)
-        
-        val despesasCategorias = res.getStringArray(R.array.TipoDespesa)
-        val receitasCategorias = res.getStringArray(R.array.TipoReceita)
-        val aplicacoesCategorias = res.getStringArray(R.array.TipoAplicacao)
-
-        val ajusteReceita = if (receitasCategorias.size > 1) receitasCategorias.size else 0
-        val numLinhasResumo = despesasCategorias.size + ajusteReceita + aplicacoesCategorias.size + 9
-        val valores = arrayOfNulls<String>(numLinhasResumo)
-        var indice = 0
-
-        // Busca todos os totais por categoria em uma única query
+    suspend fun getReportSummary(mes: Int, ano: Int): ReportSummary {
         val sumsDespesa = appDatabase.contaDao().getSumByCategorySync(mes, ano, ContasContract.TIPO_DESPESA)
             .associate { it.categoria to it.total }
         val sumsReceita = appDatabase.contaDao().getSumByCategorySync(mes, ano, ContasContract.TIPO_RECEITA)
             .associate { it.categoria to it.total }
 
-        // --- DESPESAS ---
-        valores[indice++] = ""
-        for (i in despesasCategorias.indices) {
-            valores[indice++] = dinheiro.format(sumsDespesa[i] ?: 0.0)
-        }
+        // Busca a lista completa de contas do mês para agrupar valores por dia
+        val contasDoMes = getListaContasCompleta(mes, ano)
 
-        // --- RECEITAS ---
-        valores[indice++] = ""
-        if (receitasCategorias.size > 1) {
-            for (i in receitasCategorias.indices) {
-                valores[indice++] = dinheiro.format(sumsReceita[i] ?: 0.0)
-            }
-        }
+        val receitasPorDia = contasDoMes
+            .filter { it.tipo == ContasContract.TIPO_RECEITA }
+            .groupBy { it.dia }
+            .mapValues { entry -> entry.value.sumOf { it.valor } }
 
-        // --- APLICAÇÕES ---
-        valores[indice++] = ""
+        val despesasPorDia = contasDoMes
+            .filter { it.tipo == ContasContract.TIPO_DESPESA }
+            .groupBy { it.dia }
+            .mapValues { entry -> entry.value.sumOf { it.valor } }
+
+        val aplicacoesPorClasse = mutableMapOf<Int, Double>()
         var totalAplicacoes = 0.0
-        for (i in aplicacoesCategorias.indices) {
-            // Para aplicações, a classe_conta é o que define a categoria no resumo legado
+        for (i in 0..3) {
             val valor = appDatabase.contaDao().sumInPeriod(1, 31, mes, ano, ContasContract.TIPO_APLICACAO, i, -1, null) ?: 0.0
-            valores[indice++] = dinheiro.format(valor)
+            aplicacoesPorClasse[i] = valor
             totalAplicacoes += valor
         }
 
-        // --- TOTAIS ---
         val totalDPaga = appDatabase.contaDao().sumInPeriod(1, 31, mes, ano, ContasContract.TIPO_DESPESA, -1, -1, ContasContract.STATUS_PAGO_RECEBIDO) ?: 0.0
         val totalDPendente = appDatabase.contaDao().sumInPeriod(1, 31, mes, ano, ContasContract.TIPO_DESPESA, -1, -1, ContasContract.STATUS_PENDENTE) ?: 0.0
         val totalRRecebida = appDatabase.contaDao().sumInPeriod(1, 31, mes, ano, ContasContract.TIPO_RECEITA, -1, -1, ContasContract.STATUS_PAGO_RECEBIDO) ?: 0.0
         val totalRPendente = appDatabase.contaDao().sumInPeriod(1, 31, mes, ano, ContasContract.TIPO_RECEITA, -1, -1, ContasContract.STATUS_PENDENTE) ?: 0.0
 
-        valores[indice++] = dinheiro.format(totalRRecebida - totalDPaga)
-        valores[indice++] = dinheiro.format(totalDPaga)
-        valores[indice++] = dinheiro.format(totalDPendente)
-        valores[indice++] = dinheiro.format(totalRRecebida)
-        valores[indice++] = dinheiro.format(totalRPendente)
-        valores[indice] = dinheiro.format(totalAplicacoes)
-
-        return valores
+        return ReportSummary(
+            despesasPorCategoria = sumsDespesa,
+            receitasPorCategoria = sumsReceita,
+            aplicacoesPorClasse = aplicacoesPorClasse,
+            receitasPorDia = receitasPorDia,
+            despesasPorDia = despesasPorDia,
+            totalDespesasPagas = totalDPaga,
+            totalDespesasPendentes = totalDPendente,
+            totalReceitasRecebidas = totalRRecebida,
+            totalReceitasPendentes = totalRPendente,
+            totalAplicacoes = totalAplicacoes,
+            saldo = totalRRecebida - totalDPaga
+        )
     }
 
     fun getNomeLinhas(context: Context): Array<String?> {
-        return dbContas.NomeLinhas(context) ?: emptyArray<String?>()
+        val res = context.resources
+
+        val despesa = res.getString(R.string.linha_despesa)
+        val receita = res.getString(R.string.linha_receita)
+        val aplicacao = res.getString(R.string.linha_aplicacoes)
+
+        val despesas = Array(4) { i -> com.msk.minhascontas.utils.LabelUtils.getClasseLabel(context, ContasContract.TIPO_DESPESA, i) }
+        val receitas = Array(3) { i -> com.msk.minhascontas.utils.LabelUtils.getClasseLabel(context, ContasContract.TIPO_RECEITA, i) }
+        val aplicacoes = Array(3) { i -> com.msk.minhascontas.utils.LabelUtils.getClasseLabel(context, ContasContract.TIPO_APLICACAO, i) }
+
+        val ajusteReceita = if (receitas.size > 1) receitas.size else 0
+        val numLinhasResumo = despesas.size + ajusteReceita + aplicacoes.size + 9
+        val linhas = arrayOfNulls<String>(numLinhasResumo)
+        var indice = 0
+
+        linhas[indice++] = despesa
+        System.arraycopy(despesas, 0, linhas, indice, despesas.size)
+        indice += despesas.size
+
+        linhas[indice++] = receita
+        if (receitas.size > 1) {
+            System.arraycopy(receitas, 0, linhas, indice, receitas.size)
+            indice += receitas.size
+        }
+
+        linhas[indice++] = aplicacao
+        System.arraycopy(aplicacoes, 0, linhas, indice, aplicacoes.size)
+        indice += aplicacoes.size
+
+        linhas[indice++] = res.getString(R.string.linha_saldo)
+        linhas[indice++] = res.getString(R.string.resumo_pagas)
+        linhas[indice++] = res.getString(R.string.resumo_faltam)
+        linhas[indice++] = res.getString(R.string.resumo_recebidas)
+        linhas[indice++] = res.getString(R.string.resumo_areceber)
+        linhas[indice] = res.getString(R.string.linha_aplicacoes)
+
+        return linhas
     }
 
-    fun getListaContasCompletaCursor(mes: Int, ano: Int): Cursor? {
-        return dbContas.listaContasCompleta(mes, ano)
+    suspend fun getListaContasCompleta(mes: Int, ano: Int): List<Conta> {
+        return withContext(Dispatchers.IO) {
+            appDatabase.contaDao().getContasByMonthSync(mes, ano)
+        }
     }
 
-    /**
-     * Retorna um Flow de contas baseado no filtro e ordenação, usando Room.
-     */
     fun getContasFlow(filter: ContaFilter?, order: String?): Flow<List<Conta>> {
         val whereClause = filter?.buildWhereClause() ?: ""
         val whereArgs = filter?.buildWhereArgs() ?: emptyArray<String>()
@@ -319,45 +308,37 @@ class ContasRepository private constructor(context: Context) {
         return appDatabase.contaDao().getContasFiltered(query)
     }
 
-    /**
-     * Importa contas fixas de um mês para o outro com proteção contra duplicidade.
-     */
     suspend fun importarFixasDeMesAnterior(mes: Int, ano: Int): Int {
         return importMutex.withLock {
             val chaveMes = "$mes-$ano"
-            
-            // 1. Verificação rápida em cache (Idempotência)
             if (mesesProcessadosCache.contains(chaveMes)) return@withLock 0
 
-            // 2. Verifica se já existem fixas no mês atual para evitar duplicidade física
             val filtroAtual = ContaFilter()
                 .setMes(mes)
                 .setAno(ano)
                 .setClasse(ContasContract.CLASSE_DESPESA_FIXA)
-            
+
             val fixasAtuais = getContas(filtroAtual, null)
             if (fixasAtuais.isNotEmpty()) {
                 mesesProcessadosCache.add(chaveMes)
-                return@withLock 0 
+                return@withLock 0
             }
 
             val cal = Calendar.getInstance()
             cal.set(ano, mes - 1, 1)
             cal.add(Calendar.MONTH, -1)
-            
+
             val mesAnt = cal.get(Calendar.MONTH) + 1
             val anoAnt = cal.get(Calendar.YEAR)
 
-            // 3. Busca fixas do mês anterior
             val filtroAnt = ContaFilter()
                 .setMes(mesAnt)
                 .setAno(anoAnt)
                 .setClasse(ContasContract.CLASSE_DESPESA_FIXA)
-            
+
             val fixasAnteriores = getContas(filtroAnt, null)
             if (fixasAnteriores.isEmpty()) return@withLock 0
 
-            // 4. Clona os registros
             val novasContas = fixasAnteriores.map { antiga ->
                 Conta.Builder(antiga.nome, antiga.valor, antiga.dia, mes, ano, java.util.UUID.randomUUID().toString())
                     .setTipo(antiga.tipo)
@@ -380,22 +361,51 @@ class ContasRepository private constructor(context: Context) {
     }
 
     /**
-     * Retorna a soma de gastos (Despesas) agrupados por categoria para um período.
-     * Otimizado para realizar uma única consulta ao banco via Room.
+     * Retorna o mapa de gastos POR CATEGORIA fidedigno ao relatório de resumo financeiro.
+     * Mapeia estritamente TIPO_DESPESA (0 a 7) garantindo consistência completa com a tela de Resumos.
      */
-    suspend fun getGastosPorCategoria(mes: Int, ano: Int): Map<Int, Double> {
-        val despesasMap = appDatabase.contaDao().getSumByCategorySync(mes, ano, ContasContract.TIPO_DESPESA)
+    suspend fun getGastosPorCategoria(mes: Int, ano: Int, status: String? = null): Map<Int, Double> {
+        val despesasMap = appDatabase.contaDao().getSumByCategoryAndStatusSync(mes, ano, ContasContract.TIPO_DESPESA, status)
             .associate { it.categoria to it.total }
-
-        val aplicacoesTotal = appDatabase.contaDao().getSumByCategorySync(mes, ano, ContasContract.TIPO_APLICACAO)
-            .sumOf { it.total }
 
         val result = mutableMapOf<Int, Double>()
         for (i in 0..7) {
             result[i] = despesasMap[i] ?: 0.0
         }
-        result[8] = aplicacoesTotal
         return result
+    }
+
+    /**
+     * Retorna o mapa de receitas POR CATEGORIA garantindo sincronia total com o resumo financeiro.
+     */
+    suspend fun getReceitasPorCategoria(mes: Int, ano: Int, status: String? = null): Map<Int, Double> {
+        val receitasMap = appDatabase.contaDao().getSumByCategoryAndStatusSync(mes, ano, ContasContract.TIPO_RECEITA, status)
+            .associate { it.categoria to it.total }
+
+        val result = mutableMapOf<Int, Double>()
+        for (i in 0..3) {
+            result[i] = receitasMap[i] ?: 0.0
+        }
+        return result
+    }
+
+    /**
+     * Retorna os investimentos/aplicações organizados por classe exatamente como na tela de resumos.
+     */
+    suspend fun getAplicacoesPorClasse(mes: Int, ano: Int): Map<Int, Double> {
+        val aplicacoesPorClasse = mutableMapOf<Int, Double>()
+        for (i in 0..3) {
+            val valor = appDatabase.contaDao().sumInPeriod(1, 31, mes, ano, ContasContract.TIPO_APLICACAO, i, -1, null) ?: 0.0
+            aplicacoesPorClasse[i] = valor
+        }
+        return aplicacoesPorClasse
+    }
+
+    /**
+     * Retorna o detalhamento agrupado por Categoria e Status (PAGO vs PENDENTE) para gráficos de despesas.
+     */
+    suspend fun getGastosDetalhadosPorCategoriaEStatus(mes: Int, ano: Int): List<ContaDao.CategoryStatusSum> {
+        return appDatabase.contaDao().getSumByCategoryGroupedByStatusSync(mes, ano, ContasContract.TIPO_DESPESA)
     }
 
     fun cursorToListaContas(cursor: Cursor?): MutableList<Conta> {
@@ -406,10 +416,9 @@ class ContasRepository private constructor(context: Context) {
 
     suspend fun salvarConta(conta: Conta): Long {
         return withContext(Dispatchers.IO) {
-            val id = dbContas.geraConta(conta)
+            val id = appDatabase.contaDao().insert(conta)
             if (id > 0) {
                 conta.idConta = id
-                appDatabase.contaDao().insert(conta)
             }
             id
         }
@@ -417,50 +426,38 @@ class ContasRepository private constructor(context: Context) {
 
     suspend fun salvarContasRecorrentes(conta: Conta, qtRepeticoes: Int, intervalo: Int) {
         withContext(Dispatchers.IO) {
-            dbContas.geraContasRecorrentes(conta, qtRepeticoes, intervalo)
-            val filter = ContaFilter().setCodigoConta(conta.codigo)
-            val series = dbContas.getContas(filter, null) ?: emptyList()
+            val series = recurrenceManager.generateSeries(conta, qtRepeticoes, intervalo)
             appDatabase.contaDao().insertAll(series)
         }
     }
 
     suspend fun inserirContasEmMassa(contas: List<Conta>): Int {
         return withContext(Dispatchers.IO) {
-            // Filtrar contas que já podem existir para evitar duplicidade lógica no banco
             val contasParaInserir = contas.filter { nova ->
                 !existeNoBanco(nova)
             }
 
             if (contasParaInserir.isEmpty()) return@withContext 0
 
-            val result = dbContas.inserirContasEmMassa(contasParaInserir)
-            if (result > 0) {
-                appDatabase.contaDao().insertAll(contasParaInserir)
-            }
-            result
+            appDatabase.contaDao().insertAll(contasParaInserir)
+            contasParaInserir.size
         }
     }
 
-    /**
-     * Verifica se uma conta com as mesmas características básicas já existe.
-     */
     suspend fun existeNoBanco(conta: Conta): Boolean {
-        val filtro = DBContas.ContaFilter()
+        val filtro = ContaFilter()
             .setNome(conta.nome)
             .setDia(conta.dia)
             .setMes(conta.mes)
             .setAno(conta.ano)
-        
+
         val existentes = getContas(filtro, null)
         return existentes.any { it.valor == conta.valor }
     }
 
-    /**
-     * Conta quantas das contas fornecidas já existem no banco de dados.
-     */
     suspend fun contarDuplicados(contas: List<Conta>): Int {
         var duplicados = 0
-        contas.forEach { 
+        contas.forEach {
             if (existeNoBanco(it)) duplicados++
         }
         return duplicados
@@ -468,20 +465,15 @@ class ContasRepository private constructor(context: Context) {
 
     suspend fun atualizarConta(conta: Conta): Boolean {
         return withContext(Dispatchers.IO) {
-            val result = dbContas.alteraConta(conta)
-            if (result) {
+            try {
                 appDatabase.contaDao().update(conta)
+                true
+            } catch (e: Exception) {
+                false
             }
-            result
         }
     }
 
-    /**
-     * Atualiza múltiplas contas de uma vez.
-     * @param ids Lista de IDs das contas a serem alteradas.
-     * @param novosValores Mapa com nome da coluna e novo valor.
-     * @return Número de contas atualizadas.
-     */
     suspend fun atualizarContasEmMassa(ids: List<Long>, novosValores: Map<String, Any?>): Int {
         return withContext(Dispatchers.IO) {
             val contentValues = android.content.ContentValues()
@@ -498,7 +490,6 @@ class ContasRepository private constructor(context: Context) {
 
             val result = dbContas.atualizarContasEmMassa(ids, contentValues)
             if (result > 0) {
-                // Sincroniza o Room com os dados atualizados do banco legado para as contas afetadas
                 val contasAtualizadas = mutableListOf<Conta>()
                 for (id in ids) {
                     val c = dbContas.getConta(id)
@@ -512,63 +503,60 @@ class ContasRepository private constructor(context: Context) {
         }
     }
 
-    suspend fun atualizarContasRecorrentes(conta: Conta, tipo: TipoAtualizacao) {
+    suspend fun atualizarContasRecorrentes(contaBase: Conta, tipoAtualizacao: TipoAtualizacao) {
         withContext(Dispatchers.IO) {
-            dbContas.alteraContasRecorrentes(conta, tipo)
-            val filter = ContaFilter().setCodigoConta(conta.codigo)
-            val series = dbContas.getContas(filter, null) ?: emptyList()
-            appDatabase.contaDao().insertAll(series)
+            if (tipoAtualizacao == TipoAtualizacao.SOMENTE_ESTA) {
+                atualizarConta(contaBase)
+                return@withContext
+            }
+
+            val filter = ContaFilter().setCodigoConta(contaBase.codigo)
+            if (tipoAtualizacao == TipoAtualizacao.DESTA_EM_DIANTE) {
+                filter.setNrRepeticaoMin(contaBase.nRepete)
+            }
+
+            val queryStr = "SELECT * FROM ${ContasContract.Colunas.TABELA_NOME} WHERE ${filter.buildWhereClause()} ORDER BY ${ContasContract.Colunas.COLUNA_NR_REPETICAO_CONTA} ASC"
+            val query = SimpleSQLiteQuery(queryStr, filter.buildWhereArgs())
+            val seriesParaAtualizar = appDatabase.contaDao().getContasFilteredSync(query)
+
+            if (seriesParaAtualizar.isEmpty()) return@withContext
+
+            val atualizadas = recurrenceManager.calculateUpdates(seriesParaAtualizar, contaBase, tipoAtualizacao)
+            appDatabase.contaDao().insertAll(atualizadas)
         }
     }
 
     suspend fun atualizarPagamento(id: Long, status: String): Int {
         return withContext(Dispatchers.IO) {
-            val result = dbContas.updateContaPagamento(id, status)
-            if (result > 0) {
-                val conta = dbContas.getConta(id)
-                conta?.let { 
-                    appDatabase.contaDao().update(it)
-                    if (!it.codigo.isNullOrEmpty()) {
-                        val meta = metasRepository.metas.value?.find { m -> m.codigoVinculo == it.codigo }
-                        meta?.let { m -> atualizarProgressoRealMeta(m) }
-                    }
+            val conta = appDatabase.contaDao().getContaById(id)
+            if (conta != null) {
+                conta.pagamento = status
+                appDatabase.contaDao().update(conta)
+
+                if (!conta.codigo.isNullOrEmpty()) {
+                    val meta = metasRepository.metas.value?.find { m -> m.codigoVinculo == conta.codigo }
+                    meta?.let { m -> atualizarProgressoRealMeta(m) }
                 }
-            }
-            result
+                1
+            } else 0
         }
     }
 
     suspend fun atualizarPagamentoContas(dia: Int, mes: Int, ano: Int): Int {
         return withContext(Dispatchers.IO) {
-            val result = dbContas.atualizaPagamentoContas(dia, mes, ano)
-            if (result > 0) {
-                // Sincroniza o Room com os dados atualizados do banco legado
-                val todas = dbContas.getAllContasDetalhado()
-                appDatabase.contaDao().insertAll(todas)
-            }
-            result
+            appDatabase.contaDao().updatePastDueToPaid(ano, mes, dia, ContasContract.STATUS_PAGO_RECEBIDO, ContasContract.STATUS_PENDENTE)
         }
     }
 
     suspend fun confirmaPagamentos(): Boolean {
         return withContext(Dispatchers.IO) {
-            val result = dbContas.confirmaPagamentos()
-            if (result) {
-                val todas = dbContas.getAllContasDetalhado()
-                appDatabase.contaDao().insertAll(todas)
-            }
-            result
+            appDatabase.contaDao().resetNonPaidToPending(ContasContract.STATUS_PAGO_RECEBIDO, ContasContract.STATUS_PENDENTE) > 0
         }
     }
 
     suspend fun ajustaRepeticoesContas(): Boolean {
         return withContext(Dispatchers.IO) {
-            val result = dbContas.ajustaRepeticoesContas()
-            if (result) {
-                val todas = dbContas.getAllContasDetalhado()
-                appDatabase.contaDao().insertAll(todas)
-            }
-            result
+            appDatabase.contaDao().adjustIntervals() > 0
         }
     }
 
@@ -576,20 +564,17 @@ class ContasRepository private constructor(context: Context) {
 
     suspend fun excluirConta(id: Long): Int {
         return withContext(Dispatchers.IO) {
-            val result = dbContas.deleteConta(id)
-            if (result > 0) {
-                val conta = appDatabase.contaDao().getContaById(id)
-                conta?.let { appDatabase.contaDao().delete(it) }
-            }
-            result
+            val conta = appDatabase.contaDao().getContaById(id)
+            if (conta != null) {
+                appDatabase.contaDao().delete(conta)
+                1
+            } else 0
         }
     }
 
     suspend fun excluirContasRecorrentes(id: Long, codigo: String, nr: Int, tipo: TipoExclusao): Boolean {
         return withContext(Dispatchers.IO) {
-            val result = dbContas.deletarContasRecorrentes(id, codigo, nr, tipo)
-            if (result) {
-                // Sincroniza a exclusão no Room para evitar "contas zumbis"
+            try {
                 when (tipo) {
                     TipoExclusao.SOMENTE_ESTA -> {
                         val conta = appDatabase.contaDao().getContaById(id)
@@ -597,42 +582,46 @@ class ContasRepository private constructor(context: Context) {
                     }
                     TipoExclusao.DESTA_EM_DIANTE -> {
                         appDatabase.contaDao().deleteByCodigoFrom(codigo, nr)
+                        val novoQt = nr - 1
+                        if (novoQt > 0) {
+                            val filter = ContaFilter().setCodigoConta(codigo).setNrRepeticaoMax(novoQt)
+                            val queryStr = "SELECT * FROM ${ContasContract.Colunas.TABELA_NOME} WHERE ${filter.buildWhereClause()}"
+                            val query = SimpleSQLiteQuery(queryStr, filter.buildWhereArgs())
+                            val restantes = appDatabase.contaDao().getContasFilteredSync(query)
+                            restantes.forEach { it.qtRepete = novoQt }
+                            appDatabase.contaDao().insertAll(restantes)
+                        }
                     }
                     TipoExclusao.TODAS_AS_REPETICOES -> {
                         appDatabase.contaDao().deleteByCodigo(codigo)
                     }
                 }
-
-                val filter = ContaFilter().setCodigoConta(codigo)
-                val restantes = dbContas.getContas(filter, null) ?: emptyList()
-                appDatabase.contaDao().insertAll(restantes)
+                true
+            } catch (e: Exception) {
+                Log.e(TAG, "Erro ao excluir contas recorrentes no Room", e)
+                false
             }
-            result
         }
     }
 
     suspend fun excluirTudo() {
         withContext(Dispatchers.IO) {
-            dbContas.deleteAllContas()
             appDatabase.contaDao().deleteAll()
+            appDatabase.notificationDao().deleteAll()
         }
     }
 
-    /**
-     * Verifica se existem séries de contas que terminam no mês especificado e gera notificação.
-     * Melhoria: Adicionado filtro de pagamento para evitar alertas precoces.
-     */
     fun verificarFimDeSeries(mes: Int, ano: Int) {
         repositoryScope.launch {
             val filter = ContaFilter().setMes(mes).setAno(ano)
-            val contas = dbContas.getContas(filter, null) ?: emptyList()
-            
-            contas.filter { 
-                it.nRepete == it.qtRepete && 
-                it.qtRepete > 1 && 
-                it.pagamento == ContasContract.STATUS_PAGO_RECEBIDO 
+            val contas = getContas(filter, null)
+
+            contas.filter {
+                it.nRepete == it.qtRepete &&
+                        it.qtRepete > 1 &&
+                        it.pagamento == ContasContract.STATUS_PAGO_RECEBIDO
             }.forEach { conta ->
-                dbContas.addNotificacao(
+                notificationRepository.addNotificacao(
                     appContext.getString(R.string.msg_fim_serie_titulo),
                     appContext.getString(R.string.msg_fim_serie_corpo, conta.nome),
                     "fim_serie|${conta.idConta}"
@@ -641,10 +630,6 @@ class ContasRepository private constructor(context: Context) {
         }
     }
 
-    /**
-     * Renova uma série de contas que chegou ao fim, criando uma nova série
-     * com as mesmas configurações para o período seguinte.
-     */
     fun renovarSerie(idConta: Long) {
         repositoryScope.launch {
             val contaBase = dbContas.getConta(idConta) ?: return@launch
@@ -652,14 +637,12 @@ class ContasRepository private constructor(context: Context) {
             val cal = Calendar.getInstance()
             cal.set(contaBase.ano, contaBase.mes - 1, contaBase.dia)
 
-            // Calcula a próxima data com base no intervalo
             when (contaBase.intervalo) {
-                300 -> cal.add(Calendar.MONTH, 1) // Mensal
-                3650 -> cal.add(Calendar.YEAR, 1) // Anual
+                300 -> cal.add(Calendar.MONTH, 1)
+                3650 -> cal.add(Calendar.YEAR, 1)
                 else -> cal.add(Calendar.DATE, if (contaBase.intervalo > 100) contaBase.intervalo - 100 else 1)
             }
 
-            // Cria a base para a nova série mantendo configurações, mas com nova data
             val novaSerieBase = Conta.Builder(
                 contaBase.nome,
                 contaBase.valor,
@@ -675,12 +658,15 @@ class ContasRepository private constructor(context: Context) {
                 setValorJuros(contaBase.valorJuros)
             }.build()
 
-            // Gera a nova sequência de repetições
             dbContas.geraContasRecorrentes(novaSerieBase, contaBase.qtRepete, contaBase.intervalo)
         }
     }
 
-    // --- Operações de Metas Financeiras (Coach 20%) ---
+    fun closeLegacy() {
+        dbContas.close()
+    }
+
+    // --- Operações de Metas Financeiras ---
 
     fun getMetasAtivas(): LiveData<List<MetaFinanceira>> {
         return metasRepository.metas
@@ -703,19 +689,56 @@ class ContasRepository private constructor(context: Context) {
         metasRepository.deleteGoal(meta.id)
     }
 
-    /**
-     * Atualiza o progresso real de uma meta consultando as contas vinculadas no banco.
-     */
+    suspend fun calcularProgressoRealDaMeta(meta: MetaFinanceira): Double {
+        return withContext(Dispatchers.IO) {
+            var progressoReal = 0.0
+
+            if (!meta.codigoVinculo.isNullOrEmpty()) {
+                val cal = Calendar.getInstance()
+                val anoAtual = cal.get(Calendar.YEAR)
+                val mesAtual = cal.get(Calendar.MONTH) + 1
+
+                val queryStr = """
+                    SELECT SUM(${ContasContract.Colunas.COLUNA_VALOR_CONTA}) 
+                    FROM ${ContasContract.Colunas.TABELA_NOME} 
+                    WHERE ${ContasContract.Colunas.COLUNA_CODIGO_CONTA} = ? 
+                    AND ${ContasContract.Colunas.COLUNA_PAGOU_CONTA} = ?
+                    AND (${ContasContract.Colunas.COLUNA_ANO_DATA_CONTA} < ? OR (${ContasContract.Colunas.COLUNA_ANO_DATA_CONTA} = ? AND ${ContasContract.Colunas.COLUNA_MES_DATA_CONTA} <= ?))
+                """.trimIndent()
+                val query = SimpleSQLiteQuery(queryStr, arrayOf<Any>(
+                    meta.codigoVinculo,
+                    ContasContract.STATUS_PAGO_RECEBIDO,
+                    anoAtual, anoAtual, mesAtual
+                ))
+                progressoReal = appDatabase.contaDao().getSumFilteredSync(query) ?: 0.0
+            }
+
+            if ((meta.tipoMeta == MetaFinanceira.TIPO_RESERVA || meta.tipoMeta == MetaFinanceira.TIPO_INVESTIMENTO || meta.tipoMeta == MetaFinanceira.TIPO_APOSENTADORIA)) {
+                if (!meta.codigoVinculo.isNullOrEmpty()) {
+                    val cal = Calendar.getInstance()
+                    val anoAtual = cal.get(Calendar.YEAR)
+                    val mesAtual = cal.get(Calendar.MONTH) + 1
+
+                    val queryStr = """
+                        SELECT SUM(${ContasContract.Colunas.COLUNA_VALOR_CONTA}) 
+                        FROM ${ContasContract.Colunas.TABELA_NOME} 
+                        WHERE ${ContasContract.Colunas.COLUNA_CODIGO_CONTA} = ? 
+                        AND (${ContasContract.Colunas.COLUNA_ANO_DATA_CONTA} < ? OR (${ContasContract.Colunas.COLUNA_ANO_DATA_CONTA} = ? AND ${ContasContract.Colunas.COLUNA_MES_DATA_CONTA} <= ?))
+                    """.trimIndent()
+                    val query = SimpleSQLiteQuery(queryStr, arrayOf<Any>(
+                        meta.codigoVinculo,
+                        anoAtual, anoAtual, mesAtual
+                    ))
+                    progressoReal = appDatabase.contaDao().getSumFilteredSync(query) ?: 0.0
+                }
+            }
+
+            maxOf(progressoReal, meta.valorAtual)
+        }
+    }
+
     suspend fun atualizarProgressoRealMeta(meta: MetaFinanceira) {
-        val codigo = meta.codigoVinculo ?: return
-        
-        val filter = ContaFilter().setCodigoConta(codigo)
-        val contasVinculadas = dbContas.getContas(filter, null) ?: emptyList()
-        
-        val totalRealizado = contasVinculadas
-            .filter { it.pagamento == ContasContract.STATUS_PAGO_RECEBIDO }
-            .sumOf { it.valor }
-            
+        val totalRealizado = calcularProgressoRealDaMeta(meta)
         metasRepository.saveGoal(meta.copy(valorAtual = totalRealizado))
     }
 }

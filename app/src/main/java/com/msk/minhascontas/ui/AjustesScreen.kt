@@ -1,20 +1,25 @@
 package com.msk.minhascontas.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -25,12 +30,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.msk.minhascontas.R
 import com.msk.minhascontas.features.pdf.ImportSummary
-import com.msk.minhascontas.viewmodel.AjustesViewModel
+import com.msk.minhascontas.ui.layouts.MCAlertDialog
+import com.msk.minhascontas.ui.layouts.MCListDialog
+import com.msk.minhascontas.ui.layouts.RestartAppDialog
+import com.msk.minhascontas.ui.layouts.StandardTopAppBar
 import com.msk.minhascontas.ui.theme.MinhasContasDialogTheme
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
+import com.msk.minhascontas.utils.AjustesUtils
+import com.msk.minhascontas.viewmodel.AjustesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +56,8 @@ fun AjustesScreen(
     isNotificationServiceEnabled: Boolean,
     onOpenNotificationSettings: () -> Unit,
     onPreferenceChanged: () -> Unit,
+    restartReason: String? = null,
+    onRestartReasonChange: (String?) -> Unit = {},
     isLoading: Boolean = false,
     loadingMessage: String = ""
 ) {
@@ -75,22 +83,17 @@ fun AjustesScreen(
     var showNotificationDialog by remember { mutableStateOf(false) }
     var showMigrationDialog by remember { mutableStateOf(false) }
 
+    // Estado do Assistente de Segurança (Wizard)
+    var showSecurityWizardDialog by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             modifier = Modifier.systemBarsPadding(),
             topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.menu_ajustes)) },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                StandardTopAppBar(
+                    title = stringResource(R.string.menu_ajustes),
+                    onBackClick = onBackClick,
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             }
         ) { padding ->
@@ -116,19 +119,18 @@ fun AjustesScreen(
                     )
 
                     if (showOrderDialog) {
-                        MinhasContasDialogTheme {
-                            ListPreferenceDialog(
-                                title = stringResource(R.string.pref_titulo_ordem),
-                                entries = entries,
-                                values = values,
-                                currentValue = currentValue,
-                                onDismiss = { showOrderDialog = false },
-                                onValueSelected = {
-                                    viewModel.setPreference(key, it)
-                                    showOrderDialog = false
-                                }
-                            )
-                        }
+                        MCListDialog(
+                            title = stringResource(R.string.pref_titulo_ordem),
+                            entries = entries,
+                            values = values,
+                            currentValue = currentValue,
+                            onDismissRequest = { showOrderDialog = false },
+                            onValueSelected = {
+                                viewModel.setPreference(key, it)
+                                showOrderDialog = false
+                                onPreferenceChanged()
+                            }
+                        )
                     }
                 }
 
@@ -240,26 +242,17 @@ fun AjustesScreen(
                     )
 
                     if (showNotificationDialog) {
-                        MinhasContasDialogTheme {
-                            AlertDialog(
-                                onDismissRequest = { showNotificationDialog = false },
-                                title = { Text(stringResource(R.string.pref_titulo_notificacao)) },
-                                text = { Text(stringResource(R.string.msg_permissao_notificacao)) },
-                                confirmButton = {
-                                    TextButton(onClick = {
-                                        onOpenNotificationSettings()
-                                        showNotificationDialog = false
-                                    }) {
-                                        Text(stringResource(R.string.ir_para_configuracoes))
-                                    }
-                                },
-                                dismissButton = {
-                                    TextButton(onClick = { showNotificationDialog = false }) {
-                                        Text(stringResource(R.string.cancelar))
-                                    }
-                                }
-                            )
-                        }
+                        MCAlertDialog(
+                            onDismissRequest = { showNotificationDialog = false },
+                            title = stringResource(R.string.pref_titulo_notificacao),
+                            text = stringResource(R.string.msg_permissao_notificacao),
+                            confirmLabel = stringResource(R.string.ir_para_configuracoes),
+                            onConfirm = {
+                                onOpenNotificationSettings()
+                                showNotificationDialog = false
+                            },
+                            dismissLabel = stringResource(R.string.cancelar)
+                        )
                     }
                 }
 
@@ -367,18 +360,52 @@ fun AjustesScreen(
                 // CATEGORIA: SEGURANÇA E ACESSO
                 item { PreferenceCategory(stringResource(R.string.titulo_acesso)) }
                 item {
-                    val key = stringResource(R.string.pref_key_acesso)
-                    var checked by remember { mutableStateOf(viewModel.getPreference(key, false)) }
+                    val keyAcesso = stringResource(R.string.pref_key_acesso)
+                    val keySenha = stringResource(R.string.pref_key_senha)
+                    val keyResposta = "resposta_secreta"
+
+                    var checked by remember { mutableStateOf(viewModel.getPreference(keyAcesso, false)) }
+
                     SwitchPreferenceItem(
                         title = stringResource(R.string.pref_titulo_acesso),
                         summary = if (checked) stringResource(R.string.pref_descricao_acesso_negado) else stringResource(R.string.pref_descricao_acesso_livre),
                         checked = checked,
-                        onCheckedChange = {
-                            checked = it
-                            viewModel.setPreference(key, it)
-                            onPreferenceChanged()
+                        onCheckedChange = { isChecking ->
+                            if (isChecking) {
+                                val senhaValida = viewModel.getPreference(keySenha, "").isNotBlank()
+                                val respostaValida = viewModel.getPreference(keyResposta, "").isNotBlank()
+
+                                if (senhaValida && respostaValida) {
+                                    checked = true
+                                    viewModel.setPreference(keyAcesso, true)
+                                    onPreferenceChanged()
+                                } else {
+                                    showSecurityWizardDialog = true
+                                }
+                            } else {
+                                checked = false
+                                viewModel.setPreference(keyAcesso, false)
+                                onPreferenceChanged()
+                            }
                         }
                     )
+
+                    if (showSecurityWizardDialog) {
+                        MinhasContasDialogTheme {
+                            SecuritySetupWizardDialog(
+                                viewModel = viewModel,
+                                onDismiss = {
+                                    showSecurityWizardDialog = false
+                                },
+                                onCompleted = {
+                                    viewModel.setPreference(keyAcesso, true)
+                                    checked = true
+                                    showSecurityWizardDialog = false
+                                    onPreferenceChanged()
+                                }
+                            )
+                        }
+                    }
                 }
 
                 item {
@@ -419,19 +446,17 @@ fun AjustesScreen(
                     )
 
                     if (showQuestionDialog) {
-                        MinhasContasDialogTheme {
-                            ListPreferenceDialog(
-                                title = stringResource(R.string.titulo_pergunta_secreta),
-                                entries = entries,
-                                values = values,
-                                currentValue = currentValue,
-                                onDismiss = { showQuestionDialog = false },
-                                onValueSelected = {
-                                    viewModel.setPreference(key, it)
-                                    showQuestionDialog = false
-                                }
-                            )
-                        }
+                        MCListDialog(
+                            title = stringResource(R.string.titulo_pergunta_secreta),
+                            entries = entries,
+                            values = values,
+                            currentValue = currentValue,
+                            onDismissRequest = { showQuestionDialog = false },
+                            onValueSelected = {
+                                viewModel.setPreference(key, it)
+                                showQuestionDialog = false
+                            }
+                        )
                     }
                 }
 
@@ -469,18 +494,13 @@ fun AjustesScreen(
                         onClick = { showMigrationDialog = true }
                     )
                     if (showMigrationDialog) {
-                        MinhasContasDialogTheme {
-                            AlertDialog(
-                                onDismissRequest = { showMigrationDialog = false },
-                                title = { Text(stringResource(R.string.migracao_dialog_titulo)) },
-                                text = { Text(stringResource(R.string.migracao_dialog_corpo)) },
-                                confirmButton = {
-                                    TextButton(onClick = { showMigrationDialog = false }) {
-                                        Text(stringResource(R.string.ok))
-                                    }
-                                }
-                            )
-                        }
+                        MCAlertDialog(
+                            onDismissRequest = { showMigrationDialog = false },
+                            title = stringResource(R.string.migracao_dialog_titulo),
+                            text = stringResource(R.string.migracao_dialog_corpo),
+                            onConfirm = { showMigrationDialog = false },
+                            dismissLabel = null
+                        )
                     }
                 }
 
@@ -564,26 +584,16 @@ fun AjustesScreen(
                     )
 
                     if (showDeleteAllDialog) {
-                        MinhasContasDialogTheme {
-                            AlertDialog(
-                                onDismissRequest = { showDeleteAllDialog = false },
-                                title = { Text(stringResource(R.string.titulo_exclui_tudo)) },
-                                text = { Text(stringResource(R.string.texto_exclui_tudo)) },
-                                confirmButton = {
-                                    TextButton(onClick = {
-                                        onDeleteAll()
-                                        showDeleteAllDialog = false
-                                    }) {
-                                        Text(stringResource(R.string.ok))
-                                    }
-                                },
-                                dismissButton = {
-                                    TextButton(onClick = { showDeleteAllDialog = false }) {
-                                        Text(stringResource(R.string.cancelar))
-                                    }
-                                }
-                            )
-                        }
+                        MCAlertDialog(
+                            onDismissRequest = { showDeleteAllDialog = false },
+                            title = stringResource(R.string.titulo_exclui_tudo),
+                            text = stringResource(R.string.texto_exclui_tudo),
+                            onConfirm = {
+                                onDeleteAll()
+                                showDeleteAllDialog = false
+                            },
+                            dismissLabel = stringResource(R.string.cancelar)
+                        )
                     }
                 }
 
@@ -676,6 +686,165 @@ fun AjustesScreen(
             }
         }
     }
+
+    if (restartReason != null) {
+        RestartAppDialog(
+            reason = restartReason,
+            onDismiss = { onRestartReasonChange(null) }
+        )
+    }
+}
+
+@Composable
+fun SecuritySetupWizardDialog(
+    viewModel: AjustesViewModel,
+    onDismiss: () -> Unit,
+    onCompleted: () -> Unit
+) {
+    val keySenha = stringResource(R.string.pref_key_senha)
+    val keyPerguntaId = "pergunta_seguranca_id"
+    val keyResposta = "resposta_secreta"
+
+    val perguntasEntries = stringArrayResource(R.array.perguntas_seguranca)
+    val perguntasValues = stringArrayResource(R.array.perguntas_seguranca_valores)
+
+    var currentSenha by remember { mutableStateOf(viewModel.getPreference(keySenha, "")) }
+    var currentPerguntaId by remember { mutableStateOf(viewModel.getPreference(keyPerguntaId, "0")) }
+    var currentResposta by remember { mutableStateOf(viewModel.getPreference(keyResposta, "")) }
+
+    var senhaVisivel by remember { mutableStateOf(false) }
+    var respostaVisivel by remember { mutableStateOf(false) }
+
+    var errorMsg by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.pref_titulo_acesso)) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.pref_descricao_senha),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                OutlinedTextField(
+                    value = currentSenha,
+                    onValueChange = {
+                        currentSenha = it
+                        errorMsg = null
+                    },
+                    label = { Text(stringResource(R.string.pref_titulo_senha)) },
+                    singleLine = true,
+                    visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val imagem = if (senhaVisivel) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                        val descricao = if (senhaVisivel) "Ocultar senha" else "Mostrar senha"
+
+                        IconButton(onClick = { senhaVisivel = !senhaVisivel }) {
+                            Icon(imageVector = imagem, contentDescription = descricao)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                Text(
+                    text = stringResource(R.string.titulo_pergunta_secreta),
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                var dropdownExpanded by remember { mutableStateOf(false) }
+                val selectedIndex = perguntasValues.indexOf(currentPerguntaId).coerceAtLeast(0)
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = { dropdownExpanded = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(perguntasEntries.getOrElse(selectedIndex) { "" })
+                    }
+                    DropdownMenu(
+                        expanded = dropdownExpanded,
+                        onDismissRequest = { dropdownExpanded = false }
+                    ) {
+                        perguntasEntries.forEachIndexed { idx, itemText ->
+                            DropdownMenuItem(
+                                text = { Text(itemText) },
+                                onClick = {
+                                    if (idx < perguntasValues.size) {
+                                        currentPerguntaId = perguntasValues[idx]
+                                    }
+                                    dropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                OutlinedTextField(
+                    value = currentResposta,
+                    onValueChange = {
+                        currentResposta = it
+                        errorMsg = null
+                    },
+                    label = { Text(stringResource(R.string.dica_resposta_secreta_ajustes)) },
+                    singleLine = true,
+                    visualTransformation = if (respostaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val imagem = if (respostaVisivel) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                        val descricao = if (respostaVisivel) "Ocultar resposta" else "Mostrar resposta"
+
+                        IconButton(onClick = { respostaVisivel = !respostaVisivel }) {
+                            Icon(imageVector = imagem, contentDescription = descricao)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (errorMsg != null) {
+                    Text(
+                        text = errorMsg!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (currentSenha.isBlank()) {
+                        errorMsg = "A senha não pode estar em branco."
+                        return@TextButton
+                    }
+                    if (currentResposta.isBlank()) {
+                        errorMsg = "A resposta de segurança não pode estar em branco."
+                        return@TextButton
+                    }
+
+                    viewModel.setPreference(keySenha, currentSenha)
+                    viewModel.setPreference(keyPerguntaId, currentPerguntaId)
+                    viewModel.setPreference(keyResposta, currentResposta)
+
+                    onCompleted()
+                }
+            ) {
+                Text(stringResource(R.string.salvar), color = MaterialTheme.colorScheme.primary)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancelar), color = MaterialTheme.colorScheme.primary)
+            }
+        }
+    )
 }
 
 @Composable
@@ -753,54 +922,6 @@ fun SwitchPreferenceItem(
     }
 }
 
-@Composable
-fun ListPreferenceDialog(
-    title: String,
-    entries: Array<String>,
-    values: Array<String>,
-    currentValue: String,
-    onDismiss: () -> Unit,
-    onValueSelected: (String) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                entries.forEachIndexed { index, entry ->
-                    if (index < values.size) {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = (values[index] == currentValue),
-                                    onClick = { onValueSelected(values[index]) }
-                                )
-                                .padding(vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = (values[index] == currentValue),
-                                onClick = { onValueSelected(values[index]) }
-                            )
-                            Text(
-                                text = entry,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancelar), color = MaterialTheme.colorScheme.primary)
-            }
-        }
-    )
-}
 
 @Composable
 fun ImportProcessDialog(
@@ -828,7 +949,6 @@ fun ImportProcessDialog(
                         color = MaterialTheme.colorScheme.error
                     )
                 } else {
-                    // Etapa 1: Leitura
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = if (importState != AjustesViewModel.ImportState.READING) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
@@ -844,7 +964,6 @@ fun ImportProcessDialog(
                         )
                     }
 
-                    // Etapa 2: Análise
                     if (importState == AjustesViewModel.ImportState.ANALYZING || importState == AjustesViewModel.ImportState.SUCCESS) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -861,7 +980,6 @@ fun ImportProcessDialog(
                         }
                     }
 
-                    // Resumo e Avisos
                     if (importState == AjustesViewModel.ImportState.SUCCESS && importSummary != null) {
                         HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
 
@@ -947,6 +1065,7 @@ fun EditTextPreferenceDialog(
     onValueSaved: (String) -> Unit
 ) {
     var text by remember { mutableStateOf(initialValue) }
+    var localVisivel by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -957,7 +1076,17 @@ fun EditTextPreferenceDialog(
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                visualTransformation = if (isPassword && !localVisivel) PasswordVisualTransformation() else VisualTransformation.None,
+                trailingIcon = if (isPassword) {
+                    {
+                        val imagem = if (localVisivel) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                        val descricao = if (localVisivel) "Ocultar" else "Mostrar"
+
+                        IconButton(onClick = { localVisivel = !localVisivel }) {
+                            Icon(imageVector = imagem, contentDescription = descricao)
+                        }
+                    }
+                } else null,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline

@@ -1,8 +1,7 @@
 package com.msk.minhascontas.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.content.Intent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +15,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,13 +37,15 @@ import com.msk.minhascontas.R
 import com.msk.minhascontas.db.Conta
 import com.msk.minhascontas.db.ContasContract
 import com.msk.minhascontas.db.DBContas
+import com.msk.minhascontas.db.TipoExclusao
+import com.msk.minhascontas.ui.layouts.MCAlertDialog
+import com.msk.minhascontas.ui.layouts.SelectionTopAppBar
+import com.msk.minhascontas.ui.layouts.SharedContaItem
+import com.msk.minhascontas.ui.layouts.StandardTopAppBar
 import com.msk.minhascontas.ui.theme.MinhasContasDialogTheme
-import com.msk.minhascontas.utils.LabelUtils
 import com.msk.minhascontas.viewmodel.PesquisaViewModel
 import kotlinx.coroutines.launch
-import java.text.DateFormat
 import java.text.NumberFormat
-import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +53,7 @@ fun PesquisaScreen(
     viewModel: PesquisaViewModel = viewModel(),
     onBack: () -> Unit,
     onEditConta: (List<Long>) -> Unit,
+    onCoachClick: ((String) -> Unit)? = null,
     onLembrete: (Conta) -> Unit
 ) {
     val searchText by viewModel.searchText.collectAsState()
@@ -61,18 +64,10 @@ fun PesquisaScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
-    val configuration = LocalConfiguration.current
-    val locale = configuration.locales[0]
-    val currencyFormat = remember(locale) { NumberFormat.getCurrencyInstance(locale) }
-
     val selectedContas = remember(selectedIds, contas) {
         contas.filter { it.idConta in selectedIds }
     }
-    val selectedSum = remember(selectedContas) {
-        selectedContas.sumOf { it.valor }
-    }
 
-    val scope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf<Long?>(null) }
     var showMultiDeleteDialog by remember { mutableStateOf(false) }
 
@@ -81,8 +76,10 @@ fun PesquisaScreen(
         topBar = {
             Column {
                 if (selectedIds.isEmpty()) {
-                    TopAppBar(
-                        title = {
+                    StandardTopAppBar(
+                        onBackClick = onBack,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContent = {
                             TextField(
                                 value = searchText,
                                 onValueChange = { viewModel.onSearchTextChange(it) },
@@ -112,99 +109,40 @@ fun PesquisaScreen(
                                     }
                                 }
                             )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = onBack) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = null)
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                        }
                     )
                 } else {
-                    TopAppBar(
-                        title = {
-                            Column {
-                                val titleText = if (selectedIds.size == 1) {
-                                    val conta = selectedContas.firstOrNull()
-                                    if (conta != null) {
-                                        if (conta.qtRepete > 1 && conta.tipo == ContasContract.TIPO_DESPESA &&
-                                            (conta.classeConta == ContasContract.CLASSE_DESPESA_CARTAO ||
-                                                    conta.classeConta == ContasContract.CLASSE_DESPESA_PRESTACOES)
-                                        ) {
-                                            "${conta.nome} ${conta.nRepete}/${conta.qtRepete}"
-                                        } else {
-                                            conta.nome
-                                        }
-                                    } else {
-                                        ""
-                                    }
-                                } else {
-                                    pluralStringResource(
-                                        R.plurals.selecao,
-                                        selectedIds.size,
-                                        selectedIds.size
-                                    )
-                                }
-                                Text(text = titleText, style = MaterialTheme.typography.titleMedium)
-                                Text(
-                                    text = currencyFormat.format(selectedSum),
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
+                    SelectionTopAppBar(
+                        selectedContas = selectedContas,
+                        onSelectionClear = { viewModel.clearSelection() },
+                        onTogglePagamento = { viewModel.togglePagamentoSelected() },
+                        onEditar = { ids: List<Long> ->
+                            onEditConta(ids)
+                            viewModel.clearSelection()
                         },
-                        navigationIcon = {
-                            IconButton(onClick = { viewModel.clearSelection() }) {
-                                Icon(Icons.Default.Close, contentDescription = null)
-                            }
-                        },
-                        actions = {
-                            if (selectedIds.isNotEmpty()) {
-                                IconButton(onClick = { 
-                                    onEditConta(selectedIds.toList())
-                                    viewModel.clearSelection()
-                                }) {
-                                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.titulo_editar))
-                                }
-                            }
+                        onExcluir = {
                             if (selectedIds.size == 1) {
-                                IconButton(onClick = {
-                                    scope.launch {
-                                        val conta = viewModel.getConta(selectedIds.first())
-                                        if (conta != null) onLembrete(conta)
-                                        viewModel.clearSelection()
-                                    }
-                                }) {
-                                    Icon(Icons.Default.Notifications, contentDescription = stringResource(R.string.titulo_calendario))
-                                }
-                            }
-                            IconButton(onClick = { viewModel.togglePagamentoSelected() }) {
-                                Icon(
-                                    painterResource(id = R.drawable.paga),
-                                    contentDescription = stringResource(R.string.dica_pagamento),
-                                    tint = Color.White
-                                )
-                            }
-                            IconButton(onClick = {
-                                if (selectedIds.size == 1) {
-                                    showDeleteDialog = selectedIds.first()
-                                } else {
-                                    showMultiDeleteDialog = true
-                                }
-                            }) {
-                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.titulo_excluir))
+                                showDeleteDialog = selectedIds.first()
+                            } else {
+                                showMultiDeleteDialog = true
                             }
                         },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                        onLembrete = {
+                            val conta = selectedContas.firstOrNull() ?: return@SelectionTopAppBar
+                            onLembrete(conta)
+                            viewModel.clearSelection()
+                        },
+                        onCoachClick = { metaId: String ->
+                            if (onCoachClick != null) {
+                                onCoachClick(metaId)
+                            } else {
+                                val intent = Intent(context, com.msk.minhascontas.features.planos.PlanoFinanceiroActivity::class.java).apply {
+                                    putExtra("metaId", metaId)
+                                }
+                                context.startActivity(intent)
+                            }
+                            viewModel.clearSelection()
+                        }
                     )
                 }
 
@@ -303,14 +241,26 @@ fun PesquisaScreen(
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(contas, key = { it.idConta }) { conta ->
-                        ContaItem(
+                        SharedContaItem(
                             conta = conta,
                             isSelected = selectedIds.contains(conta.idConta),
-                            onClick = {
+                        showFullDate = true, // Pesquisa precisa da data completa
+                        onClick = {
+                            if (selectedIds.isEmpty()) {
+                                if (conta.isCoach() && onCoachClick != null) {
+                                    onCoachClick(conta.codigo)
+                                } else {
+                                    viewModel.toggleSelection(conta.idConta)
+                                }
+                            } else {
                                 viewModel.toggleSelection(conta.idConta)
-                            },
-                            onLongClick = {
-                                viewModel.toggleSelection(conta.idConta)
+                            }
+                        },
+                        onLongClick = {
+                            viewModel.toggleSelection(conta.idConta)
+                        },
+                            onTogglePagamento = {
+                                viewModel.togglePagamento(conta.idConta)
                             }
                         )
                     }
@@ -321,204 +271,68 @@ fun PesquisaScreen(
 
     if (showDeleteDialog != null) {
         val contaSelecionada = contas.find { it.idConta == showDeleteDialog }
-        MinhasContasDialogTheme {
-            if (contaSelecionada != null && contaSelecionada.qtRepete > 1) {
-                AlertDialog(
-                    onDismissRequest = { showDeleteDialog = null },
-                    title = { Text(stringResource(R.string.dica_menu_exclusao)) },
-                    text = {
-                        Column {
-                            val options = context.resources.getStringArray(R.array.TipoAjusteConta)
-                            options.forEachIndexed { index, option ->
-                                TextButton(
-                                    onClick = {
-                                        val tipo = when (index) {
-                                            0 -> DBContas.TipoExclusao.SOMENTE_ESTA
-                                            1 -> DBContas.TipoExclusao.DESTA_EM_DIANTE
-                                            else -> DBContas.TipoExclusao.TODAS_AS_REPETICOES
-                                        }
-                                        viewModel.deleteSingle(showDeleteDialog!!, tipo)
-                                        showDeleteDialog = null
-                                    },
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text(
-                                        option,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
+        if (contaSelecionada != null && contaSelecionada.qtRepete > 1) {
+            MCAlertDialog(
+                onDismissRequest = { showDeleteDialog = null },
+                title = stringResource(R.string.dica_menu_exclusao),
+                onConfirm = null,
+                dismissLabel = stringResource(R.string.cancelar),
+                content = {
+                    Column {
+                        val options = context.resources.getStringArray(R.array.TipoAjusteConta)
+                        options.forEachIndexed { index, option ->
+                            TextButton(
+                                onClick = {
+                                    val tipo = when (index) {
+                                        0 -> TipoExclusao.SOMENTE_ESTA
+                                        1 -> TipoExclusao.DESTA_EM_DIANTE
+                                        else -> TipoExclusao.TODAS_AS_REPETICOES
+                                    }
+                                    viewModel.deleteSingle(showDeleteDialog!!, tipo)
+                                    showDeleteDialog = null
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    option,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             }
                         }
-                    },
-                    confirmButton = {},
-                    dismissButton = {
-                        TextButton(onClick = { showDeleteDialog = null }) {
-                            Text(stringResource(R.string.cancelar))
-                        }
                     }
-                )
-            } else {
-                AlertDialog(
-                    onDismissRequest = { showDeleteDialog = null },
-                    title = { Text(stringResource(R.string.titulo_excluir)) },
-                    text = { Text(pluralStringResource(R.plurals.confirmar_exclusao_multipla_mensagem, 1)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            viewModel.deleteSingle(showDeleteDialog!!, DBContas.TipoExclusao.SOMENTE_ESTA)
-                            showDeleteDialog = null
-                        }) {
-                            Text(stringResource(R.string.sim))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showDeleteDialog = null }) {
-                            Text(stringResource(R.string.nao))
-                        }
-                    }
-                )
-            }
+                }
+            )
+        } else {
+            MCAlertDialog(
+                onDismissRequest = { showDeleteDialog = null },
+                title = stringResource(R.string.titulo_excluir),
+                text = pluralStringResource(R.plurals.confirmar_exclusao_multipla_mensagem, 1),
+                confirmLabel = stringResource(R.string.sim),
+                onConfirm = {
+                    viewModel.deleteSingle(showDeleteDialog!!, TipoExclusao.SOMENTE_ESTA)
+                    showDeleteDialog = null
+                },
+                dismissLabel = stringResource(R.string.nao)
+            )
         }
     }
 
     if (showMultiDeleteDialog) {
-        MinhasContasDialogTheme {
-            AlertDialog(
-                onDismissRequest = { showMultiDeleteDialog = false },
-                title = { Text(stringResource(R.string.confirmar_exclusao_multipla_titulo)) },
-                text = {
-                    Text(
-                        pluralStringResource(
-                            R.plurals.confirmar_exclusao_multipla_mensagem,
-                            selectedIds.size,
-                            selectedIds.size
-                        )
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.deleteMultipleSelected()
-                        showMultiDeleteDialog = false
-                    }) {
-                        Text(stringResource(R.string.sim))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showMultiDeleteDialog = false }) {
-                        Text(stringResource(R.string.nao))
-                    }
-                }
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ContaItem(
-    conta: Conta,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit
-) {
-    val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-    val locale = configuration.locales[0]
-    val currencyFormat = remember(locale) { NumberFormat.getCurrencyInstance(locale) }
-    val dateFormat = remember(locale) { DateFormat.getDateInstance(DateFormat.SHORT, locale) }
-    val semana = remember { context.resources.getStringArray(R.array.Semana) }
-
-    val backgroundColor = if (isSelected) {
-        colorResource(R.color.linha_selecionada)
-    } else {
-        Color.Transparent
-    }
-
-    val valorColor = when (conta.tipo) {
-        ContasContract.TIPO_DESPESA -> colorResource(R.color.despesa_color)
-        ContasContract.TIPO_RECEITA -> colorResource(R.color.receita_color)
-        else -> colorResource(R.color.aplicacao_color)
-    }
-
-    val displayName = if (conta.qtRepete > 1 &&
-        (conta.tipo == ContasContract.TIPO_DESPESA) &&
-        (conta.classeConta == ContasContract.CLASSE_DESPESA_CARTAO ||
-                conta.classeConta == ContasContract.CLASSE_DESPESA_PRESTACOES)
-    ) {
-        "${conta.nome} ${conta.nRepete}/${conta.qtRepete}"
-    } else {
-        conta.nome
-    }
-
-    val cal = remember(conta) {
-        Calendar.getInstance().apply { set(conta.ano, conta.mes - 1, conta.dia) }
-    }
-    val dataStr = dateFormat.format(cal.time)
-    val diaSemana = semana[cal.get(Calendar.DAY_OF_WEEK) - 1]
-
-    val categoriaStr = remember(conta) {
-        val classeLabel = LabelUtils.getClasseLabel(context, conta.tipo, conta.classeConta)
-        val categoriaLabel = LabelUtils.getCategoriaLabel(context, conta.categoria)
-        if (conta.tipo == ContasContract.TIPO_DESPESA) {
-            "$classeLabel | $categoriaLabel"
-        } else {
-            classeLabel
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(backgroundColor)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = categoriaStr,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = currencyFormat.format(conta.valor),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = valorColor
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "$dataStr ($diaSemana)",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    if (conta.pagamento == ContasContract.STATUS_PAGO_RECEBIDO &&
-                        (conta.tipo == ContasContract.TIPO_DESPESA || conta.tipo == ContasContract.TIPO_RECEITA)
-                    ) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.visto),
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = valorColor
-                        )
-                    }
-                }
-            }
-        }
+        MCAlertDialog(
+            onDismissRequest = { showMultiDeleteDialog = false },
+            title = stringResource(R.string.confirmar_exclusao_multipla_titulo),
+            text = pluralStringResource(
+                R.plurals.confirmar_exclusao_multipla_mensagem,
+                selectedIds.size,
+                selectedIds.size
+            ),
+            confirmLabel = stringResource(R.string.sim),
+            onConfirm = {
+                viewModel.deleteMultipleSelected()
+                showMultiDeleteDialog = false
+            },
+            dismissLabel = stringResource(R.string.nao)
+        )
     }
 }

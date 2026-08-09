@@ -78,6 +78,8 @@ data class Conta(
     var valorJuros: Double = 0.0
 ) {
 
+    fun isCoach(): Boolean = nome.startsWith("[COACH]")
+
     /**
      * Construtor secundário para compatibilidade com o código Java que não utiliza valorJuros.
      */

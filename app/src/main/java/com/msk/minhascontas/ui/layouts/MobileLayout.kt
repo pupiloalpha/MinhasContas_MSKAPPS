@@ -8,8 +8,10 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
@@ -46,8 +48,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.msk.minhascontas.R
 import com.msk.minhascontas.db.ContasRepository
-import com.msk.minhascontas.ui.MonthYearTabBar
-import com.msk.minhascontas.ui.PaginadorResumos
 import com.msk.minhascontas.viewmodel.ContasViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,83 +72,30 @@ fun MobileLayout(
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
-    
+
     // Para o MobileLayout da Activity principal, o título é fixo como o nome do app
     // Já que as listas detalhadas abrem em novas Activities.
     val appBarTitle = stringResource(R.string.app_name)
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-        TopAppBar(
-            modifier = Modifier,
-            title = {
-                AnimatedContent(
-                    targetState = appBarTitle,
-                    transitionSpec = {
-                        (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
-                            .togetherWith(fadeOut(animationSpec = tween(90)))
-                    },
-                    label = "TopAppBarTitle"
-                ) { title ->
-                    Text(title)
-                }
-            },
-            actions = {
-                if (hasUnreadNotifications) {
-                    IconButton(onClick = onShowNotifications) {
-                        Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = Color.Yellow)
+        StandardTopAppBar(
+            title = appBarTitle,
+            onSearchClick = onNavigateToBusca,
+            onShareClick = onShare,
+            onAiAnalysisClick = {
+                val state = contasViewModel.currentDateState.value
+                if (state != null) {
+                    scope.launch {
+                        val contas = contasRepository?.getContasDoMes(state.mes, state.ano, -1, null)
+                        if (contas != null) contasViewModel.runAiAnalysis(contas)
                     }
                 }
-
-                IconButton(onClick = onNavigateToBusca) { Icon(Icons.Default.Search, contentDescription = null) }
-
-                var showMenu by remember { mutableStateOf(false) }
-                IconButton(onClick = { showMenu = !showMenu }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "Menu")
-                }
-                DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.consultoria_ia)) },
-                        onClick = {
-                            showMenu = false
-                            val state = contasViewModel.currentDateState.value
-                            if (state != null) {
-                                scope.launch {
-                                    val contas = contasRepository?.getContasDoMes(state.mes, state.ano, -1, null)
-                                    if (contas != null) contasViewModel.runAiAnalysis(contas)
-                                }
-                            }
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.titulo_enviar)) },
-                        onClick = {
-                            showMenu = false
-                            onShare()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.menu_ajustes)) },
-                        onClick = {
-                            showMenu = false
-                            onNavigateToAjustes()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.menu_sobre)) },
-                        onClick = {
-                            showMenu = false
-                            onNavigateToSobre()
-                        }
-                    )
-                }
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = colorResource(R.color.primary),
-                titleContentColor = Color.White,
-                actionIconContentColor = Color.White,
-                navigationIconContentColor = Color.White
-            )
+            onAjustesClick = onNavigateToAjustes,
+            onSobreClick = onNavigateToSobre,
+            hasUnreadNotifications = hasUnreadNotifications,
+            onShowNotifications = onShowNotifications,
+            containerColor = colorResource(R.color.primary)
         )
 
         MonthYearTabBar(
@@ -173,7 +120,7 @@ fun MobileLayout(
                 }
             )
         }
-        
+
         // Simulação de Bottom Navigation (como no original NavigationSuiteScaffold mas adaptado)
         NavigationBar {
             NavigationBarItem(
@@ -211,8 +158,7 @@ fun MobileLayout(
             contentColor = colorResource(R.color.on_fab_color),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(bottom = 52.dp) // Sobre a BottomBar
+                .padding(bottom = 52.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()) // Sobre a BottomBar
         ) {
             Icon(Icons.Default.Add, contentDescription = null)
         }

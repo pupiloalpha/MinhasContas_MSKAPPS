@@ -12,6 +12,9 @@ import com.msk.minhascontas.features.ai.AIAssistant
 import com.msk.minhascontas.features.ai.AIResult
 import com.msk.minhascontas.db.Conta
 import com.msk.minhascontas.db.ContasRepository
+import com.msk.minhascontas.db.NotificationRepository
+import com.msk.minhascontas.db.ContasContract
+import com.msk.minhascontas.db.ContaFilter
 import androidx.lifecycle.asFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -21,6 +24,7 @@ import java.util.Calendar
 @OptIn(ExperimentalCoroutinesApi::class)
 class ContasViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = ContasRepository.getInstance(application)
+    private val notificationRepository = NotificationRepository.getInstance(application)
     // VARIÁVEIS DE RECURSO: Arrays de meses, carregados pelo Application Context
     val stringMonths: Array<String?> = application.resources.getStringArray(R.array.MesResumido)
     val fullStringMonths: Array<String?> = application.resources.getStringArray(R.array.MesesDoAno)
@@ -66,7 +70,7 @@ class ContasViewModel(application: Application) : AndroidViewModel(application) 
         if (pair == null) flowOf(emptyList())
         else {
             val (date, state) = pair
-            val filter = com.msk.minhascontas.db.DBContas.ContaFilter()
+            val filter = ContaFilter()
                 .setMes(date.mes)
                 .setAno(date.ano)
 
@@ -94,7 +98,7 @@ class ContasViewModel(application: Application) : AndroidViewModel(application) 
     val currentMonthTotal: StateFlow<Double> = _currentDateState.flatMapLatest { date ->
         if (date == null) flowOf(0.0)
         else {
-            repository.calcularTotalFlow(date.mes, date.ano, com.msk.minhascontas.db.ContasContract.TIPO_DESPESA, null)
+            repository.calcularTotalFlow(date.mes, date.ano, ContasContract.TIPO_DESPESA, null)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
@@ -171,11 +175,11 @@ class ContasViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Atualiza o estado das notificações não lidas consultando o banco de dados.
+     * Atualiza o estado das notificações não lidas consultando o repositório de notificações.
      */
     fun refreshNotifications() {
-        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            val tem = com.msk.minhascontas.db.DBContas.getInstance(getApplication()).temNotificacoesNaoLidas()
+        viewModelScope.launch {
+            val tem = notificationRepository.temNotificacoesNaoLidas()
             _hasUnreadNotifications.value = tem
         }
     }

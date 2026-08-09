@@ -9,13 +9,19 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
+import com.msk.minhascontas.db.Conta
 import com.msk.minhascontas.db.ContasContract
 import com.msk.minhascontas.db.ContasRepository
+import com.msk.minhascontas.db.TipoExclusao
 import com.msk.minhascontas.db.MetaFinanceira
 import com.msk.minhascontas.features.ai.AIAssistant
 import com.msk.minhascontas.features.ai.AIResult
 import com.msk.minhascontas.R
 import com.msk.minhascontas.utils.FinanceCalculator
+import com.msk.minhascontas.utils.Pontoprojecao
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -24,14 +30,21 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
     private val prefs = PreferenceManager.getDefaultSharedPreferences(application)
     private val aiAssistant = AIAssistant(application)
 
-    // Dados do Orçamento (Vindo do PlanejamentoFinanceiro)
-    var receitaReferencia by mutableDoubleStateOf(0.0)
-    var percPrioridadeFinanceira by mutableDoubleStateOf(0.0)
-    var valorDisponivelTotal20Porcento by mutableDoubleStateOf(0.0)
-    var gastosMensaisEstimados by mutableDoubleStateOf(0.0)
+    // Dados Reais do Orçamento (Apurados via BD)
+    var receitaMediaReal by mutableDoubleStateOf(0.0)
+    var despesaMediaReal by mutableDoubleStateOf(0.0)
 
-    // Observáveis para a UI
+    // Regra 50/30/20 calculada sobre a receita real
+    var valorMetaNecessidades50 by mutableDoubleStateOf(0.0)
+    var valorMetaDesejos30 by mutableDoubleStateOf(0.0)
+    var valorMetaPrioridade20 by mutableDoubleStateOf(0.0)
+    var capacidadeAporteLivre20 by mutableDoubleStateOf(0.0)
+
     val metasAtivas = repository.getMetasAtivas()
+
+    // Flow com as metas atualizadas com o saldo real do Room DB
+    private val _metasComProgressoReal = MutableStateFlow<List<MetaFinanceira>>(emptyList())
+    val metasComProgressoReal: StateFlow<List<MetaFinanceira>> = _metasComProgressoReal.asStateFlow()
 
     // Estado para a Simulação
     var metaEditando by mutableStateOf<MetaFinanceira?>(null)
@@ -40,12 +53,22 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
     var valorAtual by mutableDoubleStateOf(0.0)
     var taxaJuros by mutableDoubleStateOf(0.0)
     var aporteMensal by mutableDoubleStateOf(0.0)
-    
-    // Resultado da Simulação
+    var dataInicioMeta by mutableStateOf(Date())
+
+    // Resultado da Simulação e Análise Avançada
     var mesesRestantes by mutableStateOf(0)
         private set
-    
+
     var dataPrevisaoFim by mutableStateOf<Date?>(null)
+        private set
+
+    var serieProjecao by mutableStateOf<List<Pontoprojecao>>(emptyList())
+        private set
+
+    var totalJurosEstimado by mutableDoubleStateOf(0.0)
+        private set
+
+    var totalAportadoEstimado by mutableDoubleStateOf(0.0)
         private set
 
     // Diagnóstico e IA
@@ -55,22 +78,84 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
     var isAnalyzingIA by mutableStateOf(false)
 
     init {
-        carregarDadosOrcamento()
+        carregarDadosReaisEOrcamento()
         realizarDiagnosticoFinanceiro()
+
+        // Observa alterações nas metas cadastradas para atualizar com dados do Room
+        metasAtivas.observeForever { listaMetas ->
+            recalcularProgressoMetasComBanco(listaMetas)
+        }
     }
 
-    private fun carregarDadosOrcamento() {
-        receitaReferencia = prefs.getFloat("plan_receita_referencia", 3000.0f).toDouble()
-        // Categoria 8 é "Investimentos/Dívidas" (Os 20% da regra)
-        percPrioridadeFinanceira = prefs.getFloat("plan_perc_8", 20.0f).toDouble()
-        valorDisponivelTotal20Porcento = (percPrioridadeFinanceira / 100.0) * receitaReferencia
-        
-        // Gastos mensais estimados = Receita - Aporte Prioritário
-        gastosMensaisEstimados = receitaReferencia - valorDisponivelTotal20Porcento
+    /**
+     * Recalcula o progresso de cada meta consultando os registros reais do banco de dados Room.
+     * Considera apenas pagamentos realizados até a data atual.
+     */
+    fun recalcularProgressoMetasComBanco(lista: List<MetaFinanceira>? = metasAtivas.value) {
+        val metasBase = lista ?: return
+        val dataHoje = Calendar.getInstance().time
+        viewModelScope.launch {
+            val listaAtualizada = metasBase.map { meta ->
+                // Filtra contas da meta que não estão no futuro
+                val progressoReal = repository.calcularProgressoRealDaMeta(meta)
+                // O método do repositório deve ser verificado se já filtra por data, 
+                // caso contrário, filtramos aqui.
+                meta.copy(valorAtual = progressoReal)
+            }
+            _metasComProgressoReal.value = listaAtualizada
+        }
+    }
+
+    /**
+     * Carrega as médias reais de receita e despesa do banco de dados (últimos 3 meses)
+     * e aplica a distribuição do orçamento 50/30/20.
+     */
+    fun carregarDadosReaisEOrcamento() {
+        viewModelScope.launch {
+            val calendar = Calendar.getInstance()
+            val mesAtual = calendar.get(Calendar.MONTH) + 1
+            val anoAtual = calendar.get(Calendar.YEAR)
+
+            var somaReceitas = 0.0
+            var somaDespesas = 0.0
+            val mesesAnalise = 3
+
+            for (i in 0 until mesesAnalise) {
+                val cal = Calendar.getInstance()
+                cal.add(Calendar.MONTH, -i)
+                val m = cal.get(Calendar.MONTH) + 1
+                val a = cal.get(Calendar.YEAR)
+
+                somaReceitas += repository.calcularTotalMensal(m, a, ContasContract.TIPO_RECEITA, null)
+                somaDespesas += repository.calcularTotalMensal(m, a, ContasContract.TIPO_DESPESA, null)
+            }
+
+            receitaMediaReal = if (somaReceitas > 0) somaReceitas / mesesAnalise else prefs.getFloat("plan_receita_referencia", 3000.0f).toDouble()
+            despesaMediaReal = if (somaDespesas > 0) somaDespesas / mesesAnalise else (receitaMediaReal * 0.8)
+
+            val percPrioridade = prefs.getFloat("plan_perc_8", 20.0f).toDouble()
+
+            valorMetaNecessidades50 = receitaMediaReal * 0.50
+            valorMetaDesejos30 = receitaMediaReal * 0.30
+            valorMetaPrioridade20 = receitaMediaReal * (percPrioridade / 100.0)
+
+            valorPrestacoesAtivas = repository.somaValoresPorFiltro(
+                anoAtual, mesAtual, ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_PRESTACOES, -1, null
+            )
+
+            capacidadeAporteLivre20 = (valorMetaPrioridade20 - valorPrestacoesAtivas).coerceAtLeast(0.0)
+
+            if (aporteMensal == 0.0) {
+                aporteMensal = capacidadeAporteLivre20
+            }
+        }
     }
 
     fun sugerirReserva(meses: Int) {
-        valorTotal = gastosMensaisEstimados * meses
+        valorTotal = despesaMediaReal * meses
+        if (aporteMensal == 0.0) {
+            aporteMensal = capacidadeAporteLivre20
+        }
         atualizarSimulacao()
     }
 
@@ -90,12 +175,30 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
             )
         }
 
-        if (mesesRestantes > 0 && mesesRestantes < 1200) { // Limite de 100 anos para sanidade
+        if (mesesRestantes > 0 && mesesRestantes < 1200) {
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.MONTH, mesesRestantes)
             dataPrevisaoFim = calendar.time
+
+            serieProjecao = FinanceCalculator.gerarSérieProjeção(
+                tipo = tipoSimulacao,
+                valorInicial = if (tipoSimulacao == MetaFinanceira.TIPO_DIVIDA) (valorTotal - valorAtual) else valorAtual,
+                valorAlvo = valorTotal,
+                aporte = aporteMensal,
+                taxaMensalPercentual = taxaJuros,
+                mesesMax = mesesRestantes
+            )
+
+            val ultimoPonto = serieProjecao.lastOrNull()
+            if (ultimoPonto != null) {
+                totalJurosEstimado = ultimoPonto.totalJuros
+                totalAportadoEstimado = ultimoPonto.totalAportado
+            }
         } else {
             dataPrevisaoFim = null
+            serieProjecao = emptyList()
+            totalJurosEstimado = 0.0
+            totalAportadoEstimado = 0.0
         }
     }
 
@@ -106,7 +209,12 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
         valorAtual = meta.valorAtual
         taxaJuros = meta.taxaJurosMensal
         aporteMensal = meta.aporteMensalAlvo
+        dataInicioMeta = Date(meta.dataInicio)
         atualizarSimulacao()
+    }
+
+    suspend fun getMetaById(id: String): MetaFinanceira? {
+        return repository.getMetaById(id)
     }
 
     fun resetarSimulacao() {
@@ -115,7 +223,7 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
         valorTotal = 0.0
         valorAtual = 0.0
         taxaJuros = 0.0
-        aporteMensal = 0.0
+        aporteMensal = capacidadeAporteLivre20
         atualizarSimulacao()
     }
 
@@ -130,25 +238,23 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
                 valorAtual = valorAtual,
                 taxaJurosMensal = taxaJuros,
                 aporteMensalAlvo = aporteMensal,
+                dataInicio = dataInicioMeta.time,
                 dataPrevisaoFim = dataPrevisaoFim?.time,
                 codigoVinculo = codigo
             )
             repository.salvarMeta(meta)
-            
-            // Gerar registros futuros no banco (apenas se for nova ou se mudou muito?)
-            // Por simplicidade, vamos gerar/atualizar. 
-            // O repository.salvarContasRecorrentes pode precisar tratar duplicidade se usarmos o mesmo código.
             gerarRegistrosFuturos(nome, codigo)
+            recalcularProgressoMetasComBanco()
         }
     }
 
     fun excluirMeta(meta: MetaFinanceira) {
         viewModelScope.launch {
             repository.excluirMeta(meta)
-            // Também excluímos as contas futuras vinculadas
             if (!meta.codigoVinculo.isNullOrEmpty()) {
-                repository.excluirContasRecorrentes(0, meta.codigoVinculo, 0, com.msk.minhascontas.db.DBContas.TipoExclusao.TODAS_AS_REPETICOES)
+                repository.excluirContasRecorrentes(0, meta.codigoVinculo, 0, TipoExclusao.TODAS_AS_REPETICOES)
             }
+            recalcularProgressoMetasComBanco()
         }
     }
 
@@ -156,7 +262,7 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
         if (mesesRestantes <= 0) return
 
         val calendar = Calendar.getInstance()
-        val contaBase = com.msk.minhascontas.db.Conta.Builder(
+        val contaBase = Conta.Builder(
             nome = "[COACH] $nome",
             valor = aporteMensal,
             dia = calendar.get(Calendar.DAY_OF_MONTH),
@@ -164,31 +270,25 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
             ano = calendar.get(Calendar.YEAR),
             codigo = codigo
         ).apply {
-            if (tipoSimulacao == MetaFinanceira.TIPO_DIVIDA) {
-                setTipo(0) // TIPO_DESPESA
-                setClasseConta(3) // CLASSE_DESPESA_PRESTACOES
-            } else {
-                setTipo(2) // TIPO_APLICACAO
-                setClasseConta(3) // CLASSE_APLICACAO_OUTRAS
+            when (tipoSimulacao) {
+                MetaFinanceira.TIPO_DIVIDA -> {
+                    setTipo(ContasContract.TIPO_DESPESA)
+                    setClasseConta(ContasContract.CLASSE_DESPESA_PRESTACOES)
+                    setCategoria(ContasContract.CATEGORIA_OUTROS)
+                }
+                MetaFinanceira.TIPO_RESERVA,
+                MetaFinanceira.TIPO_INVESTIMENTO,
+                MetaFinanceira.TIPO_APOSENTADORIA -> {
+                    setTipo(ContasContract.TIPO_APLICACAO)
+                    setClasseConta(ContasContract.CLASSE_APLICACAO_OUTRAS)
+                }
             }
-            setCategoria(8) // CATEGORIA_INVESTIMENTOS
             setValorJuros(taxaJuros / 100.0)
             setQtRepete(mesesRestantes)
         }.build()
 
         viewModelScope.launch {
-            repository.salvarContasRecorrentes(contaBase, mesesRestantes, 300) // 300 = Mensal
-        }
-    }
-
-    /**
-     * Força a atualização do progresso real de todas as metas ativas.
-     */
-    fun atualizarProgressoDeTodasAsMetas() {
-        viewModelScope.launch {
-            metasAtivas.value?.forEach { meta ->
-                repository.atualizarProgressoRealMeta(meta)
-            }
+            repository.salvarContasRecorrentes(contaBase, mesesRestantes, 300)
         }
     }
 
@@ -198,36 +298,34 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
             val mes = calendar.get(Calendar.MONTH) + 1
             val ano = calendar.get(Calendar.YEAR)
 
-            // Busca prestações ativas (Classe 3 de Despesa)
             valorPrestacoesAtivas = repository.somaValoresPorFiltro(
                 ano, mes, ContasContract.TIPO_DESPESA, ContasContract.CLASSE_DESPESA_PRESTACOES, -1, null
             )
 
-            // Busca se existem aplicações (Tipo 2)
             val totalAplicacoes = repository.somaValoresPorFiltro(
                 ano, mes, ContasContract.TIPO_APLICACAO, -1, -1, null
             )
-            
+
             val temInvestimentoAcumulado = prefs?.getBoolean(getApplication<Application>().getString(R.string.pref_key_aplicacao_acumulada), false) ?: false
             val aplicacoesAnteriores = if (temInvestimentoAcumulado) {
                 repository.somaAplicacoesAnteriores(
                     calendar.get(Calendar.DAY_OF_MONTH), mes, ano, true, -1
                 )
             } else 0.0
-            
+
             temInvestimentos = (totalAplicacoes + aplicacoesAnteriores) > 0
         }
     }
 
     fun gerarAnaliseIA() {
         if (isAnalyzingIA) return
-        
+
         viewModelScope.launch {
             isAnalyzingIA = true
             val calendar = Calendar.getInstance()
             val mes = calendar.get(Calendar.MONTH) + 1
             val ano = calendar.get(Calendar.YEAR)
-            
+
             val context = getApplication<Application>()
             val temSaldoSomado = prefs?.getBoolean(context.getString(R.string.pref_key_saldo), false) ?: false
             val temInvestimentoAcumulado = prefs?.getBoolean(context.getString(R.string.pref_key_aplicacao_acumulada), false) ?: false
@@ -236,7 +334,7 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
             val totalAplicacoesMes = repository.somaValoresPorFiltro(
                 ano, mes, ContasContract.TIPO_APLICACAO, -1, -1, null
             )
-            
+
             val saldoAnterior = if (temSaldoSomado) {
                 repository.somaSaldoAnterior(calendar.get(Calendar.DAY_OF_MONTH), mes, ano, true)
             } else 0.0
@@ -256,7 +354,7 @@ class PlanoFinanceiroViewModel(application: Application) : AndroidViewModel(appl
                 dadosResumo = resumoTexto,
                 valorPrestacoes = valorPrestacoesAtivas,
                 patrimonioTotal = saldoAnterior + aplicacoesAnteriores + totalAplicacoesMes,
-                valorDisponivel20 = valorDisponivelTotal20Porcento,
+                valorDisponivel20 = valorMetaPrioridade20,
                 temInvestimentoAcumulado = temInvestimentoAcumulado
             )
             isAnalyzingIA = false

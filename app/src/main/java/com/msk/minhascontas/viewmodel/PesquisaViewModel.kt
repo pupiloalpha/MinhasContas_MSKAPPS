@@ -8,6 +8,8 @@ import com.msk.minhascontas.db.Conta
 import com.msk.minhascontas.db.ContasContract
 import com.msk.minhascontas.db.ContasRepository
 import com.msk.minhascontas.db.DBContas
+import com.msk.minhascontas.db.ContaFilter
+import com.msk.minhascontas.db.TipoExclusao
 import com.msk.minhascontas.utils.LabelUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,7 +45,7 @@ class PesquisaViewModel(application: Application) : AndroidViewModel(application
         _filterStatus,
         _filterTipo
     ) { text, status, tipo ->
-        val filter = DBContas.ContaFilter()
+        val filter = ContaFilter()
         if (text.isNotBlank()) {
             val (categories, classes, types) = resolveSearchIndices(text)
             filter.setNome(text)
@@ -233,6 +235,19 @@ class PesquisaViewModel(application: Application) : AndroidViewModel(application
         _selectedIds.value = emptySet()
     }
 
+    fun togglePagamento(id: Long) {
+        viewModelScope.launch {
+            val conta = repository.getConta(id)
+            if (conta != null) {
+                val newStatus = if (ContasContract.STATUS_PAGO_RECEBIDO == conta.pagamento)
+                    ContasContract.STATUS_PENDENTE
+                else
+                    ContasContract.STATUS_PAGO_RECEBIDO
+                repository.atualizarPagamento(id, newStatus)
+            }
+        }
+    }
+
     fun togglePagamentoSelected() {
         val selected = _selectedIds.value.toList()
         viewModelScope.launch {
@@ -260,17 +275,17 @@ class PesquisaViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun deleteSingle(id: Long, tipoExclusao: DBContas.TipoExclusao) {
+    fun deleteSingle(id: Long, tipoExclusao: TipoExclusao) {
         viewModelScope.launch {
             val conta = repository.getConta(id)
             if (conta != null) {
                 when (tipoExclusao) {
-                    DBContas.TipoExclusao.SOMENTE_ESTA -> repository.excluirConta(id)
-                    DBContas.TipoExclusao.DESTA_EM_DIANTE -> repository.excluirContasRecorrentes(
-                        id, conta.codigo, conta.nRepete, DBContas.TipoExclusao.DESTA_EM_DIANTE
+                    TipoExclusao.SOMENTE_ESTA -> repository.excluirConta(id)
+                    TipoExclusao.DESTA_EM_DIANTE -> repository.excluirContasRecorrentes(
+                        id, conta.codigo, conta.nRepete, TipoExclusao.DESTA_EM_DIANTE
                     )
-                    DBContas.TipoExclusao.TODAS_AS_REPETICOES -> repository.excluirContasRecorrentes(
-                        id, conta.codigo, 1, DBContas.TipoExclusao.TODAS_AS_REPETICOES
+                    TipoExclusao.TODAS_AS_REPETICOES -> repository.excluirContasRecorrentes(
+                        id, conta.codigo, 1, TipoExclusao.TODAS_AS_REPETICOES
                     )
                 }
             }
@@ -279,4 +294,12 @@ class PesquisaViewModel(application: Application) : AndroidViewModel(application
     }
     
     suspend fun getConta(id: Long): Conta? = repository.getConta(id)
+
+    /**
+     * Verifica se uma conta é um registro de Meta (formato [COACH]).
+     */
+    suspend fun isContaMeta(id: Long): Boolean {
+        val conta = repository.getConta(id)
+        return conta?.nome?.startsWith("[COACH]") == true
+    }
 }

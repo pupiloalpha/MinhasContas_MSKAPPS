@@ -30,7 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.msk.minhascontas.R
 import com.msk.minhascontas.db.ContasContract
-import com.msk.minhascontas.db.DBContas.TipoAtualizacao
+import com.msk.minhascontas.db.TipoAtualizacao
+import com.msk.minhascontas.ui.layouts.StandardTopAppBar
 import com.msk.minhascontas.ui.theme.MinhasContasDialogTheme
 import com.msk.minhascontas.utils.LabelUtils
 import com.msk.minhascontas.viewmodel.EditarContaViewModel
@@ -97,13 +98,10 @@ fun EditarContaScreen(
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(if (isBulk) R.string.confirmacao_edicao_massa_titulo else R.string.titulo_editar)) },
-                navigationIcon = {
-                    IconButton(onClick = onCancel) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
+            StandardTopAppBar(
+                title = stringResource(if (isBulk) R.string.confirmacao_edicao_massa_titulo else R.string.titulo_editar),
+                onBackClick = onCancel,
+                containerColor = primaryColor,
                 actions = {
                     IconButton(onClick = {
                         if (isBulk) {
@@ -134,13 +132,7 @@ fun EditarContaScreen(
                     }) {
                         Icon(Icons.Default.Check, contentDescription = null)
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = primaryColor,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
-                )
+                }
             )
         }
     ) { padding ->

@@ -37,6 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.msk.minhascontas.R
 import com.msk.minhascontas.db.Conta
 import com.msk.minhascontas.db.ContasContract
+import com.msk.minhascontas.ui.layouts.StandardTopAppBar
 import com.msk.minhascontas.ui.theme.MinhasContasDialogTheme
 import com.msk.minhascontas.utils.AlertaCalendario
 import com.msk.minhascontas.utils.LabelUtils
@@ -91,13 +92,10 @@ fun CriarContaScreen(
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.titulo_criar)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
+            StandardTopAppBar(
+                title = stringResource(R.string.titulo_criar),
+                onBackClick = onBack,
+                containerColor = primaryColor,
                 actions = {
                     IconButton(onClick = {
                         viewModel.salvar(context) {
@@ -117,13 +115,7 @@ fun CriarContaScreen(
                     }) {
                         Icon(Icons.Default.Check, contentDescription = null)
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = primaryColor,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
-                )
+                }
             )
         }
     ) { padding ->
@@ -405,7 +397,7 @@ fun CriarContaScreen(
 }
 
 @Composable
-private fun TipoContaSelector(
+fun TipoContaSelector(
     selectedType: Int,
     onTypeSelected: (Int) -> Unit
 ) {
