@@ -22,7 +22,7 @@ O <b>Minhas Contas</b> é o seu gerenciador financeiro pessoal completo, projeta
 • <b>Backup Local:</b> Escolha uma pasta segura para salvar cópias do seu banco de dados.<br>
 • <b>Backup Automático:</b> Proteja seus dados gerando uma cópia sempre que o aplicativo for fechado.<br><br>
 
-<b>Versão:</b> 3.9.2<br>
+<b>Versão:</b> 3.10.12<br>
 <b>Desenvolvido por:</b> Paulo E S Mesquita<br>
 <b>Apoio:</b> Flávia Borges<br>
 <b>Contato:</b> mskapps.brazil@gmail.com]
